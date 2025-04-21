@@ -14,6 +14,8 @@ public class User
     
     private string _password { get; set; }
     
+    public bool Admin { get; set; }
+    
     public string Name
     {
         get => _name;
