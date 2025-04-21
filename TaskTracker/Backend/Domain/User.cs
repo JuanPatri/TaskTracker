@@ -33,7 +33,7 @@ public class User
         get => _email;
         set
         {
-            if (value == null) throw new ArgumentException("The email cannot be empty");
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The email cannot be empty");
             _email = value;
         }
         
