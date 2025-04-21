@@ -59,6 +59,10 @@ public class User
     public string Password
     {
         get => _password;
-        set => _password = value;
+        set
+        {
+            if (value == null) throw new ArgumentException("The password format is not correct");
+            _password = value;
+        }
     }
 }
