@@ -35,8 +35,8 @@ public class UserTest
     [TestMethod]
     public void CreateLastNameForUser()
     {
-        _user.ValidateLastName = "Rodriguez";
-        Assert.AreEqual("Rodriguez", _user.ValidateLastName);
+        _user.LastName = "Rodriguez";
+        Assert.AreEqual("Rodriguez", _user.LastName);
     }
     
 }

@@ -16,7 +16,7 @@ public class User
         }
     }
     
-    public string ValidateLastName
+    public string LastName
     {
         get => _lastName;
         set
