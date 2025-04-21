@@ -59,4 +59,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email = null);
         Assert.AreEqual("The email cannot be empty", ex.Message);
     }
+    
+    [TestMethod]
+    public void DontPutAnArrobaInEmail()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email  = "prodriguezgmail.com");
+        Assert.AreEqual("Error in the email format", ex.Message);
+    }
 }
