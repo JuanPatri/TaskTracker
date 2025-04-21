@@ -9,7 +9,7 @@ public class UserTest
     [TestInitialize]
     public void OnInitialize()
     {
-        _user = new User("jua");
+        _user = new User();
     }
     
     [TestMethod]
@@ -21,7 +21,7 @@ public class UserTest
     [TestMethod]
     public void CreateNameForUser()
     {
-        User user2 = new User("Pedro");
-        Assert.AreEqual("Pedro", user2.getName());
+        _user.ValidateName = "Pedro";
+        Assert.AreEqual("Pedro", _user.ValidateName);
     }
 }
