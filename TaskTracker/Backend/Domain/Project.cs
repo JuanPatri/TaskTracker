@@ -1,6 +1,6 @@
 namespace Backend.Domain;
 
-public class Proyect
+public class Project
 {
     private string _name { get; set; }
 
