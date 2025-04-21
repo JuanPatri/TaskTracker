@@ -24,4 +24,11 @@ public class UserTest
         _user.ValidateName = "Pedro";
         Assert.AreEqual("Pedro", _user.ValidateName);
     }
+    
+    [TestMethod]
+    public void IPutNameNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.ValidateName = null);
+        Assert.AreEqual("The username cannot be empty", _user.ValidateName);
+    }
 }
