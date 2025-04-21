@@ -61,7 +61,9 @@ public class User
         get => _password;
         set
         {
+            
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The password format is not correct");
+            
             _password = value;
         }
     }
