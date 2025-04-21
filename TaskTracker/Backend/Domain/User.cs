@@ -61,8 +61,12 @@ public class User
         get => _password;
         set
         {
-            if (string.IsNullOrWhiteSpace(value) || !value.Any(char.IsUpper) || !value.Any(char.IsLower)) throw new ArgumentException("The password format is not correct");
-            if(value.Equals("Pedro1234")) throw new ArgumentException("The password format is not correct");
+            if (string.IsNullOrWhiteSpace(value) || !value.Any(char.IsUpper) || !value.Any(char.IsLower) ||
+                !value.Any(c => char.IsSymbol(c) || char.IsPunctuation(c)))
+            {
+                throw new ArgumentException("The password format is not correct");
+            }
+
             _password = value;
         }
     }
