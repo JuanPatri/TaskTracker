@@ -9,7 +9,7 @@ public class TaskTest
     [TestInitialize]
     public void OnInitialize()
     {
-        _task = new Task();
+        _task = new Task("Tittle For Task");
     }
     
     [TestMethod]
@@ -19,9 +19,10 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void CreateTittleForTask()
+    public void CreateTitleForTask()
     {
-        _task.Tittle = "Tittle For Task";
-        Assert.AreEqual("Tittle For Task", _task.Tittle);
+
+        Task task2 = new Task("Tittle For Task2");
+        Assert.AreEqual("Tittle For Task2", task2.GetTitle());
     }
 }
