@@ -129,4 +129,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "PedroRodriguez@");
         Assert.AreEqual("The password format is not correct", ex.Message);
     }
+    
+    [TestMethod]
+    public void PutPasswordLessThan8CharactersReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "Pe1@");
+        Assert.AreEqual("The password format is not correct", ex.Message);
+    }
 }
