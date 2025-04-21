@@ -49,7 +49,7 @@ public class User
         get => _birthDate;
         set 
         {
-            if (value == default) throw new ArgumentException("The birth date cannot be empty");
+            if (value == default(DateTime)) throw new ArgumentException("The birth date cannot be empty");
             _birthDate = value;
         }
     }
