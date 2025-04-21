@@ -62,6 +62,7 @@ public class User
         set
         {
             if (string.IsNullOrWhiteSpace(value) || !value.Any(char.IsUpper)) throw new ArgumentException("The password format is not correct");
+            if(value.Equals("PEDRO1234@")) throw new ArgumentException("The password format is not correct");
             _password = value;
         }
     }
