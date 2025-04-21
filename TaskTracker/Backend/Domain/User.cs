@@ -3,6 +3,8 @@ namespace Backend.Domain;
 public class User
 {
     private string _name { get; set; }
+    
+    private string _lastName { get; set; }
 
     public string ValidateName
     {
@@ -13,4 +15,14 @@ public class User
             _name = value;
         }
     }
+    
+    public string ValidateLastName
+    {
+        get => _lastName;
+        set
+        {
+            _lastName = value;
+        }
+    }
+
 }

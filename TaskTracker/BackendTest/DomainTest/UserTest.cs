@@ -38,4 +38,5 @@ public class UserTest
         _user.ValidateLastName = "Rodriguez";
         Assert.AreEqual("Rodriguez", _user.ValidateLastName);
     }
+    
 }
