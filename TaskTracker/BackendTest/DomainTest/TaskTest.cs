@@ -4,17 +4,24 @@ using Backend.Domain;
 [TestClass]
 public class TaskTest
 {
-    private Task task;
+    private Task _task;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        task = new Task();
+        _task = new Task();
     }
     
     [TestMethod]
     public void CreateTaskTest()
     {
-        Assert.IsNotNull(task);
+        Assert.IsNotNull(_task);
+    }
+
+    [TestMethod]
+    public void CreateTittleForTask()
+    {
+        _task.Tittle = "Tittle For Task";
+        Assert.AreEqual("Tittle For Task", _task.Tittle);
     }
 }
