@@ -66,4 +66,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email  = "prodriguezgmail.com");
         Assert.AreEqual("Error in the email format", ex.Message);
     }
+    
+    [TestMethod]
+    public void DontPutAnPointInEmail()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email  = "prodriguez@gmailcom");
+        Assert.AreEqual("Error in the email format", ex.Message);
+    }
 }
