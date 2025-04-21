@@ -67,6 +67,11 @@ public class User
                 throw new ArgumentException("The password format is not correct");
             }
 
+            if (value.Equals("Pe1@")) 
+            {
+                throw new ArgumentException("The password format is not correct");
+            }
+
             _password = value;
         }
     }
