@@ -31,4 +31,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.ValidateName = null);
         Assert.AreEqual("The username cannot be empty", ex.Message);
     }
+    
+    [TestMethod]
+    public void CreateLastNameForUser()
+    {
+        _user.ValidateLastName = "Rodriguez";
+        Assert.AreEqual("Rodriguez", _user.ValidateLastName);
+    }
 }
