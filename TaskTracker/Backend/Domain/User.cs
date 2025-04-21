@@ -62,11 +62,10 @@ public class User
         set
         {
             if (string.IsNullOrWhiteSpace(value) || !value.Any(char.IsUpper) || !value.Any(char.IsLower) ||
-                !value.Any(c => char.IsSymbol(c) || char.IsPunctuation(c)))
+                !value.Any(c => char.IsSymbol(c) || char.IsPunctuation(c)) || !value.Any(char.IsNumber) )
             {
                 throw new ArgumentException("The password format is not correct");
             }
-            if(value.Equals("PedroRodriguez@")) throw new ArgumentException("The password format is not correct");
 
             _password = value;
         }
