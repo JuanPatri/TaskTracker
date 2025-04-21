@@ -28,6 +28,6 @@ public class ProjectTest
     public void IPutNameNullReturnsAnException()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.ValidateName = null);
-        Assert.AreEqual("The projectname cannot be empty", _project.ValidateName);
+        Assert.AreEqual("The project name cannot be empty", ex.Message);
     }
 }
