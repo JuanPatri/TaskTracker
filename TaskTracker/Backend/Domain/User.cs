@@ -21,6 +21,7 @@ public class User
         get => _lastName;
         set
         {
+            if(value == null) throw new ArgumentException("The user last name cannot be empty");
             _lastName = value;
         }
     }
