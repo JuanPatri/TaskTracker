@@ -26,7 +26,7 @@ public class UserTest
     }
     
     [TestMethod]
-    public void IPutNameNullReturnsAnException()
+    public void PutNameNullReturnsAnException()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Name = null);
         Assert.AreEqual("The username cannot be empty", ex.Message);
@@ -39,4 +39,10 @@ public class UserTest
         Assert.AreEqual("Rodriguez", _user.LastName);
     }
     
+    [TestMethod]
+    public void PutLastNameNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.LastName = null);
+        Assert.AreEqual("The user last name cannot be empty", ex.Message);
+    }
 }
