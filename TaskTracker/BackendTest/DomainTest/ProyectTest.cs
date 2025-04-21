@@ -8,7 +8,7 @@ public class ProyectTest
     [TestInitialize]
     public void OnInitialize()
     {
-        _proyect = new Proyect("Proyect1");
+        _proyect = new Proyect();
     }
     
     [TestMethod]
@@ -20,7 +20,7 @@ public class ProyectTest
     [TestMethod]
     public void CreateNameForProyect()
     {
-        Proyect proyect2 = new Proyect("Proyect1");
-        Assert.AreEqual("Proyect1", proyect2.getName());
+        _proyect.ValidateName = "Proyect1";
+        Assert.AreEqual("Proyect1", _proyect.ValidateName);
     }
 }

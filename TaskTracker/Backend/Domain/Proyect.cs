@@ -4,10 +4,9 @@ public class Proyect
 {
     private string _name { get; set; }
 
-    public Proyect(string name)
+    public string ValidateName
     {
-        _name = name;
+      get => _name;  
+      set => _name = value;
     }
-    
-    public string getName() => _name;
 }
