@@ -4,24 +4,24 @@ using Backend.Domain;
 [TestClass]
 public class UserTest
 {
-    private User user;
+    private User _user;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        user = new User();
+        _user = new User("jua");
     }
     
     [TestMethod]
     public void CreateUser()
     {
-        Assert.IsNotNull(user);
+        Assert.IsNotNull(_user);
     }
     
     [TestMethod]
     public void CreateNameForUser()
     {
-        user.name = "Pedro";
-        Assert.AreEqual("Pedro", user.name);
+        User user2 = new User("Pedro");
+        Assert.AreEqual("Pedro", user2.getName());
     }
 }
