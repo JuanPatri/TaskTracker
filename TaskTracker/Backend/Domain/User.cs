@@ -34,6 +34,7 @@ public class User
         set
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The email cannot be empty");
+            if (!value.Contains("@")) throw new ArgumentException("Error in the email format");
             _email = value;
         }
         
