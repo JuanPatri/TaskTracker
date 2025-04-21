@@ -1,3 +1,4 @@
+using Backend.Domain;
 namespace BackendTest.DomainTest;
 
 [TestClass]
