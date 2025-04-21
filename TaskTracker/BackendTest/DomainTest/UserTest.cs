@@ -45,4 +45,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.LastName = null);
         Assert.AreEqual("The user last name cannot be empty", ex.Message);
     }
+    
+    [TestMethod]
+    public void AddEmailToUser()
+    {
+        _user.Email = "prodriguez@gmail.com";
+        Assert.AreEqual("prodriguez@gmail.com", _user.Email);
+    }
 }
