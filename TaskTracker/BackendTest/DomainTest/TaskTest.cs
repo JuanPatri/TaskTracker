@@ -29,6 +29,6 @@ public class TaskTest
     public void IPutTitleNullReturnsAnException()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateTitle = null);
-        Assert.AreEqual("The title name cannot be empty", _task.ValidateTitle);
+        Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
 }

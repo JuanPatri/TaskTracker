@@ -7,7 +7,11 @@ public class Task
     public string ValidateTitle
     {
         get => _title;
-        set => _title = value;
+        set
+        {
+            if (value == null) throw new ArgumentException("The title name cannot be empty");
+            _title = value;
+        }
     }
     
 }
