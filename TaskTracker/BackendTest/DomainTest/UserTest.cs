@@ -18,4 +18,10 @@ public class UserTest
         Assert.IsNotNull(user);
     }
     
+    [TestMethod]
+    public void CreateNameForUser()
+    {
+        user.name = "Pedro";
+        Assert.AreEqual("Pedro", user.name);
+    }
 }
