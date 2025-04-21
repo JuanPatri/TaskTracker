@@ -23,4 +23,11 @@ public class ProyectTest
         _proyect.ValidateName = "Proyect1";
         Assert.AreEqual("Proyect1", _proyect.ValidateName);
     }
+    
+    [TestMethod]
+    public void IPutNameNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _proyect.ValidateName = null);
+        Assert.AreEqual("The proyectname cannot be empty", _proyect.ValidateName);
+    }
 }
