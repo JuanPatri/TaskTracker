@@ -63,7 +63,7 @@ public class User
         {
             
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The password format is not correct");
-            
+            if(!value.Any(char.IsUpper)) throw new ArgumentException("The password format is not correct");
             _password = value;
         }
     }

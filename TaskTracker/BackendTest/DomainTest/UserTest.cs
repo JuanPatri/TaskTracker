@@ -103,7 +103,7 @@ public class UserTest
     }
     
     [TestMethod]
-    public void PutPasswordWhithoutUpperCaseReturnsAnException()
+    public void PutPasswordWithoutUpperCaseReturnsAnException()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "pedro1234@");
         Assert.AreEqual("The password format is not correct", ex.Message);
