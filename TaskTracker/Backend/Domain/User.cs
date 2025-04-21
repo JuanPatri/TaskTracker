@@ -36,8 +36,7 @@ public class User
         set
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The email cannot be empty");
-            if (!value.Contains(".")) throw new ArgumentException("Error in the email format");  
-            if (!Regex.IsMatch(value, "@")) throw new ArgumentException("Error in the email format");
+            if (!Regex.IsMatch(value, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) throw new ArgumentException("Error in the email format");
             _email = value;
         }
         
