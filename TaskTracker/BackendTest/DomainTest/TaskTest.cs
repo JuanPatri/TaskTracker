@@ -21,8 +21,8 @@ public class TaskTest
     [TestMethod]
     public void CreateTitleForTask()
     {
-        _task.ValidateTitle = "Tittle2";
-        Assert.AreEqual("Tittle2", _task.ValidateTitle);
+        _task.ValidateTitle = "Title2";
+        Assert.AreEqual("Title2", _task.ValidateTitle);
     }
 
     [TestMethod]
