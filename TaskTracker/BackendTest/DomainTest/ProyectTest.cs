@@ -4,16 +4,23 @@ namespace BackendTest.DomainTest;
 [TestClass]
 public class ProyectTest
 {
-    private Proyect proyect;
+    private Proyect _proyect;
     [TestInitialize]
     public void OnInitialize()
     {
-        proyect = new Proyect();
+        _proyect = new Proyect();
     }
     
     [TestMethod]
     public void CreateProyect()
     {
-        Assert.IsNotNull(proyect);
+        Assert.IsNotNull(_proyect);
+    }
+    
+    [TestMethod]
+    public void CreateNameForProyect()
+    {
+        _proyect.Name = "Proyect1";
+        Assert.AreEqual("Proyect1", _proyect.Name);
     }
 }
