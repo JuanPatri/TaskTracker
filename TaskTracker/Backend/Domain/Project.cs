@@ -9,7 +9,7 @@ public class Project
       get => _name;  
       set
       {
-          if (value == null) throw new ArgumentException("The project name cannot be empty");
+          if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The project name cannot be empty");
           _name = value;
       }
     }
