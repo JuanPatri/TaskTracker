@@ -10,7 +10,8 @@ public class User
     
     private string _email { get; set; }
 
-
+    private DateTime _birthDate { get; set; }
+    
     public string Name
     {
         get => _name;
@@ -42,4 +43,10 @@ public class User
         }
         
     } 
+    
+    public DateTime BirthDate
+    {
+        get => _birthDate;
+        set => _birthDate = value;
+    }
 }
