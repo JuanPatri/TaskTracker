@@ -4,9 +4,18 @@ using Backend.Domain;
 [TestClass]
 public class UserTest
 {
-    [TestMethod]
-    public void CreateUserTest()
+    private User user;
+    
+    [TestInitialize]
+    public void OnInitialize()
     {
-        User user = new User();
+        user = new User();
     }
+    
+    [TestMethod]
+    public void CreateUser()
+    {
+        Assert.IsNotNull(user);
+    }
+    
 }
