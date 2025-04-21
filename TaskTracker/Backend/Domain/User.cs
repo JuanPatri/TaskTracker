@@ -12,6 +12,8 @@ public class User
 
     private DateTime _birthDate { get; set; }
     
+    private string _password { get; set; }
+    
     public string Name
     {
         get => _name;
@@ -52,5 +54,11 @@ public class User
             if (value == default(DateTime)) throw new ArgumentException("The birth date cannot be empty");
             _birthDate = value;
         }
+    }
+    
+    public string Password
+    {
+        get => _password;
+        set => _password = value;
     }
 }

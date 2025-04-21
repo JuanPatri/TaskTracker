@@ -91,7 +91,7 @@ public class UserTest
     [TestMethod]
     public void addPasswordToUser()
     {
-        _user.Password = "Ana1234@";
-        Assert.AreEqual("Ana1234@", _user.Password);
+        _user.Password = "Pedro1234@";
+        Assert.AreEqual("Pedro1234@", _user.Password);
     }
 }
