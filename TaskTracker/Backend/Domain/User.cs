@@ -7,6 +7,10 @@ public class User
     public string ValidateName
     {
         get => _name;
-        set => _name = value;
+        set
+        {
+            if (value == null) throw new ArgumentException("The username cannot be empty");
+            _name = value;
+        }
     }
 }
