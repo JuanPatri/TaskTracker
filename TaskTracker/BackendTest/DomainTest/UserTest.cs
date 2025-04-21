@@ -116,5 +116,11 @@ public class UserTest
         Assert.AreEqual("The password format is not correct", ex.Message);
     }
     
+    [TestMethod]
+    public void PutPasswordWithoutSpecialCharacterReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "Pedro1234");
+        Assert.AreEqual("The password format is not correct", ex.Message);
+    }
     
 }
