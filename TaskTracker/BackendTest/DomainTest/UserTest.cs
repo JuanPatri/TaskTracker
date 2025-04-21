@@ -87,4 +87,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.BirthDate = default);
         Assert.AreEqual("The birth date cannot be empty", ex.Message);
     }
+
+    [TestMethod]
+    public void addPasswordToUser()
+    {
+        _user.Password = "Ana1234@";
+        Assert.AreEqual("Ana1234@", _user.Password);
+    }
 }
