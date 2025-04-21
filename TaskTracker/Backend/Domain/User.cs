@@ -31,7 +31,11 @@ public class User
     public string Email
     {
         get => _email;
-        set => _email = value;
+        set
+        {
+            if (value == null) throw new ArgumentException("The email cannot be empty");
+            _email = value;
+        }
         
     } 
 }

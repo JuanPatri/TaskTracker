@@ -56,7 +56,7 @@ public class UserTest
     [TestMethod]
     public void PutEmailNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.LastName = null);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email = null);
         Assert.AreEqual("The email cannot be empty", ex.Message);
     }
 }
