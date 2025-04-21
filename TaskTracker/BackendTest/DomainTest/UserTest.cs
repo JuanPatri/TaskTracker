@@ -73,4 +73,11 @@ public class UserTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email  = "prodriguez@gmailcom");
         Assert.AreEqual("Error in the email format", ex.Message);
     }
+    [TestMethod]
+    public void AddBirthDateToUser()
+    {
+        DateTime fecha = new DateTime(2003, 03, 14);
+        _user.BirthDate = fecha;
+        Assert.AreEqual(fecha, _user.BirthDate);
+    }
 }
