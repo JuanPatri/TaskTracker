@@ -6,7 +6,7 @@ public class User
     
     private string _lastName { get; set; }
 
-    public string ValidateName
+    public string Name
     {
         get => _name;
         set

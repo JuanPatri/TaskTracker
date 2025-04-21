@@ -21,14 +21,14 @@ public class UserTest
     [TestMethod]
     public void CreateNameForUser()
     {
-        _user.ValidateName = "Pedro";
-        Assert.AreEqual("Pedro", _user.ValidateName);
+        _user.Name = "Pedro";
+        Assert.AreEqual("Pedro", _user.Name);
     }
     
     [TestMethod]
     public void IPutNameNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.ValidateName = null);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Name = null);
         Assert.AreEqual("The username cannot be empty", ex.Message);
     }
     
