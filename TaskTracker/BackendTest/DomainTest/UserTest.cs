@@ -52,4 +52,11 @@ public class UserTest
         _user.Email = "prodriguez@gmail.com";
         Assert.AreEqual("prodriguez@gmail.com", _user.Email);
     }
+    
+    [TestMethod]
+    public void PutEmailNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.LastName = null);
+        Assert.AreEqual("The email cannot be empty", ex.Message);
+    }
 }
