@@ -94,4 +94,11 @@ public class UserTest
         _user.Password = "Pedro1234@";
         Assert.AreEqual("Pedro1234@", _user.Password);
     }
+    
+    [TestMethod]
+    public void PutPasswordNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = null);
+        Assert.AreEqual("The password format is not correct", ex.Message);
+    }
 }
