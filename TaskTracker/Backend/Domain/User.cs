@@ -5,6 +5,8 @@ public class User
     private string _name { get; set; }
     
     private string _lastName { get; set; }
+    
+    private string _email { get; set; }
 
     public string Name
     {
@@ -26,4 +28,10 @@ public class User
         }
     }
 
+    public string Email
+    {
+        get => _email;
+        set => _email = value;
+        
+    } 
 }
