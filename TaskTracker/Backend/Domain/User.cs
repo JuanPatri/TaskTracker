@@ -9,7 +9,7 @@ public class User
         get => _name;
         set
         {
-            if (value == null) throw new ArgumentException("The username cannot be empty");
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The username cannot be empty");
             _name = value;
         }
     }
