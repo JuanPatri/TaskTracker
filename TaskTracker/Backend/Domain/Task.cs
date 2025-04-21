@@ -4,10 +4,10 @@ public class Task
 {
     private string _title { get; set; }
 
-    public Task(string title)
+    public string ValidateTitle
     {
-        _title = title;
+        get => _title;
+        set => _title = value;
     }
-
-    public string GetTitle() => _title;
+    
 }
