@@ -9,7 +9,7 @@ public class Task
         get => _title;
         set
         {
-            if (value == null) throw new ArgumentException("The title name cannot be empty");
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The title name cannot be empty");
             _title = value;
         }
     }
