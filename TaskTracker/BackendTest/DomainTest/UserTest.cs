@@ -80,4 +80,11 @@ public class UserTest
         _user.BirthDate = fecha;
         Assert.AreEqual(fecha, _user.BirthDate);
     }
+    
+    [TestMethod]
+    public void PutBirthDateNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.BirthDate = default);
+        Assert.AreEqual("The birth date cannot be empty", ex.Message);
+    }
 }
