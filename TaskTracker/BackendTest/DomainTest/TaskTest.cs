@@ -4,9 +4,17 @@ using Backend.Domain;
 [TestClass]
 public class TaskTest
 {
+    private Task task;
+
+    [TestInitialize]
+    public void OnInitialize()
+    {
+        task = new Task();
+    }
+    
     [TestMethod]
     public void CreateTaskTest()
     {
-        Task task = new Task();
+        Assert.IsNotNull(task);
     }
 }
