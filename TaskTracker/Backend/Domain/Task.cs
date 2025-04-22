@@ -31,9 +31,6 @@ public class Task
     public TimeSpan ValidateDurationTask
     {
         get => _durationTask;
-        set
-        {
-            _durationTask = value;
-        }
+        set => _durationTask = value;
     }
 }
