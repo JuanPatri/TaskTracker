@@ -40,7 +40,7 @@ public class TaskTest
     }
     
     [TestMethod]
-    public void IPutDateForTask()
+    public void CreateDateForTask()
     {    
         DateOnly testDate = new DateOnly(2025, 4, 22);
         _task.ValidateDate = testDate;
@@ -56,4 +56,6 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateDate = futureDate);
         Assert.AreEqual("The date cannot be in the future.", ex.Message);
     }
+    
+
 }
