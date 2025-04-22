@@ -38,4 +38,13 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateTitle = " ");
         Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
+    
+    [TestMethod]
+    public void IPutDateForTask()
+    {
+        var expectedDate = DateTime.Now;
+        _task.Date = DateTime.Now;
+        
+        Assert.IsTrue(Math.Abs((expectedDate - _task.Date).TotalSeconds) < 1);
+    }
 }
