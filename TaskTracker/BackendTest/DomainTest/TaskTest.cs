@@ -56,6 +56,14 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateDate = futureDate);
         Assert.AreEqual("The date cannot be in the future.", ex.Message);
     }
-    
+
+    [TestMethod]
+    public void SetDurationForTask()
+    {
+        TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);;
+        _task.ValidateDurationTask = durationTask;
+        
+        Assert.AreEqual(durationTask, _task.ValidateDurationTask);
+    }
 
 }
