@@ -65,5 +65,11 @@ public class TaskTest
         
         Assert.AreEqual(durationTask, _task.ValidateDurationTask);
     }
-
+    
+    [TestMethod]
+    public void SetStatusForTask()
+    {
+        _task.ValidateStatus = TaskStatus.Pending;
+        Assert.AreEqual(TaskStatus.Pending, _task.ValidateStatus);
+    }
 }
