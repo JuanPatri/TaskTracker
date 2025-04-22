@@ -30,4 +30,11 @@ public class ProjectTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.ValidateName = null);
         Assert.AreEqual("The project name cannot be empty", ex.Message);
     }
+    
+    [TestMethod]
+    public void CreateDescriptionForProject()
+    {
+        _project.ValidateDescription = "Project1 Description";
+        Assert.AreEqual("Project1 Description", _project.ValidateDescription);
+    }
 }
