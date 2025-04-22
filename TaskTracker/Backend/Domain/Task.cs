@@ -4,7 +4,7 @@ public class Task
 {
     private string _title { get; set; }
     private DateOnly _date { get; set; }
-
+    private TimeSpan _durationTask { get; set; }
     public string ValidateTitle
     {
         get => _title;
@@ -25,6 +25,15 @@ public class Task
                 throw new ArgumentException("The date cannot be in the future.");
             
             _date = value;
+        }
+    }
+
+    public TimeSpan ValidateDurationTask
+    {
+        get => _durationTask;
+        set
+        {
+            _durationTask = value;
         }
     }
 }
