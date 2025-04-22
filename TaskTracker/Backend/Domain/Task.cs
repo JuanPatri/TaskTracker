@@ -18,10 +18,6 @@ public class Task
     public DateOnly ValidateDate
     {
         get => _date;
-        set
-        {
-            _date = value;
-
-        }
+        set => _date = value;
     }
 }
