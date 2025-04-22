@@ -18,6 +18,12 @@ public class Task
     public DateOnly ValidateDate
     {
         get => _date;
-        set => _date = value;
+        set
+        {
+            if (value > DateOnly.FromDateTime(DateTime.Now))
+                throw new ArgumentException("The date cannot be in the future.");
+            
+            _date = value;
+        }
     }
 }
