@@ -1,5 +1,6 @@
 ﻿namespace BackendTest.DomainTest;
 using Backend.Domain;
+using Backend.Domain.Enums;
 
 [TestClass]
 public class TaskTest
@@ -69,7 +70,8 @@ public class TaskTest
     [TestMethod]
     public void SetStatusForTask()
     {
-        _task.ValidateStatus = TaskStatus.Pending;
-        Assert.AreEqual(TaskStatus.Pending, _task.ValidateStatus);
+        _task.ValidateStatus = Status.Pending;
+        Assert.AreEqual(Status.Pending, _task.ValidateStatus);
     }
+
 }
