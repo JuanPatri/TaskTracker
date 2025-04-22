@@ -47,4 +47,13 @@ public class TaskTest
         
         Assert.AreEqual(testDate, _task.ValidateDate);
     }
+
+    [TestMethod]
+    public void ISetDateWithFutureDateThrowsArgumentException()
+    {
+        DateOnly futureDate = new DateOnly(2026, 4, 22);
+
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateDate = futureDate);
+        Assert.AreEqual("The date cannot be in the future.", ex.Message);
+    }
 }
