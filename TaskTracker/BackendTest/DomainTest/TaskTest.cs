@@ -41,10 +41,10 @@ public class TaskTest
     
     [TestMethod]
     public void IPutDateForTask()
-    {
-        var expectedDate = DateTime.Now;
-        _task.Date = DateTime.Now;
+    {    
+        DateOnly testDate = new DateOnly(2025, 4, 22);
+        _task.ValidateDate = testDate;
         
-        Assert.IsTrue(Math.Abs((expectedDate - _task.Date).TotalSeconds) < 1);
+        Assert.AreEqual(testDate, _task.ValidateDate);
     }
 }

@@ -3,6 +3,7 @@
 public class Task
 {
     private string _title { get; set; }
+    private DateOnly _date { get; set; }
 
     public string ValidateTitle
     {
@@ -13,5 +14,14 @@ public class Task
             _title = value;
         }
     }
-    
+
+    public DateOnly ValidateDate
+    {
+        get => _date;
+        set
+        {
+            _date = value;
+
+        }
+    }
 }
