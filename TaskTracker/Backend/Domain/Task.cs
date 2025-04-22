@@ -20,7 +20,8 @@ public class Task
         get => _date;
         set
         {
-            if (value > DateOnly.FromDateTime(DateTime.Now))
+            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
+            if (value > today)
                 throw new ArgumentException("The date cannot be in the future.");
             
             _date = value;
