@@ -38,9 +38,6 @@ public class Task
     public Status ValidateStatus
     {
         get => _status;
-        set
-        {
-            _status = value;
-        }
+        set => _status = value;
     }
 }
