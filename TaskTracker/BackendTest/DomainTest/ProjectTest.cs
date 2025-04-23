@@ -37,4 +37,11 @@ public class ProjectTest
         _project.Description = "Project1 Description";
         Assert.AreEqual("Project1 Description", _project.Description);
     }
+    
+    [TestMethod]
+    public void PutDescriptionNullReturnsAnExceptionTest()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.Description = null);
+        Assert.AreEqual("The project description cannot be empty", ex.Message);
+    }
 }
