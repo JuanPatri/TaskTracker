@@ -18,9 +18,10 @@ public class Project
     public string Description
     {
         get => _description;
-        set 
+        set
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The project description cannot be empty");
+            if (value.Length > 400) throw new ArgumentException("The project description cannot exceed 400 characters");
             _description = value;
         }
     }
