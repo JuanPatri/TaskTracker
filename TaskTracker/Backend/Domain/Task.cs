@@ -1,11 +1,12 @@
 ﻿namespace Backend.Domain;
-using Backend.Domain.Enums;
+using Enums;
 public class Task
 {
-    private string _title { get; set; }
-    private DateOnly _date { get; set; }
-    private TimeSpan _durationTask { get; set; }
-    private Status _status { get; set; }
+    private string _title;
+    private DateOnly _date;
+    private TimeSpan _durationTask;
+    private Status _status;
+    
     public string ValidateTitle
     {
         get => _title;
