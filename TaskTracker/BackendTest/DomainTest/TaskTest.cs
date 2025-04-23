@@ -91,6 +91,14 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateEarliestStartDate = pastDate);
         Assert.AreEqual("The date cannot be in the past.", ex.Message);
     }
-    
+
+    [TestMethod]
+    public void SetEarliestEndDateForTask()
+    {
+        DateTime earlistEndDate = new DateTime(2026, 4, 22, 5, 30, 0);
+        _task.ValidateEarliestEndDate = earlistEndDate;
+        
+        Assert.AreEqual(earlistEndDate, _task.ValidateEarliestEndDate);
+    }
 
 }
