@@ -60,7 +60,13 @@ public class Task
     public DateTime ValidateEarliestEndDate
     {
         get => _earliestEndDate;
-        set => _earliestEndDate = value;
+        set
+        {
+            DateTime today = DateTime.Now;
+            if (value < today)
+                throw new ArgumentException("The date cannot be in the past.");
+            _earliestEndDate = value;
+        }
         
     }
     
