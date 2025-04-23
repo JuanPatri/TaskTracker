@@ -12,27 +12,27 @@ public class ProjectTest
     }
     
     [TestMethod]
-    public void CreateProject()
+    public void CreateProjectTest()
     {
         Assert.IsNotNull(_project);
     }
     
     [TestMethod]
-    public void AddNameForProject()
+    public void AddNameForProjectTest()
     {
         _project.Name = "Project1";
         Assert.AreEqual("Project1", _project.Name);
     }
     
     [TestMethod]
-    public void IPutNameNullReturnsAnException()
+    public void IPutNameNullReturnsAnExceptionTest()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.Name = null);
         Assert.AreEqual("The project name cannot be empty", ex.Message);
     }
     
     [TestMethod]
-    public void AddDescriptionForProject()
+    public void AddDescriptionForProjectTest()
     {
         _project.Description = "Project1 Description";
         Assert.AreEqual("Project1 Description", _project.Description);
