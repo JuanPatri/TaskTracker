@@ -44,4 +44,12 @@ public class ProjectTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.Description = null);
         Assert.AreEqual("The project description cannot be empty", ex.Message);
     }
+    
+    [TestMethod]
+    public void PutDescriptionWithMoreThan400CharsReturnsAnExceptionTest()
+    {
+        string longDescription = new string('a', 401);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.Description = longDescription);
+        Assert.AreEqual("The project description cannot exceed 400 characters", ex.Message);
+    }
 }
