@@ -46,10 +46,7 @@ public class Task
     public DateTime ValidateEarliestStartDate
     {
         get => _earliestStartDate;
-        set
-        {
-            _earliestStartDate = value;
-        }
+        set => _earliestStartDate = value;
     }
     
     }
