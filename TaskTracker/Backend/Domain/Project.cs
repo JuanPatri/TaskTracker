@@ -5,6 +5,7 @@ public class Project
     private string _name;
     private string _description;
 
+    private const int MaxDescriptionLength = 400;
     public string Name
     {
       get => _name;  
@@ -21,7 +22,7 @@ public class Project
         set
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The project description cannot be empty");
-            if (value.Length > 400) throw new ArgumentException("The project description cannot exceed 400 characters");
+            if (value.Length > MaxDescriptionLength) throw new ArgumentException("The project description cannot exceed 400 characters");
             _description = value;
         }
     }
