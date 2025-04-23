@@ -78,9 +78,19 @@ public class TaskTest
     [TestMethod]
     public void SetEarliestStartDateForTask()
     {
-        DateTime earlistStartDate = new DateTime();
+        DateTime earlistStartDate = new DateTime(2026, 4, 22, 5, 30, 0);
         _task.ValidateEarliestStartDate = earlistStartDate;
         Assert.AreEqual(earlistStartDate, _task.ValidateEarliestStartDate);
     }
+
+    [TestMethod] 
+    public void ISetEarliestStartDateThrowsArgumentExceptionForPastDate()
+    {
+        DateTime pastDate = new DateTime(2024, 4, 22, 5, 30, 0);
+        
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateEarliestStartDate = pastDate);
+        Assert.AreEqual("The date cannot be in the past.", ex.Message);
+    }
+    
 
 }
