@@ -7,6 +7,7 @@ public class Task
     private TimeSpan _durationTask;
     private Status _status;
     private DateTime _earliestStartDate;
+    private DateTime _earliestEndDate;
     
     public string ValidateTitle
     {
@@ -54,6 +55,15 @@ public class Task
             
             _earliestStartDate = value;
         } 
+    }
+
+    public DateTime ValidateEarliestEndDate
+    {
+        get => _earliestEndDate;
+        set
+        {
+            _earliestEndDate = value;
+        }
     }
     
     }
