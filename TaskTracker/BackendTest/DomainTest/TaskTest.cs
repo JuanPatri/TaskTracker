@@ -74,4 +74,12 @@ public class TaskTest
         Assert.AreEqual(Status.Pending, _task.ValidateStatus);
     }
 
+
+    [TestMethod]
+    public void SetEarliestStartDateForTask()
+    {
+        DateTime earlistStartDate = new DateTime();
+        Assert.AreEqual(earlistStartDate, ValidateEarliestStartDate);
+    }
+
 }
