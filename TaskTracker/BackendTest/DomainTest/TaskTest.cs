@@ -79,7 +79,8 @@ public class TaskTest
     public void SetEarliestStartDateForTask()
     {
         DateTime earlistStartDate = new DateTime();
-        Assert.AreEqual(earlistStartDate, ValidateEarliestStartDate);
+        _task.ValidateEarliestStartDate = earlistStartDate;
+        Assert.AreEqual(earlistStartDate, _task.ValidateEarliestStartDate);
     }
 
 }
