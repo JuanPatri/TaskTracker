@@ -18,7 +18,11 @@ public class Project
     public string Description
     {
         get => _description;
-        set => _description = value;
+        set 
+        {
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The project description cannot be empty");
+            _description = value;
+        }
     }
     
 }
