@@ -2,7 +2,7 @@ namespace Backend.Domain;
 
 public class Project
 {
-    private string _name { get; set; }
+    private string _name;
 
     public string ValidateName
     {
@@ -13,6 +13,5 @@ public class Project
           _name = value;
       }
     }
-    
     
 }

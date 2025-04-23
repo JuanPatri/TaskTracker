@@ -34,7 +34,7 @@ public class ProjectTest
     [TestMethod]
     public void CreateDescriptionForProject()
     {
-        _project.ValidateDescription = "Project1 Description";
-        Assert.AreEqual("Project1 Description", _project.ValidateDescription);
+        _project.Description = "Project1 Description";
+        Assert.AreEqual("Project1 Description", _project.Description);
     }
 }
