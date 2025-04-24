@@ -5,6 +5,7 @@ public class Project
     private string _name;
     private string _description;
     private DateTime _startDate;
+    private DateTime _finishDate;
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -35,5 +36,11 @@ public class Project
             if (value < DateTime.Now) throw new ArgumentException("The project start date cannot be in the past");
             _startDate = value;
         }
+    }
+    
+    public DateTime FinishDate 
+    {
+        get => _finishDate;
+        set => _finishDate = value;
     }
 }
