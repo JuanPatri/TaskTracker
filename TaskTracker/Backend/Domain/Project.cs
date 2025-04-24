@@ -30,6 +30,10 @@ public class Project
     public DateTime StartDate 
     {
         get => _startDate;
-        set => _startDate = value;
+        set 
+        {
+            if (value < DateTime.Now) throw new ArgumentException("The project start date cannot be in the past");
+            _startDate = value;
+        }
     }
 }

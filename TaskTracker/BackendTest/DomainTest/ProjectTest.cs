@@ -55,7 +55,7 @@ public class ProjectTest
     [TestMethod]
     public void AddStartDateForProjectTest()
     {
-        DateTime startDate = DateTime.Now;
+        DateTime startDate = DateTime.Now.AddDays(1);
         _project.StartDate = startDate;
         Assert.AreEqual(startDate, _project.StartDate);
     }
