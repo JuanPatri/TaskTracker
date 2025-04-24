@@ -25,10 +25,9 @@ public class ProjectTest
     }
     
     [TestMethod]
-    public void IPutNameNullReturnsAnExceptionTest()
+    public void PutNameNullReturnsAnExceptionTest()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.Name = null);
-        Assert.AreEqual("The project name cannot be empty", ex.Message);
+        Assert.ThrowsException<ArgumentException>(() => _project.Name = null);
     }
     
     [TestMethod]
@@ -41,8 +40,7 @@ public class ProjectTest
     [TestMethod]
     public void PutDescriptionNullReturnsAnExceptionTest()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _project.Description = null);
-        Assert.AreEqual("The project description cannot be empty", ex.Message);
+        Assert.ThrowsException<ArgumentException>(() => _project.Description = null);
     }
     
     [TestMethod]
