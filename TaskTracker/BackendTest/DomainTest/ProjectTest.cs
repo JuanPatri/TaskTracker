@@ -66,4 +66,12 @@ public class ProjectTest
         DateTime pastDate = DateTime.Now.AddDays(-1);
         Assert.ThrowsException<ArgumentException>(() => _project.StartDate = pastDate);
     }
+
+    [TestMethod]
+    public void AddFinishDateForProjectTest()
+    {
+        DateTime finishDate = DateTime.Now.AddDays(5);
+        _project.FinishDate = finishDate;
+        Assert.AreEqual(finishDate, _project.FinishDate);
+    }
 }
