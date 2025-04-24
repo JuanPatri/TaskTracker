@@ -7,8 +7,6 @@ public class Task
     private DateOnly _date = DateOnly.FromDateTime(DateTime.Now);
     private TimeSpan _durationTask;
     private Status _status = Status.Pending;
-    private DateTime _earliestStartDate;
-    private DateTime _earliestEndDate;
     private Project _project;
     private List<Task> _dependencies = new List<Task>();
 
@@ -51,33 +49,6 @@ public class Task
         get => _status;
         set => _status = value;
     }
-    
-    public DateTime EarliestStartDate
-    {
-        get => _earliestStartDate;
-        set
-        {
-            DateTime today = DateTime.Now;
-            if (value < today)
-                throw new ArgumentException("The date cannot be in the past.");
-            
-            _earliestStartDate = value;
-        } 
-    }
-
-    public DateTime EarliestEndDate
-    {
-        get => _earliestEndDate;
-        set
-        {
-            DateTime today = DateTime.Now;
-            if (value < today)
-                throw new ArgumentException("The date cannot be in the past.");
-            _earliestEndDate = value;
-        }
-        
-    }
-
     public Project Project
     {
         get => _project;

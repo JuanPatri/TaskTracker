@@ -82,44 +82,7 @@ public class TaskTest
         _task.Status = Status.Pending;
         Assert.AreEqual(Status.Pending, _task.Status);
     }
-
-
-    [TestMethod]
-    public void SetEarliestStartDateForTaskTest()
-    {
-        DateTime earlistStartDate = new DateTime(2026, 4, 22, 5, 30, 0);
-        _task.EarliestStartDate = earlistStartDate;
-        Assert.AreEqual(earlistStartDate, _task.EarliestStartDate);
-    }
-
-    [TestMethod]
-    public void SetEarliestStartDateThrowsArgumentExceptionForPastDate()
-    {
-        DateTime pastDate = new DateTime(2024, 4, 22, 5, 30, 0);
-
-        ArgumentException ex =
-            Assert.ThrowsException<ArgumentException>(() => _task.EarliestStartDate = pastDate);
-        Assert.AreEqual("The date cannot be in the past.", ex.Message);
-    }
-
-    [TestMethod]
-    public void SetEarliestEndDateForTaskTest()
-    {
-        DateTime earlistEndDate = new DateTime(2026, 4, 22, 5, 30, 0);
-        _task.EarliestEndDate = earlistEndDate;
-
-        Assert.AreEqual(earlistEndDate, _task.EarliestEndDate);
-    }
-
-    [TestMethod]
-    public void SetEarliestEndDateThrowsArgumentExceptionForPastDate()
-    {
-        DateTime pastDate = new DateTime(2024, 4, 22, 5, 30, 0);
-
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.EarliestEndDate = pastDate);
-        Assert.AreEqual("The date cannot be in the past.", ex.Message);
-    }
-
+    
     [TestMethod]
     public void SetProjectForTaskTest()
     {
