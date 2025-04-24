@@ -44,9 +44,8 @@ public class TaskTest
     [TestMethod]
     public void CreateDescrptionForTaskTest()
     {
-        string description = "Description";
-        _task.Description = description;
-        Assert.AreEqual(description, _task.Description);
+        _task.Description = "Description";
+        Assert.AreEqual("Description", _task.Description);
     }
 
     [TestMethod]
