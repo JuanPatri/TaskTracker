@@ -9,6 +9,7 @@ public class Task
     private Status _status = Status.Pending;
     private DateTime _earliestStartDate;
     private DateTime _earliestEndDate;
+    private Project _project;
     
     public string Title
     {
@@ -74,6 +75,15 @@ public class Task
             _earliestEndDate = value;
         }
         
+    }
+
+    public Project Project
+    {
+        get => _project;
+        set
+        {
+            _project = value;
+        }
     }
     
     }
