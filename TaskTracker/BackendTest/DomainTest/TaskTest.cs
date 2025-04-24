@@ -35,7 +35,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void PutTitleWhitespaceReturnAnException()
+    public void PutTitleWhitespaceReturnAnExceptionTest()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = " ");
         Assert.AreEqual("The title name cannot be empty", ex.Message);
@@ -49,7 +49,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void CreateDateForTask()
+    public void CreateDateForTaskTest()
     {
         DateOnly testDate = new DateOnly(2025, 4, 22);
         _task.Date = testDate;
@@ -67,7 +67,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void SetDurationForTask()
+    public void SetDurationForTaskTest()
     {
         TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
         
@@ -77,7 +77,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void SetStatusForTask()
+    public void SetStatusForTaskTest()
     {
         _task.Status = Status.Pending;
         Assert.AreEqual(Status.Pending, _task.Status);
@@ -85,7 +85,7 @@ public class TaskTest
 
 
     [TestMethod]
-    public void SetEarliestStartDateForTask()
+    public void SetEarliestStartDateForTaskTest()
     {
         DateTime earlistStartDate = new DateTime(2026, 4, 22, 5, 30, 0);
         _task.EarliestStartDate = earlistStartDate;
@@ -103,7 +103,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void SetEarliestEndDateForTask()
+    public void SetEarliestEndDateForTaskTest()
     {
         DateTime earlistEndDate = new DateTime(2026, 4, 22, 5, 30, 0);
         _task.EarliestEndDate = earlistEndDate;
