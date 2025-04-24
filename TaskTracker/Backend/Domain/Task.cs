@@ -3,13 +3,13 @@ using Enums;
 public class Task
 {
     private string _title;
-    private DateOnly _date;
+    private DateOnly _date = DateOnly.FromDateTime(DateTime.Now);
     private TimeSpan _durationTask;
     private Status _status;
     private DateTime _earliestStartDate;
     private DateTime _earliestEndDate;
     
-    public string ValidateTitle
+    public string Title
     {
         get => _title;
         set
@@ -19,7 +19,7 @@ public class Task
         }
     }
 
-    public DateOnly ValidateDate
+    public DateOnly Date
     {
         get => _date;
         set
@@ -32,19 +32,19 @@ public class Task
         }
     }
 
-    public TimeSpan ValidateDurationTask
+    public TimeSpan DurationTask
     {
         get => _durationTask;
         set => _durationTask = value;
     }
 
-    public Status ValidateStatus
+    public Status Status
     {
         get => _status;
         set => _status = value;
     }
     
-    public DateTime ValidateEarliestStartDate
+    public DateTime EarliestStartDate
     {
         get => _earliestStartDate;
         set
@@ -57,7 +57,7 @@ public class Task
         } 
     }
 
-    public DateTime ValidateEarliestEndDate
+    public DateTime EarliestEndDate
     {
         get => _earliestEndDate;
         set
