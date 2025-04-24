@@ -9,7 +9,7 @@ public class Task
     private DateTime _earliestStartDate;
     private DateTime _earliestEndDate;
     
-    public string Title
+    public string? Title
     {
         get => _title;
         set

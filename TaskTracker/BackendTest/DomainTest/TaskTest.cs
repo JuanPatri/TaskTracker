@@ -20,21 +20,22 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void CreateTitleForTask()
+    public void SetValidTitleUpdatesValueCorrectly()
     {
-        _task.Title = "Title2";
-        Assert.AreEqual("Title2", _task.Title);
+        string? expectedTitle = "Valid Title";
+        _task.Title = expectedTitle;
+        Assert.AreEqual(expectedTitle, _task.Title);
     }
-
+    
     [TestMethod]
-    public void IPutTitleNullReturnsAnException()
+    public void PutTitleNullReturnsAnException()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = null);
         Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
 
     [TestMethod]
-    public void IPutTitleWhitespaceReturnAnException()
+    public void PutTitleWhitespaceReturnAnException()
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = " ");
         Assert.AreEqual("The title name cannot be empty", ex.Message);
@@ -50,7 +51,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void ISetDateWithFutureDateThrowsArgumentException()
+    public void SetDateWithFutureDateThrowsArgumentException()
     {
         DateOnly futureDate = new DateOnly(2026, 4, 22);
 
@@ -62,7 +63,7 @@ public class TaskTest
     public void SetDurationForTask()
     {
         TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
-        ;
+        
         _task.DurationTask = durationTask;
 
         Assert.AreEqual(durationTask, _task.DurationTask);
@@ -85,7 +86,7 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void ISetEarliestStartDateThrowsArgumentExceptionForPastDate()
+    public void SetEarliestStartDateThrowsArgumentExceptionForPastDate()
     {
         DateTime pastDate = new DateTime(2024, 4, 22, 5, 30, 0);
 
@@ -104,9 +105,9 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void ISetEarliestEndDateThrowsArgumentExceptionForFutureDate()
+    public void SetEarliestEndDateThrowsArgumentExceptionForPastDate()
     {
-        DateTime pastDate = new DateTime(2025, 4, 22, 5, 30, 0);
+        DateTime pastDate = new DateTime(2024, 4, 22, 5, 30, 0);
 
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.EarliestEndDate = pastDate);
         Assert.AreEqual("The date cannot be in the past.", ex.Message);
