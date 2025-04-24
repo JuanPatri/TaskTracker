@@ -136,4 +136,15 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Project = project);
         Assert.AreEqual("Project cannot be null", ex.Message);
     }
+
+    [TestMethod]
+    public void SetDependencyTaskTest()
+    {
+        Task dependencyTask = new Task();
+    
+        _task.Dependencies = dependencyTask;
+    
+        Assert.AreEqual(dependencyTask, Dependencies.dependencyTask);
+    }
 }
+

@@ -10,7 +10,8 @@ public class Task
     private DateTime _earliestStartDate;
     private DateTime _earliestEndDate;
     private Project _project;
-    
+    private List<Task> _dependencies = new List<Task>();
+
     public string Title
     {
         get => _title;
@@ -88,7 +89,6 @@ public class Task
             
             _project = value;
         } 
-        
     }
     
     }
