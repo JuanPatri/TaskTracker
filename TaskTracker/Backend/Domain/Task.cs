@@ -90,5 +90,14 @@ public class Task
             _project = value;
         } 
     }
+
+    public List<Task> Dependencies
+    {
+        get => _dependencies;
+        set
+        {
+            _dependencies = value;
+        }
+    }
     
     }

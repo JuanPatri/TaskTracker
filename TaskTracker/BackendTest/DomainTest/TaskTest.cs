@@ -140,11 +140,10 @@ public class TaskTest
     [TestMethod]
     public void SetDependencyTaskTest()
     {
-        Task dependencyTask = new Task();
+        List<Task> dependencyTask = new List<Task>();
     
         _task.Dependencies = dependencyTask;
     
-        Assert.AreEqual(dependencyTask, Dependencies.dependencyTask);
+        Assert.AreEqual(dependencyTask, _task.Dependencies);
     }
 }
-
