@@ -17,4 +17,12 @@ using Backend.Domain;
         {
             Assert.IsNotNull(_criticalPath);
         }
+
+        [TestMethod]
+        public void SetProjectForCriticalPathTest()
+        {
+            Project project = new Project();
+            _criticalPath.Project = project;
+            Assert.AreEqual(project, _criticalPath.Project);
+        }
     }
