@@ -2,14 +2,14 @@
 using Enums;
 public class Task
 {
-    private string _title;
+    private string _title = String.Empty; 
     private DateOnly _date = DateOnly.FromDateTime(DateTime.Now);
     private TimeSpan _durationTask;
-    private Status _status;
+    private Status _status = Status.Pending;
     private DateTime _earliestStartDate;
     private DateTime _earliestEndDate;
     
-    public string? Title
+    public string Title
     {
         get => _title;
         set
