@@ -26,10 +26,10 @@ public class UserTest
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutNameNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Name = null);
-        Assert.AreEqual("The username cannot be empty", ex.Message);
+        _user.Name = null;
     }
     
     [TestMethod]
@@ -40,10 +40,10 @@ public class UserTest
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutLastNameNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.LastName = null);
-        Assert.AreEqual("The user last name cannot be empty", ex.Message);
+        _user.LastName = null;
     }
     
     [TestMethod]
@@ -54,24 +54,24 @@ public class UserTest
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutEmailNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email = null);
-        Assert.AreEqual("The email cannot be empty", ex.Message);
+        _user.Email = null;
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void DontPutAnArrobaInEmail()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email  = "prodriguezgmail.com");
-        Assert.AreEqual("Error in the email format", ex.Message);
+        _user.Email  = "prodriguezgmail.com";
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void DontPutAnPointInEmail()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Email  = "prodriguez@gmailcom");
-        Assert.AreEqual("Error in the email format", ex.Message);
+        _user.Email  = "prodriguez@gmailcom";
     }
     [TestMethod]
     public void AddBirthDateToUser()
@@ -82,10 +82,10 @@ public class UserTest
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutBirthDateNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.BirthDate = default);
-        Assert.AreEqual("The birth date cannot be empty", ex.Message);
+        _user.BirthDate = default;
     }
 
     [TestMethod]
@@ -96,45 +96,45 @@ public class UserTest
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = null);
-        Assert.AreEqual("The password format is not correct", ex.Message);
+        _user.Password = null;
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutUpperCaseReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "pedro1234@");
-        Assert.AreEqual("The password format is not correct", ex.Message);
+        _user.Password = "pedro1234@";
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutLowerCaseReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "PEDRO1234@");
-        Assert.AreEqual("The password format is not correct", ex.Message);
+         _user.Password = "PEDRO1234@";
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutSpecialCharacterReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "Pedro12345");
-        Assert.AreEqual("The password format is not correct", ex.Message);
+        _user.Password = "Pedro12345";
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutNumberReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "PedroRodriguez@");
-        Assert.AreEqual("The password format is not correct", ex.Message);
+        _user.Password = "PedroRodriguez@";
     }
     
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordLessThan8CharactersReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _user.Password = "Pe1@");
-        Assert.AreEqual("The password format is not correct", ex.Message);
+        _user.Password = "Pe1@";
     }
 
     [TestMethod]

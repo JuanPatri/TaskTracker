@@ -4,15 +4,15 @@ namespace Backend.Domain;
 
 public class User
 {
-    private string _name { get; set; }
-    
-    private string _lastName { get; set; }
-    
-    private string _email { get; set; }
+    private string _name;
 
-    private DateTime _birthDate { get; set; }
-    
-    private string _password { get; set; }
+    private string _lastName;
+
+    private string _email;
+
+    private DateTime _birthDate= DateTime.Today;
+
+    private string _password;
     
     public bool Admin { get; set; }
     
