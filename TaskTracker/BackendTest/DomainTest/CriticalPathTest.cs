@@ -1,7 +1,6 @@
 ﻿namespace BackendTest.DomainTest;
+using Backend.Domain;
 
-public class CriticalPathTest
-{
     [TestClass]
     public class CriticalPathTest
     {
@@ -11,4 +10,3 @@ public class CriticalPathTest
             CriticalPath criticalPath = new CriticalPath();
         }
     }
-}
