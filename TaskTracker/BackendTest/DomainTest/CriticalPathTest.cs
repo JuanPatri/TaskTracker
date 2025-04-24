@@ -25,4 +25,13 @@ using Backend.Domain;
             _criticalPath.Project = project;
             Assert.AreEqual(project, _criticalPath.Project);
         }
+        
+        [TestMethod]
+        public void SetProjectNullReturnsAnException()
+        {
+            Project project = null;
+    
+            ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _criticalPath.Project = project);
+            Assert.AreEqual("Project cannot be null", ex.Message);
+        }
     }
