@@ -22,21 +22,21 @@ public class TaskTest
     [TestMethod]
     public void CreateTitleForTask()
     {
-        _task.ValidateTitle = "Title2";
-        Assert.AreEqual("Title2", _task.ValidateTitle);
+        _task.Title = "Title2";
+        Assert.AreEqual("Title2", _task.Title);
     }
 
     [TestMethod]
     public void IPutTitleNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateTitle = null);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = null);
         Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
 
     [TestMethod]
     public void IPutTitleWhitespaceReturnAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateTitle = " ");
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = " ");
         Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
 
@@ -44,9 +44,9 @@ public class TaskTest
     public void CreateDateForTask()
     {
         DateOnly testDate = new DateOnly(2025, 4, 22);
-        _task.ValidateDate = testDate;
+        _task.Date = testDate;
 
-        Assert.AreEqual(testDate, _task.ValidateDate);
+        Assert.AreEqual(testDate, _task.Date);
     }
 
     [TestMethod]
@@ -54,7 +54,7 @@ public class TaskTest
     {
         DateOnly futureDate = new DateOnly(2026, 4, 22);
 
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateDate = futureDate);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Date = futureDate);
         Assert.AreEqual("The date cannot be in the future.", ex.Message);
     }
 
@@ -63,16 +63,16 @@ public class TaskTest
     {
         TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
         ;
-        _task.ValidateDurationTask = durationTask;
+        _task.DurationTask = durationTask;
 
-        Assert.AreEqual(durationTask, _task.ValidateDurationTask);
+        Assert.AreEqual(durationTask, _task.DurationTask);
     }
 
     [TestMethod]
     public void SetStatusForTask()
     {
-        _task.ValidateStatus = Status.Pending;
-        Assert.AreEqual(Status.Pending, _task.ValidateStatus);
+        _task.Status = Status.Pending;
+        Assert.AreEqual(Status.Pending, _task.Status);
     }
 
 
@@ -80,8 +80,8 @@ public class TaskTest
     public void SetEarliestStartDateForTask()
     {
         DateTime earlistStartDate = new DateTime(2026, 4, 22, 5, 30, 0);
-        _task.ValidateEarliestStartDate = earlistStartDate;
-        Assert.AreEqual(earlistStartDate, _task.ValidateEarliestStartDate);
+        _task.EarliestStartDate = earlistStartDate;
+        Assert.AreEqual(earlistStartDate, _task.EarliestStartDate);
     }
 
     [TestMethod]
@@ -90,7 +90,7 @@ public class TaskTest
         DateTime pastDate = new DateTime(2024, 4, 22, 5, 30, 0);
 
         ArgumentException ex =
-            Assert.ThrowsException<ArgumentException>(() => _task.ValidateEarliestStartDate = pastDate);
+            Assert.ThrowsException<ArgumentException>(() => _task.EarliestStartDate = pastDate);
         Assert.AreEqual("The date cannot be in the past.", ex.Message);
     }
 
@@ -98,9 +98,9 @@ public class TaskTest
     public void SetEarliestEndDateForTask()
     {
         DateTime earlistEndDate = new DateTime(2026, 4, 22, 5, 30, 0);
-        _task.ValidateEarliestEndDate = earlistEndDate;
+        _task.EarliestEndDate = earlistEndDate;
 
-        Assert.AreEqual(earlistEndDate, _task.ValidateEarliestEndDate);
+        Assert.AreEqual(earlistEndDate, _task.EarliestEndDate);
     }
 
     [TestMethod]
@@ -108,7 +108,7 @@ public class TaskTest
     {
         DateTime pastDate = new DateTime(2025, 4, 22, 5, 30, 0);
 
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.ValidateEarliestEndDate = pastDate);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.EarliestEndDate = pastDate);
         Assert.AreEqual("The date cannot be in the past.", ex.Message);
     }
 }
