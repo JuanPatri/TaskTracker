@@ -4,6 +4,7 @@ public class Project
 {
     private string _name;
     private string _description;
+    private DateTime _startDate;
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -26,5 +27,9 @@ public class Project
             _description = value;
         }
     }
-    
+    public DateTime StartDate 
+    {
+        get => _startDate;
+        set => _startDate = value;
+    }
 }
