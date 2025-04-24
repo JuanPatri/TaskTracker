@@ -7,10 +7,7 @@ public class CriticalPath
     public Project Project
     {
         get => _project;
-        set
-        {
-            _project = value;
-        }
+        set => _project = value;
     }
 
 }
