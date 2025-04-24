@@ -74,4 +74,13 @@ public class ProjectTest
         _project.FinishDate = finishDate;
         Assert.AreEqual(finishDate, _project.FinishDate);
     }
+    
+    [TestMethod]
+    public void FinishDateBeforeStartDateReturnsExceptionTest()
+    {
+        var startDate = DateTime.Now.AddDays(5);
+        var finishDate = DateTime.Now.AddDays(3);
+        _project.StartDate = startDate;
+        Assert.ThrowsException<ArgumentException>(() => _project.FinishDate = finishDate);
+    }
 }
