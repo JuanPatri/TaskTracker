@@ -4,9 +4,17 @@ using Backend.Domain;
     [TestClass]
     public class CriticalPathTest
     {
+        private CriticalPath _criticalPath;
+
+        [TestInitialize]
+        public void OnInitialize()
+        {
+            _criticalPath = new CriticalPath();
+        }
+        
         [TestMethod]
         public void CreateCriticalPathTest()
         {
-            CriticalPath criticalPath = new CriticalPath();
+            Assert.IsNotNull(_criticalPath);
         }
     }
