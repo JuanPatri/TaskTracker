@@ -80,7 +80,14 @@ public class Task
     public Project Project
     {
         get => _project;
-        set => _project = value;
+        set
+        {
+            
+            if(value == null)
+                throw new ArgumentException("Project cannot be null");
+            
+            _project = value;
+        } 
         
     }
     
