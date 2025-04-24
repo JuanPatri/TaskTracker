@@ -127,5 +127,13 @@ public class TaskTest
         _task.Project = project;
         Assert.AreEqual(project, _task.Project);
     }
+
+    [TestMethod]
+    public void SetProjectNullReturnsAnException()
+    {
+        Project project = null;
     
+        ArgumentNullException ex = Assert.ThrowsException<ArgumentNullException>(() => _task.Project = project);
+        Assert.AreEqual("Project cannot be empty", ex.Message);
+    }
 }
