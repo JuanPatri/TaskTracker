@@ -41,6 +41,10 @@ public class Project
     public DateTime FinishDate 
     {
         get => _finishDate;
-        set => _finishDate = value;
+        set
+        {
+            if (value < _startDate) throw new ArgumentException("The finish date cannot be before the start date");
+            _finishDate = value;
+        }
     }
 }
