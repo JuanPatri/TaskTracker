@@ -3,6 +3,7 @@ using Enums;
 public class Task
 {
     private string _title = String.Empty; 
+    private string _description;
     private DateOnly _date = DateOnly.FromDateTime(DateTime.Now);
     private TimeSpan _durationTask;
     private Status _status = Status.Pending;
@@ -19,6 +20,14 @@ public class Task
         }
     }
 
+    public string Description
+    {
+        get => _description;
+        set
+        {
+            _description = value;
+        }
+    }
     public DateOnly Date
     {
         get => _date;
