@@ -59,4 +59,11 @@ public class ProjectTest
         _project.StartDate = startDate;
         Assert.AreEqual(startDate, _project.StartDate);
     }
+
+    [TestMethod]
+    public void StartDateInPastReturnsExceptionTest()
+    {
+        DateTime pastDate = DateTime.Now.AddDays(-1);
+        Assert.ThrowsException<ArgumentException>(() => _project.StartDate = pastDate);
+    }
 }
