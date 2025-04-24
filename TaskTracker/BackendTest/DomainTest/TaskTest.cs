@@ -22,7 +22,7 @@ public class TaskTest
     [TestMethod]
     public void SetValidTitleUpdatesValueCorrectly()
     {
-        string? expectedTitle = "Valid Title";
+        string expectedTitle = "Valid Title";
         _task.Title = expectedTitle;
         Assert.AreEqual(expectedTitle, _task.Title);
     }
@@ -39,6 +39,14 @@ public class TaskTest
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = " ");
         Assert.AreEqual("The title name cannot be empty", ex.Message);
+    }
+
+    [TestMethod]
+    public void CreateDescrptionForTaskTest()
+    {
+        string description = "Description";
+        _task.Description = description;
+        Assert.AreEqual(description, _task.Description);
     }
 
     [TestMethod]
@@ -112,4 +120,5 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.EarliestEndDate = pastDate);
         Assert.AreEqual("The date cannot be in the past.", ex.Message);
     }
+    
 }
