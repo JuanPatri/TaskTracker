@@ -51,4 +51,12 @@ public class ProjectTest
         string longDescription = new string('a', 401);
         Assert.ThrowsException<ArgumentException>(() => _project.Description = longDescription);
     }
+    
+    [TestMethod]
+    public void AddStartDateForProjectTest()
+    {
+        DateTime startDate = DateTime.Now;
+        _project.StartDate = startDate;
+        Assert.AreEqual(startDate, _project.StartDate);
+    }
 }
