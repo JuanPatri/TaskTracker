@@ -51,6 +51,6 @@ public class Project
     public User Administrator
     {
         get => _administrator;
-        set => _administrator = value;
+        set => _administrator = value; 
     }
 }
