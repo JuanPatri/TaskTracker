@@ -5,9 +5,18 @@ using Backend.Domain;
     [TestClass]
     public class ProjectRoleTest
     {
+        private ProjectRole _projectRole;
+
+        [TestInitialize]
+        public void OnInitialize()
+        {
+            _projectRole = new ProjectRole();
+        }
+        
         [TestMethod]
+
         public void CreateProjectRoleTest()
         {
-            ProjectRole projectRole = new ProjectRole();
+            Assert.IsNotNull(_projectRole);
         }
     }
