@@ -7,6 +7,10 @@ public class Resource
     public string Name
     {
         get => _name;
-        set => _name = value;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The resource name cannot be empty");
+            _name = value;
+        }
     }
 }
