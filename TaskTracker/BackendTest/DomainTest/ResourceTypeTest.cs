@@ -1,12 +1,13 @@
 namespace BackendTest.DomainTest;
+using Backend.Domain;
 
 [TestClass]
-public class TypeTest
+public class ResourceTypeTest
 {
     [TestMethod]
     public void CreateType()
     {
-        Type _type = new Type("Human");
+        ResourceType _type = new ResourceType();
         Assert.IsNotNull(_type);
     }
 }
