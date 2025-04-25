@@ -1,5 +1,7 @@
-﻿namespace BackendTest.DomainTest
-{
+﻿namespace BackendTest.DomainTest;
+using Backend.Domain;
+
+
     [TestClass]
     public class ProjectRoleTest
     {
@@ -9,4 +11,3 @@
             ProjectRole projectRole = new ProjectRole();
         }
     }
-}
