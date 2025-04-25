@@ -20,10 +20,8 @@ public class CriticalPath
     public List<Task> CriticalPathTasks
     {
         get => _criticalPathTasks;
-        set
-        {
-            _criticalPathTasks = value;
-        }
+        set => _criticalPathTasks = value;
+        
     }
 
 }
