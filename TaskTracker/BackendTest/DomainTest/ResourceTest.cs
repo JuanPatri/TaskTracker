@@ -41,5 +41,11 @@ public class ResourceTest
         Assert.AreEqual(expectedDescription, _resource.Description);
     }
     
-    
+    [TestMethod]
+    public void AddResourceTypeToResource()
+    {
+        ResourceType _type = new ResourceType();
+        _resource.Type = _type;
+        Assert.AreEqual(_type, _resource.Type);
+    }
 }

@@ -4,7 +4,8 @@ public class Resource
 {
     private string _name;
     private string _description;
-    
+
+
     public string Name
     {
         get => _name;
