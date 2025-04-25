@@ -4,10 +4,17 @@ using Backend.Domain;
 [TestClass]
 public class ResourceTypeTest
 {
-    [TestMethod]
-    public void CreateType()
+    private ResourceType _type;
+    
+    [TestInitialize]
+    public void OnInitialize()
     {
-        ResourceType _type = new ResourceType();
+        _type = new ResourceType();
+    }
+    
+    [TestMethod]
+    public void CreateUser()
+    {
         Assert.IsNotNull(_type);
     }
 }
