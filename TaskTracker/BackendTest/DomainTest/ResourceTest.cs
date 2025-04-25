@@ -17,4 +17,14 @@ public class ResourceTest
     {
         Assert.IsNotNull(_resource);
     }
+    
+    [TestMethod]
+    public void PutValidNameToResource()
+    {
+        string expectedName = "Valid Name";
+        _resource.Name = expectedName;
+        Assert.AreEqual(expectedName, _resource.Name);
+    }
+
+    
 }
