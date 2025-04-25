@@ -48,4 +48,11 @@ public class ResourceTest
         _resource.Type = _type;
         Assert.AreEqual(_type, _resource.Type);
     }
+    
+    [TestMethod]
+    public void AddNullResourceTypeToResource()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _resource.Type = null);
+        Assert.AreEqual("Resource type cannot be null", ex.Message);
+    }
 }
