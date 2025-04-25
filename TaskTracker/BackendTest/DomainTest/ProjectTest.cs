@@ -90,4 +90,9 @@ public class ProjectTest
         Assert.AreEqual(admin, _project.Administrator);
     }
     
+    [TestMethod]
+    public void PutAdministratorNullReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _project.Administrator = null);
+    }
 }
