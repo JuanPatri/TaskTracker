@@ -17,4 +17,11 @@ public class ResourceTypeTest
     {
         Assert.IsNotNull(_type);
     }
+    
+    [TestMethod]
+    public void CreateNameForUser()
+    {
+        _type.Name = "Pedro";
+        Assert.AreEqual("Pedro", _type.Name);
+    }
 }
