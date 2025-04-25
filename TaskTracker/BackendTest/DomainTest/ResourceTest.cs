@@ -41,4 +41,5 @@ public class ResourceTest
         Assert.AreEqual(expectedDescription, _resource.Description);
     }
     
+    
 }
