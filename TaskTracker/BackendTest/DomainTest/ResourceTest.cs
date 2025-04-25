@@ -33,4 +33,12 @@ public class ResourceTest
         Assert.AreEqual("The resource name cannot be empty", ex.Message);
     }
     
+    [TestMethod]
+    public void PutDescriptionToResource()
+    {
+        string expectedDescription = "Valid Description";
+        _resource.Description = expectedDescription;
+        Assert.AreEqual(expectedDescription, _resource.Description);
+    }
+    
 }
