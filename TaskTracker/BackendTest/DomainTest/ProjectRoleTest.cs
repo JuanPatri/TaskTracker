@@ -19,4 +19,11 @@ using Backend.Domain;
         {
             Assert.IsNotNull(_projectRole);
         }
+
+        [TestMethod]
+        public void SetRoleTypeForProjectRoleTest()
+        {
+            _projectRole.RoleType = RoleType.ProjectAdmin;
+            Assert.AreEqual(RoleType.ProjectAdmin, _projectRole.RoleType);
+        }
     }
