@@ -24,4 +24,11 @@ public class ResourceTypeTest
         _type.Name = "Pedro";
         Assert.AreEqual("Pedro", _type.Name);
     }
+    
+    [TestMethod]
+    public void PutNameNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _type.Name = null);
+        Assert.AreEqual("The name cannot be empty", ex.Message);
+    }
 }
