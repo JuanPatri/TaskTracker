@@ -1,5 +1,6 @@
 ﻿namespace BackendTest.DomainTest;
 using Backend.Domain;
+using Backend.Domain.Enums;
 
 
     [TestClass]
