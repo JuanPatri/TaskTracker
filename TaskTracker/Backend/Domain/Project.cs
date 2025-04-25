@@ -51,6 +51,13 @@ public class Project
     public User Administrator
     {
         get => _administrator;
-        set => _administrator = value; 
+        set
+        {
+            if (value == null)
+            {
+                throw new ArgumentException("The project administrator cannot be null");
+            }
+            _administrator = value;
+        } 
     }
 }
