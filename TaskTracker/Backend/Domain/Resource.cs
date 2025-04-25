@@ -25,6 +25,10 @@ public class Resource
     public ResourceType Type
     {
         get => _type;
-        set => _type = value;
+        set
+        {
+            if (value == null) throw new ArgumentException("Resource type cannot be null");
+            _type = value;
+        }
     }
 }
