@@ -26,5 +26,11 @@ public class ResourceTest
         Assert.AreEqual(expectedName, _resource.Name);
     }
 
+    [TestMethod]
+    public void PutNullNameToResource()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _resource.Name = null);
+        Assert.AreEqual("The resource name cannot be empty", ex.Message);
+    }
     
 }
