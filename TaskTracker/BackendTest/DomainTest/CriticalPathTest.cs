@@ -34,4 +34,16 @@ using Backend.Domain;
             ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _criticalPath.Project = project);
             Assert.AreEqual("Project cannot be null", ex.Message);
         }
+        
+        [TestMethod]
+        public void SetCriticalPathTasksTest()
+        {
+            List<Task> listTask = new List<Task>();
+    
+            _criticalPath.CriticalPathTasks = listTask;
+    
+            Assert.AreEqual(listTask, _criticalPath.CriticalPathTasks);
+        }
+        
+        
     }
