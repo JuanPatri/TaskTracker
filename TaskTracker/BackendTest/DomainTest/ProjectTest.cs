@@ -81,4 +81,18 @@ public class ProjectTest
         _project.StartDate = startDate;
         Assert.ThrowsException<ArgumentException>(() => _project.FinishDate = finishDate);
     }
+    
+    [TestMethod]
+    public void AddAdministratorForProjectTest()
+    {
+        var admin = new User();
+        _project.Administrator = admin;
+        Assert.AreEqual(admin, _project.Administrator);
+    }
+    
+    [TestMethod]
+    public void PutAdministratorNullReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _project.Administrator = null);
+    }
 }

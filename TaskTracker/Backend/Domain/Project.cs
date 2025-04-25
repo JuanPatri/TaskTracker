@@ -6,6 +6,7 @@ public class Project
     private string _description;
     private DateTime _startDate;
     private DateTime _finishDate;
+    private User _administrator;
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -45,6 +46,15 @@ public class Project
         {
             if (value < _startDate) throw new ArgumentException("The finish date cannot be before the start date");
             _finishDate = value;
+        }
+    }
+    public User Administrator
+    {
+        get => _administrator;
+        set
+        {
+            if (value == null) throw new ArgumentException("The project administrator cannot be null");
+            _administrator = value;
         }
     }
 }
