@@ -1,4 +1,5 @@
 namespace BackendTest.DomainTest;
+using Backend.Domain;
 
 [TestClass]
 public class ResourceTest
