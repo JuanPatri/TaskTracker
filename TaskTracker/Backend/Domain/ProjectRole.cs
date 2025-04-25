@@ -8,11 +8,7 @@ public class ProjectRole
     public RoleType RoleType
     {
         get => _roleType;
-
-        set
-        {
-            _roleType = value;
-        }
+        set =>  _roleType = value;
     }
     
 }

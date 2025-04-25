@@ -27,4 +27,11 @@ using Backend.Domain.Enums;
             _projectRole.RoleType = RoleType.ProjectAdmin;
             Assert.AreEqual(RoleType.ProjectAdmin, _projectRole.RoleType);
         }
+
+        [TestMethod]
+        public void SetRoleTypeForProjectInvalidReturnsAnException()
+        {
+            _projectRole.RoleType = RoleType.ProjectMember;
+            Assert.AreEqual(RoleType.ProjectMember, _projectRole.RoleType);
+        }
     }
