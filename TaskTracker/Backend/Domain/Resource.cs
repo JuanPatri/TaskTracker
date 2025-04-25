@@ -4,7 +4,7 @@ public class Resource
 {
     private string _name;
     private string _description;
-
+    private ResourceType _type;
 
     public string Name
     {
@@ -20,5 +20,11 @@ public class Resource
     {
         get => _description;
         set => _description = value;
+    }
+    
+    public ResourceType Type
+    {
+        get => _type;
+        set => _type = value;
     }
 }
