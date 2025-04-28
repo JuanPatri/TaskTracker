@@ -29,9 +29,10 @@ using Backend.Domain.Enums;
         }
 
         [TestMethod]
-        public void SetRoleTypeForProjectInvalidReturnsAnException()
+        public void SetProjectForProjectRoleTest()
         {
-            _projectRole.RoleType = RoleType.ProjectMember;
-            Assert.AreEqual(RoleType.ProjectMember, _projectRole.RoleType);
+            List<Project> project = new List <Project>();
+            _projectRole.Project = project;
+            Assert.AreEqual(project, _projectRole.Project);
         }
     }
