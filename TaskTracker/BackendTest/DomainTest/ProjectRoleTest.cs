@@ -31,7 +31,7 @@ using Backend.Domain.Enums;
         [TestMethod]
         public void SetProjectForProjectRoleTest()
         {
-            List<Project> project = new List <Project>();
+            Project project = new Project();
             _projectRole.Project = project;
             Assert.AreEqual(project, _projectRole.Project);
         }
