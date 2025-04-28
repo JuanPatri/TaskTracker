@@ -14,10 +14,8 @@ public class ProjectRole
     public List<Project> Project
     {
         get => _project;
-        set
-        {
-            _project = value;
-        }
+        set => _project = value;
+        
     }
     
 }
