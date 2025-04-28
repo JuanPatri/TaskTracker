@@ -35,4 +35,13 @@ using Backend.Domain.Enums;
             _projectRole.Project = project;
             Assert.AreEqual(project, _projectRole.Project);
         }
+        
+        [TestMethod]
+        public void SetProjectNullReturnsAnException()
+        {
+            Project project = null;
+    
+            ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.Project = project);
+            Assert.AreEqual("Project cannot be null", ex.Message);
+        }
     }
