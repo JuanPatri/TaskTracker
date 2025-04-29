@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Backend", "Backend\Backend.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BackendTest", "BackendTest\BackendTest.csproj", "{9C284B69-5F60-4BCA-AFAB-55D2FFE5C09E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Frontend", "Frontend\Frontend.csproj", "{F7275FBE-FB6B-4457-ABB1-90994BD10B77}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,6 +20,10 @@ Global
 		{9C284B69-5F60-4BCA-AFAB-55D2FFE5C09E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9C284B69-5F60-4BCA-AFAB-55D2FFE5C09E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9C284B69-5F60-4BCA-AFAB-55D2FFE5C09E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7275FBE-FB6B-4457-ABB1-90994BD10B77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7275FBE-FB6B-4457-ABB1-90994BD10B77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7275FBE-FB6B-4457-ABB1-90994BD10B77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7275FBE-FB6B-4457-ABB1-90994BD10B77}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
