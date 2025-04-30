@@ -45,4 +45,11 @@ public class NotificationTest
         DateTime date = DateTime.Now.AddDays(-1);
         Assert.ThrowsException<ArgumentException>(() => _notification.Date = date);
     }
+
+    [TestMethod]
+    public void AddTypeOfNotificationTest()
+    {
+        _notification.ValidateTypeOfNotification = TypeOfNotification.Delay;
+        Assert.AreEqual(TypeOfNotification.Delay, _notification.ValidateTypeOfNotification);
+    }
 }
