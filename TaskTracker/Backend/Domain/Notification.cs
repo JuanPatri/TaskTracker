@@ -38,9 +38,6 @@ public class Notification
     public int Impact
     {
         get => _impact;
-        set
-        {
-            _impact = value;
-        }
+        set => _impact = value;
     }
 }
