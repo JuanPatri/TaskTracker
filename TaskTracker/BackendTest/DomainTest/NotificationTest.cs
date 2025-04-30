@@ -24,4 +24,10 @@ public class NotificationTest
         _notification.Message = "Notification1";
         Assert.AreEqual("Notification1", _notification.Message);
     }
+    
+    [TestMethod]
+    public void PutMessageNullReturnsAnExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentNullException>(() => _notification.Message = null);
+    }
 }
