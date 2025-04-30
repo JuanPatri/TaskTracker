@@ -60,5 +60,10 @@ public class NotificationTest
         _notification.Impact = 5;
         Assert.AreEqual(5, _notification.Impact);
     }
-    
+
+    [TestMethod]
+    public void AddZeroImpactForNotificationReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _notification.Impact = 0);
+    }
 }
