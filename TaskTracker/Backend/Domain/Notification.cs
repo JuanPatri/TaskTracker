@@ -7,6 +7,7 @@ public class Notification
     private string _message;
     private DateTime _date;
     private TypeOfNotification _validateTypeOfNotification;
+    private int _impact;
     
     public string Message
     {
@@ -32,5 +33,14 @@ public class Notification
     {
         get => _validateTypeOfNotification;
         set => _validateTypeOfNotification = value;
+    }
+    
+    public int Impact
+    {
+        get => _impact;
+        set
+        {
+            _impact = value;
+        }
     }
 }
