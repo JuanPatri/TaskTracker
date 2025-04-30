@@ -1,10 +1,69 @@
 ﻿@page "/RegisterUser"
+@using System.ComponentModel.DataAnnotations
 @inject NavigationManager NavigationManager
 
-<PageTitle>Register User</PageTitle>
+<PageTitle>Register User - TaskTrackPro</PageTitle>
 
-<h1>Register User</h1>
+
+          <form>
+            <h3 class="mb-3">Create User</h3>
+
+            <div class="mb-3">
+              <label for="last-name" class="form-label">Last name</label>
+              <input type="text" class="form-control" id="last-name" placeholder="Enter your last name">
+            </div>
+
+            <div class="mb-3">
+              <label for="Name" class="form-label">Name</label>
+              <input type="text" class="form-control" id="Name" placeholder="Enter your name">
+            </div>
+
+            <div class="mb-3">
+              <label for="birthdate" class="form-label">Date of Birth</label>
+              <input type="date" class="form-control" id="birthdate">
+              <div class="form-text text-muted">Select your birth date (18-100 years old)</div>
+            </div>
+
+            <div class="mb-3">
+              <label for="email" class="form-label">Email address</label>
+              <input type="email" class="form-control" id="email" placeholder="name@example.com">
+            </div>
+
+            <div class="mb-3">
+              <label for="password" class="form-label">Password</label>
+              <input type="password" class="form-control" id="password">
+              <div class="form-text">
+                Your password must:
+                <ul class="mb-0 ps-3 mt-1">
+                  <li>Be at least 8 characters long</li>
+                  <li>Include uppercase and lowercase letters</li>
+                  <li>Include at least one number</li>
+                  <li>Include at least one special character</li>
+                </ul>
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">User Type</label>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="userRole" id="regularUser" value="regular" checked>
+                <label class="form-check-label" for="regularUser">
+                  Regular User
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="userRole" id="adminSystem" value="admin">
+                <label class="form-check-label" for="adminSystem">
+                  System Administrator
+                </label>
+              </div>
+            </div>
+            
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+            </div>
+          </form>
 
 @code {
-    
+
 }
