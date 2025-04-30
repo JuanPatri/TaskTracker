@@ -21,6 +21,7 @@ public class Notification
         set 
         {
             if (value < DateTime.Now) throw new ArgumentException("The notification date cannot be in the past");
+            if (value > DateTime.Now.AddMinutes(1)) throw new ArgumentException("The notification date cannot be in the future");
             _date = value;
         }
     }
