@@ -62,7 +62,7 @@ public class NotificationTest
     }
 
     [TestMethod]
-    public void AddZeroImpactForNotificationReturnsExceptionTest()
+    public void AddZeroOrNegativeImpactForNotificationReturnsExceptionTest()
     {
         Assert.ThrowsException<ArgumentException>(() => _notification.Impact = 0);
     }

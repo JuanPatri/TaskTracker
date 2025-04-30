@@ -9,6 +9,7 @@ public class Notification
     private TypeOfNotification _validateTypeOfNotification;
     private int _impact;
     
+    private const int MinImpact = 1;
     public string Message
     {
         get => _message;
@@ -40,7 +41,7 @@ public class Notification
         get => _impact;
         set
         {
-            if (value <= 0) throw new ArgumentException("The impact must be greater than 0");
+            if (value < MinImpact) throw new ArgumentException("The impact must be greater than 0");
             _impact = value;
         }
     }
