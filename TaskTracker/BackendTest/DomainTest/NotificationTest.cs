@@ -45,4 +45,11 @@ public class NotificationTest
         DateTime date = DateTime.Now.AddDays(-1);
         Assert.ThrowsException<ArgumentException>(() => _notification.Date = date);
     }
+
+    [TestMethod]
+    public void PutDateInTheFutureReturnsAnExceptionTest()
+    {
+        DateTime date = DateTime.Now.AddDays(5);
+        Assert.ThrowsException<ArgumentException>(() => _notification.Date = date);
+    }
 }
