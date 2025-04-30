@@ -7,6 +7,10 @@ public class ReadingNotification
     public List<User> User
     {
         get => _user;
-        set => _user = value;
+        set
+        {
+            if (value == null) throw new ArgumentNullException("The user cannot be null");
+            _user = value;
+        }
     }
 }
