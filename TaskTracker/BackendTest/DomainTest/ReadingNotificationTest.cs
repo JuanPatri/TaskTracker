@@ -46,4 +46,11 @@ public class ReadingNotificationTest
     {
         Assert.ThrowsException<ArgumentNullException>(() => _readingNotification.Notification = null);
     }
+
+    [TestMethod]
+    public void SetFueLeidaForReadingNotificationTest()
+    {
+        _readingNotification.Read = true;
+        Assert.IsTrue(_readingNotification.Read);
+    }
 }
