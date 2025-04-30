@@ -31,9 +31,6 @@ public class Notification
     public TypeOfNotification ValidateTypeOfNotification
     {
         get => _validateTypeOfNotification;
-        set
-        {
-            _validateTypeOfNotification = value;
-        }
+        set => _validateTypeOfNotification = value;
     }
 }
