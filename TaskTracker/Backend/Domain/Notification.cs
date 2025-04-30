@@ -50,6 +50,10 @@ public class Notification
     public Task Task
     {
         get => _task;
-        set => _task = value;
+        set
+        {
+            if (value == null) throw new ArgumentNullException("The task cannot be null");
+            _task = value;
+        }
     }
 }
