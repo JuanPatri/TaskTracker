@@ -53,4 +53,12 @@ public class NotificationTest
         _notification.ValidateTypeOfNotification = TypeOfNotification.Delay;
         Assert.AreEqual(TypeOfNotification.Delay, _notification.ValidateTypeOfNotification);
     }
+    
+    [TestMethod]
+    public void AddImpactForNotificationTest()
+    {
+        _notification.Impact = 5;
+        Assert.AreEqual(5, _notification.Impact);
+    }
+    
 }
