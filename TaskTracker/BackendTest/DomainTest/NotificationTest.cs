@@ -38,4 +38,11 @@ public class NotificationTest
         _notification.Date = date;
         Assert.AreEqual(date, _notification.Date);
     }
+    
+    [TestMethod]
+    public void PutDateInThePastReturnsAnExceptionTest()
+    {
+        DateTime date = DateTime.Now.AddDays(-1);
+        Assert.ThrowsException<ArgumentException>(() => _notification.Date = date);
+    }
 }
