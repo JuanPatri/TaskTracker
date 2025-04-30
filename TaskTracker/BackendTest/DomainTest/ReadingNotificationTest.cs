@@ -1,5 +1,8 @@
+using Backend.Domain;
+
 namespace BackendTest.DomainTest;
 
+[TestClass]
 public class ReadingNotificationTest
 {
     [TestMethod]
