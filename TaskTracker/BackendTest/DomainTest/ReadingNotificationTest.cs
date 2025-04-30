@@ -18,4 +18,12 @@ public class ReadingNotificationTest
     {
        Assert.IsNotNull(_readingNotification); 
     }
+    
+    [TestMethod]
+    public void SetUserForReadingNotificationTest()
+    {
+        User user = new User();
+        _readingNotification.User = user;
+        Assert.AreEqual(user, _readingNotification.User);
+    }
 }
