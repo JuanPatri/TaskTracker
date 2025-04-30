@@ -38,6 +38,10 @@ public class Notification
     public int Impact
     {
         get => _impact;
-        set => _impact = value;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("The impact must be greater than 0");
+            _impact = value;
+        }
     }
 }
