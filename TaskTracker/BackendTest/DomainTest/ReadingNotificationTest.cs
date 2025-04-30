@@ -32,4 +32,12 @@ public class ReadingNotificationTest
     {
         Assert.ThrowsException<ArgumentNullException>(() => _readingNotification.User = null);
     }
+    
+    [TestMethod]
+    public void SetNotificationForReadingNotificationTest()
+    {
+        List<Notification> notification = new List<Notification>();
+        _readingNotification.Notification = notification;
+        Assert.AreEqual(notification, _readingNotification.Notification);
+    }
 }
