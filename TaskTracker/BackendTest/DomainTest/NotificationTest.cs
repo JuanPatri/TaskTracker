@@ -30,4 +30,12 @@ public class NotificationTest
     {
         Assert.ThrowsException<ArgumentNullException>(() => _notification.Message = null);
     }
+    
+    [TestMethod]
+    public void AddDateForNotificationTest()
+    {
+        DateTime date = DateTime.Now;
+        _notification.Date = date;
+        Assert.AreEqual(date, _notification.Date);
+    }
 }
