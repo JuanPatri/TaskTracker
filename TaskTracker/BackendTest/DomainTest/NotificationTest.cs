@@ -71,7 +71,7 @@ public class NotificationTest
     [TestMethod]
     public void AddTaskToNotificationTest()
     {
-        Task task = new Task();
+        List<Task> task = new List<Task>();
         _notification.Task = task;
         Assert.AreEqual(task, _notification.Task);
     }
