@@ -29,9 +29,6 @@ public class ReadingNotification
     public bool Read
     {
         get => _read;
-        set
-        {
-            _read = value;
-        }
+        set => _read = value;
     }
 }
