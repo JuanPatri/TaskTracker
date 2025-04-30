@@ -50,9 +50,6 @@ public class Notification
     public Task Task
     {
         get => _task;
-        set
-        {
-            _task = value;
-        }
+        set => _task = value;
     }
 }
