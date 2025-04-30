@@ -9,7 +9,7 @@ public class Notification
         get => _message;
         set 
         {
-            if (value == null) throw new ArgumentNullException("The notification message cannot be empty");
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentNullException("The notification message cannot be empty");
             _message = value;
         } 
     }
