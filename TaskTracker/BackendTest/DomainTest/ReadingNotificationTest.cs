@@ -26,4 +26,10 @@ public class ReadingNotificationTest
         _readingNotification.User = user;
         Assert.AreEqual(user, _readingNotification.User);
     }
+    
+    [TestMethod]
+    public void SetUserNullReturnsAnExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentNullException>(() => _readingNotification.User = null);
+    }
 }
