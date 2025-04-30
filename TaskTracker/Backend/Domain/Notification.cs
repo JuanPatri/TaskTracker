@@ -8,6 +8,7 @@ public class Notification
     private DateTime _date;
     private TypeOfNotification _validateTypeOfNotification;
     private int _impact;
+    private Task _task;
     
     private const int MinImpact = 1;
     public string Message
@@ -43,6 +44,15 @@ public class Notification
         {
             if (value < MinImpact) throw new ArgumentException("The impact must be greater than 0");
             _impact = value;
+        }
+    }
+    
+    public Task Task
+    {
+        get => _task;
+        set
+        {
+            _task = value;
         }
     }
 }

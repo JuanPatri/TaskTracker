@@ -1,5 +1,6 @@
 using Backend.Domain;
 using Backend.Domain.Enums;
+using Task = Backend.Domain.Task;
 
 namespace BackendTest.DomainTest;
 
@@ -65,5 +66,13 @@ public class NotificationTest
     public void AddZeroOrNegativeImpactForNotificationReturnsExceptionTest()
     {
         Assert.ThrowsException<ArgumentException>(() => _notification.Impact = 0);
+    }
+    
+    [TestMethod]
+    public void AddTaskToNotificationTest()
+    {
+        Task task = new Task();
+        _notification.Task = task;
+        Assert.AreEqual(task, _notification.Task);
     }
 }
