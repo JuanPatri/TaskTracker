@@ -17,4 +17,11 @@ public class NotificationTest
     {
         Assert.IsNotNull(_notification);
     }
+    
+    [TestMethod]
+    public void AddMessageForNotificationTest()
+    {
+        _notification.Message = "Notification1";
+        Assert.AreEqual("Notification1", _notification.Message);
+    }
 }
