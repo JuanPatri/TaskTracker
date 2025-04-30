@@ -1,9 +1,12 @@
+using Backend.Domain.Enums;
+
 namespace Backend.Domain;
 
 public class Notification
 {
     private string _message;
     private DateTime _date;
+    private TypeOfNotification _validateTypeOfNotification;
     
     public string Message
     {
@@ -22,6 +25,15 @@ public class Notification
         {
             if (value < DateTime.Now) throw new ArgumentException("The notification date cannot be in the past");
             _date = value;
+        }
+    }
+    
+    public TypeOfNotification ValidateTypeOfNotification
+    {
+        get => _validateTypeOfNotification;
+        set
+        {
+            _validateTypeOfNotification = value;
         }
     }
 }

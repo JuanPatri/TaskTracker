@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.Domain.Enums;
 
 namespace BackendTest.DomainTest;
 
