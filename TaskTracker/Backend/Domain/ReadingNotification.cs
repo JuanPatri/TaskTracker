@@ -7,9 +7,6 @@ public class ReadingNotification
     public List<User> User
     {
         get => _user;
-        set
-        {
-            _user = value;
-        }
+        set => _user = value;
     }
 }
