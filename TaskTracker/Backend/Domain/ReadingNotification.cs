@@ -18,9 +18,6 @@ public class ReadingNotification
     public List<Notification> Notification
     {
         get => _notification;
-        set
-        {
-            _notification = value;
-        }
+        set => _notification = value;
     }
 }
