@@ -75,4 +75,10 @@ public class NotificationTest
         _notification.Task = task;
         Assert.AreEqual(task, _notification.Task);
     }
+    
+    [TestMethod]
+    public void AddNullTaskToNotificationReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentNullException>(() => _notification.Task = null);
+    }
 }
