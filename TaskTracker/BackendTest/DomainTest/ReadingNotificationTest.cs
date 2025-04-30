@@ -22,7 +22,7 @@ public class ReadingNotificationTest
     [TestMethod]
     public void SetUserForReadingNotificationTest()
     {
-        User user = new User();
+        List<User> user = new List<User>();
         _readingNotification.User = user;
         Assert.AreEqual(user, _readingNotification.User);
     }
