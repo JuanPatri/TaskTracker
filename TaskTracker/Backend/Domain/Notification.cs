@@ -7,6 +7,10 @@ public class Notification
     public string Message
     {
         get => _message;
-        set => _message = value;
+        set 
+        {
+            if (value == null) throw new ArgumentNullException("The notification message cannot be empty");
+            _message = value;
+        } 
     }
 }
