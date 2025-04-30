@@ -4,6 +4,7 @@ public class ReadingNotification
 {
     private List<User> _user;
     private List<Notification> _notification;
+    private bool _read;
     
     public List<User> User
     {
@@ -22,6 +23,15 @@ public class ReadingNotification
         {
             if (value == null) throw new ArgumentNullException("The notification cannot be null");
             _notification = value;
+        }
+    }
+    
+    public bool Read
+    {
+        get => _read;
+        set
+        {
+            _read = value;
         }
     }
 }

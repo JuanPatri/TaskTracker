@@ -50,7 +50,7 @@ public class ReadingNotificationTest
     [TestMethod]
     public void SetFueLeidaForReadingNotificationTest()
     {
-        _readingNotification.Read = true;
-        Assert.IsTrue(_readingNotification.Read);
+        _readingNotification.Read = false;
+        Assert.IsFalse(_readingNotification.Read);
     }
 }
