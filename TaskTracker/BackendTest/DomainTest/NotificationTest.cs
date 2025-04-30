@@ -34,7 +34,7 @@ public class NotificationTest
     [TestMethod]
     public void AddDateForNotificationTest()
     {
-        DateTime date = DateTime.Now;
+        DateTime date = DateTime.Now.AddDays(1);
         _notification.Date = date;
         Assert.AreEqual(date, _notification.Date);
     }

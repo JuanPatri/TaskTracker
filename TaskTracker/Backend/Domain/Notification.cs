@@ -18,6 +18,10 @@ public class Notification
     public DateTime Date
     {
         get => _date;
-        set => _date = value;
+        set 
+        {
+            if (value < DateTime.Now) throw new ArgumentException("The notification date cannot be in the past");
+            _date = value;
+        }
     }
 }
