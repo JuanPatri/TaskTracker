@@ -18,6 +18,10 @@ public class ReadingNotification
     public List<Notification> Notification
     {
         get => _notification;
-        set => _notification = value;
+        set 
+        {
+            if (value == null) throw new ArgumentNullException("The notification cannot be null");
+            _notification = value;
+        }
     }
 }
