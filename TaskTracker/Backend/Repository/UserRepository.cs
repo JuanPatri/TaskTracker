@@ -15,7 +15,7 @@ public class UserRepository : IRepository<User>
                 Name = "Admin",
                 LastName = "Admin",
                 Email = "admin@admin.com",
-                Password = "admin123@",
+                Password = "Admin123@",
                 Admin = true,
                 BirthDate = new DateTime(1990, 1, 1)
             }
