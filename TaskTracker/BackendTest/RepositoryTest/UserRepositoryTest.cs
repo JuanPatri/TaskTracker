@@ -21,5 +21,14 @@ public class UserRepositoryTest
     { 
         Assert.IsNotNull(_userRepository);
     }
+
+    [TestMethod]
+    public void AddUserToList()
+    {
+        User user = new User();
+        user.Email = "usuario@nuevo.com";
+        _userRepository.Add(user);
+        Assert.AreEqual(_userRepository.Find(u => u.Email == "usuario@nuevo.com"), user);
+    }
     
 }
