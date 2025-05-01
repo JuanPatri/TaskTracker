@@ -47,6 +47,14 @@ public class CreateUserDTOsTest
         Assert.AreEqual("Pedro1234@", userDto.Password);
     }
     
+    [TestMethod]
+    public void SetAdminInFalse()
+    {
+        CreateUserDTOs userDto = new CreateUserDTOs();
+        userDto.Admin = false;
+        Assert.IsFalse(userDto.Admin);
+    }
+    
 
     
 }
