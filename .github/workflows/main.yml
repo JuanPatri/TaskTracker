@@ -20,9 +20,9 @@ jobs:
       - name: List solution files
         run: find . -name "*.sln" -type f
       - name: Install dependencies
-        run: dotnet restore ISAG.sln
+        run: dotnet restore TaskTracker.sln
       - name: Run build
-        run: dotnet build ISAG.sln --configuration Release
+        run: dotnet build TaskTracker.sln --configuration Release
   test:
     name: Test
     permissions: write-all
@@ -36,11 +36,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Install Dependencies
-        run: dotnet restore ISAG.sln
+        run: dotnet restore TaskTracker.sln
       - name: Run Build
-        run: dotnet build ISAG.sln --configuration Release
+        run: dotnet build TaskTracker.sln --configuration Release
       - name: Generate Test Results
-        run: dotnet test ISAG.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+        run: dotnet test TaskTracker.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
       - name: Uploaded Test Results
         uses: dorny/test-reporter@v1
         if: always()
@@ -56,7 +56,7 @@ jobs:
           fail-on-empty: true
           only-summary: false
       - name: Generate Test Coverage
-        run: dotnet test ISAG.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+        run: dotnet test TaskTracker.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
       - name: Join Coverage Reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.9
         with:
