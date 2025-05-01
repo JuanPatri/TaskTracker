@@ -54,9 +54,12 @@ public class UserRepository : IRepository<User>
         return null;
     }
 
-    public User Delete(User user)
+    public void Delete(String email)
     {
-        _users.Remove(user);
-        return user;
+        User? user = _users.FirstOrDefault(u => u.Email == email);
+        if (user != null)
+        {
+            _users.Remove(user);
+        }
     }
 }

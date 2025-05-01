@@ -10,5 +10,5 @@ public interface IRepository <T>
     
     T? Update(T entity);
     
-    T Delete(T entity);
+    void Delete(String entity);
 }
