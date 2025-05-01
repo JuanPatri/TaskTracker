@@ -10,10 +10,15 @@ public class UserRepositoryTest
     //private User _user;
     //private User _updatedUser;
     
-    [TestMethod]
-    public void CreateUserRepository()
+    [TestInitialize]
+    public void OnInitialize()
     {
         _userRepository = new UserRepository();
+    }
+    
+    [TestMethod]
+    public void CreateUserRepository()
+    { 
         Assert.IsNotNull(_userRepository);
     }
     
