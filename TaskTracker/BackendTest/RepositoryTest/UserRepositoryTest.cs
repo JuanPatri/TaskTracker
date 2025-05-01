@@ -38,4 +38,22 @@ public class UserRepositoryTest
         _userRepository.Add(_user);
         Assert.AreEqual(_userRepository.FindAll().Count, 2);
     }
+
+    [TestMethod]
+    public void UpdateExistingUserUpdatesFieldsCorrectlyU()
+    {
+        _user.Name = "Name";
+        _userRepository.Add(_user);
+        User updateUser = new User()
+        {
+            Name = "UpdatedName",
+            LastName = "UpdatedLastName",
+            Password = "UpdatedPassword123!",
+            Admin = false,
+            BirthDate = new DateTime(1995, 5, 5),
+            Email = "usuario@nuevo.com"
+        };
+        _userRepository.Update(updateUser);
+        Assert.AreEqual(_user.Name, "UpdatedName");
+    }
 }
