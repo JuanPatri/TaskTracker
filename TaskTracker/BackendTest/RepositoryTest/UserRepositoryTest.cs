@@ -40,7 +40,7 @@ public class UserRepositoryTest
     }
 
     [TestMethod]
-    public void UpdateExistingUserUpdatesFieldsCorrectlyU()
+    public void UpdateExistingUserUpdatesFieldsCorrectly()
     {
         _user.Name = "Name";
         _userRepository.Add(_user);
@@ -55,5 +55,23 @@ public class UserRepositoryTest
         };
         _userRepository.Update(updateUser);
         Assert.AreEqual(_user.Name, "UpdatedName");
+    }
+
+    [TestMethod]
+    public void UpdatingAUserThatIsNotInTheListReturnsNull()
+    {
+        _user.Name = "Name";
+        _userRepository.Add(_user);
+        User updateUser = new User()
+        {
+            Name = "UpdatedName",
+            LastName = "UpdatedLastName",
+            Password = "UpdatedPassword123!",
+            Admin = false,
+            BirthDate = new DateTime(1995, 5, 5),
+            Email = "Email@incorrecto.com"
+        };
+        _userRepository.Update(updateUser);
+        Assert.AreEqual(_userRepository.Update(updateUser), null);
     }
 }
