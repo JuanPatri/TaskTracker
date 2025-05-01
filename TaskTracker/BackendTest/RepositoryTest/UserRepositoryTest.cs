@@ -30,5 +30,12 @@ public class UserRepositoryTest
         _userRepository.Add(_user);
         Assert.AreEqual(_userRepository.Find(u => u.Email == "usuario@nuevo.com"), _user);
     }
-    
+
+    [TestMethod]
+    public void SearchForAllUserInTheList()
+    {
+        Assert.AreEqual(_userRepository.FindAll().Count, 1);
+        _userRepository.Add(_user);
+        Assert.AreEqual(_userRepository.FindAll().Count, 2);
+    }
 }
