@@ -29,6 +29,15 @@ public class CreateUserDTOsTest
         userDto.Email = "prodriguez@gmail.com";
         Assert.AreEqual("prodriguez@gmail.com", userDto.Email);
     }
+    
+    [TestMethod]
+    public void AddBirthDateToUser()
+    {
+        CreateUserDTOs userDto = new CreateUserDTOs();
+        DateTime date = new DateTime(2003, 03, 14);
+        userDto.BirthDate = date;
+        Assert.AreEqual(fecha, userDto.BirthDate);
+    }
 
     
 }
