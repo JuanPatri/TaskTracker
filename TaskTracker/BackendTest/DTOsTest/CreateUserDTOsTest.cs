@@ -54,7 +54,22 @@ public class CreateUserDTOsTest
         userDto.Admin = false;
         Assert.IsFalse(userDto.Admin);
     }
-    
 
-    
+    [TestMethod]
+    public void ToEntityShouldMapAllPropertiesCorrectly()
+    {
+        CreateUserDTOs dto = new CreateUserDTOs
+        {
+            Name = "Alice",
+            LastName = "Smith",
+            Email = "alice@example.com",
+            BirthDate = new DateTime(1995, 5, 20),
+            Password = "Secure123!",
+            Admin = true
+        };
+        
+        User user = dto.ToEntity();
+
+        Assert.IsNotNull(user);
+    }
 }
