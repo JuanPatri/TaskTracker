@@ -74,4 +74,13 @@ public class UserRepositoryTest
         _userRepository.Update(updateUser);
         Assert.AreEqual(_userRepository.Update(updateUser), null);
     }
+    
+    [TestMethod]
+    public void DeleteUserFromList()
+    {
+        _userRepository.Add(_user);
+        Assert.AreEqual(_userRepository.FindAll().Count, 2);
+        _userRepository.Delete(_user.Email);
+        Assert.AreEqual(_userRepository.FindAll().Count, 1);
+    }
 }
