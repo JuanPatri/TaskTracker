@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.DTOs;
 using Backend.Repository;
 
 namespace Backend.Service;
@@ -9,5 +10,11 @@ public class UserService
     public  UserService(IRepository<User> userRepository)
     {
         _userRepository = userRepository;
+    }
+    
+    public User AddUser(CreateUserDTOs user)
+    {
+        User createdUser = user.ToEntity();
+        return _userRepository.Add(createdUser);
     }
 }

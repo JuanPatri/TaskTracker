@@ -1,3 +1,6 @@
+using System.Runtime.InteropServices.JavaScript;
+using Backend.Domain;
+using Backend.DTOs;
 using Backend.Repository;
 
 namespace BackendTest.ServiceTest;
@@ -20,6 +23,21 @@ public class UserServiceTest
     public void CreateUserService()
     {
         Assert.IsNotNull(_userService);
+    }
+
+    [TestMethod]
+    public void AddUserShouldReturnUser()
+    {
+        CreateUserDTOs user = new CreateUserDTOs()
+        {
+            Name = "Pedro",
+            LastName = "Rodriguez",
+            BirthDate = new DateTime(2003, 03, 14),
+            Email = "user@user.com",
+            Password = "Pedro1234@"
+        };
+        User? createdUser = _userService.AddUser(user);
+        Assert.IsNotNull(createdUser);
     }
     
     
