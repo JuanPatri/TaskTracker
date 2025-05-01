@@ -21,6 +21,14 @@ public class CreateUserDTOsTest
         userDto.LastName = "Rodriguez";
         Assert.AreEqual("Rodriguez", userDto.LastName);
     }
+    
+    [TestMethod]
+    public void AddEmailToUser()
+    {
+        CreateUserDTOs userDto = new CreateUserDTOs();
+        userDto.Email = "prodriguez@gmail.com";
+        Assert.AreEqual("prodriguez@gmail.com", userDto.Email);
+    }
 
     
 }
