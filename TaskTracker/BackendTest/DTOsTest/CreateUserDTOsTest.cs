@@ -13,4 +13,14 @@ public class CreateUserDTOsTest
         userDto.Name = "Pedro";
         Assert.AreEqual("Pedro", userDto.Name);
     }
+    
+    [TestMethod]
+    public void CreateLastNameForUser()
+    {
+        CreateUserDTOs userDto = new CreateUserDTOs();
+        userDto.LastName = "Rodriguez";
+        Assert.AreEqual("Rodriguez", userDto.LastName);
+    }
+
+    
 }
