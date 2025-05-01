@@ -36,8 +36,17 @@ public class CreateUserDTOsTest
         CreateUserDTOs userDto = new CreateUserDTOs();
         DateTime date = new DateTime(2003, 03, 14);
         userDto.BirthDate = date;
-        Assert.AreEqual(fecha, userDto.BirthDate);
+        Assert.AreEqual(date, userDto.BirthDate);
     }
+    
+    [TestMethod]
+    public void AddPasswordToUser()
+    {
+        CreateUserDTOs userDto = new CreateUserDTOs();
+        userDto.Password = "Pedro1234@";
+        Assert.AreEqual("Pedro1234@", userDto.Password);
+    }
+    
 
     
 }
