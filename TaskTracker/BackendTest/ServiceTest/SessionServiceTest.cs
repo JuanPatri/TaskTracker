@@ -13,8 +13,8 @@ public class SessionServiceTest
     private UserRepository _userRepository;
     private User _user;
 
-    [TestMethod]
-    public void ValidLoginShouldSetCurrentUser()
+    [TestInitialize]
+    public void OnInitialize()
     {
         _userRepository = new UserRepository();
         _userService = new UserService(_userRepository);
@@ -24,9 +24,14 @@ public class SessionServiceTest
             Email = "pedro@gmail.com",
             Password = "Pedro123!"
         };
-        
         _userRepository.Add(_user);
         
+    }
+
+    [TestMethod]
+    public void ValidLoginShouldSetCurrentUser()
+    {
+
         LoginDto loginDto = new LoginDto()
         {
             Email = _user.Email,
@@ -37,4 +42,6 @@ public class SessionServiceTest
         
         Assert.AreEqual(_sessionService.CurrentUser, _user);
     }
+
+ 
 }
