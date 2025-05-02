@@ -1,8 +1,8 @@
 using Backend.Domain;
 
-namespace Backend.DTOs;
+namespace Backend.DTOs.UserDTOs;
 
-public class CreateUserDTOs
+public class UserDataDTO
 {
     public string Name { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;

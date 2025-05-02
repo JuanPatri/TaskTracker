@@ -1,8 +1,8 @@
 using Backend.Domain;
 
-namespace Backend.DTOs;
+namespace Backend.DTOs.UserDTOs;
 
-public class GetUserDTOs
+public class GetUserDTO
 {
     public string Email { get; set; } = string.Empty;
     
