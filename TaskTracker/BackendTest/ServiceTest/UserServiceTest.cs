@@ -49,13 +49,19 @@ public class UserServiceTest
             Email = "pedro@gmail.com"
         };
         _userRepository.Add(user);
+        
+        Assert.AreEqual(_userRepository.FindAll().Last(), user);
 
         GetUserDTOs userToDelete = new GetUserDTOs()
         {
             Email = "pedro@gmail.com"
         };
         _userService.RemoveUser(userToDelete);
+        
+        Assert.AreNotEqual(_userRepository.FindAll().Last(), user);
     }
+
+    
     
     
 }
