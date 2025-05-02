@@ -4,12 +4,12 @@ using Backend.DTOs;
 namespace BackendTest.DTOsTest;
 
 [TestClass]
-public class CreateUserDTOsTest
+public class UserDataDtoTest
 {
     [TestMethod]
     public void CreateNameForUser()
     {
-        CreateUserDTOs userDto = new CreateUserDTOs();
+        UserDataDTO userDto = new UserDataDTO();
         userDto.Name = "Pedro";
         Assert.AreEqual("Pedro", userDto.Name);
     }
@@ -17,7 +17,7 @@ public class CreateUserDTOsTest
     [TestMethod]
     public void CreateLastNameForUser()
     {
-        CreateUserDTOs userDto = new CreateUserDTOs();
+        UserDataDTO userDto = new UserDataDTO();
         userDto.LastName = "Rodriguez";
         Assert.AreEqual("Rodriguez", userDto.LastName);
     }
@@ -25,7 +25,7 @@ public class CreateUserDTOsTest
     [TestMethod]
     public void AddEmailToUser()
     {
-        CreateUserDTOs userDto = new CreateUserDTOs();
+        UserDataDTO userDto = new UserDataDTO();
         userDto.Email = "prodriguez@gmail.com";
         Assert.AreEqual("prodriguez@gmail.com", userDto.Email);
     }
@@ -33,7 +33,7 @@ public class CreateUserDTOsTest
     [TestMethod]
     public void AddBirthDateToUser()
     {
-        CreateUserDTOs userDto = new CreateUserDTOs();
+        UserDataDTO userDto = new UserDataDTO();
         DateTime date = new DateTime(2003, 03, 14);
         userDto.BirthDate = date;
         Assert.AreEqual(date, userDto.BirthDate);
@@ -42,7 +42,7 @@ public class CreateUserDTOsTest
     [TestMethod]
     public void AddPasswordToUser()
     {
-        CreateUserDTOs userDto = new CreateUserDTOs();
+        UserDataDTO userDto = new UserDataDTO();
         userDto.Password = "Pedro1234@";
         Assert.AreEqual("Pedro1234@", userDto.Password);
     }
@@ -50,7 +50,7 @@ public class CreateUserDTOsTest
     [TestMethod]
     public void SetAdminInFalse()
     {
-        CreateUserDTOs userDto = new CreateUserDTOs();
+        UserDataDTO userDto = new UserDataDTO();
         userDto.Admin = false;
         Assert.IsFalse(userDto.Admin);
     }
@@ -58,7 +58,7 @@ public class CreateUserDTOsTest
     [TestMethod]
     public void ToEntityShouldMapAllPropertiesCorrectly()
     {
-        CreateUserDTOs dto = new CreateUserDTOs
+        UserDataDTO dto = new UserDataDTO
         {
             Name = "Alice",
             LastName = "Smith",
