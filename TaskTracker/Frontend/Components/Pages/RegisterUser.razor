@@ -1,5 +1,7 @@
 ﻿@page "/RegisterUser"
 @using System.ComponentModel.DataAnnotations
+@using Backend.Domain
+@using Backend.DTOs.UserDTOs
 @inject NavigationManager NavigationManager
 
 <PageTitle>Register User - TaskTrackPro</PageTitle>
@@ -10,28 +12,28 @@
 
             <div class="mb-3">
               <label for="Name" class="form-label">Name</label>
-              <input type="text" class="form-control" id="Name" placeholder="Enter your name">
+              <input type="text" class="form-control" id="Name" placeholder="Enter your name" @bind-Value="_newUser.Name" required>
             </div>
 
             <div class="mb-3">
               <label for="last-name" class="form-label">Last name</label>
-              <input type="text" class="form-control" id="last-name" placeholder="Enter your last name">
+              <input type="text" class="form-control" id="last-name" placeholder="Enter your last name" @bind-Value="_newUser.LastName" required>
             </div>
 
             <div class="mb-3">
               <label for="email" class="form-label">Email address</label>
-              <input type="email" class="form-control" id="email" placeholder="name@example.com">
+              <input type="email" class="form-control" id="email" placeholder="name@example.com" @bind-Value="_newUser.Email" required>
             </div>
 
             <div class="mb-3">
               <label for="birthdate" class="form-label">Date of Birth</label>
-              <input type="date" class="form-control" id="birthdate">
+              <input type="date" class="form-control" id="birthdate" @bind-Value="_newUser.BirthDate" required>
               <div class="form-text text-muted">Select your birth date (18-100 years old)</div>
             </div>
             
             <div class="mb-3">
               <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password">
+              <input type="password" class="form-control" id="password" @bind-Value="_newUser.Password" required>
               <div class="form-text">
                 Your password must:
                 <ul class="mb-0 ps-3 mt-1">
@@ -46,13 +48,13 @@
             <div class="mb-3">
               <label class="form-label">User Type</label>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="userRole" id="regularUser" value="regular" checked>
+                <input class="form-check-input" type="radio" name="userRole" id="regularUser" value="regular" @bind-Value="_newUser.Admin" Value="false" checked>
                 <label class="form-check-label" for="regularUser">
                   Regular User
                 </label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="userRole" id="adminSystem" value="admin">
+                <input class="form-check-input" type="radio" name="userRole" id="adminSystem" value="admin" @bind-Value="_newUser.Admin" Value="true">
                 <label class="form-check-label" for="adminSystem">
                   System Administrator
                 </label>
@@ -65,6 +67,8 @@
           </form>
 
 @code {
-
+    private UserDataDTO _newUser = new UserDataDTO();
+    
+    
 
 }
