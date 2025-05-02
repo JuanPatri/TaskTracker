@@ -1,6 +1,6 @@
 using System.Runtime.InteropServices.JavaScript;
 using Backend.Domain;
-using Backend.DTOs;
+using Backend.DTOs.UserDTOs;
 using Backend.Repository;
 
 namespace BackendTest.ServiceTest;
@@ -53,7 +53,7 @@ public class UserServiceTest
     {
         Assert.AreEqual(_userRepository.FindAll().Last(), _user);   
 
-        GetUserDTOs userToDelete = new GetUserDTOs()
+        GetUserDTO userToDelete = new GetUserDTO()
         {
             Email = "pedro@gmail.com"
         };
@@ -65,7 +65,7 @@ public class UserServiceTest
     [TestMethod]
     public void GetUserReturnUser()
     {
-        GetUserDTOs userToFind = new GetUserDTOs()
+        GetUserDTO userToFind = new GetUserDTO()
         {
             Email = "pedro@gmail.com"
         };

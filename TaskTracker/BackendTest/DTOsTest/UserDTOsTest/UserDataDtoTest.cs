@@ -1,7 +1,7 @@
 using Backend.Domain;
-using Backend.DTOs;
+using Backend.DTOs.UserDTOs;
 
-namespace BackendTest.DTOsTest;
+namespace BackendTest.DTOsTest.UserDTOsTest;
 
 [TestClass]
 public class UserDataDtoTest

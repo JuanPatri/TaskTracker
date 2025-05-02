@@ -1,5 +1,5 @@
 using Backend.Domain;
-using Backend.DTOs;
+using Backend.DTOs.UserDTOs;
 using Backend.Repository;
 
 namespace Backend.Service;
@@ -18,12 +18,12 @@ public class UserService
         return _userRepository.Add(createdUser);
     }
     
-    public void RemoveUser(GetUserDTOs user)
+    public void RemoveUser(GetUserDTO user)
     {
         _userRepository.Delete(user.Email);
     }
     
-    public User? GetUser(GetUserDTOs user)
+    public User? GetUser(GetUserDTO user)
     {
         return _userRepository.Find(u => u.Email == user.Email);
     }
