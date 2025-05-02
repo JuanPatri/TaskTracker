@@ -25,11 +25,17 @@ public class ProjectRepositoryTest
     }
     
     [TestMethod]
-    public void AddProjectToList()
+    public void AddProjectToListTest()
     {
         _projectRepository.Add(_project);
         Assert.AreEqual(_projectRepository.Find(p => p.Name == "New Project"), _project);
     }
     
-    
+    [TestMethod]
+    public void SearchForAllProjectInTheListTest()
+    {
+        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
+        _projectRepository.Add(_project);
+        Assert.AreEqual(_projectRepository.FindAll().Count, 2);
+    }
 }

@@ -38,4 +38,9 @@ public class ProjectRepository
     {
         return _projects.FirstOrDefault(predicate);
     }
+    
+    public IList<Project> FindAll()
+    {
+        throw new NotImplementedException();
+    }
 }
