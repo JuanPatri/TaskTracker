@@ -25,6 +25,10 @@ public class SessionService
         {
             throw new ArgumentException("User not found");
         }
+        if (user.Password != loginDto.Password)
+        {
+            throw new ArgumentException("Invalid password");
+        }
         
         CurrentUser = user;
     }

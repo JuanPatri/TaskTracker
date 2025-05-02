@@ -73,5 +73,17 @@ public class SessionServiceTest
         
         Assert.IsNull(_sessionService.CurrentUser);
     }
+    
+    [TestMethod]
+    public void LoginWithInvalidPasswordShouldThrowException()
+    {
+        LoginDto loginDto = new LoginDto()
+        {
+            Email = _user.Email,
+            Password = "InvalidPassword"
+        };
+        
+        Assert.ThrowsException<ArgumentException>(() => _sessionService.Login(loginDto));
+    }
  
 }
