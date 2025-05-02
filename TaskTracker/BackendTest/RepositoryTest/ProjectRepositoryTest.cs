@@ -67,4 +67,29 @@ public class ProjectRepositoryTest
         Assert.AreEqual(updateProject.FinishDate.Date, result.FinishDate.Date);
         Assert.AreEqual(updateProject.Administrator.Email, result.Administrator.Email);
     }
+    
+    [TestMethod]
+    public void UpdatingAProjectThatIsNotInTheListReturnsNullTest()
+    {
+        _project.Name = "Project1";
+        _projectRepository.Add(_project);
+        Project updateProject = new Project()
+        {
+            Name = "NonExistentProject",
+            Description = "UpdatedDescription",
+            StartDate = DateTime.Now.AddDays(2),
+            FinishDate = DateTime.Now.AddYears(2),
+            Administrator = new User()
+            {
+                Name = "Admin",
+                LastName = "Admin",
+                Email = "admin@test.com",
+                Password = "Admin123@",
+                Admin = true,
+                BirthDate = new DateTime(1990, 1, 1)
+            }
+        };
+        var result = _projectRepository.Update(updateProject);
+        Assert.IsNull(result);
+    }
 }
