@@ -46,6 +46,16 @@ public class ProjectRepository
     
     public Project? Update(Project updatedProject)
     {
-        throw new NotImplementedException();
+        Project? existingProject = _projects.FirstOrDefault(p => p.Name == updatedProject.Name);
+        if (existingProject != null)
+        {
+            existingProject.Description = updatedProject.Description;
+            existingProject.StartDate = updatedProject.StartDate;
+            existingProject.FinishDate = updatedProject.FinishDate;
+            existingProject.Administrator = updatedProject.Administrator;
+
+            return existingProject;
+        }
+        return null;
     }
 }
