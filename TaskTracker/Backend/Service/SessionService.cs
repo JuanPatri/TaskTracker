@@ -21,6 +21,11 @@ public class SessionService
         };
         User? user = _userService.GetUser(userDto);
         
+        if (user == null)
+        {
+            throw new ArgumentException("User not found");
+        }
+        
         CurrentUser = user;
     }
 }

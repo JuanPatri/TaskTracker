@@ -43,5 +43,17 @@ public class SessionServiceTest
         Assert.AreEqual(_sessionService.CurrentUser, _user);
     }
 
+    [TestMethod]
+    public void NullLoginReturnException()
+    {
+
+        LoginDto loginDto = new LoginDto()
+        {
+            Email = "null@gmail.com",
+            Password = "Null123!"
+        };
+        
+        Assert.ThrowsException<ArgumentException>(() => _sessionService.Login(loginDto));
+    }
  
 }
