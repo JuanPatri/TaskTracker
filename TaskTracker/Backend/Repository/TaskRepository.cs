@@ -43,8 +43,12 @@ public class TaskRepository : IRepository<Task>
         return null;
     }
 
-    public void Delete(string entity)
+    public void Delete(string title)
     {
-        throw new NotImplementedException();
+        Task? taskToDelete = _taskRepository.FirstOrDefault(t => t.Title == title);
+        if (taskToDelete != null)
+        {
+            _taskRepository.Remove(taskToDelete);
+        }
     }
 }
