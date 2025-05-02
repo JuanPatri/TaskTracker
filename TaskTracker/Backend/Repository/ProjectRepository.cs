@@ -30,11 +30,12 @@ public class ProjectRepository
     }
     public Project Add(Project project)
     {
-        throw new NotImplementedException();
+        _projects.Add(project);
+        return project;
     }
     
     public Project? Find(Func<Project, bool> predicate)
     {
-        throw new NotImplementedException();
+        return _projects.FirstOrDefault(predicate);
     }
 }
