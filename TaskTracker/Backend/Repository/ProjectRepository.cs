@@ -41,6 +41,6 @@ public class ProjectRepository
     
     public IList<Project> FindAll()
     {
-        throw new NotImplementedException();
+        return _projects;
     }
 }
