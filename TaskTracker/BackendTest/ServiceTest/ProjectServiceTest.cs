@@ -1,3 +1,5 @@
+using Backend.Service;
+
 namespace BackendTest.ServiceTest;
 
 [TestClass]
