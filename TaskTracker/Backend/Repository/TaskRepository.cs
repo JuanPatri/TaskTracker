@@ -17,9 +17,8 @@ public class TaskRepository : IRepository<Task>
     }
 
     public Task? Find(Func<Task, bool> predicate)
-    {
-        Task task = _taskRepository.FirstOrDefault(predicate);
-        return task;
+    { 
+        return _taskRepository.FirstOrDefault(predicate);;
     }
 
     public IList<Task> FindAll()
