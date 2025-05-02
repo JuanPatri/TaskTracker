@@ -81,4 +81,18 @@ public void UpdateExistingTaskTest()
     Assert.AreEqual("Updated Description", foundUpdatedTask.Description);
     Assert.AreEqual(Status.Completed, foundUpdatedTask.Status);
 }
+
+[TestMethod]
+public void DeleteTaskFromListTest(){
+    _taskRepository.Add(_task);
+    
+    TaskItem task2 = new TaskItem(); 
+    task2.Title = "Task 2";
+    _taskRepository.Add(task2);
+    
+    Assert.AreEqual(2, _taskRepository.FindAll().Count());
+    
+    _taskRepository.Delete("Task 1");
+    
+    Assert.AreEqual(1, _taskRepository.FindAll().Count());}
 }
