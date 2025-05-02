@@ -22,4 +22,9 @@ public class UserService
     {
         _userRepository.Delete(user.Email);
     }
+    
+    public User? GetUser(GetUserDTOs user)
+    {
+        return _userRepository.Find(u => u.Email == user.Email);
+    }
 }

@@ -61,7 +61,23 @@ public class UserServiceTest
         Assert.AreNotEqual(_userRepository.FindAll().Last(), user);
     }
 
-    
+    [TestMethod]
+    public void LookingForUserShouldFindIt()
+    {
+        User user = new User()
+        {
+            Email = "pedro@gmail.com"
+        };
+        _userRepository.Add(user);
+
+        GetUserDTOs userToFind = new GetUserDTOs()
+        {
+            Email = "pedro@gmail.com"
+        };
+        Assert.AreEqual(_userService.GetUser(userToFind), user);
+        
+        
+    }
     
     
 }
