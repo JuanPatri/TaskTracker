@@ -26,4 +26,15 @@ public class TaskRepositoryTest
         Assert.IsNotNull(foundTask);
         Assert.AreEqual(foundTask, _task);
     }
+
+    [TestMethod]
+    public void FindTaskInListTest()
+    {
+        TaskItem task2 = new TaskItem(); 
+        task2.Title = "Task 2";
+        
+        _taskRepository.Add(_task);
+        TaskItem taskFind = _taskRepository.Find(t => t.Title == _task.Title);
+        Assert.AreEqual(taskFind, _task);
+    }
 }

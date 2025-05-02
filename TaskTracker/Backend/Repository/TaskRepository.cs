@@ -1,31 +1,32 @@
 ﻿namespace Backend.Repository;
 using Backend.Domain;
 
-public class TaskRepository : IRepository<Backend.Domain.Task>
+public class TaskRepository : IRepository<Task>
 {
-    private readonly List<Backend.Domain.Task> _taskRepository;
+    private readonly List<Task> _taskRepository;
 
     public TaskRepository()
     {
-        _taskRepository = new List<Backend.Domain.Task>();
+        _taskRepository = new List<Task>();
     }
 
-    public Backend.Domain.Task Add(Backend.Domain.Task task)
+    public Task Add(Task task)
+    {
+        _taskRepository.Add(task);
+        return task;
+    }
+
+    public Task? Find(Func<Task, bool> predicate)
     {
         throw new NotImplementedException();
     }
 
-    public Backend.Domain.Task? Find(Func<Backend.Domain.Task, bool> predicate)
+    public IList<Task> FindAll()
     {
         throw new NotImplementedException();
     }
 
-    public IList<Backend.Domain.Task> FindAll()
-    {
-        throw new NotImplementedException();
-    }
-
-    public Backend.Domain.Task? Update(Backend.Domain.Task entity)
+    public Task? Update(Task entity)
     {
         throw new NotImplementedException();
     }
