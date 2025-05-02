@@ -43,4 +43,9 @@ public class ProjectRepository
     {
         return _projects;
     }
+    
+    public Project? Update(Project updatedProject)
+    {
+        throw new NotImplementedException();
+    }
 }
