@@ -38,7 +38,7 @@ using Backend.Domain;
         [TestMethod]
         public void SetCriticalPathTasksTest()
         {
-            List<Task> listTask = new List<Task>();
+            List<ProjectTask> listTask = new List<ProjectTask>();
     
             _criticalPath.CriticalPathTasks = listTask;
     

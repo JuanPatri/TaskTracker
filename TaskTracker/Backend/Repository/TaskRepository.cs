@@ -9,9 +9,9 @@ public class TaskRepository : IRepository<Task>
         _taskRepository = new List<Task>();
     }
 
-    public Task Add(Task entity)
+    public Task Add(Task task)
     {
-        throw new NotImplementedException();
+        return task;
     }
 
     public Task? Find(Func<Task, bool> predicate)

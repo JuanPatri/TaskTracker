@@ -8,7 +8,7 @@ public class Notification
     private DateTime _date;
     private TypeOfNotification _validateTypeOfNotification;
     private int _impact;
-    private List<Task> _task;
+    private List<ProjectTask> _task;
     
     private const int MinImpact = 1;
     public string Message
@@ -47,7 +47,7 @@ public class Notification
         }
     }
     
-    public List<Task> Task
+    public List<ProjectTask> Task
     {
         get => _task;
         set

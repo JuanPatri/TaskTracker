@@ -1,6 +1,6 @@
 ﻿namespace Backend.Domain;
 using Enums;
-public class Task
+public class ProjectTask
 {
     private string _title = String.Empty; 
     private string _description = String.Empty;
@@ -8,7 +8,7 @@ public class Task
     private TimeSpan _durationTask;
     private Status _status = Status.Pending;
     private Project _project;
-    private List<Task> _dependencies = new List<Task>();
+    private List<ProjectTask> _dependencies = new List<ProjectTask>();
 
     public string Title
     {
@@ -62,7 +62,7 @@ public class Task
         } 
     }
 
-    public List<Task> Dependencies
+    public List<ProjectTask> Dependencies
     {
         get => _dependencies;
         set => _dependencies = value;
