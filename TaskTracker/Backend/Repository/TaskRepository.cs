@@ -28,7 +28,7 @@ public class TaskRepository : IRepository<Task>
 
     public Task? Update(Task updateTask)
     {
-        Task? existingTask = _taskRepository.FirstOrDefault(u => u.Title == updateTask.Title);
+        Task? existingTask = _taskRepository.FirstOrDefault(task => task.Title == updateTask.Title);
         if (existingTask != null)
         {
             existingTask.Description = updateTask.Description;
