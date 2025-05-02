@@ -58,4 +58,9 @@ public class ProjectRepository
         }
         return null;
     }
+    
+    public void Delete(String name)
+    {
+        throw new NotImplementedException();
+    }
 }

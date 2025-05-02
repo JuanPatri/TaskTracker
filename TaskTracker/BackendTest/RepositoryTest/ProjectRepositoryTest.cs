@@ -92,4 +92,13 @@ public class ProjectRepositoryTest
         var result = _projectRepository.Update(updateProject);
         Assert.IsNull(result);
     }
+    
+    [TestMethod]
+    public void DeleteProjectFromListTest()
+    {
+        _project.Name = "Project1";
+        _projectRepository.Add(_project);
+        _projectRepository.Delete("Project1");
+        Assert.IsNull(_projectRepository.Find(p => p.Name == "Project1"));
+    }
 }
