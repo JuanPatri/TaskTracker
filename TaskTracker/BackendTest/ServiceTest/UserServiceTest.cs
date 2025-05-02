@@ -38,7 +38,10 @@ public class UserServiceTest
         };
         User? createdUser = _userService.AddUser(user);
         Assert.IsNotNull(createdUser);
+        Assert.AreEqual(_userRepository.FindAll().Last(), createdUser);
     }
+    
+    
     
     
 }
