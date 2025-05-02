@@ -94,5 +94,7 @@ public void DeleteTaskFromListTest(){
     
     _taskRepository.Delete("Task 1");
     
-    Assert.AreEqual(1, _taskRepository.FindAll().Count());}
+    Assert.AreEqual(1, _taskRepository.FindAll().Count());
+    
+}
 }

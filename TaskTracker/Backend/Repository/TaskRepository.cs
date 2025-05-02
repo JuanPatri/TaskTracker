@@ -45,7 +45,7 @@ public class TaskRepository : IRepository<Task>
 
     public void Delete(string title)
     {
-        Task? taskToDelete = _taskRepository.FirstOrDefault(t => t.Title == title);
+        Task? taskToDelete = _taskRepository.FirstOrDefault(task => task.Title == title);
         if (taskToDelete != null)
         {
             _taskRepository.Remove(taskToDelete);
