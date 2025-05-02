@@ -61,6 +61,10 @@ public class ProjectRepository
     
     public void Delete(String name)
     {
-        throw new NotImplementedException();
+        Project? project = _projects.FirstOrDefault(p => p.Name == name);
+        if (project != null)
+        {
+            _projects.Remove(project);
+        }
     }
 }
