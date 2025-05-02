@@ -3,58 +3,58 @@ using Backend.Domain;
 using Backend.Domain.Enums;
 
 [TestClass]
-public class ProjectTaskTest
+public class TaskTest
 {
-    private ProjectTask _projectTask;
+    private Task _task;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _projectTask = new ProjectTask();
+        _task = new Task();
     }
 
     [TestMethod]
     public void CreateTaskTest()
     {
-        Assert.IsNotNull(_projectTask);
+        Assert.IsNotNull(_task);
     }
 
     [TestMethod]
     public void SetValidTitleUpdatesValueCorrectly()
     {
         string expectedTitle = "Valid Title";
-        _projectTask.Title = expectedTitle;
-        Assert.AreEqual(expectedTitle, _projectTask.Title);
+        _task.Title = expectedTitle;
+        Assert.AreEqual(expectedTitle, _task.Title);
     }
     
     [TestMethod]
     public void PutTitleNullReturnsAnException()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectTask.Title = null);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = null);
         Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
 
     [TestMethod]
     public void PutTitleWhitespaceReturnAnExceptionTest()
     {
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectTask.Title = " ");
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Title = " ");
         Assert.AreEqual("The title name cannot be empty", ex.Message);
     }
 
     [TestMethod]
     public void CreateDescrptionForTaskTest()
     {
-        _projectTask.Description = "Description";
-        Assert.AreEqual("Description", _projectTask.Description);
+        _task.Description = "Description";
+        Assert.AreEqual("Description", _task.Description);
     }
 
     [TestMethod]
     public void CreateDateForTaskTest()
     {
         DateOnly testDate = new DateOnly(2025, 4, 22);
-        _projectTask.Date = testDate;
+        _task.Date = testDate;
 
-        Assert.AreEqual(testDate, _projectTask.Date);
+        Assert.AreEqual(testDate, _task.Date);
     }
 
     [TestMethod]
@@ -62,7 +62,7 @@ public class ProjectTaskTest
     {
         DateOnly futureDate = new DateOnly(2026, 4, 22);
 
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectTask.Date = futureDate);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Date = futureDate);
         Assert.AreEqual("The date cannot be in the future.", ex.Message);
     }
 
@@ -71,24 +71,24 @@ public class ProjectTaskTest
     {
         TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
         
-        _projectTask.DurationTask = durationTask;
+        _task.DurationTask = durationTask;
 
-        Assert.AreEqual(durationTask, _projectTask.DurationTask);
+        Assert.AreEqual(durationTask, _task.DurationTask);
     }
 
     [TestMethod]
     public void SetStatusForTaskTest()
     {
-        _projectTask.Status = Status.Pending;
-        Assert.AreEqual(Status.Pending, _projectTask.Status);
+        _task.Status = Status.Pending;
+        Assert.AreEqual(Status.Pending, _task.Status);
     }
     
     [TestMethod]
     public void SetProjectForTaskTest()
     {
         Project project = new Project();
-        _projectTask.Project = project;
-        Assert.AreEqual(project, _projectTask.Project);
+        _task.Project = project;
+        Assert.AreEqual(project, _task.Project);
     }
 
     [TestMethod]
@@ -96,17 +96,17 @@ public class ProjectTaskTest
     {
         Project project = null;
     
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectTask.Project = project);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Project = project);
         Assert.AreEqual("Project cannot be null", ex.Message);
     }
 
     [TestMethod]
     public void SetDependencyTaskTest()
     {
-        List<ProjectTask> dependencyTask = new List<ProjectTask>();
+        List<Task> dependencyTask = new List<Task>();
     
-        _projectTask.Dependencies = dependencyTask;
+        _task.Dependencies = dependencyTask;
     
-        Assert.AreEqual(dependencyTask, _projectTask.Dependencies);
+        Assert.AreEqual(dependencyTask, _task.Dependencies);
     }
 }

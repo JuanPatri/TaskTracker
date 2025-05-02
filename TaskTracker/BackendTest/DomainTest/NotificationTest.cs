@@ -1,5 +1,6 @@
 using Backend.Domain;
 using Backend.Domain.Enums;
+using Task = Backend.Domain.Task;
 
 namespace BackendTest.DomainTest;
 
@@ -70,7 +71,7 @@ public class NotificationTest
     [TestMethod]
     public void AddTaskToNotificationTest()
     {
-        List<ProjectTask> task = new List<ProjectTask>();
+        List<Task> task = new List<Task>();
         _notification.Task = task;
         Assert.AreEqual(task, _notification.Task);
     }

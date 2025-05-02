@@ -3,7 +3,7 @@
 public class CriticalPath
 {
     private Project _project;
-    private List<ProjectTask> _criticalPathTasks;
+    private List<Task> _criticalPathTasks;
     
     public Project Project
     {
@@ -17,7 +17,7 @@ public class CriticalPath
         } 
     }
 
-    public List<ProjectTask> CriticalPathTasks
+    public List<Task> CriticalPathTasks
     {
         get => _criticalPathTasks;
         set => _criticalPathTasks = value;
