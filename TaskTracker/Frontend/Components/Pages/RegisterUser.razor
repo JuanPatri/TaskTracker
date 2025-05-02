@@ -2,7 +2,10 @@
 @using System.ComponentModel.DataAnnotations
 @using Backend.Domain
 @using Backend.DTOs.UserDTOs
+@using Backend.Service
 @inject NavigationManager NavigationManager
+@inject UserService UserService
+
 
 <PageTitle>Register User - TaskTrackPro</PageTitle>
 
@@ -11,29 +14,29 @@
             <h3 class="mb-3">Create User</h3>
 
             <div class="mb-3">
-              <label for="Name" class="form-label">Name</label>
-              <input type="text" class="form-control" id="Name" placeholder="Enter your name" @bind-Value="_newUser.Name" required>
+              <label class="form-label">Name</label>
+              <InputText class="form-control" placeholder="Enter your name" @bind-Value="_newUser.Name" required />
             </div>
 
             <div class="mb-3">
-              <label for="last-name" class="form-label">Last name</label>
-              <input type="text" class="form-control" id="last-name" placeholder="Enter your last name" @bind-Value="_newUser.LastName" required>
+              <label class="form-label">Last name</label>
+              <InputText class="form-control" placeholder="Enter your last name" @bind-Value="_newUser.LastName"  />
             </div>
 
             <div class="mb-3">
-              <label for="email" class="form-label">Email address</label>
-              <input type="email" class="form-control" id="email" placeholder="name@example.com" @bind-Value="_newUser.Email" required>
+              <label class="form-label">Email address</label>
+              <InputText type="email" class="form-control" placeholder="name@example.com" @bind-Value="_newUser.Email" required />
             </div>
 
             <div class="mb-3">
-              <label for="birthdate" class="form-label">Date of Birth</label>
-              <input type="date" class="form-control" id="birthdate" @bind-Value="_newUser.BirthDate" required>
+              <label class="form-label">Date of Birth</label>
+              <InputDate class="form-control" @bind-Value="_newUser.BirthDate"  />
               <div class="form-text text-muted">Select your birth date (18-100 years old)</div>
             </div>
             
             <div class="mb-3">
-              <label for="password" class="form-label">Password</label>
-              <input type="password" class="form-control" id="password" @bind-Value="_newUser.Password" required>
+              <label class="form-label">Password</label>
+              <InputText type="password" class="form-control" @bind-Value="_newUser.Password" required/>
               <div class="form-text">
                 Your password must:
                 <ul class="mb-0 ps-3 mt-1">
@@ -47,18 +50,16 @@
             
             <div class="mb-3">
               <label class="form-label">User Type</label>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="userRole" id="regularUser" value="regular" @bind-Value="_newUser.Admin" Value="false" checked>
-                <label class="form-check-label" for="regularUser">
-                  Regular User
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="userRole" id="adminSystem" value="admin" @bind-Value="_newUser.Admin" Value="true">
-                <label class="form-check-label" for="adminSystem">
-                  System Administrator
-                </label>
-              </div>
+              <InputRadioGroup @bind-Value="_newUser.Admin">
+                <div class="form-check">
+                  <InputRadio class="form-check-input" Value="false" />
+                  <label class="form-check-label">Regular User</label>
+                </div>
+                <div class="form-check">
+                  <InputRadio class="form-check-input" Value="true" />
+                  <label class="form-check-label">System Administrator</label>
+                </div>
+              </InputRadioGroup>
             </div>
             
             <div class="d-grid gap-2">
@@ -69,6 +70,19 @@
 @code {
     private UserDataDTO _newUser = new UserDataDTO();
     
+    private void CreateAccount()
+    {
+        try
+        {
+            User validateUser = _newUser.ToEntity();
+            UserService.AddUser(_newUser);
+            NavigationManager.NavigateTo("/Login");
+        }
+        catch (Exception ex)
+        {
+          
+        }
+    }
     
 
 }
