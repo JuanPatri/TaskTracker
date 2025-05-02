@@ -1,6 +1,7 @@
 ﻿using Backend.Repository;
 using TaskItem = Backend.Domain.Task; 
-
+using Backend.Domain;
+using Backend.Domain.Enums;
 namespace BackendTest.RepositoryTest;
 
 [TestClass]
@@ -51,4 +52,33 @@ public class TaskRepositoryTest
 
         Assert.AreEqual(2, _taskRepository.FindAll().Count());
     }
+
+[TestMethod]
+public void UpdateExistingTaskTest()
+{
+    _taskRepository.Add(_task);
+    
+    TaskItem updatedTask = new TaskItem
+    {
+        Title = "Updated Task",
+        Description = "Updated Description",
+        Date = new DateOnly(2025, 4, 22), 
+        DurationTask = new TimeSpan(9, 25, 0),  
+        Status = Status.Completed,  
+        Project = new Project(), 
+        Dependencies = new List<TaskItem>()  
+    };
+    
+    TaskItem? originalTask = _taskRepository.Find(t => t.Title == _task.Title);
+    Assert.IsNotNull(originalTask);
+    Assert.AreEqual(_task.Title, originalTask.Title);
+    
+    _taskRepository.Update(updatedTask);
+    
+    TaskItem? foundUpdatedTask = _taskRepository.Find(t => t.Title == "Updated Task");
+    Assert.IsNotNull(foundUpdatedTask);
+    Assert.AreEqual("Updated Task", foundUpdatedTask.Title);
+    Assert.AreEqual("Updated Description", foundUpdatedTask.Description);
+    Assert.AreEqual(Status.Completed, foundUpdatedTask.Status);
+}
 }
