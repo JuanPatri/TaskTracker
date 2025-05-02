@@ -11,12 +11,19 @@ public class UserServiceTest
 {
     private UserService _userService;
     private UserRepository _userRepository;
+    private User _user;
     
     [TestInitialize]
     public void OnInitialize()
     {
         _userRepository = new UserRepository();
         _userService = new UserService(_userRepository);
+        
+        _user = new User()
+        {
+            Email = "pedro@gmail.com"
+        };
+        _userRepository.Add(_user);
     }
     
     [TestMethod]
@@ -44,13 +51,7 @@ public class UserServiceTest
     [TestMethod]
     public void RemoveUserShouldRemoveUser()
     {
-        User user = new User()
-        {
-            Email = "pedro@gmail.com"
-        };
-        _userRepository.Add(user);
-        
-        Assert.AreEqual(_userRepository.FindAll().Last(), user);
+        Assert.AreEqual(_userRepository.FindAll().Last(), _user);   
 
         GetUserDTOs userToDelete = new GetUserDTOs()
         {
@@ -58,24 +59,19 @@ public class UserServiceTest
         };
         _userService.RemoveUser(userToDelete);
         
-        Assert.AreNotEqual(_userRepository.FindAll().Last(), user);
+        Assert.AreNotEqual(_userRepository.FindAll().Last(), _user);
     }
 
     [TestMethod]
     public void GetUserReturnUser()
     {
-        User user = new User()
-        {
-            Email = "pedro@gmail.com"
-        };
-        _userRepository.Add(user);
-
         GetUserDTOs userToFind = new GetUserDTOs()
         {
             Email = "pedro@gmail.com"
         };
-        Assert.AreEqual(_userService.GetUser(userToFind), user);
+        
+        Assert.AreEqual(_userService.GetUser(userToFind), _user);
     }
-    
+
     
 }
