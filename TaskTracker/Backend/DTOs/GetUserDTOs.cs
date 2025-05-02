@@ -1,11 +1,16 @@
+using Backend.Domain;
+
 namespace Backend.DTOs;
 
 public class GetUserDTOs
 {
     public string Email { get; set; } = string.Empty;
     
-    public string ToEntity()
+    public User ToEntity()
     {
-        return Email;
+        return new User() 
+        {
+            Email = Email
+        };
     }
 }

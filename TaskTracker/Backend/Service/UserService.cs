@@ -18,5 +18,8 @@ public class UserService
         return _userRepository.Add(createdUser);
     }
     
-    
+    public void RemoveUser(GetUserDTOs user)
+    {
+        _userRepository.Delete(user.Email);
+    }
 }

@@ -40,8 +40,22 @@ public class UserServiceTest
         Assert.IsNotNull(createdUser);
         Assert.AreEqual(_userRepository.FindAll().Last(), createdUser);
     }
-    
-    
+
+    [TestMethod]
+    public void RemoveUserShouldRemoveUser()
+    {
+        User user = new User()
+        {
+            Email = "pedro@gmail.com"
+        };
+        _userRepository.Add(user);
+
+        GetUserDTOs userToDelete = new GetUserDTOs()
+        {
+            Email = "pedro@gmail.com"
+        };
+        _userService.RemoveUser(userToDelete);
+    }
     
     
 }

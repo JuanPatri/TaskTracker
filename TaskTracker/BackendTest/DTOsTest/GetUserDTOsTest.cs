@@ -3,7 +3,7 @@ using Backend.DTOs;
 namespace BackendTest.DTOsTest;
 
 [TestClass]
-public class GetUserDtOsTest
+public class GetUserDTOsTest
 {
     [TestMethod]
     public void AddEmailToUser()
@@ -23,6 +23,6 @@ public class GetUserDtOsTest
         
         var result = dto.ToEntity();
         
-        Assert.AreEqual("user@example.com", result);
+        Assert.AreEqual("user@example.com", result.Email);
     }
 }
