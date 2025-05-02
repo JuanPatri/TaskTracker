@@ -60,7 +60,7 @@ public void UpdateExistingTaskTest()
     
     TaskItem updatedTask = new TaskItem
     {
-        Title = "Updated Task",
+        Title = "Task 1",
         Description = "Updated Description",
         Date = new DateOnly(2025, 4, 22), 
         DurationTask = new TimeSpan(9, 25, 0),  
@@ -75,9 +75,9 @@ public void UpdateExistingTaskTest()
     
     _taskRepository.Update(updatedTask);
     
-    TaskItem? foundUpdatedTask = _taskRepository.Find(t => t.Title == "Updated Task");
+    TaskItem? foundUpdatedTask = _taskRepository.Find(t => t.Title == "Task 1");
     Assert.IsNotNull(foundUpdatedTask);
-    Assert.AreEqual("Updated Task", foundUpdatedTask.Title);
+    Assert.AreEqual("Task 1", foundUpdatedTask.Title);
     Assert.AreEqual("Updated Description", foundUpdatedTask.Description);
     Assert.AreEqual(Status.Completed, foundUpdatedTask.Status);
 }

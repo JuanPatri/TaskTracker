@@ -26,9 +26,21 @@ public class TaskRepository : IRepository<Task>
         return _taskRepository;
     }
 
-    public Task? Update(Task entity)
+    public Task? Update(Task updateTask)
     {
-        throw new NotImplementedException();
+        Task? existingTask = _taskRepository.FirstOrDefault(u => u.Title == updateTask.Title);
+        if (existingTask != null)
+        {
+            existingTask.Description = updateTask.Description;
+            existingTask.Date = updateTask.Date;
+            existingTask.DurationTask = updateTask.DurationTask;
+            existingTask.Status = updateTask.Status;
+            existingTask.Project = updateTask.Project;
+            existingTask.Dependencies = updateTask.Dependencies;
+            
+            return existingTask;
+        }
+        return null;
     }
 
     public void Delete(string entity)
