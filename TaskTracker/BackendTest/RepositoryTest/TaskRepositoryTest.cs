@@ -37,4 +37,17 @@ public class TaskRepositoryTest
         TaskItem taskFind = _taskRepository.Find(t => t.Title == _task.Title);
         Assert.AreEqual(taskFind, _task);
     }
+    
+    [TestMethod]
+    public void FindAllTasksInListTest()
+    {
+        _taskRepository.Add(_task);
+        
+        Assert.AreEqual(1, _taskRepository.FindAll().Count());
+
+        TaskItem task2 = new TaskItem(); 
+        task2.Title = "Task 2";
+        
+        Assert.AreEqual(2, _taskRepository.FindAll().Count());
+    }
 }
