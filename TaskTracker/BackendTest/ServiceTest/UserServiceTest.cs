@@ -73,5 +73,12 @@ public class UserServiceTest
         Assert.AreEqual(_userService.GetUser(userToFind), _user);
     }
 
-    
+    [TestMethod]
+    public void GetAllUsersReturnAllUsers()
+    {
+        List <User> users = _userService.GetAllUsers();
+        
+        Assert.IsTrue(users.Any(u => u.Email == "admin@admin.com"));
+        Assert.IsTrue(users.Any(u => u.Email == "pedro@gmail.com"));
+    }
 }

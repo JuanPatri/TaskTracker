@@ -27,4 +27,9 @@ public class UserService
     {
         return _userRepository.Find(u => u.Email == user.Email);
     }
+
+    public List<User> GetAllUsers()
+    {
+        return _userRepository.FindAll().ToList();
+    }
 }
