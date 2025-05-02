@@ -2,7 +2,7 @@ using Backend.Domain;
 
 namespace Backend.DTOs;
 
-public class CreateUserDTOs
+public class UserDataDTO
 {
     public string Name { get; set; } = string.Empty;
     public string LastName { get; set; } = string.Empty;

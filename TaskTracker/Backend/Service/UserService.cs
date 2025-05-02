@@ -12,7 +12,7 @@ public class UserService
         _userRepository = userRepository;
     }
     
-    public User AddUser(CreateUserDTOs user)
+    public User AddUser(UserDataDTO user)
     {
         User createdUser = user.ToEntity();
         return _userRepository.Add(createdUser);
@@ -31,5 +31,11 @@ public class UserService
     public List<User> GetAllUsers()
     {
         return _userRepository.FindAll().ToList();
+    }
+
+    public User? UpdateUser(UserDataDTO userDto)
+    {
+        User updatedUser = userDto.ToEntity();
+        return _userRepository.Update(updatedUser);
     }
 }

@@ -35,7 +35,7 @@ public class UserServiceTest
     [TestMethod]
     public void AddUserShouldReturnUser()
     {
-        CreateUserDTOs user = new CreateUserDTOs()
+        UserDataDTO user = new UserDataDTO()
         {
             Name = "Pedro",
             LastName = "Rodriguez",
@@ -80,5 +80,25 @@ public class UserServiceTest
         
         Assert.IsTrue(users.Any(u => u.Email == "admin@admin.com"));
         Assert.IsTrue(users.Any(u => u.Email == "pedro@gmail.com"));
+    }
+
+    [TestMethod]
+    public void UpdateUserShouldModifyUserData()
+    {
+        _user.Name = "name";
+        Assert.AreEqual(_user.Name, "name");
+
+        UserDataDTO userDTO = new UserDataDTO()
+        {
+            Name = "Pedro",
+            LastName = "Rodriguez",
+            BirthDate = new DateTime(2003, 03, 14),
+            Email = "pedro@gmail.com",
+            Password = "Pedrito123!",
+            Admin = false
+        };
+        
+        _userService.UpdateUser(userDTO);
+        Assert.AreEqual(_user.Name, "Pedro");
     }
 }
