@@ -28,4 +28,9 @@ public class SessionService
         
         CurrentUser = user;
     }
+
+    public void Logout()
+    {
+        CurrentUser = null;
+    }
 }

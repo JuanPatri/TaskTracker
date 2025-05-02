@@ -55,5 +55,23 @@ public class SessionServiceTest
         
         Assert.ThrowsException<ArgumentException>(() => _sessionService.Login(loginDto));
     }
+    
+    [TestMethod]
+    public void LogoutShouldSetCurrentUserToNull()
+    {
+        LoginDto loginDto = new LoginDto()
+        {
+            Email = _user.Email,
+            Password = _user.Password
+        };
+        
+        _sessionService.Login(loginDto);
+        
+        Assert.AreEqual(_sessionService.CurrentUser, _user);
+        
+        _sessionService.Logout();
+        
+        Assert.IsNull(_sessionService.CurrentUser);
+    }
  
 }
