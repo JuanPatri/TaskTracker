@@ -18,7 +18,8 @@ public class TaskRepository : IRepository<Task>
 
     public Task? Find(Func<Task, bool> predicate)
     {
-        throw new NotImplementedException();
+        Task task = _taskRepository.FirstOrDefault(predicate);
+        return task;
     }
 
     public IList<Task> FindAll()
