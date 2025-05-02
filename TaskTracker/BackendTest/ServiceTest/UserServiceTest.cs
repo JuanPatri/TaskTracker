@@ -62,7 +62,7 @@ public class UserServiceTest
     }
 
     [TestMethod]
-    public void LookingForUserShouldFindIt()
+    public void GetUserReturnUser()
     {
         User user = new User()
         {
@@ -75,8 +75,6 @@ public class UserServiceTest
             Email = "pedro@gmail.com"
         };
         Assert.AreEqual(_userService.GetUser(userToFind), user);
-        
-        
     }
     
     
