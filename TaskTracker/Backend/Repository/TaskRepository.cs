@@ -23,7 +23,7 @@ public class TaskRepository : IRepository<Task>
 
     public IList<Task> FindAll()
     {
-        throw new NotImplementedException();
+        return _taskRepository;
     }
 
     public Task? Update(Task entity)

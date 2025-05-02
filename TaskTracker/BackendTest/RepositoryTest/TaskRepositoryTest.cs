@@ -47,7 +47,8 @@ public class TaskRepositoryTest
 
         TaskItem task2 = new TaskItem(); 
         task2.Title = "Task 2";
-        
+        _taskRepository.Add(task2);
+
         Assert.AreEqual(2, _taskRepository.FindAll().Count());
     }
 }
