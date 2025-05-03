@@ -109,4 +109,13 @@ public class TaskTest
     
         Assert.AreEqual(dependencyTask, _task.Dependencies);
     }
+
+    [TestMethod]
+    public void SetDescriptionNullReturnsAnException()
+    {
+        _task.Description = null;
+        
+        ArgumentNullException ex = Assert.ThrowsException<ArgumentNullException>(() => _task.Description = null);
+        Assert.AreEqual("Description cannot be null.", ex.Message);
+    }
 }
