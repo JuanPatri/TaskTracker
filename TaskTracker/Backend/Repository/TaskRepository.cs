@@ -32,7 +32,7 @@ public class TaskRepository : IRepository<Task>
         if (existingTask != null)
         {
             existingTask.Description = updateTask.Description;
-            existingTask.Date = updateTask.Date;
+            existingTask.StartDate = updateTask.StartDate;
             existingTask.DurationTask = updateTask.DurationTask;
             existingTask.Status = updateTask.Status;
             existingTask.Project = updateTask.Project;

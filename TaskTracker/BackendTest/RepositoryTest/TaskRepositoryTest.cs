@@ -62,7 +62,7 @@ public void UpdateExistingTaskTest()
     {
         Title = "Task 1",
         Description = "Updated Description",
-        Date = new DateOnly(2025, 4, 22), 
+        StartDate = new DateOnly(2025, 4, 22), 
         DurationTask = new TimeSpan(9, 25, 0),  
         Status = Status.Completed,  
         Project = new Project(), 

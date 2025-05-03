@@ -49,24 +49,6 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void CreateDateForTaskTest()
-    {
-        DateOnly testDate = new DateOnly(2025, 4, 22);
-        _task.Date = testDate;
-
-        Assert.AreEqual(testDate, _task.Date);
-    }
-
-    [TestMethod]
-    public void SetDateWithFutureDateThrowsArgumentException()
-    {
-        DateOnly futureDate = new DateOnly(2026, 4, 22);
-
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Date = futureDate);
-        Assert.AreEqual("The date cannot be in the future.", ex.Message);
-    }
-
-    [TestMethod]
     public void SetDurationForTaskTest()
     {
         TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
