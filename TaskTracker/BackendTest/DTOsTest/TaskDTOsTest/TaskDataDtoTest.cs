@@ -58,4 +58,22 @@ public class TaskDataDtoTest
         _taskDataDto.Dependencies = dependencies;
         Assert.AreEqual(dependencies, _taskDataDto.Dependencies);
     }
+    
+    [TestMethod]
+    public void ToEntityShouldMapAllPropertiesCorrectly()
+    { 
+        _taskDataDto = new TaskDataDTO
+        {
+            Title = "Task",
+            Description = "Description task",
+            Duration = TimeSpan.FromHours(1),
+            Status = Status.Blocked,
+            Project = 9,
+            Dependencies = new List<String> { "Task 1", "Task 2" }
+        };
+        
+        Task task = _taskDataDto.ToEntity();
+
+        Assert.IsNotNull(task);
+    }
 }
