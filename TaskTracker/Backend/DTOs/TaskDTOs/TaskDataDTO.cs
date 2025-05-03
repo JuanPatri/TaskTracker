@@ -15,12 +15,7 @@ public class TaskDataDTO
     
     public Task ToEntity()
     {
-        // Hacer en service task
-        // List<Task> taskDependencies = new List<Task>();
-        // for(int i = 0; i < Dependencies.Count; i++)
-        // {
-        //     taskDependencies.Add(FindAll().Find(t => t.title == Dependencies[i])); 
-        // }
+
         return new Task()
         {
             Title = Title,

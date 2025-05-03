@@ -17,5 +17,13 @@ public class TaskService
         Task createdTask = task.ToEntity();
         return _taskRepository.Add(createdTask);
     }
+    
+    
 
+    // Hacer en service task
+    // List<Task> taskDependencies = new List<Task>();
+    // for(int i = 0; i < Dependencies.Count; i++)
+    // {
+    //     taskDependencies.Add(FindAll().Find(t => t.title == Dependencies[i])); 
+    // }
 }

@@ -6,14 +6,29 @@ using Task = Backend.Domain.Task;
 
 namespace BackendTest.ServiceTest;
 
+[TestClass]
 public class TaskServiceTest
 {
+
+    private TaskRepository _taskRepository;
+    private TaskService _taskService;
+    private Task _task;
+    
+    [TestInitialize]
+    public void OnInitialize()
+    {
+        _taskRepository = new TaskRepository();
+        _taskService = new TaskService(_taskRepository);
+        _task = new Task()
+        {
+            Title = "Test Task",
+        };
+        _taskRepository.Add(_task);
+    }
+    
     [TestMethod]
     public void AddTaskToRepository()
     {
-        TaskRepository _taskRepository = new TaskRepository();
-        TaskService _taskService = new TaskService(_taskRepository);
-        
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
         taskDto.Description = "This is a test task.";
@@ -26,5 +41,12 @@ public class TaskServiceTest
         
         Assert.IsNotNull(task);
         Assert.AreEqual(_taskRepository.FindAll().Last(), task);
+    }
+
+    [TestMethod]
+    public void FindTaskByTitleReturnTask()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO();
+        taskDto.Title = "Test Task";
     }
 }
