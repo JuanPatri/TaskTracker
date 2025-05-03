@@ -8,9 +8,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
-builder.Services.AddScoped<IRepository<User>, UserRepository>(); 
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<SessionService>();
+builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 
+builder.Services.AddSingleton<UserService>();
+builder.Services.AddSingleton<SessionService>();
 
 var app = builder.Build();
 
