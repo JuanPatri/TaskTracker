@@ -26,4 +26,11 @@ public class TaskDataDtoTest
         _taskDataDto.Description = "Description of Task 1";
         Assert.AreEqual("Description of Task 1", _taskDataDto.Description);
     }
+    
+    [TestMethod]
+    public void SetDurationForTask()
+    {
+        _taskDataDto.Duration = TimeSpan.FromHours(1);
+        Assert.AreEqual(TimeSpan.FromHours(1), _taskDataDto.Duration);
+    }
 }
