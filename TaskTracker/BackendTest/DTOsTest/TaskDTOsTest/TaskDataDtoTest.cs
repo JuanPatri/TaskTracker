@@ -3,6 +3,7 @@
 namespace BackendTest.DTOsTest.TaskDTOsTest;
 using Backend.DTOs.TaskDTOs;
 using Backend.Domain.Enums;
+using Backend.Domain;
 
 [TestClass]
 public class TaskDataDtoTest
