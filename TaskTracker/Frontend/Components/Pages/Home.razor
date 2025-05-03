@@ -11,7 +11,6 @@
 @if (!Session.IsLoggedIn())
 {
     <button class="btn btn-primary" @onclick="GoToLoginUser">Sign In</button>
-    <button class="btn btn-primary" @onclick="GoToRegisterUser">Create User</button>
 }
 else
 {
@@ -20,11 +19,6 @@ else
 
 
 @code {
-
-    void GoToRegisterUser()
-    {
-        NavigationManager.NavigateTo("/RegisterUser" ,true);
-    }
 
     void GoToLoginUser()
     {

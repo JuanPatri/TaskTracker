@@ -83,7 +83,7 @@
             _successMessage = "User created successfully!";
             _errorMessage = string.Empty;
             await Task.Delay(2000);
-            NavigationManager.NavigateTo("/LoginUser");
+            NavigationManager.NavigateTo("/UserProfile", true);
         }
         catch (Exception ex)
         {

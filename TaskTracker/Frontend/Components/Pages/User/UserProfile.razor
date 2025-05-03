@@ -29,34 +29,36 @@ else
 
     @if (_allUsers == null)
     {
-        <p>Loading users...</p>
+        <p>There are no registered users</p>
     }
     else
     {
         <table class="table table-striped">
             <thead>
-                <tr>
-                    <th>Email</th>
-                    <th>Name</th>
-                    <th>Last Name</th>
-                    <th>Actions</th>
-                </tr>
+            <tr>
+                <th>Email</th>
+                <th>Name</th>
+                <th>Last Name</th>
+                <th>Actions</th>
+            </tr>
             </thead>
             <tbody>
-                @foreach (var user in _allUsers)
-                {
-                    <tr>
-                        <td>@user.Email</td>
-                        <td>@user.Name</td>
-                        <td>@user.LastName</td>
-                        <td>
-                            <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteUser(user.Email)">Delete</button>
-                            <button class="btn btn-sm btn-primary" @onclick="() => EditUser(user.Email)">Edit</button>
-                        </td>
-                    </tr>
-                }
+            @foreach (var user in _allUsers)
+            {
+                <tr>
+                    <td>@user.Email</td>
+                    <td>@user.Name</td>
+                    <td>@user.LastName</td>
+                    <td>
+                        <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteUser(user.Email)">Delete</button>
+                        <button class="btn btn-sm btn-primary" @onclick="() => EditUser(user.Email)">Edit</button>
+                    </td>
+                </tr>
+            }
             </tbody>
         </table>
+        
+        <button class="btn btn-primary" @onclick="GoToRegisterUser">Create User</button>
     }
 }
 
@@ -69,6 +71,11 @@ else
         {
             _allUsers = UserService.GetAllUsers();
         }
+    }
+    
+    void GoToRegisterUser()
+    {
+        NavigationManager.NavigateTo("/RegisterUser" ,true);
     }
 
     private void DeleteUser(string email)
