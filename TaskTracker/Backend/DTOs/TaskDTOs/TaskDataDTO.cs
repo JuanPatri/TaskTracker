@@ -15,20 +15,15 @@ public class TaskDataDTO
     
     public Task ToEntity()
     {
-        // Hacer en service task
-        // List<Task> taskDependencies = new List<Task>();
-        // for(int i = 0; i < Dependencies.Count; i++)
-        // {
-        //     taskDependencies.Add(FindAll().Find(t => t.title == Dependencies[i])); 
-        // }
+
         return new Task()
         {
             Title = Title,
             Description = Description,
             Duration = Duration,
             Status = Status,
-            Project = _projects.Find(p => p.id  == Project), //Hacer en service project
-            Dependencies = taskDependencies
+            // Project = _projects.Find(p => p.id  == Project), //Hacer en service project
+            // Dependencies = taskDependencies
         };
     }
 }

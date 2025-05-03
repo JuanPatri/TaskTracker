@@ -34,8 +34,8 @@ public class TaskRepository : IRepository<Task>
             existingTask.Description = updateTask.Description;
             existingTask.Duration = updateTask.Duration;
             existingTask.Status = updateTask.Status;
-            existingTask.Project = updateTask.Project;
-            existingTask.Dependencies = updateTask.Dependencies;
+            // existingTask.Project = updateTask.Project;
+            // existingTask.Dependencies = updateTask.Dependencies;
             
             return existingTask;
         }
@@ -50,4 +50,5 @@ public class TaskRepository : IRepository<Task>
             _tasks.Remove(taskToDelete);
         }
     }
+    
 }
