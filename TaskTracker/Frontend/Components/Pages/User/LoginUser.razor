@@ -18,19 +18,34 @@
     <button type="submit" class="btn btn-primary">Login</button>
 </form>
 
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+<div class="alert alert-danger mt-2">@_errorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+<div class="alert alert-success mt-2">@_successMessage</div>
+}
+
 @code {
     private LoginDto _newLogin = new LoginDto();
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
 
     private async Task HandleSubmit()
     {
         try
         {
             Session.Login(_newLogin);
+            _successMessage = "LogIn successfully!";
+            _errorMessage = string.Empty;
             await Task.Delay(2000);
             NavigationManager.NavigateTo("/", true);
         }catch (Exception ex)
         {
-            Console.WriteLine($"Error: {ex.Message}");
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
         }
     }
 }
