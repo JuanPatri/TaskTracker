@@ -1,13 +1,23 @@
 ﻿@page "/"
+@using Backend.Service
+@inject SessionService Session
+
 @inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 <h1>Welcome to TaskTrackPro!</h1>
 
 <p>Visualize your critical path, optimize your workflow, and deliver on time with TaskTrackPro</p>
+@if (!Session.IsLoggedIn())
+{
+    <button class="btn btn-primary" @onclick="GoToLoginUser">Sign In</button>
+    <button class="btn btn-primary" @onclick="GoToRegisterUser">Create User</button>
+}
+else
+{
+    <button class="btn btn-primary" @onclick="GoToHome">Logout</button>
+}
 
-<button class="btn btn-primary" @onclick="GoToLoginUser">Sign In</button>
-<button class="btn btn-primary" @onclick="GoToRegisterUser">Create User</button>
 
 @code {
 
@@ -20,4 +30,11 @@
     {
         NavigationManager.NavigateTo("/LoginUser", true);
     }
+
+    private void GoToHome()
+    {
+        Session.Logout();
+        NavigationManager.NavigateTo("/", true);
+    }
+
 }

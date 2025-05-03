@@ -1,0 +1,88 @@
+@page "/UserProfile"
+@using Backend.Domain
+@using Backend.DTOs.UserDTOs
+@using Backend.Service
+@inject SessionService Session
+@inject UserService UserService
+@inject NavigationManager NavigationManager
+
+<h3>User Profile</h3>
+
+@if (!Session.IsLoggedIn())
+{
+    <p>You are not logged in.</p>
+}
+else if (!Session.CurrentUser!.Admin)
+{
+    <div class="card p-3">
+        <h5>Your Information</h5>
+        <div class="mb-2"><strong>Name:</strong> @Session.CurrentUser!.Name</div>
+        <div class="mb-2"><strong>Last Name:</strong> @Session.CurrentUser!.LastName</div>
+        <div class="mb-2"><strong>Email:</strong> @Session.CurrentUser!.Email</div>
+        <div class="mb-2"><strong>Birth Date:</strong> @Session.CurrentUser!.BirthDate.ToShortDateString()</div>
+        <div class="mb-2"><strong>Admin:</strong> @(Session.CurrentUser!.Admin ? "Yes" : "No")</div>
+    </div>
+}
+else
+{
+    <h5>All Users</h5>
+
+    @if (_allUsers == null)
+    {
+        <p>Loading users...</p>
+    }
+    else
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Name</th>
+                    <th>Last Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in _allUsers)
+                {
+                    <tr>
+                        <td>@user.Email</td>
+                        <td>@user.Name</td>
+                        <td>@user.LastName</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteUser(user.Email)">Delete</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditUser(user.Email)">Edit</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private List<User>? _allUsers;
+
+    protected override void OnInitialized()
+    {
+        if (Session.IsLoggedIn() && Session.CurrentUser!.Admin)
+        {
+            _allUsers = UserService.GetAllUsers();
+        }
+    }
+
+    private void DeleteUser(string email)
+    {
+        var confirm = true; // podrías usar JS interop para confirmación real
+        if (confirm)
+        {
+            UserService.RemoveUser(new GetUserDTO { Email = email });
+            _allUsers = UserService.GetAllUsers(); // refrescar lista
+        }
+    }
+
+    private void EditUser(string email)
+    {
+        NavigationManager.NavigateTo($"/EditUser/{email}");
+    }
+}
