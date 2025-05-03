@@ -10,6 +10,7 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddScoped<IRepository<User>, UserRepository>(); 
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<SessionService>();
 
 var app = builder.Build();
 

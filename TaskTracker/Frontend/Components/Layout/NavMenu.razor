@@ -1,4 +1,6 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
+﻿@using Backend.Service
+@inject SessionService Session
+<div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">TaskTrackPro</a>
     </div>
@@ -13,23 +15,26 @@
                 <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
             </NavLink>
         </div>
+        @if (Session.IsLoggedIn())
+        {
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="user">
-                <span aria-hidden="true"></span> User
-            </NavLink>
-        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="user">
+                    <span aria-hidden="true"></span> User
+                </NavLink>
+            </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="project">
-                <span  aria-hidden="true"></span> Project
-            </NavLink>
-        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="project">
+                    <span aria-hidden="true"></span> Project
+                </NavLink>
+            </div>
 
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="task">
-                <span aria-hidden="true"></span> Task
-            </NavLink>
-        </div>
+            <div class="nav-item px-3">
+                <NavLink class="nav-link" href="task">
+                    <span aria-hidden="true"></span> Task
+                </NavLink>
+            </div>
+        }
     </nav>
 </div>
