@@ -25,11 +25,7 @@ public class Task
         get => _description;
         set
         {
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                throw new ArgumentException("The description cannot be empty");
-            }
-                
+            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The description cannot be empty");
             _description = value;
         }
     }
