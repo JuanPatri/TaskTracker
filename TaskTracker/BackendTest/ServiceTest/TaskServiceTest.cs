@@ -48,5 +48,6 @@ public class TaskServiceTest
     {
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
+        Assert.AreEqual(_taskService.GetTaskByTitle(taskDto.Title), _task);
     }
 }

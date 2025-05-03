@@ -18,7 +18,10 @@ public class TaskService
         return _taskRepository.Add(createdTask);
     }
     
-    
+    public Task GetTaskByTitle(string title)
+    {
+        return _taskRepository.Find(t => t.Title == title);
+    }
 
     // Hacer en service task
     // List<Task> taskDependencies = new List<Task>();
