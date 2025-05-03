@@ -1,0 +1,52 @@
+﻿@page "/CreateTask"
+
+<PageTitle>Task Management</PageTitle>
+
+<form class="mb-3">
+    <h1>Create Task</h1>
+
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" placeholder="Enter task title">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="3" placeholder="Enter task description"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="startDate" class="form-label">Start Date</label>
+        <input type="date" class="form-control" id="startDate">
+        <div class="form-text text-muted">Select present or future date</div>
+    </div>
+
+    <div class="mb-3">
+        <label for="duration" class="form-label">Duration</label>
+        <input type="time" class="form-control" id="duration" placeholder="Enter task duration"/>
+    </div>
+
+    <div class="mb-3">
+        <label for="project" class="form-label">Project</label>
+        <select id="project" class="form-select">
+            <option value="">Select a project</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="dependencies" class="form-label">Task Dependencies</label>
+        <select id="dependencies" multiple class="form-select"></select>
+        <div class="form-text">Hold Ctrl to select multiple tasks</div>
+    </div>
+
+    <div class="mb-3">
+        <label for="resource" class="form-label">Resources</label>
+        <select id="resource" multiple class="form-select"></select>
+        <div class="form-text">Hold Ctrl to select multiple resources</div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Task</button>
+</form>
+
+@code {
+    
+}

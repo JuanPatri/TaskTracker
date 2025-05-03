@@ -1,0 +1,77 @@
+﻿@page "/EditTask"
+<PageTitle>Edit Task</PageTitle>
+
+<form class="mb-3">
+    <h1>Edit Task</h1>
+
+    <div class="mb-3">
+        <label for="task" class="form-label">Task</label>
+        <select id="task" class="form-select">
+            <option value="">Select task to edit</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="3" placeholder="Edit task description"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="startDate" class="form-label">Start Date</label>
+        <input type="date" class="form-control" id="startDate">
+        <div class="form-text text-muted">Select present or future date</div>
+    </div>
+
+    <div class="mb-3">
+        <label for="duration" class="form-label">Duration</label>
+        <input type="time" class="form-control" id="duration" placeholder="Edit task duration"/>
+    </div>
+
+    <div class="mb-3">
+        <label for="project" class="form-label">Project</label>
+        <select id="project" class="form-select">
+            <option value="">Select a project</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="dependencies" class="form-label">Task Dependencies</label>
+        <select id="dependencies" multiple class="form-select"></select>
+        <div class="form-text">Hold Ctrl to select multiple tasks</div>
+    </div>
+
+    <div class="mb-3">
+        <label for="resource" class="form-label">Resources</label>
+        <select id="resource" multiple class="form-select"></select>
+        <div class="form-text">Hold Ctrl to select multiple resources</div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Task status</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="status" id="pending" value="Pending">
+            <label class="form-check-label" for="pending">
+                Pending
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="status" id="completed" value="completed">
+            <label class="form-check-label" for="completed">
+                Completed
+            </label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="status" id="blocked" value="blocked">
+            <label class="form-check-label" for="blocked">
+                Blocked
+            </label>
+        </div>
+    </div>
+    
+    <button type="submit" class="btn btn-primary">Edit Task</button>
+</form>
+
+
+@code {
+    
+}
