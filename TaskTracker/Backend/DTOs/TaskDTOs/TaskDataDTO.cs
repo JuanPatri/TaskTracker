@@ -10,4 +10,5 @@ public class TaskDataDTO
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
     public Status Status { get; set; } = Status.Pending;
     public Project Project { get; set; } = new Project();
+    public List<string> Dependencies { get; set; } = new List<string>();
 }
