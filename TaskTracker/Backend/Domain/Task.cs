@@ -24,7 +24,10 @@ public class Task
         get => _description;
         set
         {
-            if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The description cannot be empty");
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("The description cannot be empty");
+            }
             _description = value;
         }
     }
@@ -32,7 +35,14 @@ public class Task
     public TimeSpan Duration
     {
         get => _duration;
-        set => _duration = value;
+        set
+        {
+            if (value < TimeSpan.FromMinutes(30))
+            {
+                throw new ArgumentException("The duration must be at least 30 minutes");
+            }
+            _duration = value;
+        }
     }
 
     public Status Status
