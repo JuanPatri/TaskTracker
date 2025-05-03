@@ -7,7 +7,7 @@ namespace BackendTest.ServiceTest;
 using Backend.Service;
 
 [TestClass]
-public class UserServiceTest
+public class  UserServiceTest
 {
     private UserService _userService;
     private UserRepository _userRepository;
