@@ -1,6 +1,9 @@
-﻿@page "/CreateTask"
+﻿@using Backend.DTOs.TaskDTOs
+@using Backend.Service
+@inject TaskService TaskService
+@page "/CreateTask"
 
-<PageTitle>Task Management</PageTitle>
+<PageTitle>Create Task</PageTitle>
 
 <form class="mb-3">
     <h1>Create Task</h1>
