@@ -113,9 +113,7 @@ public class TaskTest
     [TestMethod]
     public void SetDescriptionNullReturnsAnException()
     {
-        _task.Description = null;
-        
-        ArgumentNullException ex = Assert.ThrowsException<ArgumentNullException>(() => _task.Description = null);
-        Assert.AreEqual("Description cannot be null.", ex.Message);
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Description = null);
+        Assert.AreEqual("The description cannot be empty", ex.Message);
     }
 }

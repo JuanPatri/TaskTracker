@@ -23,8 +23,17 @@ public class Task
     public string Description
     {
         get => _description;
-        set => _description = value;
+        set
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("The description cannot be empty");
+            }
+                
+            _description = value;
+        }
     }
+
     public DateOnly Date
     {
         get => _date;
