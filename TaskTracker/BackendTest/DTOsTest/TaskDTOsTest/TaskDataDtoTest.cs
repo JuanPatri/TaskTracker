@@ -33,4 +33,11 @@ public class TaskDataDtoTest
         _taskDataDto.Duration = TimeSpan.FromHours(1);
         Assert.AreEqual(TimeSpan.FromHours(1), _taskDataDto.Duration);
     }
+    
+    [TestMethod]
+    public void SetStatusForTask()
+    {
+        _taskDataDto.Status = Status.InProgress;
+        Assert.AreEqual(Status.InProgress, _taskDataDto.Status);
+    }
 }
