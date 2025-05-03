@@ -27,8 +27,8 @@ public class TaskDataDTO
             Description = Description,
             Duration = Duration,
             Status = Status,
-            Project = _projects.Find(p => p.id  == Project), //Hacer en service project
-            Dependencies = taskDependencies
+            // Project = _projects.Find(p => p.id  == Project), //Hacer en service project
+            // Dependencies = taskDependencies
         };
     }
 }
