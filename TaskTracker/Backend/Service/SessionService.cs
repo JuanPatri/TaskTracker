@@ -37,4 +37,9 @@ public class SessionService
     {
         CurrentUser = null;
     }
+
+    public bool IsLoggedIn()
+    {
+        return CurrentUser != null;
+    }
 }

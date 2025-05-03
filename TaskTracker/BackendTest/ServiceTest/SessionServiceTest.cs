@@ -85,5 +85,20 @@ public class SessionServiceTest
         
         Assert.ThrowsException<ArgumentException>(() => _sessionService.Login(loginDto));
     }
+
+    [TestMethod]
+    public void SomeoneIsLoggedInReturnBoolean()
+    {
+        Assert.IsFalse(_sessionService.IsLoggedIn());
+        
+        LoginDto loginDto = new LoginDto()
+        {
+            Email = _user.Email,
+            Password = _user.Password
+        };
+        
+        _sessionService.Login(loginDto);
+        Assert.IsTrue(_sessionService.IsLoggedIn());
+    }
  
 }
