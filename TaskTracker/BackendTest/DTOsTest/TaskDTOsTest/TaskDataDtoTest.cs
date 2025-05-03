@@ -4,11 +4,19 @@ using Backend.DTOs.TaskDTOs;
 [TestClass]
 public class TaskDataDtoTest
 {
+
+    private TaskDataDTO _taskDataDto;
+    
+    [TestInitialize]
+    public void OnInitialize()
+    {
+        _taskDataDto = new TaskDataDTO();
+    }
+    
     [TestMethod]
     public void SetTitleForTask()
     {
-        TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Task 1";
-        Assert.AreEqual("Task 1", taskDto.Title);
+        _taskDataDto.Title = "Task 1";
+        Assert.AreEqual("Task 1", _taskDataDto.Title);
     }
 }
