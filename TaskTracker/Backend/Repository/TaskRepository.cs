@@ -3,32 +3,32 @@ using Backend.Domain;
 
 public class TaskRepository : IRepository<Task>
 {
-    private readonly List<Task> _taskRepository;
+    private readonly List<Task> _tasks;
 
     public TaskRepository()
     {
-        _taskRepository = new List<Task>();
+        _tasks = new List<Task>();
     }
 
     public Task Add(Task task)
     {
-        _taskRepository.Add(task);
+        _tasks.Add(task);
         return task;
     }
 
     public Task? Find(Func<Task, bool> predicate)
     { 
-        return _taskRepository.FirstOrDefault(predicate);;
+        return _tasks.FirstOrDefault(predicate);;
     }
 
     public IList<Task> FindAll()
     {
-        return _taskRepository;
+        return _tasks;
     }
 
     public Task? Update(Task updateTask)
     {
-        Task? existingTask = _taskRepository.FirstOrDefault(task => task.Title == updateTask.Title);
+        Task? existingTask = _tasks.FirstOrDefault(task => task.Title == updateTask.Title);
         if (existingTask != null)
         {
             existingTask.Description = updateTask.Description;
@@ -44,10 +44,10 @@ public class TaskRepository : IRepository<Task>
 
     public void Delete(string title)
     {
-        Task? taskToDelete = _taskRepository.FirstOrDefault(task => task.Title == title);
+        Task? taskToDelete = _tasks.FirstOrDefault(task => task.Title == title);
         if (taskToDelete != null)
         {
-            _taskRepository.Remove(taskToDelete);
+            _tasks.Remove(taskToDelete);
         }
     }
 }

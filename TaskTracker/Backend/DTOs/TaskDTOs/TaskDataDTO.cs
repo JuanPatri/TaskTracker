@@ -1,6 +1,6 @@
 ﻿using Backend.Domain.Enums;
 using Task = Backend.Domain.Task;
-using Backend.Domain.Repository;
+using Backend.Repository;
 
 namespace Backend.DTOs.TaskDTOs;
 
@@ -15,18 +15,19 @@ public class TaskDataDTO
     
     public Task ToEntity()
     {
-        List<Task> taskDependencies = new List<Task>();
-        for(int i = 0; i < Dependencies.Count; i++)
-        {
-            taskDependencies.Add(_repositoryProject.Find(t => t.title == Dependencies[i])); 
-        }
+        // Hacer en service task
+        // List<Task> taskDependencies = new List<Task>();
+        // for(int i = 0; i < Dependencies.Count; i++)
+        // {
+        //     taskDependencies.Add(FindAll().Find(t => t.title == Dependencies[i])); 
+        // }
         return new Task()
         {
             Title = Title,
             Description = Description,
             Duration = Duration,
             Status = Status,
-            Project = _repositoryProject.Find(p => p.id  == Project),
+            Project = _projects.Find(p => p.id  == Project), //Hacer en service project
             Dependencies = taskDependencies
         };
     }
