@@ -27,6 +27,11 @@ public class TaskService
     {
         return _taskRepository.FindAll().ToList();
     }
+
+    public Task? UpdateTask(TaskDataDTO taskDto)
+    {
+        return _taskRepository.Update(taskDto.ToEntity());
+    }
     
     // Hacer en service task
     // List<Task> taskDependencies = new List<Task>();

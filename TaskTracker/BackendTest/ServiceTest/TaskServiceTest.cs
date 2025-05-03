@@ -67,4 +67,22 @@ public class TaskServiceTest
         
         Assert.AreEqual(2, tasks.Count);
     }
+    
+    [TestMethod]
+    public void updateTaskShouldUpdateTask()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO();
+        taskDto.Title = "Test Task";
+        taskDto.Description = "New Description";
+        taskDto.Duration = TimeSpan.FromHours(4);
+        taskDto.Status = Status.Blocked;
+        
+        _task.Description = "Description";
+        
+        Assert.AreEqual(_task.Description, "Description");
+
+        _taskService.UpdateTask(taskDto);
+        
+        Assert.AreEqual("New Description", _task.Description);
+    }
 }
