@@ -1,8 +1,10 @@
 ﻿namespace Backend.Domain;
+
 using Enums;
+
 public class Task
 {
-    private string _title = String.Empty; 
+    private string _title = String.Empty;
     private string _description = String.Empty;
     private TimeSpan _duration;
     private Status _status = Status.Pending;
@@ -24,17 +26,22 @@ public class Task
         get => _description;
         set
         {
-            if (string.IsNullOrWhiteSpace(value)) {throw new ArgumentException("The description cannot be empty");}
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException("The description cannot be empty");
+            }
+
             _description = value;
         }
     }
-    
+
     public TimeSpan Duration
     {
         get => _duration;
         set
         {
-            if (value < TimeSpan.FromMinutes(30)) throw new ArgumentException("The duration must be at least 30 minutes");
+            if (value < TimeSpan.FromMinutes(30))
+                throw new ArgumentException("The duration must be at least 30 minutes");
             _duration = value;
         }
     }
@@ -44,17 +51,17 @@ public class Task
         get => _status;
         set => _status = value;
     }
+
     public Project Project
     {
         get => _project;
         set
         {
-            
-            if(value == null)
+            if (value == null)
                 throw new ArgumentException("Project cannot be null");
-            
+
             _project = value;
-        } 
+        }
     }
 
     public List<Task> Dependencies
@@ -62,5 +69,4 @@ public class Task
         get => _dependencies;
         set => _dependencies = value;
     }
-    
-    }
+}

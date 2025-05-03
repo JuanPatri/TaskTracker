@@ -97,4 +97,34 @@ public class TaskServiceTest
         
         Assert.AreEqual(0, _taskRepository.FindAll().Count());
     }
+
+    [TestMethod]
+    public void GetDependenciesShouldReturnDependencies()
+    {
+        Task dependencie1 = new Task { Title = "Dep1", Description = "d1", Duration = TimeSpan.FromMinutes(45) };
+        Task dependencie2 = new Task { Title = "Dep2", Description = "d2", Duration = TimeSpan.FromMinutes(90) };
+
+        _task.Dependencies.Add(dependencie1);
+        _task.Dependencies.Add(dependencie2);
+
+        _taskService.UpdateTask(new TaskDataDTO
+        {
+            Title = _task.Title,
+            Description = _task.Description,
+            Duration = _task.Duration,
+            Status = _task.Status,
+            Dependencies = new List<string> { dependencie1.Title, dependencie2.Title }
+        });
+
+        _taskRepository.Add(dependencie1);
+        _taskRepository.Add(dependencie2);
+        GetTaskDTO taskDto = new GetTaskDTO()
+        {
+            Title = _task.Title
+        };
+        List<Task> dependencies = _taskService.GetDependencias(taskDto);
+        
+        Assert.IsTrue(dependencies.Exists(t => t.Title == dependencie1.Title));
+        Assert.IsTrue(dependencies.Exists(t => t.Title == dependencie2.Title));
+    }
 }
