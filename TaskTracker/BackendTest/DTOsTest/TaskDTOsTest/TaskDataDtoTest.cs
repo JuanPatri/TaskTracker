@@ -1,6 +1,7 @@
 ﻿namespace BackendTest.DTOsTest.TaskDTOsTest;
 using Backend.DTOs.TaskDTOs;
 
+[TestClass]
 public class TaskDataDtoTest
 {
     [TestMethod]
