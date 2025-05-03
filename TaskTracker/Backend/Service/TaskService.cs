@@ -23,6 +23,11 @@ public class TaskService
         return _taskRepository.Find(t => t.Title == title);
     }
 
+    public List<Task> GetAllTasks()
+    {
+        return _taskRepository.FindAll().ToList();
+    }
+    
     // Hacer en service task
     // List<Task> taskDependencies = new List<Task>();
     // for(int i = 0; i < Dependencies.Count; i++)

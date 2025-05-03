@@ -50,4 +50,21 @@ public class TaskServiceTest
         taskDto.Title = "Test Task";
         Assert.AreEqual(_taskService.GetTaskByTitle(taskDto.Title), _task);
     }
+
+    [TestMethod]
+    public void FindAllTasksReturnsAllTasks()
+    {
+        List<Task> tasks = _taskService.GetAllTasks();
+        Assert.AreEqual(1, tasks.Count);
+        
+        TaskDataDTO task2 = new TaskDataDTO();
+        task2.Title = "Test Task 2";
+        task2.Description = "This is a test task.";
+        task2.Duration = TimeSpan.FromHours(1);
+        task2.Status = Status.Pending;
+        _taskService.AddTask(task2);
+        tasks = _taskService.GetAllTasks();
+        
+        Assert.AreEqual(2, tasks.Count);
+    }
 }
