@@ -58,13 +58,17 @@
 @code {
     private TaskDataDTO _newTask = new TaskDataDTO();
     private List<ProjectDisplayDTO> _projectDtos = new List<ProjectDisplayDTO>();
-    private string _loggedUserEmail = Session.CurrentUser.Email;
+    //private string _loggedUserEmail = Session.CurrentUser.Email;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
 
     protected override void OnInitialized()
     {
-        _projectsDtos = ProjectService.GetProjectsForUser(_loggedUserEmail);
+        if (Session.IsLoggedIn())
+        {
+            _projectsDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
+        }
+        
     }
 
     private async Task HandelSubmit()
