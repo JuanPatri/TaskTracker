@@ -1,5 +1,6 @@
 ﻿namespace BackendTest.DTOsTest.TaskDTOsTest;
 using Backend.DTOs.TaskDTOs;
+using Backend.Domain.Enums;
 
 [TestClass]
 public class TaskDataDtoTest
@@ -37,7 +38,7 @@ public class TaskDataDtoTest
     [TestMethod]
     public void SetStatusForTask()
     {
-        _taskDataDto.Status = Status.InProgress;
-        Assert.AreEqual(Status.InProgress, _taskDataDto.Status);
+        _taskDataDto.Status = Status.Blocked;
+        Assert.AreEqual(Status.Blocked, _taskDataDto.Status);
     }
 }
