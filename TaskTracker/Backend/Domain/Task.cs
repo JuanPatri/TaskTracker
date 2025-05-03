@@ -4,7 +4,7 @@ public class Task
 {
     private string _title = String.Empty; 
     private string _description = String.Empty;
-    private TimeSpan _durationTask;
+    private TimeSpan _duration;
     private Status _status = Status.Pending;
     private Project _project;
     private List<Task> _dependencies = new List<Task>();
@@ -29,10 +29,10 @@ public class Task
         }
     }
     
-    public TimeSpan DurationTask
+    public TimeSpan Duration
     {
-        get => _durationTask;
-        set => _durationTask = value;
+        get => _duration;
+        set => _duration = value;
     }
 
     public Status Status
