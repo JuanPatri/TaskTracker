@@ -1,12 +1,14 @@
-﻿namespace BackendTest.DTOsTest.TaskDTOsTest;
+﻿using Backend.DTOs.TaskDTOs;
+
+namespace BackendTest.DTOsTest.TaskDTOsTest;
 
 [TestClass]
 public class GetTaskDTOTest
 {
     [TestMethod]
-    public void AddTtileToTask()
+    public void AddTitleToTask()
     {
-        GetTaskDTOTest taskDto = new GetTaskDTOTest();
+        GetTaskDTO taskDto = new GetTaskDTO();
         taskDto.Title = "Test";
         Assert.AreEqual("Test", taskDto.Title);
     }
