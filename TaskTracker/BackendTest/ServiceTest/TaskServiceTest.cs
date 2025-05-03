@@ -69,7 +69,7 @@ public class TaskServiceTest
     }
     
     [TestMethod]
-    public void updateTaskShouldUpdateTask()
+    public void UpdateTaskShouldUpdateTask()
     {
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
@@ -84,5 +84,17 @@ public class TaskServiceTest
         _taskService.UpdateTask(taskDto);
         
         Assert.AreEqual("New Description", _task.Description);
+    }
+
+    [TestMethod]
+    public void RemoveTaskShouldDeleteTask()
+    {
+        Assert.AreEqual(1, _taskRepository.FindAll().Count());
+        
+        GetTaskDTO taskDto = new GetTaskDTO();
+        taskDto.Title = "Test Task";
+        _taskService.RemoveTask(taskDto);
+        
+        Assert.AreEqual(0, _taskRepository.FindAll().Count());
     }
 }

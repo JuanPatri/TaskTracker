@@ -32,7 +32,10 @@ public class TaskService
     {
         return _taskRepository.Update(taskDto.ToEntity());
     }
-    
+    public void RemoveTask(GetTaskDTO task)
+    {
+        _taskRepository.Delete(task.Title);
+    }
     // Hacer en service task
     // List<Task> taskDependencies = new List<Task>();
     // for(int i = 0; i < Dependencies.Count; i++)
