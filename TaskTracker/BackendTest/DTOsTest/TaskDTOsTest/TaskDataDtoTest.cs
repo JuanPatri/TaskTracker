@@ -51,4 +51,12 @@ public class TaskDataDtoTest
         _taskDataDto.Project = project;
         Assert.AreEqual(project, _taskDataDto.Project);
     }
+    
+    [TestMethod]
+    public void SetDependenciesForTask()
+    {
+        List<String> dependencies = new List<String> { "Task 1", "Task 2" };;
+        _taskDataDto.Dependencies = dependencies;
+        Assert.AreEqual(dependencies, _taskDataDto.Dependencies);
+    }
 }
