@@ -47,9 +47,8 @@ public class TaskDataDtoTest
     [TestMethod]
     public void SetProjectForTask()
     {
-        Project project = new Project();
-        _taskDataDto.Project = project;
-        Assert.AreEqual(project, _taskDataDto.Project);
+        _taskDataDto.Project = 9;
+        Assert.AreEqual(9, _taskDataDto.Project);
     }
     
     [TestMethod]
