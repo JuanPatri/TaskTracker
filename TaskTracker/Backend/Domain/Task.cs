@@ -4,8 +4,7 @@ public class Task
 {
     private string _title = String.Empty; 
     private string _description = String.Empty;
-    private DateOnly _date = DateOnly.FromDateTime(DateTime.Now);
-    private TimeSpan _durationTask;
+    private TimeSpan _duration;
     private Status _status = Status.Pending;
     private Project _project;
     private List<Task> _dependencies = new List<Task>();
@@ -23,25 +22,21 @@ public class Task
     public string Description
     {
         get => _description;
-        set => _description = value;
-    }
-    public DateOnly Date
-    {
-        get => _date;
         set
         {
-            DateOnly today = DateOnly.FromDateTime(DateTime.Now);
-            if (value > today)
-                throw new ArgumentException("The date cannot be in the future.");
-            
-            _date = value;
+            if (string.IsNullOrWhiteSpace(value)) {throw new ArgumentException("The description cannot be empty");}
+            _description = value;
         }
     }
-
-    public TimeSpan DurationTask
+    
+    public TimeSpan Duration
     {
-        get => _durationTask;
-        set => _durationTask = value;
+        get => _duration;
+        set
+        {
+            if (value < TimeSpan.FromMinutes(30)) throw new ArgumentException("The duration must be at least 30 minutes");
+            _duration = value;
+        }
     }
 
     public Status Status
