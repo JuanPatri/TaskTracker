@@ -1,4 +1,6 @@
-﻿namespace BackendTest.DTOsTest.TaskDTOsTest;
+﻿using Backend.Domain;
+
+namespace BackendTest.DTOsTest.TaskDTOsTest;
 using Backend.DTOs.TaskDTOs;
 using Backend.Domain.Enums;
 
@@ -40,5 +42,12 @@ public class TaskDataDtoTest
     {
         _taskDataDto.Status = Status.Blocked;
         Assert.AreEqual(Status.Blocked, _taskDataDto.Status);
+    }
+    [TestMethod]
+    public void SetProjectForTask()
+    {
+        Project project = new Project();
+        _taskDataDto.Project = project;
+        Assert.AreEqual(project, _taskDataDto.Project);
     }
 }
