@@ -10,31 +10,27 @@ public class TaskService
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Project> _projectRepository;
     private readonly IRepository<Resource> _resourceRepository;
-    public  TaskService(IRepository<Task> taskRepository, IRepository<Project> projectRepository, IRepository<Resource> resourceRepository)
+
+    public TaskService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
+        IRepository<Resource> resourceRepository)
     {
         _projectRepository = projectRepository;
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
     }
-    
-    public Task AddTask(TaskDataDTO task)
+
+    public List<Task> GetTaskDependenciesWithTitle(List<string> titlesTask)
     {
-        if (!int.TryParse(task.Project, out int projectId))
-        {
-            throw new ArgumentException("The project ID must be a valid integer.");
-        }
-
-        Project? project = _projectRepository.Find(p => p.Id == projectId);
-        if (project == null)
-        {
-            throw new ArgumentException($"Project with ID {projectId} not found.");
-        }
-
         List<Task> taskDependencies = _taskRepository.FindAll()
-            .Where(t => task.Dependencies.Contains(t.Title))
+            .Where(t => t.Dependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
             .ToList();
-    
-        List<(int, Resource)> resourceList = task.Resources
+
+        return taskDependencies;
+    }
+
+    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> namesResource)
+    {
+        List<(int, Resource)> resourceList = namesResource
             .Select(tuple =>
             {
                 int cantidad = tuple.Item1;
@@ -44,8 +40,20 @@ public class TaskService
                 return (cantidad, resource);
             })
             .Where(t => t.Item2 != null)
-            .Select(t => (t.Item1, t.Item2!)) 
+            .Select(t => (t.Item1, t.Item2!))
             .ToList();
+
+        return resourceList;
+    }
+
+    public Task AddTask(TaskDataDTO task)
+    {
+
+        Project project = _projectRepository.Find(p => p.Id == int.Parse(task.Project));;
+
+        List<Task> taskDependencies = GetTaskDependenciesWithTitle(task.Dependencies);
+
+        List<(int, Resource)> resourceList = GetResourcesWithName(task.Resources);
 
         Task createdTask = task.ToEntity(taskDependencies, project, resourceList);
         return _taskRepository.Add(createdTask);

@@ -115,4 +115,59 @@ public class TaskServiceTest
         
         Assert.AreEqual(0, _taskRepository.FindAll().Count());
     }
+    
+    [TestMethod]
+    public void GetResourcesWhitNameShouldReturnResources()
+    {
+        Resource newResource = new Resource();
+        newResource.Name = "Resource1";
+        _resourceRepository.Add(newResource);
+        
+        Resource newResource2 = new Resource();
+        newResource2.Name = "Resource2";
+        _resourceRepository.Add(newResource2);
+        
+
+        List<(int, string)> searchList = new List<(int, string)>()
+        {
+            (2, "Resource1")
+        }; 
+        
+        List<(int, Resource)> resource = _taskService.GetResourcesWithName(searchList);
+        
+        Assert.AreEqual(1, resource.Count);
+    }
+    
+    [TestMethod]
+    public void GetTaskDependenciesWithTitleShouldReturnTask()
+    {
+
+        Task dependencyTask1 = new Task();
+        dependencyTask1.Title = "Task1";
+        _taskRepository.Add(dependencyTask1);
+    
+        Task dependencyTask2 = new Task();
+        dependencyTask2.Title = "Task2";
+        _taskRepository.Add(dependencyTask2);
+    
+        Task taskWithDependency = new Task();
+        taskWithDependency.Title = "MainTask";
+        taskWithDependency.Dependencies = new List<Task> { dependencyTask1 };
+        _taskRepository.Add(taskWithDependency);
+    
+        Task taskWithoutSearchedDependency = new Task();
+        taskWithoutSearchedDependency.Title = "AnotherTask";
+        taskWithoutSearchedDependency.Dependencies = new List<Task> { dependencyTask2 };
+        _taskRepository.Add(taskWithoutSearchedDependency);
+    
+        List<string> searchList = new List<string>()
+        {
+            "Task1"  
+        }; 
+    
+        List<Task> tasks = _taskService.GetTaskDependenciesWithTitle(searchList);
+    
+        Assert.AreEqual(1, tasks.Count);
+        Assert.AreEqual("MainTask", tasks[0].Title); 
+    }
 }
