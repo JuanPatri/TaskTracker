@@ -1,5 +1,5 @@
 using Backend.Domain;
-using Backend.DTOs.Resource;
+using Backend.DTOs.ResourceDTOs;
 
 namespace BackendTest.DTOsTest.ResourceDTOsTest;
 
@@ -40,7 +40,12 @@ public class ResourceDataDtoTest
             TypeResource = "ResourceType"
         };
         
-        Resource resource = resourceDto.ToEntity();
+        ResourceType resourceType = new ResourceType
+        {
+            Name = resourceDto.TypeResource
+        };
+        
+        Resource resource = resourceDto.ToEntity(resourceType);
 
         Assert.IsNotNull(resource);
     }
