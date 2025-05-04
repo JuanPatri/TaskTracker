@@ -57,4 +57,17 @@ public class ProjectServiceTest
         Assert.AreEqual(project.Administrator.Email, createdProject.Administrator.Email);
         Assert.AreEqual(_projectRepository.FindAll().Last(), createdProject);
     }
+    
+    [TestMethod]
+    public void RemoveProjectShouldRemoveProject()
+    {
+        Assert.AreEqual(_projectRepository.FindAll().Last(), _project);   
+
+        GetProjectDTO projectToDelete = new GetProjectDTO()
+        {
+            Name = "Project 1",
+        };
+        _projectService.RemoveProject(projectToDelete);
+        Assert.AreNotEqual(_projectRepository.FindAll().Last(), _project);
+    }
 }
