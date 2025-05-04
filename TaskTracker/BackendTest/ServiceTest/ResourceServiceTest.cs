@@ -106,7 +106,7 @@ public class ResourceServiceTest
 
         ResourceDataDto resourceDTO = new ResourceDataDto()
         {
-            Name = "Pedro",
+            Name = "Resource",
             Description = "new description",
             TypeResource = 2
         };

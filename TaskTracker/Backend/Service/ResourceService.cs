@@ -36,4 +36,11 @@ public class ResourceService
     {
         return _resourceRepository.FindAll().ToList();
     }
+    
+    public Resource? UpdateResource(ResourceDataDto resourceDto)
+    {
+        ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
+        Resource? updatedResource = _resourceRepository.Update(resourceDto.ToEntity(resourceType));
+        return updatedResource;
+    }
 }
