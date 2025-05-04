@@ -23,4 +23,9 @@ public class ProjectService
     {
         _projectRepository.Delete(project.Name);
     }
+    
+    public Project? GetProject(GetProjectDTO project)
+    {
+        return _projectRepository.Find(p => p.Name == project.Name);
+    }
 }
