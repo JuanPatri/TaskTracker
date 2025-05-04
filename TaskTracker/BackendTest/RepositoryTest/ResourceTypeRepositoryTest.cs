@@ -52,4 +52,18 @@ public class ResourceTypeRepositoryTest
         _resourceTypeRepository.Update(updateResourceType);
         Assert.AreEqual(_resourceType.Name, "resource type");
     }
+    
+    [TestMethod]
+    public void UpdatingAResourceTypeThatIsNotInTheListReturnsNull()
+    {
+        _resourceTypeRepository.Add(_resourceType);
+        ResourceType updateResourceType = new ResourceType()
+        {
+            Id = 5,
+            Name = "UpdatedName"
+        };
+        
+        
+        Assert.AreEqual(_resourceTypeRepository.Update(updateResourceType), null);
+    }
 }
