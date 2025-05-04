@@ -22,14 +22,16 @@ public class TaskServiceTest
     {
         _taskRepository = new TaskRepository();
         _projectRepository = new ProjectRepository();
+        _resourceRepository = new ResourceRepository();
         _taskService = new TaskService(_taskRepository, _projectRepository, _resourceRepository);
-        _task = new Task()
-        {
-            Title = "Test Task",
-        };
+    
+        Project project = new Project() { Id = 35, Name = "Test Project" };
+        _projectRepository.Add(project);
+
+        _task = new Task() { Title = "Test Task", };
         _taskRepository.Add(_task);
     }
-    
+
     [TestMethod]
     public void AddTaskToRepository()
     {
@@ -38,16 +40,16 @@ public class TaskServiceTest
         taskDto.Description = "This is a test task.";
         taskDto.Duration = TimeSpan.FromHours(1);
         taskDto.Status = Status.Pending;
-        taskDto.Project = 0;
+        taskDto.Project = "35"; 
         taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
-        taskDt0o.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
+        taskDto.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
 
         Task? task = _taskService.AddTask(taskDto);
-        
+    
         Assert.IsNotNull(task);
         Assert.AreEqual(_taskRepository.FindAll().Last(), task);
     }
-
+    
     [TestMethod]
     public void FindTaskByTitleReturnTask()
     {

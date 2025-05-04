@@ -19,11 +19,21 @@ public class TaskService
     
     public Task AddTask(TaskDataDTO task)
     {
-        Project? project = _projectRepository.Find(p => p.Id == task.Project);
+        if (!int.TryParse(task.Project, out int projectId))
+        {
+            throw new ArgumentException("The project ID must be a valid integer.");
+        }
+
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+        if (project == null)
+        {
+            throw new ArgumentException($"Project with ID {projectId} not found.");
+        }
+
         List<Task> taskDependencies = _taskRepository.FindAll()
             .Where(t => task.Dependencies.Contains(t.Title))
             .ToList();
-        
+    
         List<(int, Resource)> resourceList = task.Resources
             .Select(tuple =>
             {
@@ -37,10 +47,9 @@ public class TaskService
             .Select(t => (t.Item1, t.Item2!)) 
             .ToList();
 
-        Task createdTask = task.ToEntity(taskDependencies, project);
+        Task createdTask = task.ToEntity(taskDependencies, project, resourceList);
         return _taskRepository.Add(createdTask);
     }
-    
     public Task GetTaskByTitle(string title)
     {
         return _taskRepository.Find(t => t.Title == title);
@@ -57,8 +66,22 @@ public class TaskService
             .Where(t => taskDto.Dependencies.Contains(t.Title))
             .ToList();   
         
-        Project? project = _projectRepository.Find(p => p.Id == taskDto.Project);
-        return _taskRepository.Update(taskDto.ToEntity(taskDependencies, project));
+        Project? project = _projectRepository.Find(p => p.Id == int.Parse(taskDto.Project));
+        
+        List<(int, Resource)> resourceList = taskDto.Resources
+            .Select(tuple =>
+            {
+                int cantidad = tuple.Item1;
+                string nameResource = tuple.Item2;
+
+                Resource? resource = _resourceRepository.Find(r => r.Name == nameResource);
+                return (cantidad, resource);
+            })
+            .Where(t => t.Item2 != null)
+            .Select(t => (t.Item1, t.Item2!)) 
+            .ToList();
+
+        return _taskRepository.Update(taskDto.ToEntity(taskDependencies, project, resourceList));
     }
     public void RemoveTask(GetTaskDTO task)
     {

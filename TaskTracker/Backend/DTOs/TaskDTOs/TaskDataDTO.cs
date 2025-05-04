@@ -15,7 +15,7 @@ public class TaskDataDTO
     public List<String> Dependencies { get; set; } = new List<string>();
     public List<(int, string)> Resources { get; set; } = new List<(int, string)>();
     
-    public Task ToEntity(List<Task> dependencies, Project project)
+    public Task ToEntity(List<Task> dependencies, Project project, List<(int, Resource)> resources)
     {
 
         return new Task()
