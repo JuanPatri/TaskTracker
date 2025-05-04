@@ -27,7 +27,7 @@ public class Resource
         get => _type;
         set
         {
-            if (value == null) throw new ArgumentException("Resource type cannot be null");
+            if (value == null) throw new ArgumentException("ResourceDTOs type cannot be null");
             _type = value;
         }
     }

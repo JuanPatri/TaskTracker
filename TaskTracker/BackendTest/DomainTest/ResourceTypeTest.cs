@@ -22,6 +22,8 @@ public class ResourceTypeTest
     public void CreateNameForUser()
     {
         _type.Name = "Pedro";
+        _type.Id = 1;
+        Assert.AreEqual(1, _type.Id);
         Assert.AreEqual("Pedro", _type.Name);
     }
     
@@ -30,5 +32,11 @@ public class ResourceTypeTest
     {
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _type.Name = null);
         Assert.AreEqual("The name cannot be empty", ex.Message);
+    }
+    
+    [TestMethod]
+    public void PutIdLessThanOrEqualToZeroReturnsAnException()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _type.Id = 0);
     }
 }

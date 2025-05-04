@@ -1,0 +1,98 @@
+@page "/EditOneResource/{name}"
+@using Backend.Domain
+@using Backend.Service
+@using Backend.DTOs.ResourceDTOs
+@using Task = System.Threading.Tasks.Task
+@inject ResourceService ResourceService
+@inject ResourceTypeService ResourceTypeService
+@inject NavigationManager NavigationManager
+
+<h3>Edit Resource</h3>
+
+@if (_resource == null)
+{
+    <p class="text-danger">Resource not found.</p>
+}
+else
+{
+    <EditForm Model="_resourceDto" OnValidSubmit="HandleSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label>Name</label>
+            <InputText class="form-control" @bind-Value="_resourceDto.Name" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label>Description</label>
+            <InputTextArea class="form-control" @bind-Value="_resourceDto.Description" />
+        </div>
+
+        <div class="mb-3">
+            <label>Type</label>
+            <select class="form-select" @bind="_resourceDto.TypeResource">
+                @foreach (var type in _resourceTypes)
+                {
+                    <option value="@type.Id">@type.Name</option>
+                }
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </EditForm>
+}
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success mt-2">@_successMessage</div>
+}
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-2">@_errorMessage</div>
+}
+
+@code {
+    [Parameter] public string name { get; set; } = string.Empty;
+
+    private Resource? _resource;
+    private ResourceDataDto _resourceDto = new();
+    private List<ResourceType> _resourceTypes = new();
+    private string _successMessage = string.Empty;
+    private string _errorMessage = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _resourceTypes = ResourceTypeService.GetAllResourcesType();
+
+        GetResourceDto dto = new GetResourceDto { Name = name };
+        _resource = ResourceService.GetResource(dto);
+
+        if (_resource != null)
+        {
+            _resourceDto = new ResourceDataDto
+            {
+                Name = _resource.Name,
+                Description = _resource.Description,
+                TypeResource = _resource.Type.Id
+            };
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            ResourceService.UpdateResource(_resourceDto);
+            _successMessage = "Resource updated successfully.";
+            _errorMessage = string.Empty;
+            await Task.Delay(2000);
+            await InvokeAsync(() => NavigationManager.NavigateTo("/EditResource"));
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error updating resource: {ex.Message}";
+            _successMessage = string.Empty;
+        }
+    }
+}
