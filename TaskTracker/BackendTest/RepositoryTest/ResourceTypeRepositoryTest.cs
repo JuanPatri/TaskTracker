@@ -66,4 +66,13 @@ public class ResourceTypeRepositoryTest
         
         Assert.AreEqual(_resourceTypeRepository.Update(updateResourceType), null);
     }
+    
+    [TestMethod]
+    public void DeleteResourceTypeFromList()
+    {
+        _resourceTypeRepository.Add(_resourceType);
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 4);
+        _resourceTypeRepository.Delete(_resourceType.Id.ToString());
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
+    }
 }
