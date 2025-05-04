@@ -88,4 +88,27 @@ public class ProjectServiceTest
         Assert.IsNotNull(projects);
         Assert.AreEqual(_projectRepository.FindAll().Count(), projects.Count);
     }
+
+    [TestMethod]
+    public void UpdateProjectShouldReturnUpdatedProject()
+    {
+        ProjectDataDTO project = new ProjectDataDTO()
+        {
+            Name = "Project 1",
+            Description = "Updated description",
+            StartDate = DateTime.Now.AddDays(2),
+            FinishDate = DateTime.Now.AddDays(12),
+            Administrator = new UserDataDTO()
+            {
+                Name = "John",
+                LastName = "Doe",
+                Email = "john@example.com",
+                BirthDate = new DateTime(1990, 01, 01),
+                Password = "Pass123@",
+                Admin = true
+            }
+        };
+        _projectService.UpdateProject(project);
+        Assert.AreEqual(_project.Name, project.Name);
+    }
 }
