@@ -78,4 +78,24 @@ public class ResourceServiceTest
         
         Assert.AreEqual(_resourceService.GetResource(resourceToFind), _resource);
     }
+    
+    [TestMethod]
+    public void GetAllResourceReturnAllResource()
+    {
+        Resource newResource = new Resource()
+        {
+            Name = "Resource2",
+            Description = "Description",
+            Type = new ResourceType()
+            {
+                Id = 4,
+                Name = "Type"
+            }
+        };
+        _resourceRepository.Add(newResource);
+        List <Resource> resources = _resourceService.GetAllResource();
+        
+        Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
+        Assert.IsTrue(resources.Any(r => r.Name == "Resource2"));
+    }
 }
