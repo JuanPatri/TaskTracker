@@ -7,7 +7,25 @@ public class ResourceTypeRepository : IRepository<ResourceType>
     private readonly List<ResourceType> _resourceTypes;
     public ResourceTypeRepository()
     {
-        _resourceTypes = new List<ResourceType>();
+        _resourceTypes = new List<ResourceType>()
+        {
+            new ResourceType()
+            {
+                Name = "Human"
+
+            },
+            new ResourceType()
+            {
+                Name = "Infrastructure"
+
+            },
+            new ResourceType()
+            {
+                Name = "Software"
+
+            }
+        };
+
     }
 
     public ResourceType Add(ResourceType resourceType)

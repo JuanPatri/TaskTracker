@@ -28,5 +28,13 @@ public class ResourceTypeRepositoryTest
         _resourceTypeRepository.Add(_resourceType);
         Assert.AreEqual(_resourceTypeRepository.Find(r => r.Name == "new resource type"), _resourceType);
     }
+    
+    [TestMethod]
+    public void SearchForAllResourceInTheList()
+    {
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
+        _resourceTypeRepository.Add(_resourceType);
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 4);
+    }
 
 }
