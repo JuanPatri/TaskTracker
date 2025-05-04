@@ -10,6 +10,7 @@ public class Task
     private Status _status = Status.Pending;
     private Project _project;
     private List<Task> _dependencies = new List<Task>();
+    private List<(int, Resource)> _resources = new List<(int, Resource)>();
 
     public string Title
     {
@@ -68,5 +69,14 @@ public class Task
     {
         get => _dependencies;
         set => _dependencies = value;
+    }
+    
+    public List<(int, Resource)> Resources
+    {
+        get => _resources;
+        set
+        {
+            _resources = value;
+        } 
     }
 }
