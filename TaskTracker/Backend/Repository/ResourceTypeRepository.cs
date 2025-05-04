@@ -41,7 +41,7 @@ public class ResourceTypeRepository : IRepository<ResourceType>
 
     public IList<ResourceType> FindAll()
     {
-        throw new NotImplementedException();
+        return _resourceTypes; 
     }
 
     public ResourceType? Update(ResourceType entity)

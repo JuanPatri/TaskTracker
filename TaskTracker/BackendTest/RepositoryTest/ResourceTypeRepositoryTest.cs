@@ -30,7 +30,7 @@ public class ResourceTypeRepositoryTest
     }
     
     [TestMethod]
-    public void SearchForAllResourceInTheList()
+    public void SearchForAllResourceTypeInTheList()
     {
         Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
         _resourceTypeRepository.Add(_resourceType);
