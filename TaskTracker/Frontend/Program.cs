@@ -18,6 +18,7 @@ builder.Services.AddSingleton<IRepository<Project>, ProjectRepository>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<TaskService>();
+builder.Services.AddSingleton<ProjectService>();
 
 var app = builder.Build();
 

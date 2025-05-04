@@ -1,0 +1,14 @@
+@page "/ProjectManagement"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Project Management</PageTitle>
+<h1>Project Management</h1>
+
+<button class="btn btn-primary" @onclick="GoToCreateProject">Create</button>
+
+@code {
+    public void GoToCreateProject()
+    {
+        NavigationManager.NavigateTo("/CreateProject", true);
+    }
+}
