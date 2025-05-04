@@ -98,4 +98,20 @@ public class ResourceServiceTest
         Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
         Assert.IsTrue(resources.Any(r => r.Name == "Resource2"));
     }
+    
+    [TestMethod]
+    public void UpdateResourceShouldModifyResourceData()
+    {
+        Assert.AreEqual(_resource.Description, "Description");
+
+        ResourceDataDto resourceDTO = new ResourceDataDto()
+        {
+            Name = "Pedro",
+            Description = "new description",
+            TypeResource = 2
+        };
+        
+        _resourceService.UpdateResource(resourceDTO);
+        Assert.AreEqual(_resource.Description, "new description");
+    }
 }
