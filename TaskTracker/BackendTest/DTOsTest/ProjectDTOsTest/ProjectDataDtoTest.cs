@@ -1,4 +1,5 @@
 using Backend.DTOs.ProjectDTOs;
+using Backend.DTOs.UserDTOs;
 
 namespace BackendTest.DTOsTest.ProjectDTOsTest;
 
@@ -37,5 +38,27 @@ public class ProjectDataDtoTest
         DateTime finishDate = new DateTime(2025, 12, 31);
         projectDto.FinishDate = finishDate;
         Assert.AreEqual(finishDate, projectDto.FinishDate);
+    }
+
+    [TestMethod]
+    public void AddAdministratorToProjectTest()
+    {
+        ProjectDataDTO projectDto = new ProjectDataDTO();
+        projectDto.Administrator = new UserDataDTO
+        {
+            Name = "John",
+            LastName = "Doe",
+            Email = "john@example.com",
+            BirthDate = new DateTime(1990, 01, 01),
+            Password = "Pass123@",
+            Admin = true
+        };
+        Assert.IsNotNull(projectDto.Administrator);
+        Assert.AreEqual("John", projectDto.Administrator.Name);
+        Assert.AreEqual("Doe", projectDto.Administrator.LastName);
+        Assert.AreEqual("john@example.com", projectDto.Administrator.Email);
+        Assert.AreEqual(new DateTime(1990, 01, 01), projectDto.Administrator.BirthDate);
+        Assert.AreEqual("Pass123@", projectDto.Administrator.Password);
+        Assert.IsTrue(projectDto.Administrator.Admin);
     }
 }
