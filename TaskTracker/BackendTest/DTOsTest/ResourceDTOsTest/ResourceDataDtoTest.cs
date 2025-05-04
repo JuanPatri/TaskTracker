@@ -20,4 +20,12 @@ public class ResourceDataDtoTest
         resourceDto.Description = "description";
         Assert.AreEqual("description", resourceDto.Description);
     }
+    
+    [TestMethod]
+    public void CreateTypeResourceForResource()
+    {
+        ResourceDataDto resourceDto = new ResourceDataDto();
+        resourceDto.TypeResource = "type";
+        Assert.AreEqual("type", resourceDto.TypeResource);
+    }
 }
