@@ -28,4 +28,9 @@ public class ProjectService
     {
         return _projectRepository.Find(p => p.Name == project.Name);
     }
+    
+    public List<Project> GetAllProjects()
+    {
+        return _projectRepository.FindAll().ToList();
+    }
 }
