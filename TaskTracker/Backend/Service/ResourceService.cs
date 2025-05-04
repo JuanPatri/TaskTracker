@@ -26,4 +26,9 @@ public class ResourceService
     {
         _resourceRepository.Delete(resource.Name);
     }
+    
+    public Resource? GetResource(GetResourceDto resource)
+    {
+        return _resourceRepository.Find(r => r.Name == resource.Name);
+    }
 }
