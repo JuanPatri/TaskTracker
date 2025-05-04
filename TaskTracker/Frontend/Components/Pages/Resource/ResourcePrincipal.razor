@@ -8,7 +8,7 @@
 @if (Session.IsLoggedIn() && Session.CurrentUser?.Admin == true)
 {
     <button class="btn btn-primary" @onclick="GoToCreateResource">Create Resource</button>
-    <button class="btn btn-secondary" @onclick="GoToEditResource">Edit Resource</button>
+    <button class="btn btn-secondary" @onclick="GoToEditResource">Edit Resources</button>
 }
 else
 {
@@ -23,7 +23,6 @@ else
 
     private void GoToEditResource()
     {
-        // A futuro podrás cambiar esto por la ruta real
         Console.WriteLine("Edit resource clicked.");
     }
 }

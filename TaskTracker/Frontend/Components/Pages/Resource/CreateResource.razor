@@ -52,7 +52,6 @@
 
     protected override void OnInitialized()
     {
-        // Podés hacer esto async si el método en ResourceTypeService es async
         _resourceTypes = ResourceTypeService.GetAllResourcesType()
                           .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
                           .ToList();
@@ -65,7 +64,7 @@
             ResourceService.AddResource(_newResource);
             _successMessage = "Resource created successfully!";
             _errorMessage = string.Empty;
-            _newResource = new ResourceDataDto(); // limpiar formulario
+            _newResource = new ResourceDataDto(); 
         }
         catch (Exception ex)
         {
