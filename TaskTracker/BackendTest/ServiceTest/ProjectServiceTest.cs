@@ -1,4 +1,6 @@
 using Backend.Domain;
+using Backend.DTOs.ProjectDTOs;
+using Backend.DTOs.UserDTOs;
 using Backend.Repository;
 using Backend.Service;
 
@@ -33,13 +35,13 @@ public class ProjectServiceTest
     [TestMethod]
     public void AddProjectShouldReturnProject()
     {
-        Project project = new Project()
+        ProjectDataDTO project = new ProjectDataDTO()
         {
             Name = "Project 2",
             Description = "Description of project 2",
-            StartDate = DateTime.Now,
+            StartDate = DateTime.Now.AddDays(1),
             FinishDate = DateTime.Now.AddDays(10),
-            Administrator = new User()
+            Administrator = new UserDataDTO()
             {
                 Name = "John",
                 LastName = "Doe",
@@ -51,6 +53,8 @@ public class ProjectServiceTest
         };
         Project? createdProject = _projectService.AddProject(project);
         Assert.IsNotNull(createdProject);
+        Assert.AreEqual(project.Name, createdProject.Name);
+        Assert.AreEqual(project.Administrator.Email, createdProject.Administrator.Email);
         Assert.AreEqual(_projectRepository.FindAll().Last(), createdProject);
     }
 }

@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.DTOs.ProjectDTOs;
 using Backend.Repository;
 
 namespace Backend.Service;
@@ -10,5 +11,11 @@ public class ProjectService
     public ProjectService(IRepository<Project> projectRepository)
     {
         _projectRepository = projectRepository;
+    }
+    
+    public Project AddProject(ProjectDataDTO project)
+    {
+        Project createdProject = project.ToEntity();
+        return _projectRepository.Add(createdProject);
     }
 }
