@@ -1,0 +1,94 @@
+﻿@page "/RegisterUser"
+@using Backend.DTOs.UserDTOs
+@using Backend.Service
+@inject NavigationManager NavigationManager
+@inject UserService UserService
+
+<PageTitle>Register User - TaskTrackPro</PageTitle>
+
+<h3 class="mb-3">Create User</h3>
+
+<form @onsubmit="HandleSubmit">
+    <div class="form-group">
+        <label for="name">Name</label>
+        <input id="name" class="form-control" @bind="_newUser.Name" />
+    </div>
+
+    <div class="form-group">
+        <label for="lastName">Last name</label>
+        <input id="lastName" class="form-control" @bind="_newUser.LastName" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input id="email" type="email" class="form-control" @bind="_newUser.Email" />
+    </div>
+
+    <div class="form-group">
+        <label for="birthDate">Date of Birth</label>
+        <input id="birthDate" type="date" class="form-control" @bind="_newUser.BirthDate" />
+    </div>
+
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input id="password" type="password" class="form-control" @bind="_newUser.Password" />
+        <div class="form-text">
+            Your password must:
+            <ul class="mb-0 ps-3 mt-1">
+                <li>Be at least 8 characters long</li>
+                <li>Include uppercase and lowercase letters</li>
+                <li>Include at least one number</li>
+                <li>Include at least one special character</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label>User Type</label>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="regular" name="role" value="false" @onchange="e => _newUser.Admin = false" checked />
+            <label class="form-check-label" for="regular">Regular User</label>
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="radio" id="admin" name="role" value="true" @onchange="e => _newUser.Admin = true" />
+            <label class="form-check-label" for="admin">System Administrator</label>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 mt-3">
+        <button type="submit" class="btn btn-primary btn-lg">Create Account</button>
+    </div>
+</form>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-2">@_errorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success mt-2">@_successMessage</div>
+}
+
+@code {
+    private UserDataDTO _newUser = new UserDataDTO();
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            UserService.AddUser(_newUser);
+            _successMessage = "User created successfully!";
+            _errorMessage = string.Empty;
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/UserProfile", true);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
+        }
+    }
+}

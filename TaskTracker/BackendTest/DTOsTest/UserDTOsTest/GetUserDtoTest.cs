@@ -1,22 +1,22 @@
-using Backend.DTOs;
+using Backend.DTOs.UserDTOs;
 
-namespace BackendTest.DTOsTest;
+namespace BackendTest.DTOsTest.UserDTOsTest;
 
 [TestClass]
-public class GetUserDTOsTest
+public class GetUserDtoTest
 {
     [TestMethod]
     public void AddEmailToUser()
     {
-        GetUserDTOs userDtOs = new GetUserDTOs();
-        userDtOs.Email = "prodriguez@gmail.com";
-        Assert.AreEqual("prodriguez@gmail.com", userDtOs.Email);
+        GetUserDTO userDto = new GetUserDTO();
+        userDto.Email = "prodriguez@gmail.com";
+        Assert.AreEqual("prodriguez@gmail.com", userDto.Email);
     }
 
     [TestMethod]
     public void ToEntityShouldReturnEmail()
     {
-        var dto = new GetUserDTOs()
+        var dto = new GetUserDTO()
         {
             Email = "user@example.com"
         };
