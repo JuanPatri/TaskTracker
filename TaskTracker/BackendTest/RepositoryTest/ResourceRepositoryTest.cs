@@ -22,7 +22,8 @@ public class ResourceRepositoryTest
     public void AddResourceToRepository()
     {
         Resource resource = new Resource();
+        resource.Name = "new resource";
         _resourceRepository.Add(resource);
-        Assert.AreEqual(_resourceRepository.Find(u => u.Name == "new resource"), resource);
+        Assert.AreEqual(_resourceRepository.Find(r => r.Name == "new resource"), resource);
     }
 }

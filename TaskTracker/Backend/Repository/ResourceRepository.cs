@@ -4,14 +4,21 @@ namespace Backend.Repository;
 
 public class ResourceRepository : IRepository<Resource>
 {
-    public Resource Add(Resource entity)
+    private readonly List<Resource> _resources;
+    
+    public ResourceRepository()
     {
-        throw new NotImplementedException();
+        _resources = new List<Resource>();
+    }
+    public Resource Add(Resource resource)
+    {
+        _resources.Add(resource);
+        return resource;
     }
 
     public Resource? Find(Func<Resource, bool> predicate)
     {
-        throw new NotImplementedException();
+        return _resources.FirstOrDefault(predicate);
     }
 
     public IList<Resource> FindAll()
