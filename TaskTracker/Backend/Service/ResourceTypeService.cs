@@ -17,6 +17,10 @@ public class ResourceTypeService
     
     public ResourceType? AddResourceType(ResourceTypeDto resourceType)
     {
+        if(_resourceTypeRepository.Find(r => r.Name == resourceType.Name) != null)
+        {
+            throw new Exception("Resource type already exists");
+        }
         resourceType.Id = _id++;
         ResourceType? createdResourceType = _resourceTypeRepository.Add(resourceType.ToEntity());
         return createdResourceType;

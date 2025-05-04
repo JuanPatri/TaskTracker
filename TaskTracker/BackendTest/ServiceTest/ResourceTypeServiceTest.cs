@@ -39,6 +39,18 @@ public class ResourceTypeServiceTest
     }
     
     [TestMethod]
+    public void AddResourceTypeShouldThrowExceptionIfResourceAlreadyExists()
+    {
+        ResourceTypeDto resourceType = new ResourceTypeDto()
+        {
+            Id = 4,
+            Name = "Human"
+        };
+        
+        Assert.ThrowsException<Exception>(() => _resourceTypeService.AddResourceType(resourceType));
+    }
+    
+    [TestMethod]
     public void RemoveResourceTypeShouldRemoveResourceType()
     {
         Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
