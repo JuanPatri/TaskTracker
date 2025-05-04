@@ -36,5 +36,19 @@ public class ResourceTypeRepositoryTest
         _resourceTypeRepository.Add(_resourceType);
         Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 4);
     }
-
+    
+    // [TestMethod]
+    // public void UpdateExistingResourceUpdatesFieldsCorrectly()
+    // {
+    //     _resourceTypeRepository.Add(_resourceType);
+    //     Assert.AreEqual(_resourceType.Name, "new resource type");
+    //     
+    //     ResourceType updateResource = new ResourceType()
+    //     {
+    //         Name = "new resource type"
+    //     };
+    //     
+    //     _resourceTypeRepository.Update(updateResource);
+    //     Assert.AreEqual(_resource.Description, "UpdatedDescription");
+    // }
 }
