@@ -80,4 +80,12 @@ public class ProjectServiceTest
         };
         Assert.AreEqual(_projectService.GetProject(projectToFind), _project);
     }
+    
+    [TestMethod]
+    public void GetAllProjectsReturnAllProjects()
+    {
+        List<Project> projects = _projectService.GetAllProjects();
+        Assert.IsNotNull(projects);
+        Assert.AreEqual(_projectRepository.FindAll().Count(), projects.Count);
+    }
 }
