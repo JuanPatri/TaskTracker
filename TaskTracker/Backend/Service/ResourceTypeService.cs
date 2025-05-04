@@ -23,4 +23,9 @@ public class ResourceTypeService
     {
         _resourceTypeRepository.Delete(resourceType.Id.ToString());
     }
+    
+    public ResourceType? GetResourceType(ResourceTypeDto resourceType)
+    {
+        return _resourceTypeRepository.Find(r => r.Id == resourceType.Id);
+    }
 }
