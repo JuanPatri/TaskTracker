@@ -4,6 +4,7 @@
 @using Backend.Service
 @inject ResourceService ResourceService
 @inject SessionService Session
+@inject NavigationManager NavigationManager
 
 <h3>Edit Resource</h3>
 
@@ -34,8 +35,8 @@ else
                     <td>@resource.Description</td>
                     <td>@resource.Type.Name</td>
                     <td>
-                        <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteResource(resource)">Eliminar</button>
-                        <button class="btn btn-sm btn-secondary" >Editar</button>
+                        <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteResource(resource)">Delete</button>
+                        <button class="btn btn-sm btn-secondary" @onclick="() => EditOneResource(resource)">Edit</button>
                     </td>
                 </tr>
             }
@@ -71,8 +72,15 @@ else
         }
     }
     
-    // private void EditResource(Resource resource)
-    // {
-    //     
-    // }
+    private void EditOneResource(Resource resource)
+    {
+        try
+        {
+            NavigationManager.NavigateTo($"/EditOneResource/{resource.Name}");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error navigating to edit resource: {ex.Message}";
+        }   
+    }
 }
