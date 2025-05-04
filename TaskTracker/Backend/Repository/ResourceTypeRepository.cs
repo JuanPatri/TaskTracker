@@ -10,14 +10,15 @@ public class ResourceTypeRepository : IRepository<ResourceType>
         _resourceTypes = new List<ResourceType>();
     }
 
-    public ResourceType Add(ResourceType entity)
+    public ResourceType Add(ResourceType resourceType)
     {
-        throw new NotImplementedException();
+        _resourceTypes.Add(resourceType);
+        return resourceType;
     }
 
     public ResourceType? Find(Func<ResourceType, bool> predicate)
     {
-        throw new NotImplementedException();
+        return _resourceTypes.FirstOrDefault(predicate);
     }
 
     public IList<ResourceType> FindAll()
