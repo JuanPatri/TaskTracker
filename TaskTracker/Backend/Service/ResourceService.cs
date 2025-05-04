@@ -31,4 +31,9 @@ public class ResourceService
     {
         return _resourceRepository.Find(r => r.Name == resource.Name);
     }
+    
+    public List<Resource> GetAllResources()
+    {
+        return _resourceRepository.FindAll().ToList();
+    }
 }

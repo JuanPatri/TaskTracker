@@ -93,7 +93,7 @@ public class ResourceServiceTest
             }
         };
         _resourceRepository.Add(newResource);
-        List <Resource> resources = _resourceService.GetAllResource();
+        List <Resource> resources = _resourceService.GetAllResources();
         
         Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
         Assert.IsTrue(resources.Any(r => r.Name == "Resource2"));
