@@ -1,5 +1,29 @@
+@page "/ResourcePrincipal"
+@using Backend.Service
+@inject NavigationManager Navigation
+@inject SessionService Session
+
 <h3>ResourcePrincipal</h3>
 
+@if (Session.IsLoggedIn() && Session.CurrentUser?.Admin == true)
+{
+    <button class="btn btn-primary" @onclick="GoToCreateResource">Create Resource</button>
+    <button class="btn btn-secondary" @onclick="GoToEditResource">Edit Resource</button>
+}
+else
+{
+    <p>You do not have permission to modify resources.</p>
+}
+
 @code {
-    
+    private void GoToCreateResource()
+    {
+        Navigation.NavigateTo("/CreateResource");
+    }
+
+    private void GoToEditResource()
+    {
+        // A futuro podrás cambiar esto por la ruta real
+        Console.WriteLine("Edit resource clicked.");
+    }
 }
