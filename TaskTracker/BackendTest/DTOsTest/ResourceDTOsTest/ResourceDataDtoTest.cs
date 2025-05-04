@@ -9,7 +9,15 @@ public class ResourceDataDtoTest
     public void CreateNameForResource()
     {
         ResourceDataDto resourceDto = new ResourceDataDto();
-        resourceDto.Name = "Pedro";
-        Assert.AreEqual("Pedro", resourceDto.Name);
+        resourceDto.Name = "resource";
+        Assert.AreEqual("resource", resourceDto.Name);
+    }
+    
+    [TestMethod]
+    public void CreateDescriptionForResource()
+    {
+        ResourceDataDto resourceDto = new ResourceDataDto();
+        resourceDto.Description = "description";
+        Assert.AreEqual("description", resourceDto.Description);
     }
 }
