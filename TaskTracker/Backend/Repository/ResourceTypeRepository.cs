@@ -11,16 +11,19 @@ public class ResourceTypeRepository : IRepository<ResourceType>
         {
             new ResourceType()
             {
+                Id = 1,
                 Name = "Human"
 
             },
             new ResourceType()
             {
+                Id = 2,
                 Name = "Infrastructure"
 
             },
             new ResourceType()
             {
+                Id = 3,
                 Name = "Software"
 
             }
