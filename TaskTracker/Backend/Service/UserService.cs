@@ -4,8 +4,7 @@ using Backend.Repository;
 
 namespace Backend.Service;
 
-public class 
-    UserService
+public class UserService
 {
     private readonly IRepository<User> _userRepository;
     public  UserService(IRepository<User> userRepository)
