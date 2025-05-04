@@ -79,33 +79,36 @@ public class TaskServiceTest
     [TestMethod]
     public void UpdateTaskShouldUpdateTask()
     {
+        // Agregar el proyecto con ID "45" al repositorio
+        Project project = new Project() { Id = 45, Name = "Updated Test Project" };
+        _projectRepository.Add(project);
+
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
         taskDto.Description = "New Description";
         taskDto.Duration = TimeSpan.FromHours(4);
         taskDto.Status = Status.Blocked;
-        taskDto.Project = "45";
-        taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
-        
+        taskDto.Project = "45"; // El proyecto "45" ahora sí existe
+        taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
+
         _taskRepository.Add(new Task()
         {
             Title = "Task1"
         });
-        
+
         _taskRepository.Add(new Task()
         {
             Title = "Task2"
         });
-        
+
         _task.Description = "Description";
-        
         Assert.AreEqual(_task.Description, "Description");
 
         _taskService.UpdateTask(taskDto);
-        
+
         Assert.AreEqual("New Description", _task.Description);
     }
-
+    
     [TestMethod]
     public void RemoveTaskShouldDeleteTask()
     {
