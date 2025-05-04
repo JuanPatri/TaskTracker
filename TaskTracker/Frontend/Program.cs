@@ -2,6 +2,7 @@ using Backend.Service;
 using Backend.Repository;
 using Backend.Domain;
 using Frontend.Components;
+using Task = Backend.Domain.Task;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,8 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
 builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 
+builder.Services.AddSingleton<IRepository<Task>, TaskRepository>();
+
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
+builder.Services.AddSingleton<TaskService>();
 
 var app = builder.Build();
 
