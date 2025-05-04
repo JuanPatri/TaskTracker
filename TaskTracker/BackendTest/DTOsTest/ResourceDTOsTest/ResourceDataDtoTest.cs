@@ -1,3 +1,4 @@
+using Backend.Domain;
 using Backend.DTOs.Resource;
 
 namespace BackendTest.DTOsTest.ResourceDTOsTest;
@@ -27,5 +28,20 @@ public class ResourceDataDtoTest
         ResourceDataDto resourceDto = new ResourceDataDto();
         resourceDto.TypeResource = "type";
         Assert.AreEqual("type", resourceDto.TypeResource);
+    }
+    
+    [TestMethod]
+    public void ToEntityShouldMapAllPropertiesCorrectly()
+    {
+        ResourceDataDto resourceDto = new ResourceDataDto
+        {
+            Name = "ResourceName",
+            Description = "ResourceDescription",
+            TypeResource = "ResourceType"
+        };
+        
+        Resource resource = resourceDto.ToEntity();
+
+        Assert.IsNotNull(resource);
     }
 }
