@@ -70,4 +70,14 @@ public class ProjectServiceTest
         _projectService.RemoveProject(projectToDelete);
         Assert.AreNotEqual(_projectRepository.FindAll().Last(), _project);
     }
+    
+    [TestMethod]
+    public void GetProjectReturnProject()
+    {
+        GetProjectDTO projectToFind = new GetProjectDTO()
+        {
+            Name = "Project 1",
+        };
+        Assert.AreEqual(_projectService.GetProject(projectToFind), _project);
+    }
 }
