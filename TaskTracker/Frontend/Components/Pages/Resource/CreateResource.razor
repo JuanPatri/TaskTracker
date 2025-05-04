@@ -1,0 +1,87 @@
+@page "/CreateResource"
+@using Backend.DTOs.ResourceDTOs
+@using Backend.DTOs.ResourceTypeDTOs
+@using Backend.Service
+@inject ResourceService ResourceService
+@inject ResourceTypeService ResourceTypeService
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
+
+<h3>Create Resource</h3>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success">@_successMessage</div>
+}
+
+<EditForm Model="_newResource" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="_newResource.Name" />
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="_newResource.Description" />
+    </div>
+
+    <div class="mb-3">
+        <label for="type" class="form-label">Resource Type</label>
+        <div class="d-flex align-items-end">
+            <select id="type" class="form-select" @bind="_newResource.TypeResource">
+                <option value="" selected>-- Select a type --</option>
+                @foreach (var type in _resourceTypes)
+                {
+                <option value="@type.Id.ToString()">@type.Name</option>
+                }
+            </select>
+            <button class="btn btn-outline-primary ms-2" @onclick="GoToCreateResourceType">Create new</button>
+        </div>
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+@code {
+    private ResourceDataDto _newResource = new ResourceDataDto();
+    private List<ResourceTypeDto> _resourceTypes = new();
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _resourceTypes = ResourceTypeService.GetAllResourcesType()
+                          .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
+                          .ToList();
+    }
+
+    private void HandleSubmit()
+    {
+        try
+        {
+            ResourceService.AddResource(_newResource);
+            _successMessage = "Resource created successfully!";
+            _errorMessage = string.Empty;
+            _newResource = new ResourceDataDto(); 
+            NavigationManager.NavigateTo("/ResourcePrincipal", true);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
+        }
+    }
+    
+    private void GoToCreateResourceType()
+    {
+        NavigationManager.NavigateTo("/CreateResourceType");
+    }
+}
