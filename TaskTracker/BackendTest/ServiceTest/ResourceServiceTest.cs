@@ -9,13 +9,15 @@ namespace BackendTest.ServiceTest;
 public class ResourceServiceTest
 {
     private ResourceRepository _resourceRepository;
+    private ResourceTypeRepository _resourceTypeRepository;
     private ResourceService _resourceService;
     private Resource _resource;
     [TestInitialize]
     public void OnInitialize()
     {
-        _resourceRepository = new ResourceRepository();
-        _resourceService = new ResourceService(_resourceRepository);
+        _resourceRepository = new ResourceRepository(); 
+        _resourceTypeRepository = new ResourceTypeRepository();
+        _resourceService = new ResourceService(_resourceRepository, _resourceTypeRepository);
         _resource = new Resource()
         {
             Name = "Resource",

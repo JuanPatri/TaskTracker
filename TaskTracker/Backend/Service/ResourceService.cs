@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.DTOs.ResourceDTOs;
 using Backend.Repository;
 
 namespace Backend.Service;
@@ -6,11 +7,19 @@ namespace Backend.Service;
 public class ResourceService
 {
     private readonly IRepository<Resource> _resourceRepository;
+    private readonly IRepository<ResourceType> _resourceTypeRepository;
     
-    public ResourceService(IRepository<Resource> resourceRepository)
+    public ResourceService(IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository)
     {
+        _resourceTypeRepository = resourceTypeRepository;
         _resourceRepository = resourceRepository;
     }
     
+    public Resource? AddResource(ResourceDataDto resource)
+    {
+        ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
+        Resource? createdResource = _resourceRepository.Add(resource.ToEntity(resourceType));
+        return createdResource;
+    }
     
 }
