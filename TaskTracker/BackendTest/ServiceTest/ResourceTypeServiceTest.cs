@@ -65,4 +65,13 @@ public class ResourceTypeServiceTest
         
         Assert.AreEqual(_resourceTypeService.GetResourceType(resourceToFind).Name, "Human");
     }
+    
+    [TestMethod]
+    public void GetAllResourceTypeReturnAllResourceType()
+    {
+        List <ResourceType> resourcesTypes = _resourceTypeService.GetAllResourcesType();
+        
+        Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Human"));
+        Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Software"));
+    }
 }
