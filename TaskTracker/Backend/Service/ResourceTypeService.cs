@@ -18,4 +18,9 @@ public class ResourceTypeService
         ResourceType? createdResourceType = _resourceTypeRepository.Add(resourceType.ToEntity());
         return createdResourceType;
     }
+    
+    public void RemoveResourceType(ResourceTypeDto resourceType)
+    {
+        _resourceTypeRepository.Delete(resourceType.Id.ToString());
+    }
 }

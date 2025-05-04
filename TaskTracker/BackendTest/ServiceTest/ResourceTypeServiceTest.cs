@@ -39,7 +39,7 @@ public class ResourceTypeServiceTest
     }
     
     [TestMethod]
-    public void RemoveResourceTypeShouldRemoveResource()
+    public void RemoveResourceTypeShouldRemoveResourceType()
     {
         Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
 
@@ -49,7 +49,7 @@ public class ResourceTypeServiceTest
             Name = "Human",
         };
         
-        _resourceTypeRepository.RemoveResourceType(resourceToDelete);
+        _resourceTypeService.RemoveResourceType(resourceToDelete);
         
         Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 2);
     }
