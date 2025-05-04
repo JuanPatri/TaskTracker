@@ -1,10 +1,12 @@
+using Backend.DTOs.ProjectDTOs;
+
 namespace BackendTest.DTOsTest.ProjectDTOsTest;
 
 [TestClass]
 public class ProjectDataDtoTest
 {
     [TestMethod]
-    public void CreateNameForProject()
+    public void CreateNameForProjectTest()
     {
         ProjectDataDTO projectDto = new ProjectDataDTO();
         projectDto.Name = "Project A";
