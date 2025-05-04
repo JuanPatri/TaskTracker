@@ -1,4 +1,5 @@
-﻿using Backend.DTOs.TaskDTOs;
+﻿using Backend.Domain;
+using Backend.DTOs.TaskDTOs;
 using Backend.Service;
 using Backend.Domain.Enums;
 using Backend.Repository;
@@ -11,6 +12,7 @@ public class TaskServiceTest
 {
 
     private TaskRepository _taskRepository;
+    private ProjectRepository _projectRepository;
     private TaskService _taskService;
     private Task _task;
     
@@ -18,7 +20,8 @@ public class TaskServiceTest
     public void OnInitialize()
     {
         _taskRepository = new TaskRepository();
-        _taskService = new TaskService(_taskRepository);
+        _projectRepository = new ProjectRepository();
+        _taskService = new TaskService(_taskRepository, _projectRepository);
         _task = new Task()
         {
             Title = "Test Task",

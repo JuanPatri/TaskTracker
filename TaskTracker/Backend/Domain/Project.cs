@@ -2,6 +2,7 @@ namespace Backend.Domain;
 
 public class Project
 {
+    private int _id;
     private string _name;
     private string _description;
     private DateTime _startDate;
@@ -57,5 +58,13 @@ public class Project
             _administrator = value;
         }
     }
-
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("The project ID must be a positive integer");
+            _id = value;
+        }
+    }
 }

@@ -9,9 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
+//repositories
 builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 
 builder.Services.AddSingleton<IRepository<Task>, TaskRepository>();
 
+//services
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<TaskService>();

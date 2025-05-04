@@ -83,7 +83,12 @@ public class TaskDataDtoTest
                 Title = _taskDataDto.Dependencies[1]
             }
         };
-        Task task = _taskDataDto.ToEntity(dependencies);
+        Project project = new Project()
+        {
+            Id = _taskDataDto.Project
+        };
+        
+        Task task = _taskDataDto.ToEntity(dependencies, project);
 
         Assert.IsNotNull(task);
     }

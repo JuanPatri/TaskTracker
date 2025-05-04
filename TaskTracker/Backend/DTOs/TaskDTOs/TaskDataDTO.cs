@@ -14,7 +14,7 @@ public class TaskDataDTO
     public int Project { get; set; } = 0;
     public List<String> Dependencies { get; set; } = new List<string>();
     
-    public Task ToEntity(List<Task> dependencies)
+    public Task ToEntity(List<Task> dependencies, Project project)
     {
 
         return new Task()
@@ -23,7 +23,7 @@ public class TaskDataDTO
             Description = Description,
             Duration = Duration,
             Status = Status,
-            ///Project = project,
+            Project = project,
             Dependencies = dependencies
         };
     }
