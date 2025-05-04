@@ -63,6 +63,10 @@ public class ResourceTypeRepository : IRepository<ResourceType>
 
     public void Delete(string entity)
     {
-        throw new NotImplementedException();
+        ResourceType? resourceType = _resourceTypes.FirstOrDefault(r => r.Id == int.Parse(entity));
+        if (resourceType != null)
+        {
+            _resourceTypes.Remove(resourceType);
+        }
     }
 }
