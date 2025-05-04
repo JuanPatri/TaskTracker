@@ -37,4 +37,20 @@ public class ResourceTypeServiceTest
         Assert.IsNotNull(createdResourceType);
         Assert.AreEqual(_resourceTypeRepository.FindAll().Last(), createdResourceType);
     }
+    
+    [TestMethod]
+    public void RemoveResourceTypeShouldRemoveResource()
+    {
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
+
+        ResourceTypeDto resourceToDelete = new ResourceTypeDto()
+        {
+            Id = 1,
+            Name = "Human",
+        };
+        
+        _resourceTypeRepository.RemoveResourceType(resourceToDelete);
+        
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 2);
+    }
 }
