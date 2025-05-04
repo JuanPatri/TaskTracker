@@ -2,6 +2,7 @@ using Backend.DTOs.ResourceTypeDTOs;
 
 namespace BackendTest.DTOsTest.ResourceTypeDTOsTest;
 
+[TestClass]
 public class ResourceTypeDtoTest
 {
     [TestMethod]
