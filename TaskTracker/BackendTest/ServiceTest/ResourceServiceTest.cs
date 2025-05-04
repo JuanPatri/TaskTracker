@@ -67,4 +67,15 @@ public class ResourceServiceTest
         
         Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
     }
+    
+    [TestMethod]
+    public void GetResourceReturnResource()
+    {
+        GetResourceDto resourceToFind = new GetResourceDto()
+        {
+            Name = "Resource"
+        };
+        
+        Assert.AreEqual(_resourceService.GetResource(resourceToFind), _resource);
+    }
 }
