@@ -38,9 +38,9 @@ public class TaskServiceTest
         taskDto.Description = "This is a test task.";
         taskDto.Duration = TimeSpan.FromHours(1);
         taskDto.Status = Status.Pending;
-        // taskDto.Project = 0;
-        // taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
-        // taskDt0o.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
+        taskDto.Project = 0;
+        taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
+        taskDt0o.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
 
         Task? task = _taskService.AddTask(taskDto);
         

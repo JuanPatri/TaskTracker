@@ -11,7 +11,7 @@ public class TaskDataDTO
     public string Description { get; set; } = string.Empty;
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
     public Status Status { get; set; } = Status.Pending;
-    public int Project { get; set; } = 0;
+    public string Project { get; set; } = String.Empty;
     public List<String> Dependencies { get; set; } = new List<string>();
     public List<(int, string)> Resources { get; set; } = new List<(int, string)>();
     
