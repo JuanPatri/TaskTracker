@@ -56,16 +56,15 @@ public class ResourceServiceTest
     [TestMethod]
     public void RemoveResourceShouldRemoveResource()
     {
-        Assert.AreEqual(_resourceRepository.FindAll().Last(), _resource);   
+        Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
 
-        ResourceDataDto resourceToDelete = new ResourceDataDto()
+        GetResourceDto resourceToDelete = new GetResourceDto()
         {
-            Name = "Resource",
-            Description = "Description",
-            TypeResource = 4
+            Name = "Resource"
         };
+            
         _resourceService.RemoveResource(resourceToDelete);
         
-        Assert.AreNotEqual(_resourceRepository.FindAll().Last(), _resource);
+        Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
     }
 }

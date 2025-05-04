@@ -22,8 +22,8 @@ public class ResourceService
         return createdResource;
     }
     
-    // public void RemoveResource(GetResourceDTO resource)
-    // {
-    //     _resourceRepository.Delete(resource.Id);
-    // }
+    public void RemoveResource(GetResourceDto resource)
+    {
+        _resourceRepository.Delete(resource.Name);
+    }
 }
