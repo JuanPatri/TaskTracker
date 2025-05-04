@@ -12,6 +12,7 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 //repositories
 builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 
 builder.Services.AddSingleton<IRepository<Task>, TaskRepository>();
+builder.Services.AddSingleton<IRepository<Project>, ProjectRepository>();
 
 //services
 builder.Services.AddSingleton<UserService>();
