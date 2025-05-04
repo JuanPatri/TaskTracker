@@ -28,4 +28,9 @@ public class ResourceTypeService
     {
         return _resourceTypeRepository.Find(r => r.Id == resourceType.Id);
     }
+    
+    public List<ResourceType> GetAllResourcesType()
+    {
+        return _resourceTypeRepository.FindAll().ToList();
+    }
 }
