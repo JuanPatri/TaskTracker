@@ -78,6 +78,6 @@ public class ResourceRepositoryTest
         _resourceRepository.Add(_resource);
         Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
         _resourceRepository.Delete(_resource.Name);
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
+        Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
     }
 }

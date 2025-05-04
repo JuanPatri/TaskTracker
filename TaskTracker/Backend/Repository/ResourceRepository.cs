@@ -39,8 +39,12 @@ public class ResourceRepository : IRepository<Resource>
         return null;
     }
 
-    public void Delete(string entity)
+    public void Delete(string name)
     {
-        throw new NotImplementedException();
+        Resource? resource = _resources.FirstOrDefault(r => r.Name == name);
+        if (resource != null)
+        {
+            _resources.Remove(resource);
+        }
     }
 }
