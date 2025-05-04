@@ -22,7 +22,14 @@ public class ResourceServiceTest
         {
             Name = "Resource",
             Description = "Description",
+            Type = new ResourceType()
+            {
+                Id = 4,
+                Name = "Type"
+            }
         };
+        _resourceRepository.Add(_resource);
+        _resourceTypeRepository.Add(_resource.Type);
     }
     
     [TestMethod]
@@ -44,5 +51,21 @@ public class ResourceServiceTest
         Resource? createdResource = _resourceService.AddResource(resource);
         Assert.IsNotNull(createdResource);
         Assert.AreEqual(_resourceRepository.FindAll().Last(), createdResource);
+    }
+    
+    [TestMethod]
+    public void RemoveResourceShouldRemoveResource()
+    {
+        Assert.AreEqual(_resourceRepository.FindAll().Last(), _resource);   
+
+        ResourceDataDto resourceToDelete = new ResourceDataDto()
+        {
+            Name = "Resource",
+            Description = "Description",
+            TypeResource = 4
+        };
+        _resourceService.RemoveResource(resourceToDelete);
+        
+        Assert.AreNotEqual(_resourceRepository.FindAll().Last(), _resource);
     }
 }
