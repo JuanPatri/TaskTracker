@@ -7,10 +7,13 @@ namespace BackendTest.RepositoryTest;
 public class ResourceRepositoryTest
 {
     private ResourceRepository _resourceRepository;
+    private Resource _resource;
     [TestInitialize]
     public void OnInitialize()
     {
         _resourceRepository = new ResourceRepository();
+        _resource = new Resource();
+        _resource.Name = "new resource";
     }
     [TestMethod]
     public void CreateResourceRepository()
@@ -21,9 +24,7 @@ public class ResourceRepositoryTest
     [TestMethod]
     public void AddResourceToRepository()
     {
-        Resource resource = new Resource();
-        resource.Name = "new resource";
-        _resourceRepository.Add(resource);
-        Assert.AreEqual(_resourceRepository.Find(r => r.Name == "new resource"), resource);
+        _resourceRepository.Add(_resource);
+        Assert.AreEqual(_resourceRepository.Find(r => r.Name == "new resource"), _resource);
     }
 }
