@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.DTOs.ResourceTypeDTOs;
 using Backend.Repository;
 
 namespace Backend.Service;
@@ -10,5 +11,11 @@ public class ResourceTypeService
     public ResourceTypeService(IRepository<ResourceType> resourceTypeRepository)
     {
         _resourceTypeRepository = resourceTypeRepository;
+    }
+    
+    public ResourceType? AddResourceType(ResourceTypeDto resourceType)
+    {
+        ResourceType? createdResourceType = _resourceTypeRepository.Add(resourceType.ToEntity());
+        return createdResourceType;
     }
 }

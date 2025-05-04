@@ -33,7 +33,7 @@ public class ResourceTypeServiceTest
             Name = "name" 
         };
         
-        Resource? createdResourceType = _resourceTypeService.AddResourceType(resourceType);
+        ResourceType? createdResourceType = _resourceTypeService.AddResourceType(resourceType);
         Assert.IsNotNull(createdResourceType);
         Assert.AreEqual(_resourceTypeRepository.FindAll().Last(), createdResourceType);
     }
