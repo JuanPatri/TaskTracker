@@ -5,27 +5,27 @@ namespace Backend.Repository;
 public class ResourceTypeRepository : IRepository<ResourceType>
 {
     private readonly List<ResourceType> _resourceTypes;
-    private int _idCounter;
+    //private int _idCounter;
     public ResourceTypeRepository()
     {
-        _idCounter = 1;
+        //_idCounter = 1;
         _resourceTypes = new List<ResourceType>()
         {
             new ResourceType()
             {
-                Id = _idCounter++,
+                Id = 1,
                 Name = "Human"
 
             },
             new ResourceType()
             {
-                Id = _idCounter++,
+                Id = 2,
                 Name = "Infrastructure"
 
             },
             new ResourceType()
             {
-                Id = _idCounter++,
+                Id = 3,
                 Name = "Software"
 
             }
@@ -35,7 +35,7 @@ public class ResourceTypeRepository : IRepository<ResourceType>
 
     public ResourceType Add(ResourceType resourceType)
     {
-        resourceType.Id = _idCounter++;
+        //resourceType.Id = _idCounter++;
         _resourceTypes.Add(resourceType);
         return resourceType;
     }

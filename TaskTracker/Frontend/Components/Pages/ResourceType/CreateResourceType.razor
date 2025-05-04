@@ -41,7 +41,7 @@
             _errorMessage = string.Empty;
             _newType = new ResourceTypeDto(); 
             await Task.Delay(2000);
-            NavigationManager.NavigateTo("/CreateResource", true);
+            await InvokeAsync(() => NavigationManager.NavigateTo("/CreateResource", true));
         }
         catch (Exception ex)
         {

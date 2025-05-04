@@ -7,14 +7,17 @@ namespace Backend.Service;
 public class ResourceTypeService
 {
     private readonly IRepository<ResourceType> _resourceTypeRepository;
+    private int _id;
     
     public ResourceTypeService(IRepository<ResourceType> resourceTypeRepository)
     {
         _resourceTypeRepository = resourceTypeRepository;
+        _id = 4;
     }
     
     public ResourceType? AddResourceType(ResourceTypeDto resourceType)
     {
+        resourceType.Id = _id++;
         ResourceType? createdResourceType = _resourceTypeRepository.Add(resourceType.ToEntity());
         return createdResourceType;
     }
