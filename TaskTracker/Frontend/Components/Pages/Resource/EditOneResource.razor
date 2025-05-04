@@ -2,8 +2,10 @@
 @using Backend.Domain
 @using Backend.Service
 @using Backend.DTOs.ResourceDTOs
+@using Task = System.Threading.Tasks.Task
 @inject ResourceService ResourceService
 @inject ResourceTypeService ResourceTypeService
+@inject NavigationManager NavigationManager
 
 <h3>Edit Resource</h3>
 
@@ -19,7 +21,7 @@ else
 
         <div class="mb-3">
             <label>Name</label>
-            <InputText class="form-control" @bind-Value="_resourceDto.Name" />
+            <InputText class="form-control" @bind-Value="_resourceDto.Name" readonly />
         </div>
 
         <div class="mb-3">
@@ -63,7 +65,7 @@ else
     {
         _resourceTypes = ResourceTypeService.GetAllResourcesType();
 
-        var dto = new GetResourceDto { Name = name };
+        GetResourceDto dto = new GetResourceDto { Name = name };
         _resource = ResourceService.GetResource(dto);
 
         if (_resource != null)
@@ -77,13 +79,15 @@ else
         }
     }
 
-    private void HandleSubmit()
+    private async Task HandleSubmit()
     {
         try
         {
             ResourceService.UpdateResource(_resourceDto);
             _successMessage = "Resource updated successfully.";
             _errorMessage = string.Empty;
+            await Task.Delay(2000);
+            await InvokeAsync(() => NavigationManager.NavigateTo("/EditResource"));
         }
         catch (Exception ex)
         {

@@ -4,6 +4,8 @@
 @using Backend.Service
 @inject ResourceService ResourceService
 @inject ResourceTypeService ResourceTypeService
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
 
 <h3>Create Resource</h3>
 
@@ -32,14 +34,18 @@
 
     <div class="mb-3">
         <label for="type" class="form-label">Resource Type</label>
-        <select id="type" class="form-select" @bind="_newResource.TypeResource">
-            <option value="">-- Select a type --</option>
-            @foreach (var type in _resourceTypes)
-            {
+        <div class="d-flex align-items-end">
+            <select id="type" class="form-select" @bind="_newResource.TypeResource">
+                <option value="" selected>-- Select a type --</option>
+                @foreach (var type in _resourceTypes)
+                {
                 <option value="@type.Id.ToString()">@type.Name</option>
-            }
-        </select>
+                }
+            </select>
+            <button class="btn btn-outline-primary ms-2" @onclick="GoToCreateResourceType">Create new</button>
+        </div>
     </div>
+
 
     <button type="submit" class="btn btn-primary">Create</button>
 </EditForm>
@@ -65,11 +71,17 @@
             _successMessage = "Resource created successfully!";
             _errorMessage = string.Empty;
             _newResource = new ResourceDataDto(); 
+            NavigationManager.NavigateTo("/ResourcePrincipal", true);
         }
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
             _successMessage = string.Empty;
         }
+    }
+    
+    private void GoToCreateResourceType()
+    {
+        NavigationManager.NavigateTo("/CreateResourceType");
     }
 }

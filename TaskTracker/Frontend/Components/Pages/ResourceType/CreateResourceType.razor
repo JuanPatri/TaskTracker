@@ -1,0 +1,52 @@
+@page "/CreateResourceType"
+@using Backend.DTOs.ResourceTypeDTOs
+@using Backend.Service
+@inject ResourceTypeService ResourceTypeService
+@inject NavigationManager NavigationManager
+
+<h3>Create Resource Type</h3>
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success">@_successMessage</div>
+}
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+
+<EditForm Model="_newType" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="typeName" class="form-label">Type Name</label>
+        <InputText id="typeName" class="form-control" @bind-Value="_newType.Name" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+@code {
+    private ResourceTypeDto _newType = new ResourceTypeDto();
+    private string _successMessage = string.Empty;
+    private string _errorMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            ResourceTypeService.AddResourceType(_newType);
+            _successMessage = "Resource type created successfully.";
+            _errorMessage = string.Empty;
+            _newType = new ResourceTypeDto(); 
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/CreateResource", true);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+            _successMessage = string.Empty;
+        }
+    }
+}
