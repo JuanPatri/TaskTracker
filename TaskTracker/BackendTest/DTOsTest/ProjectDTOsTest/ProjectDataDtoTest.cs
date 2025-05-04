@@ -21,4 +21,13 @@ public class ProjectDataDtoTest
         Assert.AreEqual("This is a test project.", projectDto.Description);
     }
     
+    [TestMethod]
+    public void AddStartDateToProjectTest()
+    {
+        ProjectDataDTO projectDto = new ProjectDataDTO();
+        DateTime startDate = new DateTime(2025, 10, 01);
+        projectDto.StartDate = startDate;
+        Assert.AreEqual(startDate, projectDto.StartDate);
+    }
+    
 }
