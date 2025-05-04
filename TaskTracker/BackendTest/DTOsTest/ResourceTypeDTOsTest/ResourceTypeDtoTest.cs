@@ -12,5 +12,12 @@ public class ResourceTypeDtoTest
         resourceTypeDto.Name = "resourceType";
         Assert.AreEqual("resourceType", resourceTypeDto.Name);
     }
-
+    
+    [TestMethod]
+    public void CreateIdForResourceType()
+    {
+        ResourceTypeDto resourceTypeDto = new ResourceTypeDto();
+        resourceTypeDto.Id = 1;
+        Assert.AreEqual(1, resourceTypeDto.Id);
+    }
 }
