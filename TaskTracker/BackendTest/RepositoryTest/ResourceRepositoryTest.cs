@@ -5,10 +5,15 @@ namespace BackendTest.RepositoryTest;
 [TestClass]
 public class ResourceRepositoryTest
 {
+    private ResourceRepository _resourceRepository;
+    [TestInitialize]
+    public void OnInitialize()
+    {
+        _resourceRepository = new ResourceRepository();
+    }
     [TestMethod]
     public void CreateResourceRepository()
     { 
-        ResourceRepository _resourceRepository = new ResourceRepository();
         Assert.IsNotNull(_resourceRepository);
     }
 }
