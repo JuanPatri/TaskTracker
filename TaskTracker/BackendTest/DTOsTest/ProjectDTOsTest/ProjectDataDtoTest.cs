@@ -1,3 +1,4 @@
+using Backend.Domain;
 using Backend.DTOs.ProjectDTOs;
 using Backend.DTOs.UserDTOs;
 
@@ -61,4 +62,28 @@ public class ProjectDataDtoTest
         Assert.AreEqual("Pass123@", projectDto.Administrator.Password);
         Assert.IsTrue(projectDto.Administrator.Admin);
     }
+
+    [TestMethod]
+    public void ToEntityShouldMapAllPropertiesCorrectlyTest()
+    {
+        ProjectDataDTO dto = new ProjectDataDTO
+        {
+            Name = "Project A",
+            Description = "This is a test project.",
+            StartDate = new DateTime(2025, 10, 01),
+            FinishDate = new DateTime(2025, 12, 31),
+            Administrator = new UserDataDTO
+            {
+                Name = "John",
+                LastName = "Doe",
+                Email = "john@example.com",
+                BirthDate = new DateTime(1990, 01, 01),
+                Password = "Pass123@",
+                Admin = true
+            }
+        };
+        Project project = dto.ToEntity();
+        Assert.IsNotNull(project);
+    }
+
 }
