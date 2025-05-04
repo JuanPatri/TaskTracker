@@ -64,7 +64,7 @@ public class ResourceServiceTest
             Description = "Description",
             TypeResource = 4
         };
-        //_resourceService.RemoveResource(resourceToDelete);
+        _resourceService.RemoveResource(resourceToDelete);
         
         Assert.AreNotEqual(_resourceRepository.FindAll().Last(), _resource);
     }
