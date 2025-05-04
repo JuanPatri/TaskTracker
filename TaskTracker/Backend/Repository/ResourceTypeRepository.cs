@@ -4,6 +4,12 @@ namespace Backend.Repository;
 
 public class ResourceTypeRepository : IRepository<ResourceType>
 {
+    private readonly List<ResourceType> _resourceTypes;
+    public ResourceTypeRepository()
+    {
+        _resourceTypes = new List<ResourceType>();
+    }
+
     public ResourceType Add(ResourceType entity)
     {
         throw new NotImplementedException();

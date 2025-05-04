@@ -21,4 +21,12 @@ public class ResourceTypeRepositoryTest
     { 
         Assert.IsNotNull(_resourceTypeRepository);
     }
+    
+    [TestMethod]
+    public void AddResourceTypeToRepository()
+    {
+        _resourceTypeRepository.Add(_resourceType);
+        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Name == "new resource type"), _resourceType);
+    }
+
 }
