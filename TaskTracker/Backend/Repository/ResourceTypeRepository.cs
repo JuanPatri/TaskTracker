@@ -5,25 +5,27 @@ namespace Backend.Repository;
 public class ResourceTypeRepository : IRepository<ResourceType>
 {
     private readonly List<ResourceType> _resourceTypes;
+    private int _idCounter;
     public ResourceTypeRepository()
     {
+        _idCounter = 1;
         _resourceTypes = new List<ResourceType>()
         {
             new ResourceType()
             {
-                Id = 1,
+                Id = _idCounter++,
                 Name = "Human"
 
             },
             new ResourceType()
             {
-                Id = 2,
+                Id = _idCounter++,
                 Name = "Infrastructure"
 
             },
             new ResourceType()
             {
-                Id = 3,
+                Id = _idCounter++,
                 Name = "Software"
 
             }
@@ -33,6 +35,7 @@ public class ResourceTypeRepository : IRepository<ResourceType>
 
     public ResourceType Add(ResourceType resourceType)
     {
+        resourceType.Id = _idCounter++;
         _resourceTypes.Add(resourceType);
         return resourceType;
     }
@@ -47,9 +50,15 @@ public class ResourceTypeRepository : IRepository<ResourceType>
         return _resourceTypes; 
     }
 
-    public ResourceType? Update(ResourceType entity)
+    public ResourceType? Update(ResourceType resourceType)
     {
-        throw new NotImplementedException();
+        ResourceType? existingResourceType = _resourceTypes.FirstOrDefault(r => r.Id == resourceType.Id);
+        if (existingResourceType != null)
+        {
+            existingResourceType.Name = resourceType.Name;
+            return existingResourceType;
+        }
+        return null;
     }
 
     public void Delete(string entity)

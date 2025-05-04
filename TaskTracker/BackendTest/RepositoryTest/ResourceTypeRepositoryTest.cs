@@ -14,7 +14,6 @@ public class ResourceTypeRepositoryTest
     {
         _resourceTypeRepository = new ResourceTypeRepository();
         _resourceType = new ResourceType();
-        _resourceType.Id = 4;
         _resourceType.Name = "new resource type";
     }
     [TestMethod]
@@ -42,7 +41,7 @@ public class ResourceTypeRepositoryTest
     public void UpdateExistingResourceTypeUpdatesFieldsCorrectly()
     {
         _resourceTypeRepository.Add(_resourceType);
-        Assert.AreEqual(_resourceType.Name, "new resource type");
+        Assert.AreEqual(_resourceType.Id, 4);
         
         ResourceType updateResourceType = new ResourceType()
         {
