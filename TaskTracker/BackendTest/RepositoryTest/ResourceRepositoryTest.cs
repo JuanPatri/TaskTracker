@@ -39,16 +39,21 @@ public class ResourceRepositoryTest
     [TestMethod]
     public void UpdateExistingResourceUpdatesFieldsCorrectly()
     {
+        _resource.Description = "Description";
         _resourceRepository.Add(_resource);
-        Assert.AreEqual(_resource.Name, "new resource");
+        Assert.AreEqual(_resource.Description, "Description");
         
         Resource updateResource = new Resource()
         {
-            Name = "UpdatedName",
+            Name = "new resource",
             Description = "UpdatedDescription",
+            Type = new ResourceType()
+            {
+                Name = "UpdatedType"
+            }
         };
         
         _resourceRepository.Update(updateResource);
-        Assert.AreEqual(_resource.Name, "UpdatedName");
+        Assert.AreEqual(_resource.Description, "UpdatedDescription");
     }
 }

@@ -28,7 +28,15 @@ public class ResourceRepository : IRepository<Resource>
 
     public Resource? Update(Resource entity)
     {
-        throw new NotImplementedException();
+        Resource? existingResource = _resources.FirstOrDefault(r => r.Name == entity.Name);
+        if (existingResource != null)
+        {
+            existingResource.Name = entity.Name;
+            existingResource.Description = entity.Description;
+            existingResource.Type = entity.Type;
+            return existingResource;
+        }
+        return null;
     }
 
     public void Delete(string entity)
