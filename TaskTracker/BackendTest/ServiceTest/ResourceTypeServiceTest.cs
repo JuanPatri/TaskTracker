@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.DTOs.ResourceTypeDTOs;
 using Backend.Repository;
 using Backend.Service;
 
@@ -26,15 +27,14 @@ public class ResourceTypeServiceTest
     [TestMethod]
     public void AddResourceTypeShouldReturnResource()
     {
-        // ResourceDataDto resource = new ResourceDataDto()
-        // {
-        //     Name = "name",
-        //     Description = "description",
-        //     TypeResource = 1
-        // };
-        //
-        // Resource? createdResource = _resourceService.AddResource(resource);
-        // Assert.IsNotNull(createdResource);
-        // Assert.AreEqual(_resourceRepository.FindAll().Last(), createdResource);
+        ResourceTypeDto resourceType = new ResourceTypeDto()
+        {
+            Id = 4,
+            Name = "name" 
+        };
+        
+        Resource? createdResourceType = _resourceTypeService.AddResourceType(resourceType);
+        Assert.IsNotNull(createdResourceType);
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Last(), createdResourceType);
     }
 }
