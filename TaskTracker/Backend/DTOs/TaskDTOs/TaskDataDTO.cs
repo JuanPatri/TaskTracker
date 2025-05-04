@@ -13,7 +13,6 @@ public class TaskDataDTO
     public Status Status { get; set; } = Status.Pending;
     public int Project { get; set; } = 0;
     public List<String> Dependencies { get; set; } = new List<string>();
-    
     public List<(int, string)> Resources { get; set; } = new List<(int, string)>();
     
     public Task ToEntity(List<Task> dependencies, Project project)

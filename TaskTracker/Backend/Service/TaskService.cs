@@ -9,10 +9,12 @@ public class TaskService
 {
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Project> _projectRepository;
-    public  TaskService(IRepository<Task> taskRepository, IRepository<Project> projectRepository)
+    private readonly IRepository<Resource> _resourceRepository;
+    public  TaskService(IRepository<Task> taskRepository, IRepository<Project> projectRepository, IRepository<Resource> resourceRepository)
     {
         _projectRepository = projectRepository;
         _taskRepository = taskRepository;
+        _resourceRepository = resourceRepository;
     }
     
     public Task AddTask(TaskDataDTO task)
@@ -22,6 +24,19 @@ public class TaskService
             .Where(t => task.Dependencies.Contains(t.Title))
             .ToList();
         
+        List<(int, Resource)> resourceList = task.Resources
+            .Select(tuple =>
+            {
+                int cantidad = tuple.Item1;
+                string nameResource = tuple.Item2;
+
+                Resource? resource = _resourceRepository.Find(r => r.Name == nameResource);
+                return (cantidad, resource);
+            })
+            .Where(t => t.Item2 != null)
+            .Select(t => (t.Item1, t.Item2!)) 
+            .ToList();
+
         Task createdTask = task.ToEntity(taskDependencies, project);
         return _taskRepository.Add(createdTask);
     }

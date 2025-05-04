@@ -13,6 +13,7 @@ public class TaskServiceTest
 
     private TaskRepository _taskRepository;
     private ProjectRepository _projectRepository;
+    private ResourceRepository _resourceRepository;
     private TaskService _taskService;
     private Task _task;
     
@@ -21,7 +22,7 @@ public class TaskServiceTest
     {
         _taskRepository = new TaskRepository();
         _projectRepository = new ProjectRepository();
-        _taskService = new TaskService(_taskRepository, _projectRepository);
+        _taskService = new TaskService(_taskRepository, _projectRepository, _resourceRepository);
         _task = new Task()
         {
             Title = "Test Task",
@@ -39,6 +40,7 @@ public class TaskServiceTest
         taskDto.Status = Status.Pending;
         // taskDto.Project = 0;
         // taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
+        // taskDt0o.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
 
         Task? task = _taskService.AddTask(taskDto);
         

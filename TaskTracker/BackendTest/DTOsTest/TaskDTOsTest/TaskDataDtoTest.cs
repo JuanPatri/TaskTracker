@@ -69,7 +69,8 @@ public class TaskDataDtoTest
             Duration = TimeSpan.FromHours(1),
             Status = Status.Blocked,
             Project = 9,
-            Dependencies = new List<String> { "Task 1", "Task 2" }
+            Dependencies = new List<String> { "Task 1", "Task 2" },
+            Resources = new List<(int, string)> { (1, "Resource 1") }
         };
 
         List<Task> dependencies = new List<Task>()
