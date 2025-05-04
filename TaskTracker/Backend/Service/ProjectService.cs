@@ -18,4 +18,9 @@ public class ProjectService
         Project createdProject = project.ToEntity();
         return _projectRepository.Add(createdProject);
     }
+    
+    public void RemoveProject(GetProjectDTO project)
+    {
+        _projectRepository.Delete(project.Name);
+    }
 }
