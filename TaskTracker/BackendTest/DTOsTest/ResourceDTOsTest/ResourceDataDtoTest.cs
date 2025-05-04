@@ -26,8 +26,8 @@ public class ResourceDataDtoTest
     public void CreateTypeResourceForResource()
     {
         ResourceDataDto resourceDto = new ResourceDataDto();
-        resourceDto.TypeResource = "type";
-        Assert.AreEqual("type", resourceDto.TypeResource);
+        resourceDto.TypeResource = 1;
+        Assert.AreEqual(1, resourceDto.TypeResource);
     }
     
     [TestMethod]
@@ -37,12 +37,13 @@ public class ResourceDataDtoTest
         {
             Name = "ResourceName",
             Description = "ResourceDescription",
-            TypeResource = "ResourceType"
+            TypeResource = 1
         };
         
         ResourceType resourceType = new ResourceType
         {
-            Name = resourceDto.TypeResource
+            Id = resourceDto.TypeResource,
+            Name = "Human"
         };
         
         Resource resource = resourceDto.ToEntity(resourceType);
