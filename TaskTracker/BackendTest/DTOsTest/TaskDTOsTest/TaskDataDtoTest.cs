@@ -71,8 +71,19 @@ public class TaskDataDtoTest
             Project = 9,
             Dependencies = new List<String> { "Task 1", "Task 2" }
         };
-        
-        Task task = _taskDataDto.ToEntity();
+
+        List<Task> dependencies = new List<Task>()
+        {
+            new Task()
+            {
+                Title = _taskDataDto.Dependencies[0]
+            },
+            new Task()
+            {
+                Title = _taskDataDto.Dependencies[1]
+            }
+        };
+        Task task = _taskDataDto.ToEntity(dependencies);
 
         Assert.IsNotNull(task);
     }

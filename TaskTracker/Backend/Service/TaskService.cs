@@ -14,7 +14,11 @@ public class TaskService
     
     public Task AddTask(TaskDataDTO task)
     {
-        Task createdTask = task.ToEntity();
+        List<Task> taskDependencies = _taskRepository.FindAll()
+            .Where(t => task.Dependencies.Contains(t.Title))
+            .ToList();
+        
+        Task createdTask = task.ToEntity(taskDependencies);
         return _taskRepository.Add(createdTask);
     }
     
@@ -30,12 +34,16 @@ public class TaskService
 
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        return _taskRepository.Update(taskDto.ToEntity());
+        List<Task> taskDependencies = _taskRepository.FindAll()
+            .Where(t => taskDto.Dependencies.Contains(t.Title))
+            .ToList();   
+        return _taskRepository.Update(taskDto.ToEntity(taskDependencies));
     }
     public void RemoveTask(GetTaskDTO task)
     {
         _taskRepository.Delete(task.Title);
     }
+    
     // Hacer en service task
     // List<Task> taskDependencies = new List<Task>();
     // for(int i = 0; i < Dependencies.Count; i++)
