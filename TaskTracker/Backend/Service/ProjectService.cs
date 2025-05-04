@@ -33,4 +33,10 @@ public class ProjectService
     {
         return _projectRepository.FindAll().ToList();
     }
+    
+    public Project? UpdateProject(ProjectDataDTO projectDto)
+    {
+        Project updatedProject = projectDto.ToEntity();
+        return _projectRepository.Update(updatedProject);
+    }
 }
