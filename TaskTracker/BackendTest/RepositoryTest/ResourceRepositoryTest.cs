@@ -56,4 +56,19 @@ public class ResourceRepositoryTest
         _resourceRepository.Update(updateResource);
         Assert.AreEqual(_resource.Description, "UpdatedDescription");
     }
+    
+    [TestMethod]
+    public void UpdatingAResourceThatIsNotInTheListReturnsNull()
+    {
+        _resource.Description = "Description";
+        _resourceRepository.Add(_resource);
+        Resource updateResource = new Resource()
+        {
+            Name = "UpdatedName",
+            Description = "UpdatedDescription",
+        };
+        
+        
+        Assert.AreEqual(_resourceRepository.Update(updateResource), null);
+    }
 }
