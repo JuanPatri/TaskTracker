@@ -29,18 +29,18 @@ public class ResourceServiceTest
         Assert.IsNotNull(_resourceService);
     }
     
-    // [TestMethod]
-    // public void AddResourceShouldReturnResource()
-    // {
-    //     ResourceDataDto resource = new ResourceDataDto()
-    //     {
-    //         Name = "name",
-    //         Description = "description",
-    //         TypeResource = 1
-    //     };
-    //     
-    //     Resource? createdResource = _resourceService.AddResource(resource);
-    //     Assert.IsNotNull(createdResource);
-    //     Assert.AreEqual(_resourceRepository.FindAll().Last(), createdResource);
-    // }
+    [TestMethod]
+    public void AddResourceShouldReturnResource()
+    {
+        ResourceDataDto resource = new ResourceDataDto()
+        {
+            Name = "name",
+            Description = "description",
+            TypeResource = 1
+        };
+        
+        Resource? createdResource = _resourceService.AddResource(resource);
+        Assert.IsNotNull(createdResource);
+        Assert.AreEqual(_resourceRepository.FindAll().Last(), createdResource);
+    }
 }
