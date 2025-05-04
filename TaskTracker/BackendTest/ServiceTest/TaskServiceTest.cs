@@ -69,6 +69,7 @@ public class TaskServiceTest
         task2.Description = "This is a test task.";
         task2.Duration = TimeSpan.FromHours(1);
         task2.Status = Status.Pending;
+        task2.Project = "35";
         _taskService.AddTask(task2);
         tasks = _taskService.GetAllTasks();
         
@@ -83,6 +84,7 @@ public class TaskServiceTest
         taskDto.Description = "New Description";
         taskDto.Duration = TimeSpan.FromHours(4);
         taskDto.Status = Status.Blocked;
+        taskDto.Project = "45";
         taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
         
         _taskRepository.Add(new Task()
