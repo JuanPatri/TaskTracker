@@ -30,4 +30,12 @@ public class ProjectDataDtoTest
         Assert.AreEqual(startDate, projectDto.StartDate);
     }
     
+    [TestMethod]
+    public void AddFinishDateToProjectTest()
+    {
+        ProjectDataDTO projectDto = new ProjectDataDTO();
+        DateTime finishDate = new DateTime(2025, 12, 31);
+        projectDto.FinishDate = finishDate;
+        Assert.AreEqual(finishDate, projectDto.FinishDate);
+    }
 }
