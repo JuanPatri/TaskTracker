@@ -1,0 +1,28 @@
+@page "/TaskManagement"
+@inject NavigationManager NavigationManager
+
+<PageTitle>Task Management</PageTitle>
+<h1>Task Management</h1>
+
+
+<button class="btn btn-primary" @onclick="GoToCreateTask">Create</button>
+<button class="btn btn-primary" @onclick="GoToEditTask">Edit</button>
+<button class="btn btn-primary" @onclick="GoToStatsTask">Status Panel</button>
+
+@code {
+    
+    public void GoToCreateTask()
+    {
+        NavigationManager.NavigateTo("/CreateTask", true);
+    }
+    
+    public void GoToEditTask()
+    {
+        NavigationManager.NavigateTo("/EditTask", true);
+    }
+    
+    public void GoToStatsTask()
+    {
+        NavigationManager.NavigateTo("/StatusPanelTask", true);
+    }
+    }

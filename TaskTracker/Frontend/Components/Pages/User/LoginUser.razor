@@ -1,0 +1,51 @@
+﻿@page "/LoginUser"
+@inject NavigationManager NavigationManager
+@using Backend.DTOs.SessionDTOs
+@using Backend.Service
+@inject SessionService Session 
+
+<h1>Login User</h1>
+
+<form @onsubmit="HandleSubmit">
+    <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input type="email" class="form-control" id="email" @bind="_newLogin.Email">
+    </div>
+    <div class="mb-3">
+        <label for="password" class="form-label">Password</label>
+        <input type="password" class="form-control" id="password" @bind="_newLogin.Password">
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+<div class="alert alert-danger mt-2">@_errorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+<div class="alert alert-success mt-2">@_successMessage</div>
+}
+
+@code {
+    private LoginDto _newLogin = new LoginDto();
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            Session.Login(_newLogin);
+            _successMessage = "LogIn successfully!";
+            _errorMessage = string.Empty;
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/", true);
+        }catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
+        }
+    }
+}

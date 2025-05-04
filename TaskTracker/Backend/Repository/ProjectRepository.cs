@@ -2,7 +2,7 @@ using Backend.Domain;
 
 namespace Backend.Repository;
 
-public class ProjectRepository 
+public class ProjectRepository : IRepository<Project>
 {
     private readonly List<Project> _projects;
     

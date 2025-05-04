@@ -49,31 +49,13 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void CreateDateForTaskTest()
-    {
-        DateOnly testDate = new DateOnly(2025, 4, 22);
-        _task.Date = testDate;
-
-        Assert.AreEqual(testDate, _task.Date);
-    }
-
-    [TestMethod]
-    public void SetDateWithFutureDateThrowsArgumentException()
-    {
-        DateOnly futureDate = new DateOnly(2026, 4, 22);
-
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Date = futureDate);
-        Assert.AreEqual("The date cannot be in the future.", ex.Message);
-    }
-
-    [TestMethod]
     public void SetDurationForTaskTest()
     {
         TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
         
-        _task.DurationTask = durationTask;
+        _task.Duration = durationTask;
 
-        Assert.AreEqual(durationTask, _task.DurationTask);
+        Assert.AreEqual(durationTask, _task.Duration);
     }
 
     [TestMethod]
@@ -108,5 +90,21 @@ public class TaskTest
         _task.Dependencies = dependencyTask;
     
         Assert.AreEqual(dependencyTask, _task.Dependencies);
+    }
+
+    [TestMethod]
+    public void SetDescriptionNullReturnsAnException()
+    {
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Description = null);
+        Assert.AreEqual("The description cannot be empty", ex.Message);
+    }
+    
+    [TestMethod]
+    public void SetDurationNullReturnsAnException()
+    {
+        TimeSpan durationTask = new TimeSpan(0, 0, 25, 0);
+
+        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Duration = durationTask);
+        Assert.AreEqual("The duration must be at least 30 minutes", ex.Message);
     }
 }
