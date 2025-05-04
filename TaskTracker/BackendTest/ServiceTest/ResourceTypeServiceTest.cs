@@ -74,4 +74,19 @@ public class ResourceTypeServiceTest
         Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Human"));
         Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Software"));
     }
+    
+    [TestMethod]
+    public void UpdateResourceTypeShouldModifyResourceTypeData()
+    {
+        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Human");
+
+        ResourceTypeDto resourceTypeDTO = new ResourceTypeDto()
+        {
+            Id = 1,
+            Name = "Resource"
+        };
+        
+        _resourceTypeService.UpdateResourceType(resourceTypeDTO);
+        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Resource");
+    }
 }
