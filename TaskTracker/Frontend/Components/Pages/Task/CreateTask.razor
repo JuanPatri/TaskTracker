@@ -6,7 +6,10 @@
 @inject SessionService Session
 @inject TaskService TaskService
 @inject ProjectRepository ProjectRepo
+
+@*
 @inject ProjectService ProjectService
+*@
 
 @page "/CreateTask"
 
@@ -33,7 +36,7 @@
         <option value="">Select a project</option>
         @foreach (var project in _projectDtos)
         {
-            <option value="@project.Id">@project.Name</option>
+            <option value="falta hacer esto">@*@project.Name*@</option>
         }
     </select>
 
@@ -65,7 +68,7 @@
     {
         if (Session.IsLoggedIn())
         {
-            _projectsDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
+            //_projectsDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
         }
         
     }

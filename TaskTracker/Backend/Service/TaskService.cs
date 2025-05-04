@@ -43,11 +43,4 @@ public class TaskService
     {
         _taskRepository.Delete(task.Title);
     }
-    
-    // Hacer en service task
-    // List<Task> taskDependencies = new List<Task>();
-    // for(int i = 0; i < Dependencies.Count; i++)
-    // {
-    //     taskDependencies.Add(FindAll().Find(t => t.title == Dependencies[i])); 
-    // }
 }
