@@ -23,7 +23,7 @@ public class ResourceRepository : IRepository<Resource>
 
     public IList<Resource> FindAll()
     {
-        throw new NotImplementedException();
+        return _resources;
     }
 
     public Resource? Update(Resource entity)
