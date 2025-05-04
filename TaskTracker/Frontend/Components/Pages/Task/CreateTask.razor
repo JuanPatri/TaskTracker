@@ -35,15 +35,12 @@
 
     <select id="project" class="form-select" @bind="_newTask.Project">
         <option value="">Select a project FALTA HACER ESTO</option>
-        @* @foreach (var project in _projectDtos) *@
-        @* { *@
-        @*     <option value="falta hacer esto">@#1#project.Name#1#</option> *@
-        @* } *@
+        @* @foreach(var project in _projectDtos) *@
+        @*     { *@
+        @*         <option value="@project.Id">@project.Name</option> *@
+        @*     } *@
     </select>
-
-
-
-
+    
     <div class="mb-3">
         <label for="dependencies" class="form-label">Task Dependencies</label>
         <select id="dependencies" multiple class="form-select"></select>

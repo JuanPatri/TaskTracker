@@ -107,4 +107,18 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Duration = durationTask);
         Assert.AreEqual("The duration must be at least 30 minutes", ex.Message);
     }
+    
+    [TestMethod]
+    public void SetResourcesTaskTest()
+    {
+        Resource res = new Resource();
+        List<(int, Resource)> resources = new List<(int, Resource)>
+        {
+            (2, res)
+        };
+        
+        _task.Resources = resources;
+        Assert.AreEqual(resources, _task.Resources);
+    }
+
 }
