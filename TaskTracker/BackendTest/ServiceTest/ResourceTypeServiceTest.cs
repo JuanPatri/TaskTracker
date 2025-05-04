@@ -53,4 +53,16 @@ public class ResourceTypeServiceTest
         
         Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 2);
     }
+    
+    [TestMethod]
+    public void GetResourceTypeReturnResourceType()
+    {
+        ResourceTypeDto resourceToFind = new ResourceTypeDto()
+        {
+            Id = 1,
+            Name = "Resource"
+        };
+        
+        Assert.AreEqual(_resourceTypeService.GetResourceType(resourceToFind).Name, "Human");
+    }
 }
