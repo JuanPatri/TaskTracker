@@ -91,6 +91,7 @@ public class ProjectServiceTest
     {
         ProjectDataDTO project = new ProjectDataDTO()
         {
+            Id = 1,
             Name = "Project 1",
             Description = "Updated description",
             StartDate = DateTime.Now.AddDays(2),
@@ -105,7 +106,9 @@ public class ProjectServiceTest
                 Admin = true
             }
         };
-        _projectService.UpdateProject(project);
-        Assert.AreEqual(_project.Name, project.Name);
+        var updatedProject = _projectService.UpdateProject(project);
+        Assert.IsNotNull(updatedProject);
+        Assert.AreEqual(project.Id, updatedProject.Id);
+        Assert.AreEqual(project.Name, updatedProject.Name);
     }
 }
