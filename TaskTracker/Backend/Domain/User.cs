@@ -74,7 +74,7 @@ public class User
         }
     }
     
-    public User ToEntity(UserDataDTO userDataDto)
+    public static User FromDto(UserDataDTO userDataDto)
     {
         return new User()
         {

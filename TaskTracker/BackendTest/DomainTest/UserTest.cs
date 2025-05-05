@@ -159,7 +159,7 @@ public class UserTest
             Admin = false
         };
         
-        User user = _user.ToEntity(userDataDto);
+        User user = User.FromDto(userDataDto);
         
         Assert.AreEqual(userDataDto.Name, user.Name);
     }
