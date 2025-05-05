@@ -44,12 +44,6 @@ public class TaskDataDtoTest
         _taskDataDto.Status = Status.Blocked;
         Assert.AreEqual(Status.Blocked, _taskDataDto.Status);
     }
-    [TestMethod]
-    public void SetProjectForTask()
-    {
-        _taskDataDto.Project = "9";
-        Assert.AreEqual("9", _taskDataDto.Project);
-    }
     
     [TestMethod]
     public void SetDependenciesForTask()
@@ -68,7 +62,6 @@ public class TaskDataDtoTest
             Description = "Description task",
             Duration = TimeSpan.FromHours(1),
             Status = Status.Blocked,
-            Project = "9",
             Dependencies = new List<String> { "Task 1", "Task 2" },
             Resources = new List<(int, string)> { (1, "Resource 1") }
         };
@@ -84,18 +77,14 @@ public class TaskDataDtoTest
                 Title = _taskDataDto.Dependencies[1]
             }
         };
-        
-        Project project = new Project()
-        {
-            Id = int.Parse(_taskDataDto.Project)
-        };
+
         
         List<(int, Resource)> resources = new List<(int, Resource)>
         {
             (1, new Resource())
         };
         
-        Task task = _taskDataDto.ToEntity(dependencies, project, resources);
+        Task task = _taskDataDto.ToEntity(dependencies, resources);
 
         Assert.IsNotNull(task);
     }

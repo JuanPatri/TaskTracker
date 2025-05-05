@@ -40,7 +40,6 @@ public class TaskServiceTest
         taskDto.Description = "This is a test task.";
         taskDto.Duration = TimeSpan.FromHours(1);
         taskDto.Status = Status.Pending;
-        taskDto.Project = "35"; 
         taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
         taskDto.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
 
@@ -69,7 +68,6 @@ public class TaskServiceTest
         task2.Description = "This is a test task.";
         task2.Duration = TimeSpan.FromHours(1);
         task2.Status = Status.Pending;
-        task2.Project = "35";
         _taskService.AddTask(task2);
         tasks = _taskService.GetAllTasks();
         
@@ -87,7 +85,6 @@ public class TaskServiceTest
         taskDto.Description = "New Description";
         taskDto.Duration = TimeSpan.FromHours(4);
         taskDto.Status = Status.Blocked;
-        taskDto.Project = "45"; 
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
 
         _taskRepository.Add(new Task()
@@ -205,22 +202,19 @@ public class TaskServiceTest
     [TestMethod]
     public void GetResourcesWithName_ShouldMapMultipleResources()
     {
-        // Arrange
-        var res1 = new Resource { Name = "Mouse" };
-        var res2 = new Resource { Name = "Keyboard" };
+        Resource res1 = new Resource { Name = "Mouse" };
+        Resource res2 = new Resource { Name = "Keyboard" };
         _resourceRepository.Add(res1);
         _resourceRepository.Add(res2);
 
-        var resourceList = new List<(int, string)>
+        List<(int, string)> resourceList = new List<(int, string)>
         {
             (1, "Mouse"),
             (3, "Keyboard")
         };
 
-        // Act
-        var result = _taskService.GetResourcesWithName(resourceList);
+        List<(int,Resource)> result = _taskService.GetResourcesWithName(resourceList);
 
-        // Assert
         Assert.AreEqual(2, result.Count);
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Keyboard" && r.Item1 == 3));

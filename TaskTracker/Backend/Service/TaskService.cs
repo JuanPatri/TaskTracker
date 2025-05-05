@@ -27,7 +27,6 @@ public class TaskService
 
         return taskDependencies;
     }
-
     public List<(int, Resource)> GetResourcesWithName(List<(int, string)> namesResource)
     {
         List<(int, Resource)> resourceList = namesResource
@@ -45,38 +44,31 @@ public class TaskService
 
         return resourceList;
     }
-
     public Task AddTask(TaskDataDTO taskDto)
     {
-
-        Project project = _projectRepository.Find(p => p.Id == int.Parse(taskDto.Project));;
-
+        
         List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        Task createdTask = taskDto.ToEntity(taskDependencies, project, resourceList);
+        Task createdTask = taskDto.ToEntity(taskDependencies, resourceList);
         return _taskRepository.Add(createdTask);
     }
     public Task GetTaskByTitle(string title)
     {
         return _taskRepository.Find(t => t.Title == title);
     }
-
     public List<Task> GetAllTasks()
     {
         return _taskRepository.FindAll().ToList();
     }
-
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        Project project = _projectRepository.Find(p => p.Id == int.Parse(taskDto.Project));;
-
         List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        return _taskRepository.Update(taskDto.ToEntity(taskDependencies, project, resourceList));
+        return _taskRepository.Update(taskDto.ToEntity(taskDependencies, resourceList));
     }
     public void RemoveTask(GetTaskDTO task)
     {

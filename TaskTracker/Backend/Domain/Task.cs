@@ -8,7 +8,6 @@ public class Task
     private string _description = String.Empty;
     private TimeSpan _duration;
     private Status _status = Status.Pending;
-    private Project _project;
     private List<Task> _dependencies = new List<Task>();
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
 
@@ -52,19 +51,7 @@ public class Task
         get => _status;
         set => _status = value;
     }
-
-    public Project Project
-    {
-        get => _project;
-        set
-        {
-            if (value == null)
-                throw new ArgumentException("Project cannot be null");
-
-            _project = value;
-        }
-    }
-
+    
     public List<Task> Dependencies
     {
         get => _dependencies;

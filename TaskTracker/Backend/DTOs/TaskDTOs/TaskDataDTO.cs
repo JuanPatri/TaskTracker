@@ -11,11 +11,10 @@ public class TaskDataDTO
     public string Description { get; set; } = string.Empty;
     public TimeSpan Duration { get; set; } = TimeSpan.Zero;
     public Status Status { get; set; } = Status.Pending;
-    public string Project { get; set; } = String.Empty;
     public List<String> Dependencies { get; set; } = new List<string>();
     public List<(int, string)> Resources { get; set; } = new List<(int, string)>();
     
-    public Task ToEntity(List<Task> dependencies, Project project, List<(int, Resource)> resources)
+    public Task ToEntity(List<Task> dependencies, List<(int, Resource)> resources)
     {
 
         return new Task()
@@ -24,7 +23,6 @@ public class TaskDataDTO
             Description = Description,
             Duration = Duration,
             Status = Status,
-            Project = project,
             Dependencies = dependencies
         };
     }

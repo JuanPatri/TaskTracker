@@ -65,22 +65,6 @@ public class TaskTest
         Assert.AreEqual(Status.Pending, _task.Status);
     }
     
-    [TestMethod]
-    public void SetProjectForTaskTest()
-    {
-        Project project = new Project();
-        _task.Project = project;
-        Assert.AreEqual(project, _task.Project);
-    }
-
-    [TestMethod]
-    public void SetProjectNullReturnsAnException()
-    {
-        Project project = null;
-    
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Project = project);
-        Assert.AreEqual("Project cannot be null", ex.Message);
-    }
 
     [TestMethod]
     public void SetDependencyTaskTest()
