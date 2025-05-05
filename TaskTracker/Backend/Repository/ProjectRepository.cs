@@ -36,6 +36,8 @@ public class ProjectRepository : IRepository<Project>
             existingProject.StartDate = updatedProject.StartDate;
             existingProject.FinishDate = updatedProject.FinishDate;
             existingProject.Administrator = updatedProject.Administrator;
+            existingProject.Tasks = updatedProject.Tasks;
+            existingProject.Users = updatedProject.Users;
             return existingProject;
         }
         return null;
