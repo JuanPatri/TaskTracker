@@ -54,12 +54,27 @@ public class ProjectServiceTest
     [TestMethod]
     public void RemoveProjectShouldRemoveProject()
     {
+        
+        Project project = new Project()
+        {
+            Id = 1,
+            Name = "Project 1",
+            Description = "Description of project 1",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = new User()
+        };
+        
+        _projectRepository.Add(project);
+        
         Assert.AreEqual(_projectRepository.FindAll().Count, 1);   
+        
         GetProjectDTO projectToDelete = new GetProjectDTO()
         {
             Id = 1,
             Name = "Project 1",
         };
+        
         _projectService.RemoveProject(projectToDelete);
         Assert.AreEqual(_projectRepository.FindAll().Count, 0);
     }
