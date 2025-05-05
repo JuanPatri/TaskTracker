@@ -54,42 +54,6 @@ public class TaskDataDtoTest
     }
     
     [TestMethod]
-    public void ToEntityShouldMapAllPropertiesCorrectly()
-    { 
-        _taskDataDto = new TaskDataDTO
-        {
-            Title = "Task",
-            Description = "Description task",
-            Duration = TimeSpan.FromHours(1),
-            Status = Status.Blocked,
-            Dependencies = new List<String> { "Task 1", "Task 2" },
-            Resources = new List<(int, string)> { (1, "Resource 1") }
-        };
-
-        List<Task> dependencies = new List<Task>()
-        {
-            new Task()
-            {
-                Title = _taskDataDto.Dependencies[0]
-            },
-            new Task()
-            {
-                Title = _taskDataDto.Dependencies[1]
-            }
-        };
-
-        
-        List<(int, Resource)> resources = new List<(int, Resource)>
-        {
-            (1, new Resource())
-        };
-        
-        Task task = _taskDataDto.ToEntity(dependencies, resources);
-
-        Assert.IsNotNull(task);
-    }
-
-    [TestMethod]
     public void SetResourcesFortTask()
     {
         List<(int, string)> resource = new List<(int, string)> { (1, "Resource 1") };

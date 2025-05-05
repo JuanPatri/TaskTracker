@@ -1,4 +1,6 @@
-﻿namespace BackendTest.DomainTest;
+﻿using Backend.DTOs.TaskDTOs;
+
+namespace BackendTest.DomainTest;
 using Backend.Domain;
 using Backend.Domain.Enums;
 
@@ -103,6 +105,31 @@ public class TaskTest
         
         _task.Resources = resources;
         Assert.AreEqual(resources, _task.Resources);
+    }
+
+    [TestMethod]
+    public void FromDtoShouldCreateTaskWithCorrectValues()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Task 1",
+            Description = "Description of Task 1",
+            Duration = TimeSpan.FromHours(1),
+            Status = Status.Blocked,
+            Dependencies = new List<string> { "Task 1", "Task 2" },
+            Resources = new List<(int, string)> { (1, "Resource 1") }
+        };
+        
+        Task task = Task.FromDto(taskDto);
+        
+        Assert.AreEqual("Task 1", task.Title);
+        Assert.AreEqual("Description of Task 1", task.Description);
+        Assert.AreEqual(TimeSpan.FromHours(1), task.Duration);
+        Assert.AreEqual(Status.Blocked, task.Status);
+        Assert.IsNotNull(task.Dependencies);
+        Assert.IsNotNull(task.Resources);
+        Assert.AreEqual(2, task.Dependencies.Count);
+        Assert.AreEqual(1, task.Resources.Count);
     }
 
 }

@@ -1,7 +1,4 @@
-﻿using Backend.Domain;
-using Backend.Domain.Enums;
-using Task = Backend.Domain.Task;
-using Backend.Repository;
+﻿using Backend.Domain.Enums;
 
 namespace Backend.DTOs.TaskDTOs;
 
@@ -13,17 +10,4 @@ public class TaskDataDTO
     public Status Status { get; set; } = Status.Pending;
     public List<String> Dependencies { get; set; } = new List<string>();
     public List<(int, string)> Resources { get; set; } = new List<(int, string)>();
-    
-    public Task ToEntity(List<Task> dependencies, List<(int, Resource)> resources)
-    {
-
-        return new Task()
-        {
-            Title = Title,
-            Description = Description,
-            Duration = Duration,
-            Status = Status,
-            Dependencies = dependencies
-        };
-    }
 }

@@ -1,6 +1,8 @@
 ﻿namespace Backend.Domain;
 
 using Enums;
+using DTOs.TaskDTOs;
+using  Backend.Service;
 
 public class Task
 {
@@ -65,5 +67,18 @@ public class Task
         {
             _resources = value;
         } 
+    }
+    
+    public static Task FromDto(TaskDataDTO taskDataDto)
+    {
+        return new Task()
+        {
+            Title = taskDataDto.Title,
+            Description = taskDataDto.Description,
+            Duration = taskDataDto.Duration,
+            Status = taskDataDto.Status,
+            Dependencies = ProjectService.GetTaskDependenciesWithTitle(taskDataDto.Dependencies),
+            Resources = ProjectService.GetResourcesWithName(taskDataDto.Resources)
+        };
     }
 }
