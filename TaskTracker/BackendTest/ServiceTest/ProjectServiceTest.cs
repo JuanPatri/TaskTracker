@@ -67,6 +67,18 @@ public class ProjectServiceTest
     [TestMethod]
     public void GetProjectReturnProject()
     {
+        Project project = new Project()
+        {
+            Id = 1,
+            Name = "Project1",
+            Description = "Description1",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddYears(1),
+            Administrator = new User()
+        };
+        
+        _projectRepository.Add(project);
+        
         GetProjectDTO projectToFind = new GetProjectDTO()
         {
             Id = 1,
