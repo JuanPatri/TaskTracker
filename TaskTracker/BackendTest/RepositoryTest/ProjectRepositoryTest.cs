@@ -20,7 +20,6 @@ public class ProjectRepositoryTest
     [TestMethod]
     public void CreateProjectRepositoryTest()
     {
-        _projectRepository = new ProjectRepository();
         Assert.IsNotNull(_projectRepository);
     }
     
