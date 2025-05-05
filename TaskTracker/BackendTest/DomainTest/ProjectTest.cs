@@ -115,7 +115,7 @@ public class ProjectTest
     {
         List<Task> tasks = new List<Task>();
 
-        tasks.ListTasks = tasks; 
-        Assert.AreEqual(tasks, tasks.ListTasks);
+        _project.Tasks = tasks; 
+        Assert.AreEqual(tasks, _project.Tasks);
     }
 }
