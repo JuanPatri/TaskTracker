@@ -22,7 +22,7 @@ public class ResourceService
             throw new Exception("Resource already exists");
         }
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
-        Resource? createdResource = _resourceRepository.Add(resource.ToEntity(resourceType));
+        Resource? createdResource = _resourceRepository.Add(Resource.FromDto(resource, resourceType));
         return createdResource;
     }
     
@@ -44,7 +44,7 @@ public class ResourceService
     public Resource? UpdateResource(ResourceDataDto resourceDto)
     {
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
-        Resource? updatedResource = _resourceRepository.Update(resourceDto.ToEntity(resourceType));
+        Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
         return updatedResource;
     }
 }
