@@ -8,6 +8,10 @@
 
 <PageTitle>Create Project</PageTitle>
 
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success">@_successMessage</div>
+}
 <form class="mb-3" @onsubmit="HandleSubmit">
     <h1>Create Project</h1>
 
@@ -42,6 +46,7 @@
 @code {
     private ProjectDataDTO _projectData = new();
     private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
 
     private async Task HandleSubmit()
     {
@@ -59,12 +64,16 @@
                     Admin = Session.CurrentUser.Admin
                 };
                 ProjectService.AddProject(_projectData);
-                NavigationManager.NavigateTo("/projects");
+                _successMessage = "Project created successfully!";
+                _errorMessage = string.Empty;
+                await Task.Delay(2000);
+                await InvokeAsync(() => NavigationManager.NavigateTo("/ProjectManagement", true));
             }
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            _errorMessage = $"Error: {ex.Message}";
+            _successMessage = string.Empty;
         }
     }
 }
