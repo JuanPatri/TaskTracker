@@ -1,3 +1,5 @@
+using Backend.DTOs.UserDTOs;
+
 namespace BackendTest.DomainTest;
 using Backend.Domain;
 
@@ -142,5 +144,23 @@ public class UserTest
     {
         _user.Admin = false;
         Assert.IsFalse(_user.Admin);
+    }
+
+    [TestMethod]
+    public void UserToEntityReturnUser()
+    {
+        UserDataDTO userDataDto = new UserDataDTO()
+        {
+            Name = "Pedro",
+            LastName = "Rodriguez",
+            Email = "prodriguez@gmail.com",
+            BirthDate = new DateTime(2003, 03, 14),
+            Password = "Pedro1234@",
+            Admin = false
+        };
+        
+        User user = _user.ToEntity(userDataDto);
+        
+        Assert.AreEqual(userDataDto.Name, user.Name);
     }
 }
