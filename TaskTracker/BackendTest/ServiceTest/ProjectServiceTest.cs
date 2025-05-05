@@ -69,9 +69,13 @@ public class ProjectServiceTest
     {
         GetProjectDTO projectToFind = new GetProjectDTO()
         {
-            Name = "Project 1",
+            Id = 1,
+            Name = "Project1"
         };
-        Assert.AreEqual(_projectService.GetProject(projectToFind), _project);
+        var foundProject = _projectService.GetProject(projectToFind);
+        Assert.IsNotNull(foundProject);
+        Assert.AreEqual(projectToFind.Id, foundProject.Id);
+        Assert.AreEqual(projectToFind.Name, foundProject.Name);
     }
     
     [TestMethod]
