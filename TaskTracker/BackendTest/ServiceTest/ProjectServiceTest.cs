@@ -116,7 +116,19 @@ public class ProjectServiceTest
     [TestMethod]
     public void UpdateProjectShouldReturnUpdatedProject()
     {
-        ProjectDataDTO project = new ProjectDataDTO()
+        Project project = new Project()
+        {
+            Id = 1,
+            Name = "Project 1",
+            Description = "Description of project 1",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = new User()
+        };
+        
+        _projectRepository.Add(project);
+        
+        ProjectDataDTO projectUpdate = new ProjectDataDTO()
         {
             Id = 1,
             Name = "Project 1",
@@ -133,9 +145,9 @@ public class ProjectServiceTest
                 Admin = true
             }
         };
-        var updatedProject = _projectService.UpdateProject(project);
+        var updatedProject = _projectService.UpdateProject(projectUpdate);
         Assert.IsNotNull(updatedProject);
-        Assert.AreEqual(project.Id, updatedProject.Id);
-        Assert.AreEqual(project.Name, updatedProject.Name);
+        Assert.AreEqual(projectUpdate.Id, updatedProject.Id);
+        Assert.AreEqual(projectUpdate.Name, updatedProject.Name);
     }
 }
