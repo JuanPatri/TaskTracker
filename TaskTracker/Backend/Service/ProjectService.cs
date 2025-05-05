@@ -34,18 +34,28 @@ public class ProjectService
     #region Project
     public Project AddProject(ProjectDataDTO project)
     {
-        if (_projectRepository.Find(p => p.Name == project.Name) != null)
+        ValidateProjectName(project.Name);
+
+        var associatedUsers = GetUsersFromEmails(project.Users);
+
+        project.Id = _idProject++;
+        return _projectRepository.Add(Project.FromDto(project, associatedUsers));
+    }
+
+    private void ValidateProjectName(string projectName)
+    {
+        if (_projectRepository.Find(p => p.Name == projectName) != null)
         {
             throw new ArgumentException("Project with the same name already exists");
         }
-        
-        List<User> users = _userRepository.FindAll()
-            .Where(u => project.Users.Contains(u.Email))
-            .ToList();
+    }
 
-        project.Id = _idProject++;
-        Project? createdProject = _projectRepository.Add(Project.FromDto(project, users));
-        return createdProject;
+    private List<User> GetUsersFromEmails(IEnumerable<string> userEmails)
+    {
+        return _userRepository
+            .FindAll()
+            .Where(user => userEmails.Contains(user.Email))
+            .ToList();
     }
     
     public void RemoveProject(GetProjectDTO project)
