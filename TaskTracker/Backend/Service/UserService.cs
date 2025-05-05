@@ -39,19 +39,19 @@ public class UserService
         return _userRepository.Update(updatedUser);
     }
 
-    public List<User> GetUserWithEmail(List<string> emails)
-    {
-        List<User> users = new List<User>();
-        
-        emails.ForEach(email =>
-        {
-            User? user = _userRepository.Find(u => u.Email == email);
-            if (user != null)
-            {
-                users.Add(user);
-            }
-        });
-        
-        return users;
-    }
+    // public List<User> GetUserWithEmail(List<string> emails)
+    // {
+    //     List<User> users = new List<User>();
+    //     
+    //     emails.ForEach(email =>
+    //     {
+    //         User? user = _userRepository.Find(u => u.Email == email);
+    //         if (user != null)
+    //         {
+    //             users.Add(user);
+    //         }
+    //     });
+    //     
+    //     return users;
+    // }
 }

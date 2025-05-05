@@ -16,9 +16,10 @@ public class ProjectService
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
+    public readonly IRepository<User> _userRepository;
     
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
-        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository)
+        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<User> userRepository)
     {
         _projectRepository = projectRepository;
         _idProject = 2;
@@ -26,6 +27,7 @@ public class ProjectService
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
+        _userRepository = userRepository;
     }
 
     
@@ -37,7 +39,10 @@ public class ProjectService
             throw new ArgumentException("Project with the same name already exists");
         }
         
-        List<User> users = UserService.GetUserWithEmail(project.Users);
+        List<User> users = _userRepository.FindAll()
+            .Where(u => project.Users.Contains(u.Email))
+            .ToList();
+
         project.Id = _idProject++;
         Project? createdProject = _projectRepository.Add(Project.FromDto(project, users));
         return createdProject;
@@ -60,7 +65,10 @@ public class ProjectService
     
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        List<User> users = GetUserWithEmail(projectDto.Users);
+        List<User> users = _userRepository.FindAll()
+            .Where(u => projectDto.Users.Contains(u.Email))
+            .ToList();
+
 
         Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;

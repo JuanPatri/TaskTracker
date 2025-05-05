@@ -20,6 +20,7 @@ public class ProjectServiceTest
     private TaskRepository _taskRepository;
     private ResourceRepository _resourceRepository;
     private ResourceTypeRepository _resourceTypeRepository;
+    private UserRepository _userRepository;
     private Task _task;
     private Resource _resource;
     
@@ -30,7 +31,8 @@ public class ProjectServiceTest
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
-        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository, _resourceTypeRepository);
+        _userRepository = new UserRepository();
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository, _resourceTypeRepository, _userRepository);
         
         Project project = new Project() { Id = 35, Name = "Test Project" };
         _projectRepository.Add(project);
