@@ -157,7 +157,20 @@ public class ProjectService
     {
         _taskRepository.Delete(task.Title);
     }
-    
+    public List<GetTaskDTO> GetTasksForProjectWithId(int id)
+    {
+        Project? project = _projectRepository.Find(project => project.Id == id);
+
+        if (project == null)
+        {
+            return new List<GetTaskDTO>();
+        }
+
+        return project.Tasks.Select(task => new GetTaskDTO
+        {
+            Title = task.Title
+        }).ToList();
+    }
     
     #endregion
 
