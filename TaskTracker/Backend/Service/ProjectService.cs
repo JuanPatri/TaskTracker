@@ -92,18 +92,18 @@ public class ProjectService
 
         return taskDependencies;
     }
-    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> nombresRecursos)
+    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
-        return nombresRecursos
+        return resourceName
             .Select(tuple => (tuple.Item1, FindResourceByName(tuple.Item2)))
             .Where(t => t.Item2 is not null)
             .Select(t => (t.Item1, t.Item2!))
             .ToList();
     }
 
-    private Resource? FindResourceByName(string nombreRecurso)
+    private Resource? FindResourceByName(string resourceName)
     {
-        return _resourceRepository.Find(recurso => recurso.Name == nombreRecurso);
+        return _resourceRepository.Find(resource => resource.Name == resourceName);
     }
     
     public List<GetProjectDTO> GetProjectsByUserEmail(string userEmail)
@@ -157,6 +157,8 @@ public class ProjectService
     {
         _taskRepository.Delete(task.Title);
     }
+    
+    
     #endregion
 
     #region Resource

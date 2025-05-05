@@ -626,6 +626,29 @@ public class ProjectServiceTest
         _projectService.UpdateResourceType(resourceTypeDTO);
         Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Resource");
     }
+
+    [TestMethod]
+    public void GetTasksForProjectWithIdTest()
+    {
+        Task task1 = new Task() { Title = "Task 1" };
+        Task task2 = new Task() { Title = "Task 2" };
+
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Test Project",
+            Tasks = new List<Task> { task1, task2 } 
+        };
+
+        _projectRepository.Add(project);
+
+        List<GetTaskDTO> tasks = _projectService.GetTasksForProjectWithId(1);
+
+        Assert.AreEqual(2, tasks.Count);
+    }
     #endregion
 
 }
