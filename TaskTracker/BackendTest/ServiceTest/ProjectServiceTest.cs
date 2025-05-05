@@ -172,6 +172,41 @@ public class ProjectServiceTest
         Assert.AreEqual(projectUpdate.Id, updatedProject.Id);
         Assert.AreEqual(projectUpdate.Name, updatedProject.Name);
     }
+    
+    [TestMethod]
+    public void AddProjectShouldThrowExceptionWhenNameAlreadyExists()
+    {
+        var existingProject = new Project
+        {
+            Id = 10,
+            Name = "DuplicateName",
+            Description = "Desc",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(5),
+            Administrator = new User()
+        };
+        _projectRepository.Add(existingProject);
+
+        var newProjectDto = new ProjectDataDTO
+        {
+            Name = "DuplicateName", 
+            Description = "New Desc",
+            StartDate = DateTime.Now.AddDays(2),
+            FinishDate = DateTime.Now.AddDays(6),
+            Administrator = new UserDataDTO
+            {
+                Name = "Admin",
+                LastName = "Admin",
+                Email = "admin@example.com",
+                Password = "Admin123@",
+                BirthDate = new DateTime(1990, 1, 1),
+                Admin = true
+            }
+        };
+        
+        Assert.ThrowsException<ArgumentException>(() => _projectService.AddProject(newProjectDto));
+    }
+
     #endregion
 
     #region TaskTest
