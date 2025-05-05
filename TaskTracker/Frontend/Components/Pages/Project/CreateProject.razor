@@ -1,0 +1,79 @@
+@page "/CreateProject"
+@using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.UserDTOs
+@using Backend.Service
+@inject ProjectService ProjectService
+@inject SessionService Session
+@inject NavigationManager NavigationManager
+
+<PageTitle>Create Project</PageTitle>
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success">@_successMessage</div>
+}
+<form class="mb-3" @onsubmit="HandleSubmit">
+    <h1>Create Project</h1>
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Project Name</label>
+        <input type="text" class="form-control" id="name" @bind="_projectData.Name" placeholder="Enter project name">
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="3" @bind="_projectData.Description" placeholder="Enter project description"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="startDate" class="form-label">Start Date</label>
+        <InputDate class="form-control" id="startDate" @bind-Value="_projectData.StartDate" />
+    </div>
+
+    <div class="mb-3">
+        <label for="finishDate" class="form-label">Finish Date</label>
+        <InputDate class="form-control" id="finishDate" @bind-Value="_projectData.FinishDate" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger">@_errorMessage</div>
+    }
+
+    <button type="submit" class="btn btn-primary">Create Project</button>
+</form>
+
+@code {
+    private ProjectDataDTO _projectData = new();
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            if (Session.CurrentUser != null)
+            {
+                _projectData.Administrator = new UserDataDTO
+                {
+                    Name = Session.CurrentUser.Name,
+                    LastName = Session.CurrentUser.LastName,
+                    Email = Session.CurrentUser.Email,
+                    BirthDate = Session.CurrentUser.BirthDate,
+                    Password = Session.CurrentUser.Password,
+                    Admin = Session.CurrentUser.Admin
+                };
+                ProjectService.AddProject(_projectData);
+                _successMessage = "Project created successfully!";
+                _errorMessage = string.Empty;
+                await Task.Delay(2000);
+                await InvokeAsync(() => NavigationManager.NavigateTo("/ProjectManagement", true));
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+            _successMessage = string.Empty;
+        }
+    }
+}
