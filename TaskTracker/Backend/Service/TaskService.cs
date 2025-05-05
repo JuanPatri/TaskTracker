@@ -46,16 +46,16 @@ public class TaskService
         return resourceList;
     }
 
-    public Task AddTask(TaskDataDTO task)
+    public Task AddTask(TaskDataDTO taskDto)
     {
 
-        Project project = _projectRepository.Find(p => p.Id == int.Parse(task.Project));;
+        Project project = _projectRepository.Find(p => p.Id == int.Parse(taskDto.Project));;
 
-        List<Task> taskDependencies = GetTaskDependenciesWithTitle(task.Dependencies);
+        List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
 
-        List<(int, Resource)> resourceList = GetResourcesWithName(task.Resources);
+        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        Task createdTask = task.ToEntity(taskDependencies, project, resourceList);
+        Task createdTask = taskDto.ToEntity(taskDependencies, project, resourceList);
         return _taskRepository.Add(createdTask);
     }
     public Task GetTaskByTitle(string title)
@@ -70,24 +70,11 @@ public class TaskService
 
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        List<Task> taskDependencies = _taskRepository.FindAll()
-            .Where(t => taskDto.Dependencies.Contains(t.Title))
-            .ToList();   
-        
-        Project? project = _projectRepository.Find(p => p.Id == int.Parse(taskDto.Project));
-        
-        List<(int, Resource)> resourceList = taskDto.Resources
-            .Select(tuple =>
-            {
-                int cantidad = tuple.Item1;
-                string nameResource = tuple.Item2;
+        Project project = _projectRepository.Find(p => p.Id == int.Parse(taskDto.Project));;
 
-                Resource? resource = _resourceRepository.Find(r => r.Name == nameResource);
-                return (cantidad, resource);
-            })
-            .Where(t => t.Item2 != null)
-            .Select(t => (t.Item1, t.Item2!)) 
-            .ToList();
+        List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
+
+        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
         return _taskRepository.Update(taskDto.ToEntity(taskDependencies, project, resourceList));
     }

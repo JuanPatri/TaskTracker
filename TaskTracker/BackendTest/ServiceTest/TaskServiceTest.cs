@@ -174,4 +174,57 @@ public class TaskServiceTest
         Assert.AreEqual(1, tasks.Count);
         Assert.AreEqual("MainTask", tasks[0].Title); 
     }
+
+    [TestMethod]
+    public void GetResourcesWithName_ShouldReturnResourceWithCorrectQuantity()
+    {
+        Resource resource = new Resource { Name = "Laptop" };
+        _resourceRepository.Add(resource);
+
+        List<(int, string)> resourceList = new List<(int, string)> { (5, "Laptop") };
+        
+        List<(int, Resource)> result = _taskService.GetResourcesWithName(resourceList);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual(5, result[0].Item1);
+        Assert.AreEqual("Laptop", result[0].Item2.Name);
+    }
+
+    [TestMethod]
+    public void GetResourcesWithName_ShouldIgnoreNonexistentResources()
+    {
+        var resourceList = new List<(int, string)>
+        {
+            (2, "NonExistingResource")
+        };
+        
+        var result = _taskService.GetResourcesWithName(resourceList);
+
+        Assert.AreEqual(0, result.Count);
+    }
+    [TestMethod]
+    public void GetResourcesWithName_ShouldMapMultipleResources()
+    {
+        // Arrange
+        var res1 = new Resource { Name = "Mouse" };
+        var res2 = new Resource { Name = "Keyboard" };
+        _resourceRepository.Add(res1);
+        _resourceRepository.Add(res2);
+
+        var resourceList = new List<(int, string)>
+        {
+            (1, "Mouse"),
+            (3, "Keyboard")
+        };
+
+        // Act
+        var result = _taskService.GetResourcesWithName(resourceList);
+
+        // Assert
+        Assert.AreEqual(2, result.Count);
+        Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
+        Assert.IsTrue(result.Any(r => r.Item2.Name == "Keyboard" && r.Item1 == 3));
+    }
+
+
 }
