@@ -1,5 +1,6 @@
 using Backend.Domain;
 using Backend.Repository;
+using Task = Backend.Domain.Task;
 
 namespace BackendTest.RepositoryTest;
 
@@ -97,9 +98,12 @@ public class ProjectRepositoryTest
                 Email = "admin@test.com",
                 Password = "Admin123@",
                 Admin = true,
-                BirthDate = new DateTime(1990, 1, 1)
-            }
+                BirthDate = new DateTime(1990, 1, 1),
+            },
+            Tasks = new List<Task>(),
+            Users = new List<User>()
         };
+        
         var result = _projectRepository.Update(updateProject);
         Assert.IsNull(result);
     }
