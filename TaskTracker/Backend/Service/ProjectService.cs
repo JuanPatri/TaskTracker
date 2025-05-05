@@ -100,17 +100,23 @@ public class ProjectService
         return resourceList;
     }
     
-    public List<GetProjectDTO> GetProjectsByUserEmail(string email)
+    public List<GetProjectDTO> GetProjectsByUserEmail(string userEmail)
     {
-        return _projectRepository.FindAll()
-            .Where(p => p.Users != null && p.Users.Any(u => u.Email == email && p.Administrator == u))
-            .Select(p => new GetProjectDTO
-            {
-                Id = p.Id,
-                Name = p.Name
-            })
-            .ToList();
+        var filteredProjects = _projectRepository.FindAll()
+            .Where(ProjectHasUserAndIsAdmin(userEmail));
+
+        return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
+
+    private static Func<Project, bool> ProjectHasUserAndIsAdmin(string userEmail) =>
+        project => project.Users != null 
+                   && project.Users.Any(user => user.Email == userEmail && project.Administrator == user);
+
+    private static GetProjectDTO ToGetProjectDTO(Project project) => new GetProjectDTO
+    {
+        Id = project.Id,
+        Name = project.Name
+    };
     
     #endregion
     
