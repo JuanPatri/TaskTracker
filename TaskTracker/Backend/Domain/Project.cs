@@ -1,3 +1,5 @@
+using Backend.DTOs.ProjectDTOs;
+
 namespace Backend.Domain;
 
 public class Project
@@ -74,5 +76,18 @@ public class Project
         get => _tasks;
         set => _tasks = value;
         
+    }
+    
+    public static Project FromDto(ProjectDataDTO projectDataDto)
+    {
+        return new Project()
+        {
+            Id = projectDataDto.Id,
+            Name = projectDataDto.Name,
+            Description = projectDataDto.Description,
+            StartDate = projectDataDto.StartDate,
+            FinishDate = projectDataDto.FinishDate,
+            Administrator = User.FromDto(projectDataDto.Administrator)
+        };
     }
 }

@@ -91,7 +91,7 @@ public class ProjectDataDtoTest
                 Admin = true
             }
         };
-        Project project = dto.ToEntity();
+        Project project = Project.FromDto(dto);
         Assert.IsNotNull(project);
     }
 

@@ -34,7 +34,7 @@ public class ProjectService
             throw new ArgumentException("Project with the same name already exists");
         }
         project.Id = _id++;
-        Project? createdProject = _projectRepository.Add(project.ToEntity());
+        Project? createdProject = _projectRepository.Add(Project.FromDto(project));
         return createdProject;
     }
     
@@ -55,7 +55,7 @@ public class ProjectService
     
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        Project? updatedProject = _projectRepository.Update(projectDto.ToEntity());
+        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto));
         return updatedProject;
     }
     
