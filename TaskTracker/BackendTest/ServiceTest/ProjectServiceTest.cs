@@ -207,6 +207,50 @@ public class ProjectServiceTest
         Assert.ThrowsException<ArgumentException>(() => _projectService.AddProject(newProjectDto));
     }
 
+    [TestMethod]
+    public void GetProjectsByUserEmailTest()
+    {
+        User adminUser = new User()
+        {
+            Name = "Admin",
+            LastName = "Admin",
+            Email = "admin@example.com",
+            Password = "Admin123@",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
+
+        User user = new User()
+        {
+            Name = "User",
+            LastName = "User",
+            Email = "user@user.com",
+            Password = "User123@",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = true
+        };
+
+        _userRepository.Add(adminUser);
+        _userRepository.Add(user);
+        
+        Project project1 = new Project()
+        {
+            Id = 1,
+            Name = "Project 1",
+            Description = "Description of project 1",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = adminUser,
+            Users = new List<User> { adminUser } 
+        };
+
+        _projectRepository.Add(project1);
+
+        List<GetProjectDTO> projectDto = _projectService.GetProjectsByUserEmail("admin@example.com");
+        
+        Assert.IsNotNull(projectDto);
+        Assert.AreEqual(1, projectDto.Count);
+    }
     #endregion
 
     #region TaskTest
