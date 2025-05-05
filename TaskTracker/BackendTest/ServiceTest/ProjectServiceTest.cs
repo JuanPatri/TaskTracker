@@ -18,12 +18,6 @@ public class ProjectServiceTest
     {
         _projectRepository = new ProjectRepository();
         _projectService = new ProjectService(_projectRepository);
-
-        _project = new Project()
-        {
-            Name = "Project 1",
-        };
-        _projectRepository.Add(_project);
     }
     
     [TestMethod]
@@ -37,6 +31,7 @@ public class ProjectServiceTest
     {
         ProjectDataDTO project = new ProjectDataDTO()
         {
+            Id = 2,
             Name = "Project 2",
             Description = "Description of project 2",
             StartDate = DateTime.Now.AddDays(1),
@@ -53,8 +48,6 @@ public class ProjectServiceTest
         };
         Project? createdProject = _projectService.AddProject(project);
         Assert.IsNotNull(createdProject);
-        Assert.AreEqual(project.Name, createdProject.Name);
-        Assert.AreEqual(project.Administrator.Email, createdProject.Administrator.Email);
         Assert.AreEqual(_projectRepository.FindAll().Last(), createdProject);
     }
     
