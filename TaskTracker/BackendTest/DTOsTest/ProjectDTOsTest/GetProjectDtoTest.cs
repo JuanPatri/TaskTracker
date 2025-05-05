@@ -6,11 +6,11 @@ namespace BackendTest.DTOsTest.ProjectDTOsTest;
 public class GetProjectDtoTest
 {
     [TestMethod]
-    public void AddNameToProjectTest()
+    public void AddIdToProjectTest()
     {
         GetProjectDTO projectDto = new GetProjectDTO();
-        projectDto.Name = "Project A";
-        Assert.AreEqual("Project A", projectDto.Name);
+        projectDto.Id = 1;
+        Assert.AreEqual(1, projectDto.Id);
     }
     
     [TestMethod]
@@ -18,9 +18,11 @@ public class GetProjectDtoTest
     {
         var dto = new GetProjectDTO()
         {
+            Id = 1,
             Name = "Project A"
         };
         var result = dto.ToEntity();
+        Assert.AreEqual(1, result.Id);
         Assert.AreEqual("Project A", result.Name);
     }
     
