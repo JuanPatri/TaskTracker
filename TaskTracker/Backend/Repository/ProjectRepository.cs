@@ -12,6 +12,7 @@ public class ProjectRepository : IRepository<Project>
         {
             new Project()
             {
+                Id = 1,
                 Name = "Project1",
                 Description = "Description1",
                 StartDate = DateTime.Now.AddDays(1),
@@ -46,14 +47,14 @@ public class ProjectRepository : IRepository<Project>
     
     public Project? Update(Project updatedProject)
     {
-        Project? existingProject = _projects.FirstOrDefault(p => p.Name == updatedProject.Name);
+        Project? existingProject = _projects.FirstOrDefault(p => p.Id == updatedProject.Id);
         if (existingProject != null)
         {
+            existingProject.Name = updatedProject.Name;
             existingProject.Description = updatedProject.Description;
             existingProject.StartDate = updatedProject.StartDate;
             existingProject.FinishDate = updatedProject.FinishDate;
             existingProject.Administrator = updatedProject.Administrator;
-
             return existingProject;
         }
         return null;
@@ -61,7 +62,7 @@ public class ProjectRepository : IRepository<Project>
     
     public void Delete(String name)
     {
-        Project? project = _projects.FirstOrDefault(p => p.Name == name);
+        Project? project = _projects.FirstOrDefault(p => p.Id == int.Parse(name));
         if (project != null)
         {
             _projects.Remove(project);
