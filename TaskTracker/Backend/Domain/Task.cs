@@ -69,7 +69,7 @@ public class Task
         } 
     }
     
-    public static Task FromDto(TaskDataDTO taskDataDto)
+    public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
     {
         return new Task()
         {
@@ -77,8 +77,10 @@ public class Task
             Description = taskDataDto.Description,
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
-            Dependencies = ProjectService.GetTaskDependenciesWithTitle(taskDataDto.Dependencies),
-            Resources = ProjectService.GetResourcesWithName(taskDataDto.Resources)
+            Dependencies = dependencies,
+            //Dependencies = ProjectService.GetTaskDependenciesWithTitle(taskDataDto.Dependencies),
+            Resources = resource
+            //Resources = ProjectService.GetResourcesWithName(taskDataDto.Resources)
         };
     }
 }

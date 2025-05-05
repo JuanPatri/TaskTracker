@@ -95,7 +95,7 @@ public class ProjectService
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        Task createdTask = Task.FromDto(taskDto);
+        Task createdTask = Task.FromDto(taskDto, taskDependencies, resourceList);
         return _taskRepository.Add(createdTask);
     }
     public Task GetTaskByTitle(string title)
@@ -112,7 +112,7 @@ public class ProjectService
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        return _taskRepository.Update(Task.FromDto(taskDto));
+        return _taskRepository.Update(Task.FromDto(taskDto, taskDependencies, resourceList));
     }
     public void RemoveTask(GetTaskDTO task)
     {

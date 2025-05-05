@@ -119,8 +119,17 @@ public class TaskTest
             Dependencies = new List<string> { "Task 1", "Task 2" },
             Resources = new List<(int, string)> { (1, "Resource 1") }
         };
+        List<Task> dependencies = new List<Task>
+        {
+            new Task { Title = "Task 1" },
+            new Task { Title = "Task 2" }
+        };
+        List<(int, Resource)> resources = new List<(int, Resource)>
+        {
+            (1, new Resource { Name = "Resource 1" })
+        };
         
-        Task task = Task.FromDto(taskDto);
+        Task task = Task.FromDto(taskDto, dependencies, resources);
         
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
