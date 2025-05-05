@@ -8,6 +8,14 @@ namespace BackendTest.DTOsTest.ProjectDTOsTest;
 public class ProjectDataDtoTest
 {
     [TestMethod]
+    public void CreateIdForProjectTest()
+    {
+        ProjectDataDTO projectDto = new ProjectDataDTO();
+        projectDto.Id = 1;
+        Assert.AreEqual(1, projectDto.Id);
+    }
+    
+    [TestMethod]
     public void CreateNameForProjectTest()
     {
         ProjectDataDTO projectDto = new ProjectDataDTO();
@@ -68,6 +76,7 @@ public class ProjectDataDtoTest
     {
         ProjectDataDTO dto = new ProjectDataDTO
         {
+            Id = 1,
             Name = "Project A",
             Description = "This is a test project.",
             StartDate = new DateTime(2025, 10, 01),
