@@ -26,8 +26,9 @@ public class ProjectRepositoryTest
     [TestMethod]
     public void AddProjectToListTest()
     {
+        _project.Id = 2;
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.Find(p => p.Name == "New Project"), _project);
+        Assert.AreEqual(_projectRepository.Find(p => p.Id == 2), _project);
     }
     
     [TestMethod]
