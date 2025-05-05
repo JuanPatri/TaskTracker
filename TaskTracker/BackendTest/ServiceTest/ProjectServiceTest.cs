@@ -24,7 +24,7 @@ public class ProjectServiceTest
     public void OnInitialize()
     {
         _projectRepository = new ProjectRepository();
-        _projectService = new ProjectService(_projectRepository);
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository);
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
         _taskService = new TaskService(_taskRepository, _projectRepository, _resourceRepository);
@@ -70,24 +70,11 @@ public class ProjectServiceTest
     [TestMethod]
     public void RemoveProjectShouldRemoveProject()
     {
-        
-        Project project = new Project()
-        {
-            Id = 1,
-            Name = "Project 1",
-            Description = "Description of project 1",
-            StartDate = DateTime.Now.AddDays(1),
-            FinishDate = DateTime.Now.AddDays(10),
-            Administrator = new User()
-        };
-        
-        _projectRepository.Add(project);
-        
         Assert.AreEqual(_projectRepository.FindAll().Count, 1);   
         
         GetProjectDTO projectToDelete = new GetProjectDTO()
         {
-            Id = 1,
+            Id = 35,
             Name = "Project 1",
         };
         

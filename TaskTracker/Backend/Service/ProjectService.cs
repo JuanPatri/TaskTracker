@@ -21,12 +21,7 @@ public class ProjectService
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
     }
-
-    public ProjectService(ProjectRepository projectRepository)
-    {
-        throw new NotImplementedException();
-    }
-
+    
     public Project AddProject(ProjectDataDTO project)
     {
         if (_projectRepository.Find(p => p.Name == project.Name) != null)
