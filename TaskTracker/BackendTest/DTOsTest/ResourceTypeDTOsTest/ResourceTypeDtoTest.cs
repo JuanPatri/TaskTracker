@@ -31,7 +31,7 @@ public class ResourceTypeDtoTest
             Name = "ResourceTypeName"
         };
         
-        ResourceType resourceType = resourceTypeDto.ToEntity();
+        ResourceType resourceType = ResourceType.Fromdto(resourceTypeDto);
         
         Assert.AreEqual(resourceTypeDto.Id, resourceType.Id);
         Assert.AreEqual(resourceTypeDto.Name, resourceType.Name);

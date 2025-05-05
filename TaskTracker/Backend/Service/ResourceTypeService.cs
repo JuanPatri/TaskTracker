@@ -22,7 +22,7 @@ public class ResourceTypeService
             throw new Exception("Resource type already exists");
         }
         resourceType.Id = _id++;
-        ResourceType? createdResourceType = _resourceTypeRepository.Add(resourceType.ToEntity());
+        ResourceType? createdResourceType = _resourceTypeRepository.Add(ResourceType.Fromdto(resourceType));
         return createdResourceType;
     }
     
@@ -43,7 +43,7 @@ public class ResourceTypeService
     
     public ResourceType? UpdateResourceType(ResourceTypeDto resourceTypeDto)
     {
-        ResourceType? updatedResourceType = _resourceTypeRepository.Update(resourceTypeDto.ToEntity());
+        ResourceType? updatedResourceType = _resourceTypeRepository.Update(ResourceType.Fromdto(resourceTypeDto));
         return updatedResourceType;
     }
 }
