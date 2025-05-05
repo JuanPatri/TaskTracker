@@ -72,9 +72,7 @@ public class Project
     public List<Task> Tasks
     {
         get => _tasks;
-        set
-        {
-            _tasks = value;
-        }
+        set => _tasks = value;
+        
     }
 }
