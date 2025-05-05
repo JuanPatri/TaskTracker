@@ -1,3 +1,5 @@
+using Backend.DTOs.ResourceDTOs;
+
 namespace Backend.Domain;
 
 public class Resource
@@ -30,5 +32,15 @@ public class Resource
             if (value == null) throw new ArgumentException("ResourceDTOs type cannot be null");
             _type = value;
         }
+    }
+    
+    public static Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
+    {
+        return new Resource()
+        {
+            Name = resourceDataDto.Name,
+            Description = resourceDataDto.Description,
+            Type = resourceType
+        };
     }
 }

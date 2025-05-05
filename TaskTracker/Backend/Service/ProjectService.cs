@@ -1,5 +1,6 @@
 using Backend.Domain;
 using Backend.DTOs.ProjectDTOs;
+using Backend.DTOs.ResourceDTOs;
 using Backend.Repository;
 using Task = Backend.Domain.Task;
 using Backend.DTOs.TaskDTOs;
@@ -12,16 +13,20 @@ public class ProjectService
     private int _id;
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Resource> _resourceRepository;
+    private readonly IRepository<ResourceType> _resourceTypeRepository;
     
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
-        IRepository<Resource> resourceRepository)
+        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository)
     {
         _projectRepository = projectRepository;
         _id = 2;
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
+        _resourceTypeRepository = resourceTypeRepository;
     }
+
     
+    #region Project
     public Project AddProject(ProjectDataDTO project)
     {
         if (_projectRepository.Find(p => p.Name == project.Name) != null)
@@ -79,6 +84,10 @@ public class ProjectService
 
         return resourceList;
     }
+    
+    #endregion
+    
+    #region Task
     public Task AddTask(TaskDataDTO taskDto)
     {
         
@@ -109,4 +118,40 @@ public class ProjectService
     {
         _taskRepository.Delete(task.Title);
     }
+    #endregion
+
+    #region Resource
+    public Resource? AddResource(ResourceDataDto resource)
+    {
+        if(_resourceRepository.Find(r => r.Name == resource.Name) != null)
+        {
+            throw new Exception("Resource already exists");
+        }
+        ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
+        Resource? createdResource = _resourceRepository.Add(Resource.FromDto(resource, resourceType));
+        return createdResource;
+    }
+    
+    public void RemoveResource(GetResourceDto resource)
+    {
+        _resourceRepository.Delete(resource.Name);
+    }
+    
+    public Resource? GetResource(GetResourceDto resource)
+    {
+        return _resourceRepository.Find(r => r.Name == resource.Name);
+    }
+    
+    public List<Resource> GetAllResources()
+    {
+        return _resourceRepository.FindAll().ToList();
+    }
+    
+    public Resource? UpdateResource(ResourceDataDto resourceDto)
+    {
+        ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
+        Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
+        return updatedResource;
+    }
+    #endregion
 }
