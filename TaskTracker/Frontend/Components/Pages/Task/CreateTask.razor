@@ -34,11 +34,11 @@
     </div>
 
     <select id="project" class="form-select" @bind="_newTask.Project">
-        <option value="">Select a project FALTA HACER ESTO</option>
-        @* @foreach(var project in _projectDtos) *@
-        @*     { *@
-        @*         <option value="@project.Id">@project.Name</option> *@
-        @*     } *@
+        <option value="">Select a project</option>
+        @foreach (var project in _projectDtos)
+        {
+            <option value="@project.Id">@project.Name</option>
+        }
     </select>
     
     <div class="mb-3">
@@ -51,6 +51,10 @@
         <label for="resource" class="form-label">ResourceDTOss</label>
         <select id="resource" multiple class="form-select"></select>
         <div class="form-text">Hold Ctrl to select multiple resources</div>
+        @foreach (var resource in _resourcesDtos)
+        {
+            <option value="@resource.Title">@resource.Title</option>
+        }
     </div>
 
     <button type="submit" class="btn btn-primary">Create Task</button>
@@ -59,6 +63,8 @@
 @code {
     private TaskDataDTO _newTask = new TaskDataDTO();
     private List<ProjectDisplayDTO> _projectDtos = new List<ProjectDisplayDTO>();
+    private List<ResourceForProjecDTO> _resourcesDtos = new List<ResourceForProjecDTO>();
+    private List<TaskTitleDTO> _taskTItleDtos = new List<TaskTitleDTO>();
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
@@ -67,7 +73,9 @@
     {
         if (Session.IsLoggedIn())
         {
-            //_projectsDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
+            _projectsDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
+            _resourcesDtos = ResourceService.GetResourcesForProject(Session.CurrentUser.Project.id);
+            _tasksProjectDtos = TaskService.GetTasksForProject(Session.CurrentUser.Project.id);
         }
         
     }
