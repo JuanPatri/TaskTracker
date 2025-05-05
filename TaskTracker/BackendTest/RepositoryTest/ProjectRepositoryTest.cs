@@ -13,8 +13,15 @@ public class ProjectRepositoryTest
     public void OnInitialize()
     {
         _projectRepository = new ProjectRepository();
-        _project = new Project();
-        _project.Name = "New Project";
+        _project = new Project()
+        {
+            Id = 1,
+            Name = "Project1",
+            Description = "Description1",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddYears(1),
+            Administrator = new User()
+        };
     }
     
     [TestMethod]
@@ -26,17 +33,16 @@ public class ProjectRepositoryTest
     [TestMethod]
     public void AddProjectToListTest()
     {
-        _project.Id = 2;
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.Find(p => p.Id == 2), _project);
+        Assert.AreEqual(_projectRepository.Find(p => p.Id == 1), _project);
     }
     
     [TestMethod]
     public void SearchForAllProjectInTheListTest()
     {
-        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
+        Assert.AreEqual(_projectRepository.FindAll().Count, 0);
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.FindAll().Count, 2);
+        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
     }
     
     [TestMethod]
@@ -44,7 +50,7 @@ public class ProjectRepositoryTest
     {
         _project.Id = 2;
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.FindAll().Count, 2);
+        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
         Project updateProject = new Project()
         {
             Id = 2,
@@ -102,8 +108,8 @@ public class ProjectRepositoryTest
     public void DeleteProjectFromListTest()
     {
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.FindAll().Count, 2);
-        _projectRepository.Delete(_project.Id.ToString());
         Assert.AreEqual(_projectRepository.FindAll().Count, 1);
+        _projectRepository.Delete(_project.Id.ToString());
+        Assert.AreEqual(_projectRepository.FindAll().Count, 0);
     }
 }

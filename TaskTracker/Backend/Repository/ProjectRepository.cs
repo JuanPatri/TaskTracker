@@ -8,26 +8,7 @@ public class ProjectRepository : IRepository<Project>
     
     public ProjectRepository()
     {
-        _projects = new List<Project>()
-        {
-            new Project()
-            {
-                Id = 1,
-                Name = "Project1",
-                Description = "Description1",
-                StartDate = DateTime.Now.AddDays(1),
-                FinishDate = DateTime.Now.AddYears(1),
-                Administrator = new User()
-                {
-                    Name = "Admin",
-                    LastName = "Admin",
-                    Email = "admin@admin.com",
-                    Password = "Admin123@",
-                    Admin = true,
-                    BirthDate = new DateTime(1990, 1, 1)
-                }
-            }
-        };
+        _projects = new List<Project>();
     }
     public Project Add(Project project)
     {

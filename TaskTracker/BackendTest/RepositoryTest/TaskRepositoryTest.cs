@@ -64,7 +64,6 @@ public void UpdateExistingTaskTest()
         Description = "Updated Description",
         Duration = new TimeSpan(9, 25, 0),  
         Status = Status.Completed,  
-        Project = new Project(), 
         Dependencies = new List<TaskItem>()  
     };
     

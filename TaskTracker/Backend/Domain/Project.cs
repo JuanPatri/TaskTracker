@@ -1,3 +1,5 @@
+using Backend.DTOs.ProjectDTOs;
+
 namespace Backend.Domain;
 
 public class Project
@@ -8,6 +10,7 @@ public class Project
     private DateTime _startDate;
     private DateTime _finishDate;
     private User _administrator;
+    private List<Task> _tasks;
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -66,5 +69,25 @@ public class Project
             if (value <= 0) throw new ArgumentException("The project ID must be a positive integer");
             _id = value;
         }
+    }
+
+    public List<Task> Tasks
+    {
+        get => _tasks;
+        set => _tasks = value;
+        
+    }
+    
+    public static Project FromDto(ProjectDataDTO projectDataDto)
+    {
+        return new Project()
+        {
+            Id = projectDataDto.Id,
+            Name = projectDataDto.Name,
+            Description = projectDataDto.Description,
+            StartDate = projectDataDto.StartDate,
+            FinishDate = projectDataDto.FinishDate,
+            Administrator = User.FromDto(projectDataDto.Administrator)
+        };
     }
 }

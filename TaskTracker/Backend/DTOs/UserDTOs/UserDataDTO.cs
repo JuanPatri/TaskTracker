@@ -11,16 +11,4 @@ public class UserDataDTO
     public string Password { get; set; } = string.Empty;
     public bool Admin { get; set; } = false;
     
-    public User ToEntity()
-    {
-        return new User()
-        {
-            Name = Name,
-            LastName = LastName,
-            Email = Email,
-            BirthDate = BirthDate,
-            Password = Password,
-            Admin = Admin
-        };
-    }
 }

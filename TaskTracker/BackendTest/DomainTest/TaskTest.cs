@@ -1,4 +1,6 @@
-﻿namespace BackendTest.DomainTest;
+﻿using Backend.DTOs.TaskDTOs;
+
+namespace BackendTest.DomainTest;
 using Backend.Domain;
 using Backend.Domain.Enums;
 
@@ -65,22 +67,6 @@ public class TaskTest
         Assert.AreEqual(Status.Pending, _task.Status);
     }
     
-    [TestMethod]
-    public void SetProjectForTaskTest()
-    {
-        Project project = new Project();
-        _task.Project = project;
-        Assert.AreEqual(project, _task.Project);
-    }
-
-    [TestMethod]
-    public void SetProjectNullReturnsAnException()
-    {
-        Project project = null;
-    
-        ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Project = project);
-        Assert.AreEqual("Project cannot be null", ex.Message);
-    }
 
     [TestMethod]
     public void SetDependencyTaskTest()
@@ -107,4 +93,52 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Duration = durationTask);
         Assert.AreEqual("The duration must be at least 30 minutes", ex.Message);
     }
+    
+    [TestMethod]
+    public void SetResourcesTaskTest()
+    {
+        Resource res = new Resource();
+        List<(int, Resource)> resources = new List<(int, Resource)>
+        {
+            (2, res)
+        };
+        
+        _task.Resources = resources;
+        Assert.AreEqual(resources, _task.Resources);
+    }
+
+    [TestMethod]
+    public void FromDtoShouldCreateTaskWithCorrectValues()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Task 1",
+            Description = "Description of Task 1",
+            Duration = TimeSpan.FromHours(1),
+            Status = Status.Blocked,
+            Dependencies = new List<string> { "Task 1", "Task 2" },
+            Resources = new List<(int, string)> { (1, "Resource 1") }
+        };
+        List<Task> dependencies = new List<Task>
+        {
+            new Task { Title = "Task 1" },
+            new Task { Title = "Task 2" }
+        };
+        List<(int, Resource)> resources = new List<(int, Resource)>
+        {
+            (1, new Resource { Name = "Resource 1" })
+        };
+        
+        Task task = Task.FromDto(taskDto, dependencies, resources);
+        
+        Assert.AreEqual("Task 1", task.Title);
+        Assert.AreEqual("Description of Task 1", task.Description);
+        Assert.AreEqual(TimeSpan.FromHours(1), task.Duration);
+        Assert.AreEqual(Status.Blocked, task.Status);
+        Assert.IsNotNull(task.Dependencies);
+        Assert.IsNotNull(task.Resources);
+        Assert.AreEqual(2, task.Dependencies.Count);
+        Assert.AreEqual(1, task.Resources.Count);
+    }
+
 }

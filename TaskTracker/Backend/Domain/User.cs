@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Backend.DTOs.UserDTOs;
 
 namespace Backend.Domain;
 
@@ -71,5 +72,18 @@ public class User
             
             _password = value;
         }
+    }
+    
+    public static User FromDto(UserDataDTO userDataDto)
+    {
+        return new User()
+        {
+            Name = userDataDto.Name,
+            LastName = userDataDto.LastName,
+            Email = userDataDto.Email,
+            BirthDate = userDataDto.BirthDate,
+            Password = userDataDto.Password,
+            Admin = userDataDto.Admin
+        };
     }
 }

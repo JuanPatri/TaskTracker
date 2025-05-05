@@ -1,3 +1,5 @@
+using Backend.DTOs.ResourceTypeDTOs;
+
 namespace Backend.Domain;
 
 public class ResourceType
@@ -23,5 +25,14 @@ public class ResourceType
             if (value <= 0) throw new ArgumentException("The id cannot be less than or equal to 0");
             _id = value;
         }
+    }
+    
+    public static ResourceType Fromdto(ResourceTypeDto resourceTypeDto)
+    {
+        return new ResourceType()
+        {
+            Id = resourceTypeDto.Id,
+            Name = resourceTypeDto.Name
+        };
     }
 }

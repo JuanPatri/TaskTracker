@@ -1,4 +1,8 @@
 using Backend.Domain;
+using Backend.DTOs.ProjectDTOs;
+using Task = Backend.Domain.Task;
+using Backend.DTOs.UserDTOs;
+
 namespace BackendTest.DomainTest;
 
 [TestClass]
@@ -107,4 +111,48 @@ public class ProjectTest
     {
         Assert.ThrowsException<ArgumentException>(() => _project.Id = -1);
     }
+
+    [TestMethod]
+    public void PutLisTasksForProjectTest()
+    {
+        List<Task> tasks = new List<Task>();
+
+        _project.Tasks = tasks; 
+        Assert.AreEqual(tasks, _project.Tasks);
+    }
+    
+    
+    [TestMethod]
+    public void FromDtoShouldMapAllPropertiesCorrectly()
+    {
+        ProjectDataDTO dto = new ProjectDataDTO()
+        {
+            Id = 5,
+            Name = "Test Project",
+            Description = "This is a test project",
+            StartDate = new DateTime(2026, 1, 1),
+            FinishDate = new DateTime(2026, 12, 31),
+            Administrator = new UserDataDTO
+            {
+                Name = "Pedro",
+                LastName = "Rodriguez",
+                Email = "prodriguez@gmail.com",
+                BirthDate = new DateTime(2003, 03, 14),
+                Password = "Pedro1234@",
+            }
+        };
+
+        Project result = Project.FromDto(dto);
+        
+        Assert.AreEqual(dto.Id, result.Id);
+        Assert.AreEqual(dto.Name, result.Name);
+        Assert.AreEqual(dto.Description, result.Description);
+        Assert.AreEqual(dto.StartDate, result.StartDate);
+        Assert.AreEqual(dto.FinishDate, result.FinishDate);
+        Assert.IsNotNull(result.Administrator);
+        Assert.AreEqual(dto.Administrator.Name, result.Administrator.Name);
+        Assert.AreEqual(dto.Administrator.LastName, result.Administrator.LastName);
+        Assert.AreEqual(dto.Administrator.Email, result.Administrator.Email);
+    }
+
 }

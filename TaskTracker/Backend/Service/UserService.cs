@@ -14,8 +14,8 @@ public class UserService
     
     public User AddUser(UserDataDTO user)
     {
-        User createdUser = user.ToEntity();
-        return _userRepository.Add(createdUser);
+        User newUser = User.FromDto(user);
+        return _userRepository.Add(newUser);
     }
     
     public void RemoveUser(GetUserDTO user)
@@ -35,7 +35,7 @@ public class UserService
 
     public User? UpdateUser(UserDataDTO userDto)
     {
-        User updatedUser = userDto.ToEntity();
+        User updatedUser = User.FromDto(userDto);
         return _userRepository.Update(updatedUser);
     }
 }

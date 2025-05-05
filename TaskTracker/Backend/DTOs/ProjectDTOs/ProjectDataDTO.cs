@@ -11,17 +11,4 @@ public class ProjectDataDTO
     public DateTime StartDate { get; set; } = DateTime.Today;
     public DateTime FinishDate { get; set; } = DateTime.Today;
     public UserDataDTO Administrator { get; set; } = new UserDataDTO();
-    
-    public Project ToEntity()
-    {
-        return new Project()
-        {
-            Id = Id,
-            Name = Name,
-            Description = Description,
-            StartDate = StartDate,
-            FinishDate = FinishDate,
-            Administrator = Administrator.ToEntity()
-        };
-    }
 }

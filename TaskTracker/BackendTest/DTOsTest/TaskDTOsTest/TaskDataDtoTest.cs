@@ -44,12 +44,6 @@ public class TaskDataDtoTest
         _taskDataDto.Status = Status.Blocked;
         Assert.AreEqual(Status.Blocked, _taskDataDto.Status);
     }
-    [TestMethod]
-    public void SetProjectForTask()
-    {
-        _taskDataDto.Project = 9;
-        Assert.AreEqual(9, _taskDataDto.Project);
-    }
     
     [TestMethod]
     public void SetDependenciesForTask()
@@ -60,36 +54,10 @@ public class TaskDataDtoTest
     }
     
     [TestMethod]
-    public void ToEntityShouldMapAllPropertiesCorrectly()
-    { 
-        _taskDataDto = new TaskDataDTO
-        {
-            Title = "Task",
-            Description = "Description task",
-            Duration = TimeSpan.FromHours(1),
-            Status = Status.Blocked,
-            Project = 9,
-            Dependencies = new List<String> { "Task 1", "Task 2" }
-        };
-
-        List<Task> dependencies = new List<Task>()
-        {
-            new Task()
-            {
-                Title = _taskDataDto.Dependencies[0]
-            },
-            new Task()
-            {
-                Title = _taskDataDto.Dependencies[1]
-            }
-        };
-        Project project = new Project()
-        {
-            Id = _taskDataDto.Project
-        };
-        
-        Task task = _taskDataDto.ToEntity(dependencies, project);
-
-        Assert.IsNotNull(task);
-    }
+    public void SetResourcesFortTask()
+    {
+        List<(int, string)> resource = new List<(int, string)> { (1, "Resource 1") };
+        _taskDataDto.Resources = resource;
+        Assert.AreEqual(resource, _taskDataDto.Resources);
+    } 
 }

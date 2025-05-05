@@ -1,6 +1,8 @@
 ﻿namespace Backend.Domain;
 
 using Enums;
+using DTOs.TaskDTOs;
+using  Backend.Service;
 
 public class Task
 {
@@ -8,8 +10,8 @@ public class Task
     private string _description = String.Empty;
     private TimeSpan _duration;
     private Status _status = Status.Pending;
-    private Project _project;
     private List<Task> _dependencies = new List<Task>();
+    private List<(int, Resource)> _resources = new List<(int, Resource)>();
 
     public string Title
     {
@@ -51,22 +53,32 @@ public class Task
         get => _status;
         set => _status = value;
     }
-
-    public Project Project
-    {
-        get => _project;
-        set
-        {
-            if (value == null)
-                throw new ArgumentException("Project cannot be null");
-
-            _project = value;
-        }
-    }
-
+    
     public List<Task> Dependencies
     {
         get => _dependencies;
         set => _dependencies = value;
+    }
+    
+    public List<(int, Resource)> Resources
+    {
+        get => _resources;
+        set
+        {
+            _resources = value;
+        } 
+    }
+    
+    public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
+    {
+        return new Task()
+        {
+            Title = taskDataDto.Title,
+            Description = taskDataDto.Description,
+            Duration = taskDataDto.Duration,
+            Status = taskDataDto.Status,
+            Dependencies = dependencies,
+            Resources = resource
+        };
     }
 }
