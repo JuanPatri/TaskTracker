@@ -79,6 +79,7 @@ public class ProjectRepositoryTest
         _projectRepository.Add(_project);
         Project updateProject = new Project()
         {
+            Id = 99,
             Name = "NonExistentProject",
             Description = "UpdatedDescription",
             StartDate = DateTime.Now.AddDays(2),
