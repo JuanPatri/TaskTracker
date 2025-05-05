@@ -157,19 +157,19 @@ public class ProjectService
     {
         _taskRepository.Delete(task.Title);
     }
-    public List<GetTaskDTO> GetTasksForProjectWithId(int id)
+    public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
     {
-        Project? project = _projectRepository.Find(project => project.Id == id);
+        Project? project = GetProjectById(projectId);
+        if (project == null) return new List<GetTaskDTO>();
 
-        if (project == null)
-        {
-            return new List<GetTaskDTO>();
-        }
+        return project.Tasks
+            .Select(task => new GetTaskDTO { Title = task.Title })
+            .ToList();
+    }
 
-        return project.Tasks.Select(task => new GetTaskDTO
-        {
-            Title = task.Title
-        }).ToList();
+    private Project? GetProjectById(int projectId)
+    {
+        return _projectRepository.Find(project => project.Id == projectId);
     }
     
     #endregion
