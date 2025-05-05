@@ -101,9 +101,9 @@ public class ProjectRepositoryTest
     [TestMethod]
     public void DeleteProjectFromListTest()
     {
-        _project.Name = "ProjectDelete";
         _projectRepository.Add(_project);
-        _projectRepository.Delete("ProjectDelete");
-        Assert.IsNull(_projectRepository.Find(p => p.Name == "ProjectDelete"));
+        Assert.AreEqual(_projectRepository.FindAll().Count, 2);
+        _projectRepository.Delete(_project.Id.ToString());
+        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
     }
 }
