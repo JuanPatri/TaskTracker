@@ -42,11 +42,13 @@ public class ProjectRepositoryTest
     [TestMethod]
     public void UpdateExistingProjectUpdatesFieldsCorrectlyTest()
     {
-        _project.Name = "Project1";
+        _project.Id = 2;
         _projectRepository.Add(_project);
+        Assert.AreEqual(_projectRepository.FindAll().Count, 2);
         Project updateProject = new Project()
         {
-            Name = "Project1",
+            Id = 2,
+            Name = "Updated Project",
             Description = "UpdatedDescription",
             StartDate = DateTime.Now.AddDays(2),
             FinishDate = DateTime.Now.AddYears(2),
@@ -60,12 +62,14 @@ public class ProjectRepositoryTest
                 BirthDate = new DateTime(1990, 1, 1)
             }
         };
-        var result = _projectRepository.Update(updateProject);
-        Assert.IsNotNull(result);
-        Assert.AreEqual(updateProject.Description, result.Description);
-        Assert.AreEqual(updateProject.StartDate.Date, result.StartDate.Date);
-        Assert.AreEqual(updateProject.FinishDate.Date, result.FinishDate.Date);
-        Assert.AreEqual(updateProject.Administrator.Email, result.Administrator.Email);
+        _projectRepository.Update(updateProject);
+        var updatedProject = _projectRepository.Find(p => p.Id == 2);
+        Assert.IsNotNull(updatedProject);
+        Assert.AreEqual(updateProject.Name, updatedProject.Name);
+        Assert.AreEqual(updateProject.Description, updatedProject.Description);
+        Assert.AreEqual(updateProject.StartDate, updatedProject.StartDate);
+        Assert.AreEqual(updateProject.FinishDate, updatedProject.FinishDate);
+        Assert.AreEqual(updateProject.Administrator.Email, updatedProject.Administrator.Email);
     }
     
     [TestMethod]
