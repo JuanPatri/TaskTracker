@@ -82,22 +82,18 @@ public class ProjectService
 
         return taskDependencies;
     }
-    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> namesResource)
+    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> nombresRecursos)
     {
-        List<(int, Resource)> resourceList = namesResource
-            .Select(tuple =>
-            {
-                int cantidad = tuple.Item1;
-                string nameResource = tuple.Item2;
-
-                Resource? resource = _resourceRepository.Find(r => r.Name == nameResource);
-                return (cantidad, resource);
-            })
-            .Where(t => t.Item2 != null)
+        return nombresRecursos
+            .Select(tuple => (tuple.Item1, FindResourceByName(tuple.Item2)))
+            .Where(t => t.Item2 is not null)
             .Select(t => (t.Item1, t.Item2!))
             .ToList();
+    }
 
-        return resourceList;
+    private Resource? FindResourceByName(string nombreRecurso)
+    {
+        return _resourceRepository.Find(recurso => recurso.Name == nombreRecurso);
     }
     
     public List<GetProjectDTO> GetProjectsByUserEmail(string userEmail)
