@@ -82,10 +82,7 @@ public class Project
     public List<User> Users
     {
         get => _users;
-        set
-        {
-            _users = value; 
-        }
+        set => _users = value; 
     }
     
     public static Project FromDto(ProjectDataDTO projectDataDto)
