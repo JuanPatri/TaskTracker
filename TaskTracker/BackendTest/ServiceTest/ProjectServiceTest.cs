@@ -54,14 +54,14 @@ public class ProjectServiceTest
     [TestMethod]
     public void RemoveProjectShouldRemoveProject()
     {
-        Assert.AreEqual(_projectRepository.FindAll().Last(), _project);   
-
+        Assert.AreEqual(_projectRepository.FindAll().Count, 1);   
         GetProjectDTO projectToDelete = new GetProjectDTO()
         {
+            Id = 1,
             Name = "Project 1",
         };
         _projectService.RemoveProject(projectToDelete);
-        Assert.AreNotEqual(_projectRepository.FindAll().Last(), _project);
+        Assert.AreEqual(_projectRepository.FindAll().Count, 0);
     }
     
     [TestMethod]
