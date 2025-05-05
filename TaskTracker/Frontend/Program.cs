@@ -13,12 +13,16 @@ builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 
 builder.Services.AddSingleton<IRepository<Task>, TaskRepository>();
 builder.Services.AddSingleton<IRepository<Project>, ProjectRepository>();
+builder.Services.AddSingleton<IRepository<Resource>, ResourceRepository>();
+builder.Services.AddSingleton<IRepository<ResourceType>, ResourceTypeRepository>();
 
 //services
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<TaskService>();
 builder.Services.AddSingleton<ProjectService>();
+builder.Services.AddSingleton<ResourceService>();
+builder.Services.AddSingleton<ResourceTypeService>();
 
 var app = builder.Build();
 
