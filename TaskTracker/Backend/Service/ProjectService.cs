@@ -36,8 +36,10 @@ public class ProjectService
         {
             throw new ArgumentException("Project with the same name already exists");
         }
+        
+        List<User> users = UserService.GetUserWithEmail(project.Users);
         project.Id = _idProject++;
-        Project? createdProject = _projectRepository.Add(Project.FromDto(project));
+        Project? createdProject = _projectRepository.Add(Project.FromDto(project, users));
         return createdProject;
     }
     
@@ -58,7 +60,9 @@ public class ProjectService
     
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto));
+        List<User> users = GetUserWithEmail(projectDto.Users);
+
+        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;
     }
     

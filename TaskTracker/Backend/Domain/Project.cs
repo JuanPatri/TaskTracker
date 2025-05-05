@@ -85,7 +85,7 @@ public class Project
         set => _users = value; 
     }
     
-    public static Project FromDto(ProjectDataDTO projectDataDto)
+    public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
     {
         return new Project()
         {
@@ -94,7 +94,8 @@ public class Project
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,
             FinishDate = projectDataDto.FinishDate,
-            Administrator = User.FromDto(projectDataDto.Administrator)
+            Administrator = User.FromDto(projectDataDto.Administrator),
+            Users = users
         };
     }
 }
