@@ -1,4 +1,6 @@
 using Backend.Domain;
+using Task = Backend.Domain.Task;
+
 namespace BackendTest.DomainTest;
 
 [TestClass]
@@ -106,5 +108,14 @@ public class ProjectTest
     public void SetIdNegativeReturnsExceptionTest()
     {
         Assert.ThrowsException<ArgumentException>(() => _project.Id = -1);
+    }
+
+    [TestMethod]
+    public void PutLisTasksForProjectTest()
+    {
+        List<Task> tasks = new List<Task>();
+
+        tasks.ListTasks = tasks; 
+        Assert.AreEqual(tasks, tasks.ListTasks);
     }
 }

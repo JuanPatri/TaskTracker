@@ -62,7 +62,7 @@
 
 @code {
     private TaskDataDTO _newTask = new TaskDataDTO();
-    private List<ProjectDisplayDTO> _projectDtos = new List<ProjectDisplayDTO>();
+    private List<GetProjectDTO> _projectDtos = new List<GetProjectDTO>();
     private List<ResourceForProjecDTO> _resourcesDtos = new List<ResourceForProjecDTO>();
     private List<TaskTitleDTO> _taskTItleDtos = new List<TaskTitleDTO>();
     private string _errorMessage = string.Empty;
@@ -73,12 +73,12 @@
     {
         if (Session.IsLoggedIn())
         {
-            _projectsDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
+            _projectDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email);
             _resourcesDtos = ResourceService.GetResourcesForProject(Session.CurrentUser.Project.id);
             _tasksProjectDtos = TaskService.GetTasksForProject(Session.CurrentUser.Project.id);
         }
         
-    }
+    }  
 
     private async Task HandelSubmit()
     {
