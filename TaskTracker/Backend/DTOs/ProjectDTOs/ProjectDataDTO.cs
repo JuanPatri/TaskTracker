@@ -21,7 +21,7 @@ public class ProjectDataDTO
             Description = Description,
             StartDate = StartDate,
             FinishDate = FinishDate,
-            Administrator = Administrator.ToEntity()
+            Administrator = Administrator
         };
     }
 }
