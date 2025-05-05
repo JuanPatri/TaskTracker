@@ -11,6 +11,7 @@ public class Project
     private DateTime _finishDate;
     private User _administrator;
     private List<Task> _tasks;
+    private List<User> _users;
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -76,6 +77,15 @@ public class Project
         get => _tasks;
         set => _tasks = value;
         
+    }
+    
+    public List<User> Users
+    {
+        get => _users;
+        set
+        {
+            _users = value; 
+        }
     }
     
     public static Project FromDto(ProjectDataDTO projectDataDto)
