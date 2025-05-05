@@ -23,10 +23,10 @@ public class ProjectServiceTest
     public void OnInitialize()
     {
         _projectRepository = new ProjectRepository();
-        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository);
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
-    
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository);
+        
         Project project = new Project() { Id = 35, Name = "Test Project" };
         _projectRepository.Add(project);
 
