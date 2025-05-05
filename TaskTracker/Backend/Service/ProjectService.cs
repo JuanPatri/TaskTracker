@@ -100,7 +100,17 @@ public class ProjectService
         return resourceList;
     }
     
-
+    public List<GetProjectDTO> GetProjectsByUserEmail(string email)
+    {
+        return _projectRepository.FindAll()
+            .Where(p => p.Users != null && p.Users.Any(u => u.Email == email && p.Administrator == u))
+            .Select(p => new GetProjectDTO
+            {
+                Id = p.Id,
+                Name = p.Name
+            })
+            .ToList();
+    }
     
     #endregion
     
