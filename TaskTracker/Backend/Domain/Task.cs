@@ -78,9 +78,7 @@ public class Task
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
             Dependencies = dependencies,
-            //Dependencies = ProjectService.GetTaskDependenciesWithTitle(taskDataDto.Dependencies),
             Resources = resource
-            //Resources = ProjectService.GetResourcesWithName(taskDataDto.Resources)
         };
     }
 }
