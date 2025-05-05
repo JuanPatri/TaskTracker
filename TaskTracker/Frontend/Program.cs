@@ -20,6 +20,7 @@ builder.Services.AddSingleton<IRepository<ResourceType>, ResourceTypeRepository>
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<TaskService>();
+builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<ResourceService>();
 builder.Services.AddSingleton<ResourceTypeService>();
 
