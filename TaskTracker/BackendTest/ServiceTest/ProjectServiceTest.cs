@@ -17,7 +17,6 @@ public class ProjectServiceTest
     private Project _project;
     private TaskRepository _taskRepository;
     private ResourceRepository _resourceRepository;
-    private TaskService _taskService;
     private Task _task;
 
     [TestInitialize]
@@ -27,7 +26,6 @@ public class ProjectServiceTest
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository);
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
-        _taskService = new TaskService(_taskRepository, _projectRepository, _resourceRepository);
     
         Project project = new Project() { Id = 35, Name = "Test Project" };
         _projectRepository.Add(project);
@@ -165,7 +163,7 @@ public class ProjectServiceTest
         taskDto.Dependencies = new List<string>(){"Task1", "Task2"};
         taskDto.Resources = new List<(int, string)>(){(1, "Resource1"), (2, "Resource2")};
 
-        Task? task = _taskService.AddTask(taskDto);
+        Task? task = _projectService.AddTask(taskDto);
     
         Assert.IsNotNull(task);
         Assert.AreEqual(_taskRepository.FindAll().Last(), task);
@@ -176,13 +174,13 @@ public class ProjectServiceTest
     {
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
-        Assert.AreEqual(_taskService.GetTaskByTitle(taskDto.Title), _task);
+        Assert.AreEqual(_projectService.GetTaskByTitle(taskDto.Title), _task);
     }
 
     [TestMethod]
     public void FindAllTasksReturnsAllTasks()
     {
-        List<Task> tasks = _taskService.GetAllTasks();
+        List<Task> tasks = _projectService.GetAllTasks();
         Assert.AreEqual(1, tasks.Count);
         
         TaskDataDTO task2 = new TaskDataDTO();
@@ -190,8 +188,8 @@ public class ProjectServiceTest
         task2.Description = "This is a test task.";
         task2.Duration = TimeSpan.FromHours(1);
         task2.Status = Status.Pending;
-        _taskService.AddTask(task2);
-        tasks = _taskService.GetAllTasks();
+        _projectService.AddTask(task2);
+        tasks = _projectService.GetAllTasks();
         
         Assert.AreEqual(2, tasks.Count);
     }
@@ -222,7 +220,7 @@ public class ProjectServiceTest
         _task.Description = "Description";
         Assert.AreEqual(_task.Description, "Description");
 
-        _taskService.UpdateTask(taskDto);
+        _projectService.UpdateTask(taskDto);
 
         Assert.AreEqual("New Description", _task.Description);
     }
@@ -234,7 +232,7 @@ public class ProjectServiceTest
         
         GetTaskDTO taskDto = new GetTaskDTO();
         taskDto.Title = "Test Task";
-        _taskService.RemoveTask(taskDto);
+        _projectService.RemoveTask(taskDto);
         
         Assert.AreEqual(0, _taskRepository.FindAll().Count());
     }
@@ -256,7 +254,7 @@ public class ProjectServiceTest
             (2, "Resource1")
         }; 
         
-        List<(int, Resource)> resource = _taskService.GetResourcesWithName(searchList);
+        List<(int, Resource)> resource = _projectService.GetResourcesWithName(searchList);
         
         Assert.AreEqual(1, resource.Count);
     }
@@ -288,7 +286,7 @@ public class ProjectServiceTest
             "Task1"  
         }; 
     
-        List<Task> tasks = _taskService.GetTaskDependenciesWithTitle(searchList);
+        List<Task> tasks = _projectService.GetTaskDependenciesWithTitle(searchList);
     
         Assert.AreEqual(1, tasks.Count);
         Assert.AreEqual("MainTask", tasks[0].Title); 
@@ -302,7 +300,7 @@ public class ProjectServiceTest
 
         List<(int, string)> resourceList = new List<(int, string)> { (5, "Laptop") };
         
-        List<(int, Resource)> result = _taskService.GetResourcesWithName(resourceList);
+        List<(int, Resource)> result = _projectService.GetResourcesWithName(resourceList);
 
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual(5, result[0].Item1);
@@ -317,7 +315,7 @@ public class ProjectServiceTest
             (2, "NonExistingResource")
         };
         
-        var result = _taskService.GetResourcesWithName(resourceList);
+        var result = _projectService.GetResourcesWithName(resourceList);
 
         Assert.AreEqual(0, result.Count);
     }
@@ -335,7 +333,7 @@ public class ProjectServiceTest
             (3, "Keyboard")
         };
 
-        List<(int,Resource)> result = _taskService.GetResourcesWithName(resourceList);
+        List<(int,Resource)> result = _projectService.GetResourcesWithName(resourceList);
 
         Assert.AreEqual(2, result.Count);
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
