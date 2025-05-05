@@ -6,6 +6,8 @@ using Backend.Repository;
 using Backend.Service;
 using Backend.DTOs.TaskDTOs;
 using Backend.Domain.Enums;
+using Backend.DTOs.ResourceDTOs;
+using Backend.DTOs.ResourceTypeDTOs;
 
 namespace BackendTest.ServiceTest;
 
@@ -19,7 +21,8 @@ public class ProjectServiceTest
     private ResourceRepository _resourceRepository;
     private ResourceTypeRepository _resourceTypeRepository;
     private Task _task;
-
+    private Resource _resource;
+    
     [TestInitialize]
     public void OnInitialize()
     {
@@ -34,8 +37,22 @@ public class ProjectServiceTest
 
         _task = new Task() { Title = "Test Task", };
         _taskRepository.Add(_task);
+        
+        _resource = new Resource()
+        {
+            Name = "Resource",
+            Description = "Description",
+            Type = new ResourceType()
+            {
+                Id = 4,
+                Name = "Type"
+            }
+        };
+        _resourceRepository.Add(_resource);
+        _resourceTypeRepository.Add(_resource.Type);
     }
     
+    #region ProjectTest
     [TestMethod]
     public void CreateProjectService()
     {
@@ -153,7 +170,9 @@ public class ProjectServiceTest
         Assert.AreEqual(projectUpdate.Id, updatedProject.Id);
         Assert.AreEqual(projectUpdate.Name, updatedProject.Name);
     }
-    
+    #endregion
+
+    #region TaskTest
     [TestMethod]
     public void AddTaskToRepository()
     {
@@ -341,7 +360,191 @@ public class ProjectServiceTest
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Keyboard" && r.Item1 == 3));
     }
+    #endregion
+    
+    #region ResourceTest
+    [TestMethod]
+    public void CreateResourceService()
+    {
+        Assert.IsNotNull(_projectService);
+    }
+    
+    [TestMethod]
+    public void AddResourceShouldReturnResource()
+    {
+        ResourceDataDto resource = new ResourceDataDto()
+        {
+            Name = "name",
+            Description = "description",
+            TypeResource = 1
+        };
+        
+        Resource? createdResource = _projectService.AddResource(resource);
+        Assert.IsNotNull(createdResource);
+        Assert.AreEqual(_resourceRepository.FindAll().Last(), createdResource);
+    }
+    
+    [TestMethod]
+    public void AddResourceShouldThrowExceptionIfResourceAlreadyExists()
+    {
+        ResourceDataDto resource = new ResourceDataDto()
+        {
+            Name = "Resource",
+            Description = "description",
+            TypeResource = 1
+        };
+        
+        Assert.ThrowsException<Exception>(() => _projectService.AddResource(resource));
+    }
+    
+    [TestMethod]
+    public void RemoveResourceShouldRemoveResource()
+    {
+        Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
 
+        GetResourceDto resourceToDelete = new GetResourceDto()
+        {
+            Name = "Resource"
+        };
+            
+        _projectService.RemoveResource(resourceToDelete);
+        
+        Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
+    }
+    
+    [TestMethod]
+    public void GetResourceReturnResource()
+    {
+        GetResourceDto resourceToFind = new GetResourceDto()
+        {
+            Name = "Resource"
+        };
+        
+        Assert.AreEqual(_projectService.GetResource(resourceToFind), _resource);
+    }
+    
+    [TestMethod]
+    public void GetAllResourceReturnAllResource()
+    {
+        Resource newResource = new Resource()
+        {
+            Name = "Resource2",
+            Description = "Description",
+            Type = new ResourceType()
+            {
+                Id = 4,
+                Name = "Type"
+            }
+        };
+        _resourceRepository.Add(newResource);
+        List <Resource> resources = _projectService.GetAllResources();
+        
+        Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
+        Assert.IsTrue(resources.Any(r => r.Name == "Resource2"));
+    }
+    
+    [TestMethod]
+    public void UpdateResourceShouldModifyResourceData()
+    {
+        Assert.AreEqual(_resource.Description, "Description");
 
+        ResourceDataDto resourceDTO = new ResourceDataDto()
+        {
+            Name = "Resource",
+            Description = "new description",
+            TypeResource = 2
+        };
+        
+        _projectService.UpdateResource(resourceDTO);
+        Assert.AreEqual(_resource.Description, "new description");
+    }
+
+    #endregion
+
+    #region ResourceTypeTest
+    [TestMethod]
+    public void CreateResourceTypeService()
+    {
+        Assert.IsNotNull(_projectService);
+    }
+    
+    [TestMethod]
+    public void AddResourceTypeShouldReturnResource()
+    {
+        ResourceTypeDto resourceType = new ResourceTypeDto()
+        {
+            Id = 4,
+            Name = "name" 
+        };
+        
+        ResourceType? createdResourceType = _projectService.AddResourceType(resourceType);
+        Assert.IsNotNull(createdResourceType);
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Last(), createdResourceType);
+    }
+    
+    [TestMethod]
+    public void AddResourceTypeShouldThrowExceptionIfResourceAlreadyExists()
+    {
+        ResourceTypeDto resourceType = new ResourceTypeDto()
+        {
+            Id = 4,
+            Name = "Human"
+        };
+        
+        Assert.ThrowsException<Exception>(() => _projectService.AddResourceType(resourceType));
+    }
+    
+    [TestMethod]
+    public void RemoveResourceTypeShouldRemoveResourceType()
+    {
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 4);
+
+        ResourceTypeDto resourceToDelete = new ResourceTypeDto()
+        {
+            Id = 1,
+            Name = "Human",
+        };
+        
+        _projectService.RemoveResourceType(resourceToDelete);
+        
+        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
+    }
+    
+    [TestMethod]
+    public void GetResourceTypeReturnResourceType()
+    {
+        ResourceTypeDto resourceToFind = new ResourceTypeDto()
+        {
+            Id = 1,
+            Name = "Resource"
+        };
+        
+        Assert.AreEqual(_projectService.GetResourceType(resourceToFind).Name, "Human");
+    }
+    
+    [TestMethod]
+    public void GetAllResourceTypeReturnAllResourceType()
+    {
+        List <ResourceType> resourcesTypes = _projectService.GetAllResourcesType();
+        
+        Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Human"));
+        Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Software"));
+    }
+    
+    [TestMethod]
+    public void UpdateResourceTypeShouldModifyResourceTypeData()
+    {
+        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Human");
+
+        ResourceTypeDto resourceTypeDTO = new ResourceTypeDto()
+        {
+            Id = 1,
+            Name = "Resource"
+        };
+        
+        _projectService.UpdateResourceType(resourceTypeDTO);
+        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Resource");
+    }
+    #endregion
 
 }

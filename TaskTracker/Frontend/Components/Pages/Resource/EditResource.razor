@@ -2,7 +2,7 @@
 @using Backend.Domain
 @using Backend.DTOs.ResourceDTOs
 @using Backend.Service
-@inject ResourceService ResourceService
+@inject ProjectService ProjectService
 @inject SessionService Session
 @inject NavigationManager NavigationManager
 
@@ -55,7 +55,7 @@ else
 
     protected override void OnInitialized()
     {
-        _resources = ResourceService.GetAllResources();
+        _resources = ProjectService.GetAllResources();
     }
 
     private void DeleteResource(Resource resource)
@@ -63,7 +63,7 @@ else
         try
         {
             var dto = new GetResourceDto { Name = resource.Name };
-            ResourceService.RemoveResource(dto);
+            ProjectService.RemoveResource(dto);
             _resources.Remove(resource); 
         }
         catch (Exception ex)

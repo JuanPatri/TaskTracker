@@ -1,6 +1,7 @@
 using Backend.Domain;
 using Backend.DTOs.ProjectDTOs;
 using Backend.DTOs.ResourceDTOs;
+using Backend.DTOs.ResourceTypeDTOs;
 using Backend.Repository;
 using Task = Backend.Domain.Task;
 using Backend.DTOs.TaskDTOs;
@@ -10,7 +11,8 @@ namespace Backend.Service;
 public class ProjectService
 {
     private readonly IRepository<Project> _projectRepository;
-    private int _id;
+    private int _idProject;
+    private int _idResourceType ;
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
@@ -19,7 +21,8 @@ public class ProjectService
         IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository)
     {
         _projectRepository = projectRepository;
-        _id = 2;
+        _idProject = 2;
+        _idResourceType = 4;
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
@@ -33,7 +36,7 @@ public class ProjectService
         {
             throw new ArgumentException("Project with the same name already exists");
         }
-        project.Id = _id++;
+        project.Id = _idProject++;
         Project? createdProject = _projectRepository.Add(Project.FromDto(project));
         return createdProject;
     }
@@ -152,6 +155,40 @@ public class ProjectService
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
         Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
         return updatedResource;
+    }
+    #endregion
+
+    #region ResourceType
+    public ResourceType? AddResourceType(ResourceTypeDto resourceType)
+    {
+        if(_resourceTypeRepository.Find(r => r.Name == resourceType.Name) != null)
+        {
+            throw new Exception("Resource type already exists");
+        }
+        resourceType.Id = _idResourceType++;
+        ResourceType? createdResourceType = _resourceTypeRepository.Add(ResourceType.Fromdto(resourceType));
+        return createdResourceType;
+    }
+    
+    public void RemoveResourceType(ResourceTypeDto resourceType)
+    {
+        _resourceTypeRepository.Delete(resourceType.Id.ToString());
+    }
+    
+    public ResourceType? GetResourceType(ResourceTypeDto resourceType)
+    {
+        return _resourceTypeRepository.Find(r => r.Id == resourceType.Id);
+    }
+    
+    public List<ResourceType> GetAllResourcesType()
+    {
+        return _resourceTypeRepository.FindAll().ToList();
+    }
+    
+    public ResourceType? UpdateResourceType(ResourceTypeDto resourceTypeDto)
+    {
+        ResourceType? updatedResourceType = _resourceTypeRepository.Update(ResourceType.Fromdto(resourceTypeDto));
+        return updatedResourceType;
     }
     #endregion
 }
