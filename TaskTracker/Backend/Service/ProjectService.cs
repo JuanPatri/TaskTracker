@@ -229,6 +229,12 @@ public class ProjectService
         return updatedResource;
     }
     
+    public List<GetResourceDto> GetResourcesForSystem()
+    {
+        return _resourceRepository.FindAll()
+            .Select(resource => new GetResourceDto { Name = resource.Name })
+            .ToList();
+    }
     #endregion
 
     #region ResourceType
