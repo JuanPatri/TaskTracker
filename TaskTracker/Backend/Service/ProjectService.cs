@@ -228,6 +228,7 @@ public class ProjectService
         Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
         return updatedResource;
     }
+    
     #endregion
 
     #region ResourceType

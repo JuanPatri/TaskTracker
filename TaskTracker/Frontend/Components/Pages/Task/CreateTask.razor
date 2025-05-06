@@ -1,7 +1,7 @@
 ﻿@using Backend.DTOs.TaskDTOs
 @using Backend.Service
 @using Backend.DTOs.ProjectDTOs
-@using Backend.DTOs.UserDTOs
+@using Backend.DTOs.ResourceDTOs
 
 @inject SessionService Session
 
@@ -52,7 +52,7 @@
         <div class="form-text">Hold Ctrl to select multiple resources</div>
         @foreach (var resource in _resourcesDtos)
         {
-            <option value="@resource.Title">@resource.Title</option>
+            <option value="@_resourcesDtos.Name">@_resourcesDtos.Name</option>
         }
     </div>
 
@@ -63,6 +63,7 @@
     private TaskDataDTO _newTask = new TaskDataDTO();
     private List<GetProjectDTO> _projectDtos = new();
     private List<GetTaskDTO> _taskTitleDtos = new();
+    private List<GetResourceDto> _resourcesDtos = new();
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
@@ -92,7 +93,7 @@
         if (selectedProjectId > 0)
         {
             _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
-            // _resourcesDtos = ResourceService.GetResourcesForProject(selectedProjectId); 
+            _resourcesDtos = ProjectService.GetResourcesForSystem(); 
         }
         else
         {

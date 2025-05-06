@@ -699,6 +699,29 @@ public void AddTaskToProjectShouldAddTaskToProjectTasksList()
 
         Assert.AreEqual(2, tasks.Count);
     }
-    #endregion
+    
+    [TestMethod]
+    public void GetResourcesForSystemShouldReturnAllResourceNames()
+    {
+        Resource additionalResource = new Resource()
+        {
+            Name = "Additional Resource",
+            Description = "Additional description",
+            Type = new ResourceType()
+            {
+                Id = 3,
+                Name = "Additional Type"
+            }
+        };
+        _resourceRepository.Add(additionalResource);
+    
+        List<GetResourceDto> resources = _projectService.GetResourcesForSystem();
+    
+        Assert.IsNotNull(resources);
+        Assert.AreEqual(2, resources.Count);
+        Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
+        Assert.IsTrue(resources.Any(r => r.Name == "Additional Resource"));
+    }
+#endregion
 
 }
