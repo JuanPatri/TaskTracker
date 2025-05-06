@@ -12,6 +12,7 @@ public class Project
     private User _administrator;
     private List<Task> _tasks = new List<Task>();
     private List<User> _users = new List<User>();
+    private List<Resource> _exclusiveResources = new List<Resource>();
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -85,6 +86,12 @@ public class Project
         set => _users = value; 
     }
     
+    public List<Resource> ExclusiveResources
+    {
+        get => _exclusiveResources;
+        set => _exclusiveResources = value;
+    }
+    
     public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
     {
         return new Project()
@@ -98,4 +105,6 @@ public class Project
             Users = users
         };
     }
+    
+    
 }
