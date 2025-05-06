@@ -126,23 +126,24 @@ public class ProjectService
         Name = project.Name
     };
     
-    // public void AddExclusiveResourceToProject(int projectId, ResourceDataDto resourceDto)
-    // {
-    //     Project project = _projectRepository.Find(p => p.Id == projectId);
-    //
-    //     if (project == null)
-    //         throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
-    //
-    //     Resource newResource = new Resource
-    //     {
-    //         Name = resourceDto.Name,
-    //         Description = resourceDto.Description
-    //     };
-    //
-    //     project.ExclusiveResources.Add(newResource);
-    //
-    //     _projectRepository.Update(project);
-    // }
+    public void AddExclusiveResourceToProject(int projectId, ResourceDataDto resourceDto)
+    {
+        Project project = _projectRepository.Find(p => p.Id == projectId);
+    
+        if (project == null)
+            throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+    
+        Resource newResource = new Resource
+        {
+            Name = resourceDto.Name,
+            Description = resourceDto.Description,
+            Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
+        };
+    
+        project.ExclusiveResources.Add(newResource);
+    
+        _projectRepository.Update(project);
+    }
 
     #endregion
     

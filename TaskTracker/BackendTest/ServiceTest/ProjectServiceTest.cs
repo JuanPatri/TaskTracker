@@ -35,8 +35,16 @@ public class
         _userRepository = new UserRepository();
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository, _resourceTypeRepository, _userRepository);
         
-        Project project = new Project() { Id = 35, Name = "Test Project" };
-        _projectRepository.Add(project);
+        _project = new Project()
+        {
+            Id = 35,
+            Name = "Test Project",
+            Description = "Description",
+            StartDate = DateTime.Now.AddDays(1), 
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = new User()
+        };
+        _projectRepository.Add(_project);
 
         _task = new Task() { Title = "Test Task", };
         _taskRepository.Add(_task);
@@ -256,15 +264,13 @@ public class
     [TestMethod]
     public void AddExclusiveResourceShouldAddCorrectly()
     {
-        _project.Id = 1;
-        _projectRepository.Add(_project);
 
-        ResourceDataDto resourceDto = new ResourceDataDto() { Name = "Programmer Java", Description = "java" };
-        _projectService.AddExclusiveResourceToProject(1, resourceDto);
+        ResourceDataDto resourceDto = new ResourceDataDto() { Name = "Programmer Java", Description = "java", TypeResource = 1 };
+        _projectService.AddExclusiveResourceToProject(35, resourceDto);
 
-        Project updatedProject = _projectRepository.Find(p => p.Id == 1);
+        Project updatedProject = _projectRepository.Find(p => p.Id == 35);
         Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
-        Assert.AreEqual("Printer", updatedProject.ExclusiveResources[0].Name);
+        Assert.AreEqual("Programmer Java", updatedProject.ExclusiveResources[0].Name);
     }
     #endregion
 
