@@ -172,6 +172,7 @@ public class ProjectService
         return _projectRepository.Find(project => project.Id == projectId);
     }
     
+
     #endregion
 
     #region Resource
