@@ -31,13 +31,13 @@
 
     
     <div class="mb-3">
-    <select id="project" class="form-select" @bind="SelectedProjectId">
-        <option value="">Select a project</option>
-        @foreach (var project in _projectDtos)
-        {
-            <option value="@project.Id">@project.Name</option>
-        }
-    </select>
+        <select id="project" class="form-select" @bind="SelectedProjectId">
+            <option value="">Select a project</option>
+            @foreach (var project in _projectDtos)
+            {
+                <option value="@project.Id">@project.Name</option>
+            }
+        </select>
     </div>
     
     <div class="mb-3">
@@ -47,14 +47,19 @@
     </div>
 
     <div class="mb-3">
-        <label for="resource" class="form-label">ResourceDTOss</label>
+        <label for="resource" class="form-label">Resource</label>
         <select id="resource" multiple class="form-select"></select>
         <div class="form-text">Hold Ctrl to select multiple resources</div>
         @foreach (var resource in _resourcesDtos)
         {
-            <option value="@_resourcesDtos.Name">@_resourcesDtos.Name</option>
+            <option value="@resource.Name">@resource.Name</option>
         }
     </div>
+    
+    <div class="mb-3">
+        <button type="button" class="btn btn-primary">Create Resource Exclusive to Project</button>
+    </div>
+    
 
     <button type="submit" class="btn btn-primary">Create Task</button>
 </form>
@@ -67,7 +72,6 @@
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
-    private List<string> SelectedUserEmails { get; set; } = new();
 
     private int _selectedProjectId;
     private int SelectedProjectId
@@ -98,7 +102,7 @@
         else
         {
             _taskTitleDtos.Clear();
-            // _resourcesDtos.Clear();
+            _resourcesDtos.Clear();
         }
     }
 
