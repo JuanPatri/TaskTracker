@@ -133,7 +133,7 @@ public class ProjectService
 
     private static Func<Project, bool> ProjectHasUserAndIsAdmin(string userEmail) =>
         project => project.Users != null 
-                   && project.Users.Any(user => user.Email == userEmail && project.Administrator == user);
+                   && project.Users.Any(user => user.Email == userEmail && project.Administrator.Email == user.Email);
 
     private static GetProjectDTO ToGetProjectDTO(Project project) => new GetProjectDTO
     {
