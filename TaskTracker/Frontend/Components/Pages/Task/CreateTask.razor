@@ -36,7 +36,7 @@
             <option value="@project.Id">@project.Name</option>
         }
     </select>
-    
+
     <div class="mb-3">
         <label for="dependencies" class="form-label">Task Dependencies</label>
         <select id="dependencies" multiple class="form-select"></select>
@@ -73,8 +73,6 @@
             _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
         }
     
-    }
-    
     private void ProjectChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int selectedProjectId))
@@ -91,7 +89,6 @@
             _taskTitleDtos.Clear();
         }
     }
-
     
     private async Task HandelSubmit()
     {
@@ -114,7 +111,6 @@
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
-            _successMessage = string.Empty;        
-        }
+            _successMessage = string.Empty;        }
     }
 }
