@@ -169,13 +169,21 @@ public class ProjectTest
         Assert.AreEqual(dto.Administrator.LastName, result.Administrator.LastName);
         Assert.AreEqual(dto.Administrator.Email, result.Administrator.Email);
     }
-    
+
     [TestMethod]
-    public  void SetUserListForProjectTest()
+    public void SetUserListForProjectTest()
     {
         List<User> users = new List<User>();
         _project.Users = users;
         Assert.AreEqual(users, _project.Users);
+    }
+    
+    [TestMethod]
+    public void AddExclusiveResourcesToProject()
+    {
+        List<Resource> resources = new List<Resource>();
+        _project.ExclusiveResources = resources;
+        Assert.AreEqual(resources, _project.ExclusiveResources);
     }
 
 }
