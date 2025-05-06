@@ -79,7 +79,8 @@ public class ProjectService
         List<User> users = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
-
+        
+        
 
         Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;
@@ -125,6 +126,24 @@ public class ProjectService
         Name = project.Name
     };
     
+    // public void AddExclusiveResourceToProject(int projectId, ResourceDataDto resourceDto)
+    // {
+    //     Project project = _projectRepository.Find(p => p.Id == projectId);
+    //
+    //     if (project == null)
+    //         throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+    //
+    //     Resource newResource = new Resource
+    //     {
+    //         Name = resourceDto.Name,
+    //         Description = resourceDto.Description
+    //     };
+    //
+    //     project.ExclusiveResources.Add(newResource);
+    //
+    //     _projectRepository.Update(project);
+    // }
+
     #endregion
     
     #region Task

@@ -252,6 +252,20 @@ public class
         Assert.IsNotNull(projectDto);
         Assert.AreEqual(1, projectDto.Count);
     }
+    
+    [TestMethod]
+    public void AddExclusiveResourceShouldAddCorrectly()
+    {
+        _project.Id = 1;
+        _projectRepository.Add(_project);
+
+        ResourceDataDto resourceDto = new ResourceDataDto() { Name = "Programmer Java", Description = "java" };
+        _projectService.AddExclusiveResourceToProject(1, resourceDto);
+
+        Project updatedProject = _projectRepository.Find(p => p.Id == 1);
+        Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
+        Assert.AreEqual("Printer", updatedProject.ExclusiveResources[0].Name);
+    }
     #endregion
 
     #region TaskTest
