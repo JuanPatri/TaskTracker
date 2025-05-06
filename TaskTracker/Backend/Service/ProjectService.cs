@@ -58,6 +58,21 @@ public class ProjectService
             .Where(user => userEmails.Contains(user.Email))
             .ToList();
     }
+
+    public List<UserDataDTO> GetAllUsers()
+    {
+        return _userRepository.FindAll()
+            .Select(user => new UserDataDTO
+            {
+                Name = user.Name,
+                LastName = user.LastName,
+                Email = user.Email,
+                Password = user.Password,
+                BirthDate = user.BirthDate,
+                Admin = user.Admin
+            })
+            .ToList();
+    }
     
     public void RemoveProject(GetProjectDTO project)
     {
