@@ -4,7 +4,7 @@
 @using Backend.DTOs.ProjectDTOs
 
 @inject SessionService Session
-@inject TaskService TaskService
+
 
 @inject ProjectService ProjectService 
 
@@ -71,8 +71,8 @@
         if (Session.IsLoggedIn())
         {
             _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
-            _resourcesDtos = ResourceService.GetResourcesForProject(Session.CurrentUser.Project.id);
-            _taskTitleDtos = TaskService.GetTaskForProjectWithId(_projectDtos.Id);
+            _resourcesDtos = ProjectService.GetResourcesForProject(Session.CurrentUser.Project.id);
+            _taskTitleDtos = ProjectService.GetTaskForProjectWithId(_projectDtos.Id);
         }
     
     }
