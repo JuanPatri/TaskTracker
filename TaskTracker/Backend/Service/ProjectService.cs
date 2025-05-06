@@ -192,23 +192,7 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
-
-    public List<UserIdentificationDTO> GetUsersForProjectWithId(int projectId)
-    {
-        Project? project = GetProjectById(projectId); 
-        List<UserIdentificationDTO> usersProject = new List<UserIdentificationDTO>();
-        
-            foreach (User user in project.Users)
-            {
-                usersProject.Add(new UserIdentificationDTO
-                {
-                    Email = user.Email,
-                    Name = user.Name,
-                    LastName = user.LastName
-                });
-            }
-        return usersProject;
-    }
+    
     #endregion
 
     #region Resource

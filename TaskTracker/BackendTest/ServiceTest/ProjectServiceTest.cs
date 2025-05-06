@@ -490,44 +490,6 @@ public void AddTaskToProjectShouldAddTaskToProjectTasksList()
     Assert.AreEqual(taskDto.Status, addedTask.Status);
     
 }
-
-[TestMethod]
-public void GetUsersForProjectWithIdShouldReturnUsers()
-{
-    Project project = new Project
-    {
-        Id = 99,
-        Name = "Task Project",
-        Description = "Description of the project",
-        StartDate = DateTime.Now.AddDays(1),
-        FinishDate = DateTime.Now.AddMonths(1),
-        Administrator = new User
-        {
-            Name = "Administrator User",
-            Email = "admin@example.com"
-        },
-        Tasks = new List<Task>(),
-        Users = new List<User>
-        {
-            new User
-            {
-                Name = "User 1",
-                LastName = "User LastName",
-                Email = "user@user.com"
-            }
-        }
-    };
-    
-    _projectRepository.Add(project);
-
-    List<UserIdentificationDTO> users = _projectService.GetUsersForProjectWithId(99);
-    
-    Assert.IsNotNull(users);
-    Assert.AreEqual(1, users.Count);
-    Assert.AreEqual("User 1", users[0].Name);
-    Assert.AreEqual("User LastName", users[0].LastName);
-    Assert.AreEqual("user@user.com", users[0].Email);
-}
     
     #endregion
     
