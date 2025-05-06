@@ -1,12 +1,51 @@
 @page "/ProjectManagement"
+@using Backend.DTOs.ProjectDTOs
+@using Backend.Service
 @inject NavigationManager NavigationManager
+@inject ProjectService ProjectService
 
 <PageTitle>Project Management</PageTitle>
 <h1>Project Management</h1>
 
-<button class="btn btn-primary" @onclick="GoToCreateProject">Create</button>
+<button class="btn btn-primary mb-3" @onclick="GoToCreateProject">Create</button>
+
+@if (_projects != null && _projects.Any())
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Fecha de Inicio</th>
+                <th>Fecha de Fin</th>
+                <th>Administrador</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var project in _projects)
+            {
+                <tr>
+                    <td>@project.Name</td>
+                    <td>@project.StartDate.ToShortDateString()</td>
+                    <td>@project.FinishDate.ToShortDateString()</td>
+                    <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay proyectos creados.</p>
+}
 
 @code {
+    private List<ProjectDataDTO> _projects = new();
+
+    protected override void OnInitialized()
+    {
+        _projects = ProjectService.GetAllProjectsDTOs();
+    }
+
     public void GoToCreateProject()
     {
         NavigationManager.NavigateTo("/CreateProject", true);

@@ -287,6 +287,15 @@ public class
                 _projectService.AddExclusiveResourceToProject(999, resourceDto)
         );
     }
+
+    [TestMethod]
+    public void GetAllProjectsDTOs_ShouldReturnProjectsWithCorrectMapping()
+    {
+        List<ProjectDataDTO> projects = _projectService.GetAllProjectsDTOs();
+        Assert.IsNotNull(projects);
+        Assert.AreEqual(1, projects.Count);
+    }
+    
     #endregion
 
     #region TaskTest

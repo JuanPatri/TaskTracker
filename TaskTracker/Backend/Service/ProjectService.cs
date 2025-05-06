@@ -144,6 +144,24 @@ public class ProjectService
     
         _projectRepository.Update(project);
     }
+    
+    public List<ProjectDataDTO> GetAllProjectsDTOs()
+    {
+        return GetAllProjects()
+            .Select(p => new ProjectDataDTO
+            {
+                Name = p.Name,
+                Description = p.Description,
+                StartDate = p.StartDate,
+                FinishDate = p.FinishDate,
+                Administrator = new UserDataDTO
+                {
+                    Name = p.Administrator.Name,
+                    LastName = p.Administrator.LastName,
+                    Email = p.Administrator.Email
+                }            })
+            .ToList();
+    }
 
     #endregion
     
