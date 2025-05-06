@@ -1,5 +1,4 @@
 ﻿@using Backend.DTOs.TaskDTOs
-@using Backend.Repository
 @using Backend.Service
 @using Backend.DTOs.ProjectDTOs
 
@@ -29,13 +28,14 @@
 
     </div>
 
-    <select id="project" class="form-select" @bind="projectId" @onchange="ProjectChanged">
+    <select id="project" class="form-select" @bind="SelectedProjectId">
         <option value="">Select a project</option>
         @foreach (var project in _projectDtos)
         {
             <option value="@project.Id">@project.Name</option>
         }
     </select>
+
 
     <div class="mb-3">
         <label for="dependencies" class="form-label">Task Dependencies</label>
@@ -58,13 +58,23 @@
 
 @code {
     private TaskDataDTO _newTask = new TaskDataDTO();
-    private List<GetProjectDTO> _projectDtos = new List<GetProjectDTO>();
-    private List<GetTaskDTO> _resourcesDtos = new List<GetTaskDTO>();
-    private List<GetTaskDTO> _taskTitleDtos = new List<GetTaskDTO>();
+    private List<GetProjectDTO> _projectDtos = new();
+    private List<GetTaskDTO> _resourcesDtos = new();
+    private List<GetTaskDTO> _taskTitleDtos = new();
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
-    private int projectId;
+
+    private int _selectedProjectId;
+    private int SelectedProjectId
+    {
+        get => _selectedProjectId;
+        set
+        {
+            _selectedProjectId = value;
+            OnProjectChanged(value);
+        }
+    }
 
     protected override void OnInitialized()
     {
@@ -74,23 +84,20 @@
         }
     }
 
-    private void ProjectChanged(ChangeEventArgs e)
+    private void OnProjectChanged(int selectedProjectId)
     {
-        if (int.TryParse(e.Value?.ToString(), out int selectedProjectId))
+        if (selectedProjectId > 0)
         {
-            projectId = selectedProjectId;
-            
-            //_resourcesDtos = ResourceService.GetResourcesForProject(projectId);
-            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(projectId);
+            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
+            // _resourcesDtos = ResourceService.GetResourcesForProject(selectedProjectId); 
         }
         else
         {
-            projectId = 0;
-            _resourcesDtos.Clear();
             _taskTitleDtos.Clear();
+            _resourcesDtos.Clear();
         }
     }
-    
+
     private async Task HandelSubmit()
     {
         try
@@ -101,17 +108,21 @@
                 _successMessage = string.Empty;
                 return;
             }
+
             _newTask.Duration = parsedDuration;
-    
+
             ProjectService.AddTask(_newTask);
-            ProjectService.AddTaskToProject(_newTask, projectId);
-            await Task.Delay(2000);
+            ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
+
+            await Task.Delay(2000); 
+
             _successMessage = "Task created successfully!";
             _errorMessage = string.Empty;
         }
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
-            _successMessage = string.Empty;        }
+            _successMessage = string.Empty;
+        }
     }
 }
