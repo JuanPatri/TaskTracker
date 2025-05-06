@@ -65,14 +65,15 @@
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
     private int projectId;
-    
+
     protected override void OnInitialized()
     {
         if (Session.IsLoggedIn())
         {
             _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
         }
-    
+    }
+
     private void ProjectChanged(ChangeEventArgs e)
     {
         if (int.TryParse(e.Value?.ToString(), out int selectedProjectId))
