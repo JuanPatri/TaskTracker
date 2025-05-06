@@ -89,9 +89,21 @@ public class ProjectDataDtoTest
                 BirthDate = new DateTime(1990, 01, 01),
                 Password = "Pass123@",
                 Admin = true
+            },
+            Users = new List<string>(){
+                "test@gmail.com"
             }
         };
-        Project project = Project.FromDto(dto);
+
+        List<User> users = new List<User>()
+        {
+            new User()
+            {
+                Email = "test@gmail.com"
+            }
+        };
+        
+        Project project = Project.FromDto(dto, users);
         Assert.IsNotNull(project);
     }
 

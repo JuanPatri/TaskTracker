@@ -12,7 +12,8 @@ using Backend.DTOs.ResourceTypeDTOs;
 namespace BackendTest.ServiceTest;
 
 [TestClass]
-public class ProjectServiceTest
+public class 
+    ProjectServiceTest
 {
     private ProjectService _projectService;
     private ProjectRepository _projectRepository;
@@ -20,6 +21,7 @@ public class ProjectServiceTest
     private TaskRepository _taskRepository;
     private ResourceRepository _resourceRepository;
     private ResourceTypeRepository _resourceTypeRepository;
+    private UserRepository _userRepository;
     private Task _task;
     private Resource _resource;
     
@@ -30,7 +32,8 @@ public class ProjectServiceTest
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
-        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository, _resourceTypeRepository);
+        _userRepository = new UserRepository();
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository, _resourceTypeRepository, _userRepository);
         
         Project project = new Project() { Id = 35, Name = "Test Project" };
         _projectRepository.Add(project);
@@ -169,6 +172,85 @@ public class ProjectServiceTest
         Assert.IsNotNull(updatedProject);
         Assert.AreEqual(projectUpdate.Id, updatedProject.Id);
         Assert.AreEqual(projectUpdate.Name, updatedProject.Name);
+    }
+    
+    [TestMethod]
+    public void AddProjectShouldThrowExceptionWhenNameAlreadyExists()
+    {
+        var existingProject = new Project
+        {
+            Id = 10,
+            Name = "DuplicateName",
+            Description = "Desc",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(5),
+            Administrator = new User()
+        };
+        _projectRepository.Add(existingProject);
+
+        var newProjectDto = new ProjectDataDTO
+        {
+            Name = "DuplicateName", 
+            Description = "New Desc",
+            StartDate = DateTime.Now.AddDays(2),
+            FinishDate = DateTime.Now.AddDays(6),
+            Administrator = new UserDataDTO
+            {
+                Name = "Admin",
+                LastName = "Admin",
+                Email = "admin@example.com",
+                Password = "Admin123@",
+                BirthDate = new DateTime(1990, 1, 1),
+                Admin = true
+            }
+        };
+        
+        Assert.ThrowsException<ArgumentException>(() => _projectService.AddProject(newProjectDto));
+    }
+
+    [TestMethod]
+    public void GetProjectsByUserEmailTest()
+    {
+        User adminUser = new User()
+        {
+            Name = "Admin",
+            LastName = "Admin",
+            Email = "admin@example.com",
+            Password = "Admin123@",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
+
+        User user = new User()
+        {
+            Name = "User",
+            LastName = "User",
+            Email = "user@user.com",
+            Password = "User123@",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = true
+        };
+
+        _userRepository.Add(adminUser);
+        _userRepository.Add(user);
+        
+        Project project1 = new Project()
+        {
+            Id = 1,
+            Name = "Project 1",
+            Description = "Description of project 1",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = adminUser,
+            Users = new List<User> { adminUser } 
+        };
+
+        _projectRepository.Add(project1);
+
+        List<GetProjectDTO> projectDto = _projectService.GetProjectsByUserEmail("admin@example.com");
+        
+        Assert.IsNotNull(projectDto);
+        Assert.AreEqual(1, projectDto.Count);
     }
     #endregion
 
@@ -340,8 +422,9 @@ public class ProjectServiceTest
 
         Assert.AreEqual(0, result.Count);
     }
+    
     [TestMethod]
-    public void GetResourcesWithName_ShouldMapMultipleResources()
+    public void GetResourcesWithNameShouldMapMultipleResources()
     {
         Resource res1 = new Resource { Name = "Mouse" };
         Resource res2 = new Resource { Name = "Keyboard" };
@@ -360,6 +443,55 @@ public class ProjectServiceTest
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
         Assert.IsTrue(result.Any(r => r.Item2.Name == "Keyboard" && r.Item1 == 3));
     }
+    
+   [TestMethod]
+public void AddTaskToProjectShouldAddTaskToProjectTasksList()
+{
+    // Arrange - Preparar los datos de prueba
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Project Task",
+        Description = "Description of the project task",
+        Duration = TimeSpan.FromHours(2),
+        Status = Status.Pending,
+        Dependencies = new List<string> { "Test Task" }, 
+        Resources = new List<(int, string)> { (1, "Resource") } 
+    };
+
+    Project project = new Project
+    {
+        Id = 99,
+        Name = "Task Project",
+        Description = "Description of the project",
+        StartDate = DateTime.Now.AddDays(1),
+        FinishDate = DateTime.Now.AddMonths(1),
+        Administrator = new User
+        {
+            Name = "Administrator User",
+            Email = "admin@example.com"
+        },
+        Tasks = new List<Task>(),
+        Users = new List<User>()
+    };
+    
+    _projectRepository.Add(project);
+    
+    Project initialProject = _projectRepository.Find(p => p.Id == 99);
+    Assert.AreEqual(0, initialProject.Tasks.Count);
+    
+    _projectService.AddTaskToProject(taskDto, project.Id);
+    
+    Project updatedProject = _projectRepository.Find(p => p.Id == 99);
+    
+    Task addedTask = updatedProject.Tasks[0];
+    Assert.IsNotNull(addedTask);
+    Assert.AreEqual(taskDto.Title, addedTask.Title);
+    Assert.AreEqual(taskDto.Description, addedTask.Description);
+    Assert.AreEqual(taskDto.Duration, addedTask.Duration);
+    Assert.AreEqual(taskDto.Status, addedTask.Status);
+    
+}
+    
     #endregion
     
     #region ResourceTest
@@ -458,7 +590,7 @@ public class ProjectServiceTest
         _projectService.UpdateResource(resourceDTO);
         Assert.AreEqual(_resource.Description, "new description");
     }
-
+    
     #endregion
 
     #region ResourceTypeTest
@@ -544,6 +676,29 @@ public class ProjectServiceTest
         
         _projectService.UpdateResourceType(resourceTypeDTO);
         Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Resource");
+    }
+
+    [TestMethod]
+    public void GetTasksForProjectWithIdTest()
+    {
+        Task task1 = new Task() { Title = "Task 1" };
+        Task task2 = new Task() { Title = "Task 2" };
+
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Test Project",
+            Tasks = new List<Task> { task1, task2 } 
+        };
+
+        _projectRepository.Add(project);
+
+        List<GetTaskDTO> tasks = _projectService.GetTasksForProjectWithId(1);
+
+        Assert.AreEqual(2, tasks.Count);
     }
     #endregion
 

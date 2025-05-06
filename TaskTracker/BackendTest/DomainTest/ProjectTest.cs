@@ -2,6 +2,7 @@ using Backend.Domain;
 using Backend.DTOs.ProjectDTOs;
 using Task = Backend.Domain.Task;
 using Backend.DTOs.UserDTOs;
+using Backend.Repository;
 
 namespace BackendTest.DomainTest;
 
@@ -9,6 +10,7 @@ namespace BackendTest.DomainTest;
 public class ProjectTest
 {
     private Project _project;
+
     [TestInitialize]
     public void OnInitialize()
     {
@@ -139,10 +141,23 @@ public class ProjectTest
                 Email = "prodriguez@gmail.com",
                 BirthDate = new DateTime(2003, 03, 14),
                 Password = "Pedro1234@",
+            },
+            Users = new List<string>
+            {
+                "test@gmail.com"
+            }
+                
+        };
+
+        List<User> users = new List<User>()
+        {
+            new User()
+            {
+                Email = "test@gmail.com"
             }
         };
 
-        Project result = Project.FromDto(dto);
+        Project result = Project.FromDto(dto, users);
         
         Assert.AreEqual(dto.Id, result.Id);
         Assert.AreEqual(dto.Name, result.Name);
@@ -153,6 +168,14 @@ public class ProjectTest
         Assert.AreEqual(dto.Administrator.Name, result.Administrator.Name);
         Assert.AreEqual(dto.Administrator.LastName, result.Administrator.LastName);
         Assert.AreEqual(dto.Administrator.Email, result.Administrator.Email);
+    }
+    
+    [TestMethod]
+    public  void SetUserListForProjectTest()
+    {
+        List<User> users = new List<User>();
+        _project.Users = users;
+        Assert.AreEqual(users, _project.Users);
     }
 
 }

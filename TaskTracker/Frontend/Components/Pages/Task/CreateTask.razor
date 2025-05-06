@@ -1,105 +1,128 @@
-﻿@* @using Backend.DTOs.TaskDTOs *@
-@* @using Backend.Repository *@
-@* @using Backend.Service *@
-@* @using Backend.DTOs.ProjectDTOs *@
-@* *@
-@* @inject SessionService Session *@
-@* @inject TaskService TaskService *@
-@* *@
-@* *@
-@* @* *@
-@* @inject ProjectService ProjectService *@
-@* *@ *
-@* *@
-@* @page "/CreateTask" *@
-@* *@
-@* <PageTitle>Create Task</PageTitle> *@
-@* *@
-@* <form class="mb-3" @onsubmit="HandelSubmit"> *@
-@*     <h1>Create Task</h1> *@
-@* *@
-@*     <div class="mb-3"> *@
-@*         <label for="title" class="form-label">Title</label> *@
-@*         <input type="text" class="form-control" id="title" placeholder="Enter task title" @bind="_newTask.Title"> *@
-@*     </div> *@
-@*     <div class="mb-3"> *@
-@*         <label for="description" class="form-label">Description</label> *@
-@*         <textarea class="form-control" id="description" rows="3" placeholder="Enter task description" @bind="_newTask.Description"></textarea> *@
-@*     </div> *@
-@*      *@
-@*     <div class="mb-3"> *@
-@*         <label for="duration" class="form-label">Duration</label> *@
-@*         <input type="text" id="duration" @bind="_durationString" placeholder="HH:mm" /> *@
-@* *@
-@*     </div> *@
-@* *@
-@*     <select id="project" class="form-select" @bind="_newTask.Project"> *@
-@*         <option value="">Select a project</option> *@
-@*         $1$ @foreach (var project in _projectDtos) #1# *@
-@*         $1$ { #1# *@
-@*         $1$     <option value="@project.Id">@project.Name</option> #1# *@
-@*         $1$ } #1# *@
-@*     </select> *@
-@*      *@
-@*     <div class="mb-3"> *@
-@*         <label for="dependencies" class="form-label">Task Dependencies</label> *@
-@*         <select id="dependencies" multiple class="form-select"></select> *@
-@*         <div class="form-text">Hold Ctrl to select multiple tasks</div> *@
-@*     </div> *@
-@* *@
-@*     <div class="mb-3"> *@
-@*         <label for="resource" class="form-label">ResourceDTOss</label> *@
-@*         <select id="resource" multiple class="form-select"></select> *@
-@*         <div class="form-text">Hold Ctrl to select multiple resources</div> *@
-@*         $1$ @foreach (var resource in _resourcesDtos) #1# *@
-@*         $1$ { #1# *@
-@*         $1$     <option value="@resource.Title">@resource.Title</option> #1# *@
-@*         $1$ } #1# *@
-@*     </div> *@
-@* *@
-@*     <button type="submit" class="btn btn-primary">Create Task</button> *@
-@* </form> *@
-@* *@
-@* @code { *@
-@*     // private TaskDataDTO _newTask = new TaskDataDTO(); *@
-@*     // private List<GetProjectDTO> _projectDtos = new List<GetProjectDTO>(); *@
-@*     // private List<ResourceForProjecDTO> _resourcesDtos = new List<ResourceForProjecDTO>(); *@
-@*     // private List<TaskTitleDTO> _taskTItleDtos = new List<TaskTitleDTO>(); *@
-@*     // private string _errorMessage = string.Empty; *@
-@*     // private string _successMessage = string.Empty; *@
-@*     // private string _durationString = string.Empty; *@
-@*     // *@
-@*     // protected override void OnInitialized() *@
-@*     // { *@
-@*     //     if (Session.IsLoggedIn()) *@
-@*     //     { *@
-@*     //         _projectDtos = ProjectService.GetProjectsForUser(Session.CurrentUser.Email); *@
-@*     //         _resourcesDtos = ResourceService.GetResourcesForProject(Session.CurrentUser.Project.id); *@
-@*     //         _tasksProjectDtos = TaskService.GetTasksForProject(Session.CurrentUser.Project.id); *@
-@*     //     } *@
-@*     //      *@
-@*     // }   *@
-@*     // *@
-@*     // private async Task HandelSubmit() *@
-@*     // { *@
-@*     //     try *@
-@*     //     { *@
-@*     //         if (!TimeSpan.TryParse(_durationString, out TimeSpan parsedDuration)) *@
-@*     //         { *@
-@*     //             _errorMessage = "Invalid duration format. Please use HH:mm (e.g., 01:30)."; *@
-@*     //             _successMessage = string.Empty; *@
-@*     //             return; *@
-@*     //         } *@
-@*     //         _newTask.Duration = parsedDuration; *@
-@*     //          *@
-@*     //         TaskService.AddTask(_newTask); *@
-@*     //         await Task.Delay(2000); *@
-@*     //         _successMessage = "Task created successfully!"; *@
-@*     //         _errorMessage = string.Empty; *@
-@*     //     } *@
-@*     //     catch (Exception ex) *@
-@*     //     { *@
-@*     //         _errorMessage = ex.Message; *@
-@*     //         _successMessage = string.Empty;        } *@
-@*     // } *@
-@* } *@
+﻿@using Backend.DTOs.TaskDTOs
+@using Backend.Service
+@using Backend.DTOs.ProjectDTOs
+
+@inject SessionService Session
+
+@inject ProjectService ProjectService 
+
+@page "/CreateTask" 
+
+<PageTitle>Create Task</PageTitle> 
+
+<form class="mb-3" @onsubmit="HandelSubmit">
+    <h1>Create Task</h1> 
+
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" class="form-control" id="title" placeholder="Enter task title" @bind="_newTask.Title">
+    </div>
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea class="form-control" id="description" rows="3" placeholder="Enter task description" @bind="_newTask.Description"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label for="duration" class="form-label">Duration</label>
+        <input type="text" id="duration" @bind="_durationString" placeholder="HH:mm" />
+
+    </div>
+
+    <select id="project" class="form-select" @bind="SelectedProjectId">
+        <option value="">Select a project</option>
+        @foreach (var project in _projectDtos)
+        {
+            <option value="@project.Id">@project.Name</option>
+        }
+    </select>
+
+
+    <div class="mb-3">
+        <label for="dependencies" class="form-label">Task Dependencies</label>
+        <select id="dependencies" multiple class="form-select"></select>
+        <div class="form-text">Hold Ctrl to select multiple tasks</div>
+    </div>
+
+    <div class="mb-3">
+        <label for="resource" class="form-label">ResourceDTOss</label>
+        <select id="resource" multiple class="form-select"></select>
+        <div class="form-text">Hold Ctrl to select multiple resources</div>
+        @foreach (var resource in _resourcesDtos)
+        {
+            <option value="@resource.Title">@resource.Title</option>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Task</button>
+</form>
+
+@code {
+    private TaskDataDTO _newTask = new TaskDataDTO();
+    private List<GetProjectDTO> _projectDtos = new();
+    private List<GetTaskDTO> _resourcesDtos = new();
+    private List<GetTaskDTO> _taskTitleDtos = new();
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+    private string _durationString = string.Empty;
+
+    private int _selectedProjectId;
+    private int SelectedProjectId
+    {
+        get => _selectedProjectId;
+        set
+        {
+            _selectedProjectId = value;
+            OnProjectChanged(value);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Session.IsLoggedIn())
+        {
+            _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
+        }
+    }
+
+    private void OnProjectChanged(int selectedProjectId)
+    {
+        if (selectedProjectId > 0)
+        {
+            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
+            // _resourcesDtos = ResourceService.GetResourcesForProject(selectedProjectId); 
+        }
+        else
+        {
+            _taskTitleDtos.Clear();
+            _resourcesDtos.Clear();
+        }
+    }
+
+    private async Task HandelSubmit()
+    {
+        try
+        {
+            if (!TimeSpan.TryParse(_durationString, out TimeSpan parsedDuration))
+            {
+                _errorMessage = "Invalid duration format. Please use HH:mm (e.g., 01:30).";
+                _successMessage = string.Empty;
+                return;
+            }
+
+            _newTask.Duration = parsedDuration;
+
+            ProjectService.AddTask(_newTask);
+            ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
+
+            await Task.Delay(2000); 
+
+            _successMessage = "Task created successfully!";
+            _errorMessage = string.Empty;
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
+        }
+    }
+}

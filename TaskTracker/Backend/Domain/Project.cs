@@ -10,7 +10,8 @@ public class Project
     private DateTime _startDate;
     private DateTime _finishDate;
     private User _administrator;
-    private List<Task> _tasks;
+    private List<Task> _tasks = new List<Task>();
+    private List<User> _users = new List<User>();
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -78,7 +79,13 @@ public class Project
         
     }
     
-    public static Project FromDto(ProjectDataDTO projectDataDto)
+    public List<User> Users
+    {
+        get => _users;
+        set => _users = value; 
+    }
+    
+    public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
     {
         return new Project()
         {
@@ -87,7 +94,8 @@ public class Project
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,
             FinishDate = projectDataDto.FinishDate,
-            Administrator = User.FromDto(projectDataDto.Administrator)
+            Administrator = User.FromDto(projectDataDto.Administrator),
+            Users = users
         };
     }
 }

@@ -16,9 +16,10 @@ public class ProjectService
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
+    public readonly IRepository<User> _userRepository;
     
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
-        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository)
+        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<User> userRepository)
     {
         _projectRepository = projectRepository;
         _idProject = 2;
@@ -26,19 +27,35 @@ public class ProjectService
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
+        _userRepository = userRepository;
     }
 
     
     #region Project
     public Project AddProject(ProjectDataDTO project)
     {
-        if (_projectRepository.Find(p => p.Name == project.Name) != null)
+        ValidateProjectName(project.Name);
+
+        var associatedUsers = GetUsersFromEmails(project.Users);
+
+        project.Id = _idProject++;
+        return _projectRepository.Add(Project.FromDto(project, associatedUsers));
+    }
+
+    private void ValidateProjectName(string projectName)
+    {
+        if (_projectRepository.Find(p => p.Name == projectName) != null)
         {
             throw new ArgumentException("Project with the same name already exists");
         }
-        project.Id = _idProject++;
-        Project? createdProject = _projectRepository.Add(Project.FromDto(project));
-        return createdProject;
+    }
+
+    private List<User> GetUsersFromEmails(IEnumerable<string> userEmails)
+    {
+        return _userRepository
+            .FindAll()
+            .Where(user => userEmails.Contains(user.Email))
+            .ToList();
     }
     
     public void RemoveProject(GetProjectDTO project)
@@ -58,7 +75,12 @@ public class ProjectService
     
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto));
+        List<User> users = _userRepository.FindAll()
+            .Where(u => projectDto.Users.Contains(u.Email))
+            .ToList();
+
+
+        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;
     }
     
@@ -70,23 +92,37 @@ public class ProjectService
 
         return taskDependencies;
     }
-    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> namesResource)
+    public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
-        List<(int, Resource)> resourceList = namesResource
-            .Select(tuple =>
-            {
-                int cantidad = tuple.Item1;
-                string nameResource = tuple.Item2;
-
-                Resource? resource = _resourceRepository.Find(r => r.Name == nameResource);
-                return (cantidad, resource);
-            })
-            .Where(t => t.Item2 != null)
+        return resourceName
+            .Select(tuple => (tuple.Item1, FindResourceByName(tuple.Item2)))
+            .Where(t => t.Item2 is not null)
             .Select(t => (t.Item1, t.Item2!))
             .ToList();
-
-        return resourceList;
     }
+
+    private Resource? FindResourceByName(string resourceName)
+    {
+        return _resourceRepository.Find(resource => resource.Name == resourceName);
+    }
+    
+    public List<GetProjectDTO> GetProjectsByUserEmail(string userEmail)
+    {
+        var filteredProjects = _projectRepository.FindAll()
+            .Where(ProjectHasUserAndIsAdmin(userEmail));
+
+        return filteredProjects.Select(ToGetProjectDTO).ToList();
+    }
+
+    private static Func<Project, bool> ProjectHasUserAndIsAdmin(string userEmail) =>
+        project => project.Users != null 
+                   && project.Users.Any(user => user.Email == userEmail && project.Administrator == user);
+
+    private static GetProjectDTO ToGetProjectDTO(Project project) => new GetProjectDTO
+    {
+        Id = project.Id,
+        Name = project.Name
+    };
     
     #endregion
     
@@ -121,6 +157,41 @@ public class ProjectService
     {
         _taskRepository.Delete(task.Title);
     }
+    public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
+    {
+        Project? project = GetProjectById(projectId);
+        if (project == null) return new List<GetTaskDTO>();
+
+        return project.Tasks
+            .Select(task => new GetTaskDTO { Title = task.Title })
+            .ToList();
+    }
+
+    private Project? GetProjectById(int projectId)
+    {
+        return _projectRepository.Find(project => project.Id == projectId);
+    }
+    
+    public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
+    {
+        Project project = _projectRepository.Find(p => p.Id == projectId);        
+        
+        if (project == null)
+        {
+            throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+        }
+
+        List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
+
+        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
+
+        Task newTask = Task.FromDto(taskDto, taskDependencies, resourceList);
+
+        project.Tasks.Add(newTask);
+
+        _projectRepository.Update(project);
+    }
+
     #endregion
 
     #region Resource
