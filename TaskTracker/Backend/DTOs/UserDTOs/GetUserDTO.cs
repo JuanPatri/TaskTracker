@@ -1,5 +1,3 @@
-using Backend.Domain;
-
 namespace Backend.DTOs.UserDTOs;
 
 public class GetUserDTO

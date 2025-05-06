@@ -5,6 +5,7 @@ using Backend.DTOs.ResourceTypeDTOs;
 using Backend.Repository;
 using Task = Backend.Domain.Task;
 using Backend.DTOs.TaskDTOs;
+using Backend.DTOs.UserDTOs;
 
 namespace Backend.Service;
 
@@ -191,6 +192,7 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
+
 
     #endregion
 

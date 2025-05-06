@@ -1,6 +1,7 @@
 ﻿@using Backend.DTOs.TaskDTOs
 @using Backend.Service
 @using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.UserDTOs
 
 @inject SessionService Session
 
@@ -28,6 +29,8 @@
 
     </div>
 
+    
+    <div class="mb-3">
     <select id="project" class="form-select" @bind="SelectedProjectId">
         <option value="">Select a project</option>
         @foreach (var project in _projectDtos)
@@ -35,8 +38,18 @@
             <option value="@project.Id">@project.Name</option>
         }
     </select>
+    </div>
 
-
+    <div class="mb-3">
+        <select id="users" class="form-select" @bind="SelectedUserEmail">
+            <option value="">Select a users</option>
+            @foreach (var user in _userDto)
+            {
+                <option value="@user.Email">@user.Name</option>
+            }
+        </select>
+    </div>
+    
     <div class="mb-3">
         <label for="dependencies" class="form-label">Task Dependencies</label>
         <select id="dependencies" multiple class="form-select"></select>
@@ -61,6 +74,7 @@
     private List<GetProjectDTO> _projectDtos = new();
     private List<GetTaskDTO> _resourcesDtos = new();
     private List<GetTaskDTO> _taskTitleDtos = new();
+    private List<UserIdentificationDTO> _userDto = new();
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
@@ -89,6 +103,7 @@
         if (selectedProjectId > 0)
         {
             _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
+            // _userDto = ProjectService.GetUserForProjectWhitId(selectedProjectId);
             // _resourcesDtos = ResourceService.GetResourcesForProject(selectedProjectId); 
         }
         else
