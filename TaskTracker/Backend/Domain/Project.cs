@@ -10,8 +10,8 @@ public class Project
     private DateTime _startDate;
     private DateTime _finishDate;
     private User _administrator;
-    private List<Task> _tasks;
-    private List<User> _users;
+    private List<Task> _tasks = new List<Task>();
+    private List<User> _users = new List<User>();
 
     private const int MaxDescriptionLength = 400;
     public string Name

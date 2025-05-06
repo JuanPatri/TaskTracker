@@ -4,7 +4,6 @@
 @using Backend.DTOs.ProjectDTOs
 
 @inject SessionService Session
-@inject TaskService TaskService
 
 @inject ProjectService ProjectService 
 
@@ -30,14 +29,14 @@
 
     </div>
 
-     <select id="project" class="form-select" @bind=""> // VER COMO MANDARLE AL PROJECT LA TAREA NUEVA
+    <select id="project" class="form-select" @bind="projectId" @onchange="ProjectChanged">
         <option value="">Select a project</option>
         @foreach (var project in _projectDtos)
         {
             <option value="@project.Id">@project.Name</option>
         }
     </select>
-
+    
     <div class="mb-3">
         <label for="dependencies" class="form-label">Task Dependencies</label>
         <select id="dependencies" multiple class="form-select"></select>
@@ -65,17 +64,34 @@
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
+    private int projectId;
     
     protected override void OnInitialized()
     {
         if (Session.IsLoggedIn())
         {
             _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
-            _resourcesDtos = ResourceService.GetResourcesForProject(Session.CurrentUser.Project.id);
-            _taskTitleDtos = TaskService.GetTaskForProjectWithId(_projectDtos.Id);
         }
     
     }
+    
+    private void ProjectChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int selectedProjectId))
+        {
+            projectId = selectedProjectId;
+            
+            _resourcesDtos = ResourceService.GetResourcesForProject(projectId);
+            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(projectId);
+        }
+        else
+        {
+            projectId = 0;
+            _resourcesDtos.Clear();
+            _taskTitleDtos.Clear();
+        }
+    }
+
     
     private async Task HandelSubmit()
     {
@@ -89,7 +105,8 @@
             }
             _newTask.Duration = parsedDuration;
     
-            TaskService.AddTask(_newTask);
+            ProjectService.AddTask(_newTask);
+            ProjectService.AddTaskToProject(_newTask, projectId);
             await Task.Delay(2000);
             _successMessage = "Task created successfully!";
             _errorMessage = string.Empty;
@@ -97,6 +114,7 @@
         catch (Exception ex)
         {
             _errorMessage = ex.Message;
-            _successMessage = string.Empty;        }
+            _successMessage = string.Empty;        
+        }
     }
 }

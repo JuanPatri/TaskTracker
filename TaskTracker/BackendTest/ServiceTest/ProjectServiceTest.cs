@@ -540,6 +540,18 @@ public class ProjectServiceTest
         Assert.AreEqual(_resource.Description, "new description");
     }
 
+    public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
+    {
+        Project project = _projectRepository.Find (p => p.Id == projectId);
+
+        if (project == null)
+        {
+            throw new ArgumentException($"The project with ID {projectId} does not exist.");
+        }
+
+        Project.Tasks.Add(Task.FromDto(taskDto));
+    }
+
     #endregion
 
     #region ResourceTypeTest
