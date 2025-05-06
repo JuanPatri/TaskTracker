@@ -172,6 +172,25 @@ public class ProjectService
         return _projectRepository.Find(project => project.Id == projectId);
     }
     
+    public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
+    {
+        Project project = _projectRepository.Find(p => p.Id == projectId);        
+        
+        if (project == null)
+        {
+            throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+        }
+
+        List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
+
+        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
+
+        Task newTask = Task.FromDto(taskDto, taskDependencies, resourceList);
+
+        project.Tasks.Add(newTask);
+
+        _projectRepository.Update(project);
+    }
 
     #endregion
 
