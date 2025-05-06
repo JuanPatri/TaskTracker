@@ -272,6 +272,21 @@ public class
         Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
         Assert.AreEqual("Programmer Java", updatedProject.ExclusiveResources[0].Name);
     }
+    
+    [TestMethod]
+    public void AddExclusiveResourceShouldThrowWhenProjectDoesNotExist()
+    {
+        ResourceDataDto resourceDto = new ResourceDataDto()
+        {
+            Name = "Nonexistent Project Resource",
+            Description = "Description",
+            TypeResource = 1
+        };
+
+        Assert.ThrowsException<ArgumentException>(() =>
+                _projectService.AddExclusiveResourceToProject(999, resourceDto)
+        );
+    }
     #endregion
 
     #region TaskTest
