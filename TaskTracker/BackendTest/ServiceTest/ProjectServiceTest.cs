@@ -333,6 +333,66 @@ public class
         Assert.IsTrue(result.Any(r => r.Name == "Printer"));
         Assert.IsTrue(result.Any(r => r.Name == "Designer"));
     }
+    
+    [TestMethod]
+    public void GetProjectsByUserEmailNotAdminShouldReturnProjectsWhereUserIsMemberButNotAdmin()
+    {
+        string userEmail = "user@example.com";
+    
+        User admin = new User
+        {
+            Name = "Admin",
+            LastName = "Admin",
+            Email = "admin@example.com",
+            Password = "Admin123@",
+            BirthDate = new DateTime(1980, 1, 1),
+            Admin = true
+        };
+
+        User member = new User
+        {
+            Name = "User",
+            LastName = "User",
+            Email = userEmail,
+            Password = "User123@",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
+
+        _userRepository.Add(admin);
+        _userRepository.Add(member);
+
+        Project project1 = new Project
+        {
+            Id = 1,
+            Name = "Project One",
+            Description = "First Project",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = admin,
+            Users = new List<User> { member }
+        };
+
+        Project project2 = new Project
+        {
+            Id = 2,
+            Name = "Project Two",
+            Description = "Second Project",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = member, // user is admin here
+            Users = new List<User> { member }
+        };
+
+        _projectRepository.Add(project1);
+        _projectRepository.Add(project2);
+        
+        List<GetProjectDTO> result = _projectService.GetProjectsByUserEmailNotAdmin(userEmail);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("Project One", result[0].Name);
+    }
+
 
     
     #endregion
