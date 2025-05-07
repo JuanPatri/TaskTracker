@@ -198,6 +198,38 @@ public class ProjectService
             .Select(r => new GetResourceDto { Name = r.Name })
             .ToList();
     }
+    
+    public void DecreaseResourceQuantity(int projectId, string resourceName)
+    {
+        Project project = _projectRepository.Find(p => p.Id == projectId);
+        if (project == null)
+            throw new ArgumentException("Project not found");
+
+        bool updated = false;
+
+        foreach (var task in project.Tasks)
+        {
+            for (int i = 0; i < task.Resources.Count; i++)
+            {
+                var (qty, resource) = task.Resources[i];
+                if (resource.Name == resourceName && qty > 0)
+                {
+                    task.Resources[i] = (qty - 1, resource);
+                    updated = true;
+                    break; 
+                }
+            }
+
+            if (updated)
+                break;
+        }
+
+        if (!updated)
+            throw new InvalidOperationException("Resource not found or quantity is already 0");
+
+        _projectRepository.Update(project);
+    }
+
     #endregion
     
     #region Task

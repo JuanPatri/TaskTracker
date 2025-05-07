@@ -392,6 +392,37 @@ public class
         Assert.AreEqual(1, result.Count);
         Assert.AreEqual("Project One", result[0].Name);
     }
+    [TestMethod]
+    public void DecreaseResourceQuantityShouldDecreaseQuantityByOne()
+    {
+        Resource resource = new Resource { Name = "Printer" };
+        Task task = new Task
+        {
+            Title = "Setup",
+            Resources = new List<(int, Resource)> { (3, resource) }
+        };
+
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Office Setup",
+            Description = "Setup project",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(5),
+            Administrator = new User { Email = "admin@example.com" },
+            Tasks = new List<Task> { task },
+            Users = new List<User>()
+        };
+
+        _projectRepository.Add(project);
+        
+        _projectService.DecreaseResourceQuantity(1, "Printer");
+        
+        Project updatedProject = _projectRepository.Find(p => p.Id == 1); 
+        int updatedQty = updatedProject.Tasks[0].Resources.First().Item1;
+
+        Assert.AreEqual(2, updatedQty);
+    }
 
 
     
