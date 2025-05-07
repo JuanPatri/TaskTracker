@@ -55,15 +55,18 @@ else
         var task = _project?.Tasks.FirstOrDefault(t => t.Title == taskTitle);
         if (task != null)
         {
-            var tuple = task.Resources.FirstOrDefault(r => r.Item2.Name == resourceName);
-            if (tuple != default && tuple.Item1 > 0)
+            (int, Resource) resource = task.Resources.FirstOrDefault(r => r.Item2.Name == resourceName);
+            if (resource != default && resource.Item1 > 0)
             {
-                int index = task.Resources.IndexOf(tuple);
-                task.Resources[index] = (tuple.Item1 - 1, tuple.Item2);
-                _project = _project; 
-
-                //ProjectService.UpdateProject(_project);
+                int index = task.Resources.IndexOf(resource);
+                
+                task.Resources[index] = (resource.Item1 - 1, resource.Item2);
+                
+                ProjectService.DecreaseResourceQuantity(projectId, resourceName);
+                
+                _project = ProjectService.GetProject(new GetProjectDTO { Id = projectId });
             }
         }
     }
+
 }
