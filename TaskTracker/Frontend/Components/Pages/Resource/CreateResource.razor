@@ -1,4 +1,5 @@
 @page "/CreateResource"
+@using Backend.DTOs.ProjectDTOs
 @using Backend.DTOs.ResourceDTOs
 @using Backend.DTOs.ResourceTypeDTOs
 @using Backend.Service
@@ -20,7 +21,7 @@
 <EditForm Model="_newResource" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator />
     <ValidationSummary />
-
+    
     <div class="mb-3">
         <label for="name" class="form-label">Name</label>
         <InputText id="name" class="form-control" @bind-Value="_newResource.Name" />
@@ -65,12 +66,14 @@
     private void HandleSubmit()
     {
         try
-        {
+        { 
             ProjectService.AddResource(_newResource);
+
             _successMessage = "Resource created successfully!";
             _errorMessage = string.Empty;
             _newResource = new ResourceDataDto(); 
             NavigationManager.NavigateTo("/ResourcePrincipal", true);
+
         }
         catch (Exception ex)
         {

@@ -1,0 +1,101 @@
+@page "/CreateExclusiveResource"
+@using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.ResourceDTOs
+@using Backend.DTOs.ResourceTypeDTOs
+@using Backend.Service
+@inject ProjectService ProjectService
+@inject SessionService SessionService
+@inject NavigationManager NavigationManager
+
+<h3>Create Exclusive Resource</h3>
+
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger">@_errorMessage</div>
+}
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success">@_successMessage</div>
+}
+
+<EditForm Model="_newResource" OnValidSubmit="HandleSubmit">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="mb-3">
+        <label for="project" class="form-label">Select Project</label>
+        <select id="project" class="form-select" @bind="_selectedProjectId" required>
+            <option value="">-- Select a project --</option>
+            @foreach (var project in _adminProjects)
+            {
+                <option value="@project.Id">@project.Name</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <InputText id="name" class="form-control" @bind-Value="_newResource.Name"/>
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="_newResource.Description"/>
+    </div>
+
+    <div class="mb-3">
+        <label for="type" class="form-label">Resource Type</label>
+        <select id="type" class="form-select" @bind="_newResource.TypeResource">
+            <option value="">-- Select a type --</option>
+            @foreach (var type in _resourceTypes)
+            {
+                <option value="@type.Id">@type.Name</option>
+            }
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Exclusive Resource</button>
+</EditForm>
+
+@code {
+    private ResourceDataDto _newResource = new();
+    private List<ResourceTypeDto> _resourceTypes = new();
+    private List<GetProjectDTO> _adminProjects = new();
+    private int _selectedProjectId;
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _resourceTypes = ProjectService.GetAllResourcesType()
+            .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
+            .ToList();
+
+        _adminProjects = ProjectService.GetProjectsByUserEmail(SessionService.CurrentUser.Email);
+    }
+
+    private void HandleSubmit()
+    {
+        try
+        {
+            if (_selectedProjectId == 0)
+            {
+                _errorMessage = "Please select a project.";
+                return;
+            }
+
+            ProjectService.AddExclusiveResourceToProject(_selectedProjectId, _newResource);
+            _successMessage = "Exclusive resource created successfully!";
+            _errorMessage = string.Empty;
+
+            _newResource = new ResourceDataDto();
+            NavigationManager.NavigateTo("/ResourcePrincipal", true);
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
+        }
+    }
+
+}

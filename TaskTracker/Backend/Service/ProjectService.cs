@@ -178,6 +178,17 @@ public class ProjectService
             .ToList();
     }
 
+    public List<GetResourceDto> GetExclusiveResourcesForProject(int projectId)
+    {
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+
+        if (project == null || project.ExclusiveResources == null)
+            return new List<GetResourceDto>();
+
+        return project.ExclusiveResources
+            .Select(r => new GetResourceDto { Name = r.Name })
+            .ToList();
+    }
     #endregion
     
     #region Task

@@ -296,6 +296,45 @@ public class
         Assert.AreEqual(1, projects.Count);
     }
     
+    [TestMethod]
+    public void GetExclusiveResourcesForProjectShouldReturnExclusiveResources()
+    {
+        int projectId = 10;
+
+        Resource exclusiveResource1 = new Resource
+        {
+            Name = "Printer",
+            Description = "Laser printer",
+            Type = new ResourceType { Id = 1, Name = "Hardware" }
+        };
+
+        Resource exclusiveResource2 = new Resource
+        {
+            Name = "Designer",
+            Description = "Graphic Designer",
+            Type = new ResourceType { Id = 2, Name = "Human" }
+        };
+
+        Project project = new Project
+        {
+            Id = projectId,
+            Name = "Exclusive Project",
+            Description = "Project with exclusive resources",
+            StartDate = DateTime.Now.AddDays(1),
+            FinishDate = DateTime.Now.AddDays(10),
+            Administrator = new User { Name = "Admin", Email = "admin@example.com" },
+            ExclusiveResources = new List<Resource> { exclusiveResource1, exclusiveResource2 }
+        };
+
+        _projectRepository.Add(project);
+        
+        List<GetResourceDto> result = _projectService.GetExclusiveResourcesForProject(projectId);
+        
+        Assert.IsTrue(result.Any(r => r.Name == "Printer"));
+        Assert.IsTrue(result.Any(r => r.Name == "Designer"));
+    }
+
+    
     #endregion
 
     #region TaskTest
