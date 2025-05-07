@@ -131,9 +131,9 @@ public class ProjectService
         return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
 
-    private static Func<Project, bool> ProjectHasUserAndIsAdmin(string userEmail) =>
+    private  Func<Project, bool> ProjectHasUserAndIsAdmin(string userEmail) =>
         project => project.Users != null 
-                   && project.Users.Any(user => user.Email == userEmail && project.Administrator.Email == user.Email);
+                   && project.Users.Any(user => project.Administrator.Email == user.Email);
     
     public List<GetProjectDTO> GetProjectsByUserEmailNotAdmin(string userEmail)
     {
@@ -144,7 +144,7 @@ public class ProjectService
         return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
 
-    private static GetProjectDTO ToGetProjectDTO(Project project) => new GetProjectDTO
+    private GetProjectDTO ToGetProjectDTO(Project project) => new GetProjectDTO
     {
         Id = project.Id,
         Name = project.Name
