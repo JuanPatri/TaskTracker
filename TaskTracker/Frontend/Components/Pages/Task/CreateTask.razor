@@ -127,14 +127,25 @@
         if (selectedProjectId > 0)
         {
             _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
+
+            var systemResources = ProjectService.GetResourcesForSystem();
+            var exclusiveResources = ProjectService.GetExclusiveResourcesForProject(selectedProjectId);
+
+            _resourcesDtos = systemResources            .Concat(exclusiveResources)
+                .GroupBy(r => r.Name) 
+                .Select(g => g.First())
+                .ToList();
+
             SelectedDependencies.Clear();
             SelectedResources.Clear();
         }
         else
         {
             _taskTitleDtos.Clear();
+            _resourcesDtos.Clear();
         }
     }
+
 
     private void OnDependenciesChanged(ChangeEventArgs e)
     {
