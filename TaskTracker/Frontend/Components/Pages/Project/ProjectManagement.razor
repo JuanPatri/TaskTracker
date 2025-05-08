@@ -13,29 +13,29 @@
 {
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Fecha de Inicio</th>
-                <th>Fecha de Fin</th>
-                <th>Administrador</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+            <th>Start Date</th>
+            <th>Finish Date</th>
+            <th>Administrator</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var project in _projects)
-            {
-                <tr>
-                    <td>@project.Name</td>
-                    <td>@project.StartDate.ToShortDateString()</td>
-                    <td>@project.FinishDate.ToShortDateString()</td>
-                    <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
-                </tr>
-            }
+        @foreach (var project in _projects)
+        {
+            <tr>
+                <td>@project.Name</td>
+                <td>@project.StartDate.ToShortDateString()</td>
+                <td>@project.FinishDate.ToShortDateString()</td>
+                <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
+            </tr>
+        }
         </tbody>
     </table>
 }
 else
 {
-    <p>No hay proyectos creados.</p>
+    <p>No project created.</p>
 }
 
 @code {
