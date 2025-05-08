@@ -1,69 +1,125 @@
-﻿@using Backend.DTOs.TaskDTOs
+﻿@page "/CreateTask"
+@using Backend.DTOs.TaskDTOs
 @using Backend.Service
 @using Backend.DTOs.ProjectDTOs
-
+@using Backend.DTOs.ResourceDTOs
+@inject NavigationManager NavigationManager
 @inject SessionService Session
+@inject ProjectService ProjectService
 
-@inject ProjectService ProjectService 
+<PageTitle>Create Task - TaskTrackPro</PageTitle>
 
-@page "/CreateTask" 
+<h3 class="mb-3">Create Task</h3>
 
-<PageTitle>Create Task</PageTitle> 
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success">@_successMessage</div>
+}
 
-<form class="mb-3" @onsubmit="HandelSubmit">
-    <h1>Create Task</h1> 
-
-    <div class="mb-3">
-        <label for="title" class="form-label">Title</label>
-        <input type="text" class="form-control" id="title" placeholder="Enter task title" @bind="_newTask.Title">
-    </div>
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" rows="3" placeholder="Enter task description" @bind="_newTask.Description"></textarea>
+<form @onsubmit="HandleSubmit">
+    <div class="form-group mb-3">
+        <label for="title">Title <span class="text-danger">*</span></label>
+        <input id="title" class="form-control" @bind="_newTask.Title" required />
     </div>
 
-    <div class="mb-3">
-        <label for="duration" class="form-label">Duration</label>
-        <input type="text" id="duration" @bind="_durationString" placeholder="HH:mm" />
-
+    <div class="form-group mb-3">
+        <label for="description">Description <span class="text-danger">*</span></label>
+        <textarea id="description" class="form-control" rows="3" @bind="_newTask.Description" required></textarea>
     </div>
 
-    <select id="project" class="form-select" @bind="SelectedProjectId">
-        <option value="">Select a project</option>
-        @foreach (var project in _projectDtos)
-        {
-            <option value="@project.Id">@project.Name</option>
-        }
-    </select>
+    <div class="form-group mb-3">
+        <label for="duration">Duration (hours) <span class="text-danger">*</span></label>
+        <input id="duration" type="number" min="0.5" step="0.25" class="form-control" @bind="_newTask.Duration" required />
+        <small class="form-text text-muted">Minimum: 0.5 hours (30 minutes). Use 0.25 for 15min, 0.5 for 30min, 0.75 for 45min, etc.</small>
+    </div>
 
+    <div class="form-group mb-3">
+        <label for="project">Project <span class="text-danger">*</span></label>
+        <select id="project" class="form-control" @bind="SelectedProjectId" required>
+            <option value="">Select a project</option>
+            @foreach (var project in _projectDtos)
+            {
+                <option value="@project.Id">@project.Name</option>
+            }
+        </select>
+    </div>
 
-    <div class="mb-3">
-        <label for="dependencies" class="form-label">Task Dependencies</label>
-        <select id="dependencies" multiple class="form-select"></select>
+    <div class="form-group mb-3">
+        <label for="dependencies">Task Dependencies (Optional)</label>
+        <select id="dependencies" multiple class="form-control" @onchange="OnDependenciesChanged">
+            @foreach (var task in _taskTitleDtos)
+            {
+                <option value="@task.Title">@task.Title</option>
+            }
+        </select>
         <div class="form-text">Hold Ctrl to select multiple tasks</div>
     </div>
 
-    <div class="mb-3">
-        <label for="resource" class="form-label">ResourceDTOss</label>
-        <select id="resource" multiple class="form-select"></select>
-        <div class="form-text">Hold Ctrl to select multiple resources</div>
-        @foreach (var resource in _resourcesDtos)
-        {
-            <option value="@resource.Title">@resource.Title</option>
-        }
+    <div class="form-group mb-3">
+        <label>Select a Resource (optional)</label>
+        <select class="form-control" @bind="_selectedResourceName">
+            <option value="">-- Select a resource --</option>
+            @foreach (var resource in _resourcesDtos)
+            {
+            if (!_taskResources.Any(r => r.Item2 == resource.Name))
+            {
+            <option value="@resource.Name">@resource.Name</option>
+            }
+            }
+        </select>
     </div>
 
-    <button type="submit" class="btn btn-primary">Create Task</button>
+    <div class="form-group mb-3">
+        <label>Quantity</label>
+        <InputNumber class="form-control" @bind-Value="_selectedQuantity" />
+    </div>
+
+    <div class="mb-3">
+        <button type="button" class="btn btn-outline-primary" @onclick="AddResourceToTask" disabled="@string.IsNullOrWhiteSpace(_selectedResourceName)">Add Resource</button>
+    </div>
+
+    @if (_taskResources.Any())
+    {
+    <h5>Added Resources</h5>
+    <ul class="list-group">
+        @foreach (var (qty, name) in _taskResources)
+        {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            @name - Quantity: @qty
+            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveResourceFromTask(name)">Remove</button>
+        </li>
+        }
+    </ul>
+    }
+
+    <div class="mb-3">
+        <button type="button" class="btn btn-secondary" @onclick="NavigateToCreateResource">Create Resource Exclusive to Project</button>
+    </div>
+
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger">@_errorMessage</div>
+    }
+    
+    <div class="d-grid gap-2 mt-3">
+        <button type="submit" class="btn btn-primary btn-lg mb-3" disabled="@(_isSubmitting)">Create Task</button>
+    </div>
 </form>
 
 @code {
     private TaskDataDTO _newTask = new TaskDataDTO();
     private List<GetProjectDTO> _projectDtos = new();
-    private List<GetTaskDTO> _resourcesDtos = new();
     private List<GetTaskDTO> _taskTitleDtos = new();
+    private List<GetResourceDto> _resourcesDtos = new();
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
-    private string _durationString = string.Empty;
+    private bool _isSubmitting = false;
+    private string _selectedResourceName = string.Empty;
+    private int _selectedQuantity = 1;
+    private List<(int, string)> _taskResources = new();
+
+    private List<string> SelectedDependencies { get; set; } = new();
+    private List<string> SelectedResources { get; set; } = new();
 
     private int _selectedProjectId;
     private int SelectedProjectId
@@ -81,6 +137,7 @@
         if (Session.IsLoggedIn())
         {
             _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
+            _resourcesDtos = ProjectService.GetResourcesForSystem();
         }
     }
 
@@ -89,7 +146,17 @@
         if (selectedProjectId > 0)
         {
             _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
-            // _resourcesDtos = ResourceService.GetResourcesForProject(selectedProjectId); 
+
+            var systemResources = ProjectService.GetResourcesForSystem();
+            var exclusiveResources = ProjectService.GetExclusiveResourcesForProject(selectedProjectId);
+
+            _resourcesDtos = systemResources.Concat(exclusiveResources)
+                .GroupBy(r => r.Name) 
+                .Select(g => g.First())
+                .ToList();
+
+            SelectedDependencies.Clear();
+            SelectedResources.Clear();
         }
         else
         {
@@ -98,31 +165,84 @@
         }
     }
 
-    private async Task HandelSubmit()
+
+    private void OnDependenciesChanged(ChangeEventArgs e)
+    {
+        if (e.Value is IEnumerable<object> selectedValues)
+        {
+            SelectedDependencies = selectedValues.Select(v => v.ToString()).ToList();
+        }
+    }
+
+    private void OnResourcesChanged(ChangeEventArgs e)
+    {
+        if (e.Value is IEnumerable<object> selectedValues)
+        {
+            SelectedResources = selectedValues.Select(v => v.ToString()).ToList();
+        }
+    }
+
+    private void NavigateToCreateResource()
+    {
+        NavigationManager.NavigateTo("/CreateExclusiveResource");
+    }
+
+    private async Task HandleSubmit()
     {
         try
         {
-            if (!TimeSpan.TryParse(_durationString, out TimeSpan parsedDuration))
+            _isSubmitting = true;
+            _errorMessage = string.Empty;
+            
+            if (_selectedProjectId <= 0)
             {
-                _errorMessage = "Invalid duration format. Please use HH:mm (e.g., 01:30).";
-                _successMessage = string.Empty;
+                _errorMessage = "Please select a project.";
+                _isSubmitting = false;
                 return;
             }
-
-            _newTask.Duration = parsedDuration;
+            
+            _newTask.Dependencies = SelectedDependencies;
+            _newTask.Resources = _taskResources;
 
             ProjectService.AddTask(_newTask);
             ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
 
-            await Task.Delay(2000); 
-
             _successMessage = "Task created successfully!";
             _errorMessage = string.Empty;
+            
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/TaskManagement");
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
+            _errorMessage = $"Error: {ex.Message}";
             _successMessage = string.Empty;
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+    
+    private void AddResourceToTask()
+    {
+        if (!string.IsNullOrWhiteSpace(_selectedResourceName) && _selectedQuantity > 0)
+        {
+            if (_taskResources.Any(r => r.Item2 == _selectedResourceName))
+                return; 
+
+            _taskResources.Add((_selectedQuantity, _selectedResourceName));
+            _selectedResourceName = string.Empty;
+            _selectedQuantity = 1;
+        }
+    }
+    
+    private void RemoveResourceFromTask(string resourceName)
+    {
+        var item = _taskResources.FirstOrDefault(r => r.Item2 == resourceName);
+        if (!string.IsNullOrEmpty(item.Item2))
+        {
+            _taskResources.Remove(item);
         }
     }
 }

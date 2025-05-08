@@ -34,8 +34,8 @@ public class TaskDataDtoTest
     [TestMethod]
     public void SetDurationForTask()
     {
-        _taskDataDto.Duration = TimeSpan.FromHours(1);
-        Assert.AreEqual(TimeSpan.FromHours(1), _taskDataDto.Duration);
+        _taskDataDto.Duration = 0.5;
+        Assert.AreEqual(0.5, _taskDataDto.Duration);
     }
     
     [TestMethod]

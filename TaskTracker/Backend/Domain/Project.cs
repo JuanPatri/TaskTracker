@@ -7,11 +7,12 @@ public class Project
     private int _id;
     private string _name;
     private string _description;
-    private DateTime _startDate;
-    private DateTime _finishDate;
+    private DateOnly _startDate;
+    private DateOnly _finishDate;
     private User _administrator;
     private List<Task> _tasks = new List<Task>();
     private List<User> _users = new List<User>();
+    private List<Resource> _exclusiveResources = new List<Resource>();
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -34,17 +35,17 @@ public class Project
             _description = value;
         }
     }
-    public DateTime StartDate 
+    public DateOnly StartDate 
     {
         get => _startDate;
         set 
         {
-            if (value < DateTime.Now) throw new ArgumentException("The project start date cannot be in the past");
+            if (value < DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("The project start date cannot be in the past");
             _startDate = value;
         }
     }
     
-    public DateTime FinishDate 
+    public DateOnly FinishDate 
     {
         get => _finishDate;
         set
@@ -85,6 +86,12 @@ public class Project
         set => _users = value; 
     }
     
+    public List<Resource> ExclusiveResources
+    {
+        get => _exclusiveResources;
+        set => _exclusiveResources = value;
+    }
+    
     public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
     {
         return new Project()
@@ -98,4 +105,6 @@ public class Project
             Users = users
         };
     }
+    
+    
 }

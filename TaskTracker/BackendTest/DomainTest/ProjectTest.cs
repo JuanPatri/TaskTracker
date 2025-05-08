@@ -59,31 +59,31 @@ public class ProjectTest
     [TestMethod]
     public void AddStartDateForProjectTest()
     {
-        DateTime startDate = DateTime.Now.AddDays(1);
+        DateOnly startDate = DateOnly.FromDateTime(DateTime.Today);
         _project.StartDate = startDate;
-        Assert.AreEqual(startDate, _project.StartDate);
+        Assert.AreEqual<DateOnly>(startDate, _project.StartDate);
     }
 
     [TestMethod]
     public void StartDateInPastReturnsExceptionTest()
     {
-        DateTime pastDate = DateTime.Now.AddDays(-1);
+        DateOnly pastDate = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
         Assert.ThrowsException<ArgumentException>(() => _project.StartDate = pastDate);
     }
 
     [TestMethod]
     public void AddFinishDateForProjectTest()
     {
-        DateTime finishDate = DateTime.Now.AddDays(5);
+        DateOnly finishDate = DateOnly.FromDateTime(DateTime.Today.AddDays(5));
         _project.FinishDate = finishDate;
-        Assert.AreEqual(finishDate, _project.FinishDate);
+        Assert.AreEqual<DateOnly>(finishDate, _project.FinishDate);
     }
     
     [TestMethod]
     public void FinishDateBeforeStartDateReturnsExceptionTest()
     {
-        var startDate = DateTime.Now.AddDays(5);
-        var finishDate = DateTime.Now.AddDays(3);
+        DateOnly startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(5));
+        DateOnly finishDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
         _project.StartDate = startDate;
         Assert.ThrowsException<ArgumentException>(() => _project.FinishDate = finishDate);
     }
@@ -132,8 +132,8 @@ public class ProjectTest
             Id = 5,
             Name = "Test Project",
             Description = "This is a test project",
-            StartDate = new DateTime(2026, 1, 1),
-            FinishDate = new DateTime(2026, 12, 31),
+            StartDate = new DateOnly (2026, 1, 1),
+            FinishDate = new DateOnly (2026, 12, 31),
             Administrator = new UserDataDTO
             {
                 Name = "Pedro",
@@ -169,13 +169,21 @@ public class ProjectTest
         Assert.AreEqual(dto.Administrator.LastName, result.Administrator.LastName);
         Assert.AreEqual(dto.Administrator.Email, result.Administrator.Email);
     }
-    
+
     [TestMethod]
-    public  void SetUserListForProjectTest()
+    public void SetUserListForProjectTest()
     {
         List<User> users = new List<User>();
         _project.Users = users;
         Assert.AreEqual(users, _project.Users);
+    }
+    
+    [TestMethod]
+    public void AddExclusiveResourcesToProject()
+    {
+        List<Resource> resources = new List<Resource>();
+        _project.ExclusiveResources = resources;
+        Assert.AreEqual(resources, _project.ExclusiveResources);
     }
 
 }

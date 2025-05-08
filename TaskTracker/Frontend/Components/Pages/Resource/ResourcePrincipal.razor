@@ -1,7 +1,9 @@
 @page "/ResourcePrincipal"
+@using Backend.DTOs.ProjectDTOs
 @using Backend.Service
 @inject NavigationManager Navigation
 @inject SessionService Session
+@inject ProjectService ProjectService
 
 <h3>ResourcePrincipal</h3>
 
@@ -12,10 +14,37 @@
 }
 else
 {
-    <p>You do not have permission to modify resources.</p>
+    <h5>You do not have permission to modify resources.</h5>
+
+    @if (_userProjects.Any())
+    {
+        <ul class="list-group">
+            @foreach (var project in _userProjects)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @project.Name
+                    <button class="btn btn-outline-primary btn-sm" @onclick="@(() => ViewProjectResources(project.Id))">View Resources</button>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You are not assigned to any projects.</p>
+    }
 }
 
 @code {
+    private List<GetProjectDTO> _userProjects = new();
+
+    protected override void OnInitialized()
+    {
+        if (Session.IsLoggedIn())
+        {
+            _userProjects = ProjectService.GetProjectsByUserEmailNotAdmin(Session.CurrentUser.Email);
+        }
+    }
+
     private void GoToCreateResource()
     {
         Navigation.NavigateTo("/CreateResource");
@@ -24,5 +53,10 @@ else
     private void GoToEditResource()
     {
         Navigation.NavigateTo("/EditResource");
+    }
+
+    private void ViewProjectResources(int projectId)
+    {
+        Navigation.NavigateTo($"/ProjectResources/{projectId}");
     }
 }

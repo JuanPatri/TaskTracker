@@ -38,6 +38,7 @@ public class ProjectRepository : IRepository<Project>
             existingProject.Administrator = updatedProject.Administrator;
             existingProject.Tasks = updatedProject.Tasks;
             existingProject.Users = updatedProject.Users;
+            existingProject.ExclusiveResources = updatedProject.ExclusiveResources;
             return existingProject;
         }
         return null;
