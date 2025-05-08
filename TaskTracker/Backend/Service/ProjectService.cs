@@ -230,6 +230,30 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
+    
+    public List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
+    {
+        var filteredProjects = _projectRepository.FindAll()
+            .Where(project => project.Users != null && project.Users.Any(user => user.Email == userEmail));
+
+        return filteredProjects.Select(ToProjectDataDto).ToList();
+    }
+    
+    private ProjectDataDTO ToProjectDataDto(Project project) => new ProjectDataDTO
+    {
+        Id = project.Id,
+        Name = project.Name,
+        Description = project.Description,
+        StartDate = project.StartDate,
+        FinishDate = project.FinishDate,
+        Administrator = new UserDataDTO
+        {
+            Name = project.Administrator.Name,
+            LastName = project.Administrator.LastName,
+            Email = project.Administrator.Email
+        },
+        Users = project.Users.Select(u => u.Email).ToList() 
+    };
 
     #endregion
     

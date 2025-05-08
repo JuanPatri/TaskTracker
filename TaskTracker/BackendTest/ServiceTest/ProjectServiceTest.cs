@@ -460,6 +460,34 @@ public class
             _projectService.AddTaskToProject(taskDto, 999));
     }
 
+    [TestMethod]
+    public void ProjectsDataByUserEmail_ShouldReturnAssociatedProjects()
+    {
+        var user = new User { Name = "Ana", LastName = "Lopez", Email = "ana@example.com" };
+        var admin = new User { Name = "Admin", LastName = "Root", Email = "admin@example.com", Admin = true };
+
+        _userRepository.Add(user);
+        _userRepository.Add(admin);
+
+        var project = new Project
+        {
+            Id = 1,
+            Name = "Test Project",
+            Description = "Project description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
+            FinishDate = DateOnly.FromDateTime(DateTime.Now).AddDays(10),
+            Administrator = admin,
+            Users = new List<User> { user }
+        };
+
+        _projectRepository.Add(project);
+
+        List<ProjectDataDTO> result = _projectService.ProjectsDataByUserEmail("ana@example.com");
+        
+        Assert.AreEqual(project.Id, result[0].Id);
+        Assert.AreEqual(project.Name, result[0].Name);
+        Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
+    }
     #endregion
 
     #region TaskTest
