@@ -8,7 +8,7 @@ public class Task
 {
     private string _title = String.Empty;
     private string _description = String.Empty;
-    private TimeSpan _duration;
+    private double _duration;
     private Status _status = Status.Pending;
     private List<Task> _dependencies = new List<Task>();
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
@@ -37,13 +37,13 @@ public class Task
         }
     }
 
-    public TimeSpan Duration
+    public double Duration
     {
         get => _duration;
         set
         {
-            if (value < TimeSpan.FromMinutes(30))
-                throw new ArgumentException("The duration must be at least 30 minutes");
+            if (value < 0.5)
+                throw new ArgumentException("The duration must be at least 0.5 hours (30 minutes)");
             _duration = value;
         }
     }

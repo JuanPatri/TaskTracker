@@ -450,7 +450,7 @@ public class
         {
             Title = "Test",
             Description = "Test",
-            Duration = TimeSpan.FromHours(1),
+            Duration = 0.5,
             Status = Status.Pending,
             Dependencies = new List<string>(),
             Resources = new List<(int, string)>()
@@ -496,9 +496,9 @@ public class
     public void AddTaskToRepository()
     {
         TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Test Task";
+        taskDto.Title = "Test Taskk";
         taskDto.Description = "This is a test task.";
-        taskDto.Duration = TimeSpan.FromHours(1);
+        taskDto.Duration = 0.5;
         taskDto.Status = Status.Pending;
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
         taskDto.Resources = new List<(int, string)>() { (1, "Resource1"), (2, "Resource2") };
@@ -526,7 +526,7 @@ public class
         TaskDataDTO task2 = new TaskDataDTO();
         task2.Title = "Test Task 2";
         task2.Description = "This is a test task.";
-        task2.Duration = TimeSpan.FromHours(1);
+        task2.Duration = 0.5;
         task2.Status = Status.Pending;
         _projectService.AddTask(task2);
         tasks = _projectService.GetAllTasks();
@@ -543,7 +543,7 @@ public class
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
         taskDto.Description = "New Description";
-        taskDto.Duration = TimeSpan.FromHours(4);
+        taskDto.Duration = 0.5;
         taskDto.Status = Status.Blocked;
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
 
@@ -687,7 +687,7 @@ public class
         {
             Title = "Project Task",
             Description = "Description of the project task",
-            Duration = TimeSpan.FromHours(2),
+            Duration = 0.5,
             Status = Status.Pending,
             Dependencies = new List<string> { "Test Task" },
             Resources = new List<(int, string)> { (1, "Resource") }

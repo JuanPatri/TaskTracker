@@ -53,7 +53,7 @@ public class TaskTest
     [TestMethod]
     public void SetDurationForTaskTest()
     {
-        TimeSpan durationTask = new TimeSpan(1, 5, 30, 0);
+        double durationTask = 0.5;
         
         _task.Duration = durationTask;
 
@@ -88,10 +88,10 @@ public class TaskTest
     [TestMethod]
     public void SetDurationNullReturnsAnException()
     {
-        TimeSpan durationTask = new TimeSpan(0, 0, 25, 0);
+        double durationTask = 0.4;
 
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Duration = durationTask);
-        Assert.AreEqual("The duration must be at least 30 minutes", ex.Message);
+        Assert.AreEqual("The duration must be at least 0.5 hours (30 minutes)", ex.Message);
     }
     
     [TestMethod]
@@ -114,7 +114,7 @@ public class TaskTest
         {
             Title = "Task 1",
             Description = "Description of Task 1",
-            Duration = TimeSpan.FromHours(1),
+            Duration = 0.5,
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
             Resources = new List<(int, string)> { (1, "Resource 1") }
@@ -133,7 +133,7 @@ public class TaskTest
         
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
-        Assert.AreEqual(TimeSpan.FromHours(1), task.Duration);
+        Assert.AreEqual(0.5, task.Duration);
         Assert.AreEqual(Status.Blocked, task.Status);
         Assert.IsNotNull(task.Dependencies);
         Assert.IsNotNull(task.Resources);

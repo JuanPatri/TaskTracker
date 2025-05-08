@@ -50,8 +50,9 @@
             </div>
 
             <div class="mb-3">
-                <label>Duration</label>
-                <input type="text" class="form-control" @bind="_durationString" />
+                <label>Duration (hours)</label>
+                <input type="number" min="0.5" step="0.25" class="form-control" @bind="_durationInHours" />
+                <small class="form-text text-muted">Minimum: 0.5 hours (30 minutes). Use 0.25 for 15min, 0.5 for 30min, 0.75 for 45min, etc.</small>
             </div>
 
             <div class="mb-3">
@@ -63,8 +64,6 @@
                 </select>
             </div>
             
-            
-
             <button type="submit" class="btn btn-primary">Save Changes</button>
         }
     </form>
@@ -77,7 +76,6 @@
     {
         <div class="alert alert-danger">@_errorMessage</div>
     }
-
 }
 else
 {
@@ -90,10 +88,9 @@ else
     private string _selectedTaskTitle = string.Empty;
     private int _selectedProjectId;
     private TaskDataDTO? _editingTask;
-    private string _durationString = string.Empty;
+    private double _durationInHours;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
-
 
     protected override void OnInitialized()
     {
@@ -128,7 +125,7 @@ else
                 Status = task.Status
             };
 
-            _durationString = task.Duration.ToString(@"hh\:mm");
+            _durationInHours = task.Duration;
         }
     }
 
@@ -144,14 +141,9 @@ else
                 _errorMessage = "No task selected.";
                 return;
             }
-
-            if (!TimeSpan.TryParse(_durationString, out var parsedDuration))
-            {
-                _errorMessage = "Invalid duration format. Use HH:mm.";
-                return;
-            }
-
-            _editingTask.Duration = parsedDuration;
+            
+            
+            _editingTask.Duration = _durationInHours;
 
             var result = ProjectService.UpdateTask(_editingTask);
 
@@ -171,7 +163,4 @@ else
             _errorMessage = $"Unexpected error: {ex.Message}";
         }
     }
-
-
-
 }

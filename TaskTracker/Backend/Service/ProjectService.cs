@@ -322,7 +322,7 @@ public class ProjectService
         
         if (project == null)
         {
-            throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+            throw new ArgumentException($"No project found with the ID {projectId}.");
         }
 
         List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
