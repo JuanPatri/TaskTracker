@@ -270,7 +270,10 @@ public class ProjectService
     #region Task
     public Task AddTask(TaskDataDTO taskDto)
     {
-        
+        if(_taskRepository.Find(t => t.Title == taskDto.Title) != null)
+        {
+            throw new Exception("Task already exists");
+        }
         List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
