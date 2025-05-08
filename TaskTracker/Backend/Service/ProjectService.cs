@@ -38,7 +38,12 @@ public class ProjectService
     {
         ValidateProjectName(project.Name);
 
-        var associatedUsers = GetUsersFromEmails(project.Users);
+        List<User> associatedUsers = GetUsersFromEmails(project.Users);
+        
+        if(!project.Users.Contains(project.Administrator.Email))
+        {
+            associatedUsers.Add(_userRepository.Find(u => u.Email == project.Administrator.Email));
+        }
 
         project.Id = _idProject++;
         return _projectRepository.Add(Project.FromDto(project, associatedUsers));

@@ -61,8 +61,15 @@ else
 
     protected override void OnInitialized()
     {
-        _projects = ProjectService.ProjectsDataByUserEmail(_currentUser.Email);
-        _currentUser = SessionService.CurrentUser;
+        if (SessionService.IsLoggedIn() && SessionService.CurrentUser != null)
+        {
+            _currentUser = SessionService.CurrentUser;
+            _projects = ProjectService.ProjectsDataByUserEmail(_currentUser.Email);
+        }
+        else
+        {
+            _projects = new List<ProjectDataDTO>();
+        }
     }
     
     private bool CanEditProject(ProjectDataDTO project)
