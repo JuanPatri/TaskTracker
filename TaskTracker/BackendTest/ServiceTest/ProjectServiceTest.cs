@@ -757,6 +757,22 @@ public class
             _projectService.DecreaseResourceQuantity(101, "Laptop"));
     }
 
+    [TestMethod]
+    public void ValidateTaskStatusTest()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Test Task",
+            Description = "This is a test task.",
+            Dependencies = new List<string>() { "Task1", "Task2" }
+        };
+
+        Status status = Status.Completed;
+        
+        bool isValid = _projectService.ValidateTaskStatus(taskDto, status);
+        Assert.IsFalse(isValid);
+    }
+
     #endregion
 
     #region ResourceTest

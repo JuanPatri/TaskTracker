@@ -57,7 +57,7 @@
 
             <div class="mb-3">
                 <label>Status</label>
-                <select class="form-select" @bind="_editingTask.Status">
+                <select class="form-select" value="@_editingTask.Status" @onchange="OnStatusChanged">
                     <option value="@Status.Pending">Pending</option>
                     <option value="@Status.Completed">Completed</option>
                     <option value="@Status.Blocked">Blocked</option>
@@ -128,7 +128,24 @@ else
             _durationInHours = task.Duration;
         }
     }
-
+    
+    private void OnStatusChanged(ChangeEventArgs e)
+    {
+        if (Enum.TryParse<Status>(e.Value?.ToString(), out Status newStatus))
+        {
+            bool isValid = ProjectService.ValidateTaskStatus(_editingTask, newStatus);
+        
+            if (isValid)
+            {
+                _editingTask.Status = newStatus;
+            }
+            else
+            {
+                _errorMessage = "No se puede cambiar el estado debido a restricciones.";
+            }
+        }
+    }
+    
     private async Task HandleSubmit()
     {
         _errorMessage = string.Empty;

@@ -1,4 +1,5 @@
 using Backend.Domain;
+using Backend.Domain.Enums;
 using Backend.DTOs.ProjectDTOs;
 using Backend.DTOs.ResourceDTOs;
 using Backend.DTOs.ResourceTypeDTOs;
@@ -335,6 +336,8 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
+
+
     
     #endregion
 
