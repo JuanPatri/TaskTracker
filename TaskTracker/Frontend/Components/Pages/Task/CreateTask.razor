@@ -65,15 +65,41 @@
     </div>
 
     <div class="form-group mb-3">
-        <label for="resources">Resources (Optional)</label>
-        <select id="resources" multiple class="form-control" @onchange="OnResourcesChanged">
+        <label>Select a Resource (optional)</label>
+        <select class="form-control" @bind="_selectedResourceName">
+            <option value="">-- Select a resource --</option>
             @foreach (var resource in _resourcesDtos)
             {
-                <option value="@resource.Name">@resource.Name</option>
+            if (!_taskResources.Any(r => r.Item2 == resource.Name))
+            {
+            <option value="@resource.Name">@resource.Name</option>
+            }
             }
         </select>
-        <div class="form-text">Hold Ctrl to select multiple resources</div>
     </div>
+
+    <div class="form-group mb-3">
+        <label>Quantity</label>
+        <InputNumber class="form-control" @bind-Value="_selectedQuantity" />
+    </div>
+
+    <div class="mb-3">
+        <button type="button" class="btn btn-outline-primary" @onclick="AddResourceToTask" disabled="@string.IsNullOrWhiteSpace(_selectedResourceName)">Add Resource</button>
+    </div>
+
+    @if (_taskResources.Any())
+    {
+    <h5>Added Resources</h5>
+    <ul class="list-group">
+        @foreach (var (qty, name) in _taskResources)
+        {
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            @name - Quantity: @qty
+            <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveResourceFromTask(name)">Remove</button>
+        </li>
+        }
+    </ul>
+    }
 
     <div class="mb-3">
         <button type="button" class="btn btn-secondary" @onclick="NavigateToCreateResource">Create Resource Exclusive to Project</button>
@@ -98,6 +124,9 @@
     private string _successMessage = string.Empty;
     private string _durationString = string.Empty;
     private bool _isSubmitting = false;
+    private string _selectedResourceName = string.Empty;
+    private int _selectedQuantity = 1;
+    private List<(int, string)> _taskResources = new();
 
     private List<string> SelectedDependencies { get; set; } = new();
     private List<string> SelectedResources { get; set; } = new();
@@ -192,9 +221,7 @@
             
             _newTask.Duration = parsedDuration;
             _newTask.Dependencies = SelectedDependencies;
-            _newTask.Resources = SelectedResources
-                .Select(resourceName => (1, resourceName))
-                .ToList();
+            _newTask.Resources = _taskResources;
 
             ProjectService.AddTask(_newTask);
             ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
@@ -203,6 +230,7 @@
             _errorMessage = string.Empty;
             
             await Task.Delay(2000);
+            NavigationManager.NavigateTo("/TaskManagement");
         }
         catch (Exception ex)
         {
@@ -212,6 +240,28 @@
         finally
         {
             _isSubmitting = false;
+        }
+    }
+    
+    private void AddResourceToTask()
+    {
+        if (!string.IsNullOrWhiteSpace(_selectedResourceName) && _selectedQuantity > 0)
+        {
+            if (_taskResources.Any(r => r.Item2 == _selectedResourceName))
+                return; 
+
+            _taskResources.Add((_selectedQuantity, _selectedResourceName));
+            _selectedResourceName = string.Empty;
+            _selectedQuantity = 1;
+        }
+    }
+    
+    private void RemoveResourceFromTask(string resourceName)
+    {
+        var item = _taskResources.FirstOrDefault(r => r.Item2 == resourceName);
+        if (!string.IsNullOrEmpty(item.Item2))
+        {
+            _taskResources.Remove(item);
         }
     }
 }

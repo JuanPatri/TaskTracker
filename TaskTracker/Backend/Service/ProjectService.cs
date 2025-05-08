@@ -18,6 +18,7 @@ public class ProjectService
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     public readonly IRepository<User> _userRepository;
+    public ProjectDataDTO? SelectedProject { get; set; }
     
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
         IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<User> userRepository)
@@ -37,7 +38,12 @@ public class ProjectService
     {
         ValidateProjectName(project.Name);
 
-        var associatedUsers = GetUsersFromEmails(project.Users);
+        List<User> associatedUsers = GetUsersFromEmails(project.Users);
+        
+        if(!project.Users.Contains(project.Administrator.Email))
+        {
+            associatedUsers.Add(_userRepository.Find(u => u.Email == project.Administrator.Email));
+        }
 
         project.Id = _idProject++;
         return _projectRepository.Add(Project.FromDto(project, associatedUsers));
@@ -91,11 +97,16 @@ public class ProjectService
     
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
+        
+        if (string.IsNullOrWhiteSpace(projectDto.Administrator.Password))
+        {
+            User? fullAdmin = _userRepository.Find(u => u.Email == projectDto.Administrator.Email);
+            projectDto.Administrator.Password = fullAdmin?.Password ?? "";
+        }
+        
         List<User> users = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
-        
-        
 
         Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;
@@ -229,13 +240,40 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
+    
+    public List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
+    {
+        var filteredProjects = _projectRepository.FindAll()
+            .Where(project => project.Users != null && project.Users.Any(user => user.Email == userEmail));
+
+        return filteredProjects.Select(ToProjectDataDto).ToList();
+    }
+    
+    private ProjectDataDTO ToProjectDataDto(Project project) => new ProjectDataDTO
+    {
+        Id = project.Id,
+        Name = project.Name,
+        Description = project.Description,
+        StartDate = project.StartDate,
+        FinishDate = project.FinishDate,
+        Administrator = new UserDataDTO
+        {
+            Name = project.Administrator.Name,
+            LastName = project.Administrator.LastName,
+            Email = project.Administrator.Email
+        },
+        Users = project.Users.Select(u => u.Email).ToList() 
+    };
 
     #endregion
     
     #region Task
     public Task AddTask(TaskDataDTO taskDto)
     {
-        
+        if(_taskRepository.Find(t => t.Title == taskDto.Title) != null)
+        {
+            throw new Exception("Task already exists");
+        }
         List<Task> taskDependencies = GetTaskDependenciesWithTitle(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);

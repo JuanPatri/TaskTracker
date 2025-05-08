@@ -19,8 +19,8 @@ public class ProjectRepositoryTest
             Id = 1,
             Name = "Project1",
             Description = "Description1",
-            StartDate = DateTime.Now.AddDays(1),
-            FinishDate = DateTime.Now.AddYears(1),
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(1)),
             Administrator = new User()
         };
     }
@@ -57,8 +57,8 @@ public class ProjectRepositoryTest
             Id = 2,
             Name = "Updated Project",
             Description = "UpdatedDescription",
-            StartDate = DateTime.Now.AddDays(2),
-            FinishDate = DateTime.Now.AddYears(2),
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(2)),
             Administrator = new User()
             {
                 Name = "Admin",
@@ -89,8 +89,8 @@ public class ProjectRepositoryTest
             Id = 99,
             Name = "NonExistentProject",
             Description = "UpdatedDescription",
-            StartDate = DateTime.Now.AddDays(2),
-            FinishDate = DateTime.Now.AddYears(2),
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(2)),
             Administrator = new User()
             {
                 Name = "Admin",

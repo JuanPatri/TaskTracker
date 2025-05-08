@@ -80,11 +80,11 @@ else
 
     private void DeleteUser(string email)
     {
-        var confirm = true; // podrías usar JS interop para confirmación real
+        var confirm = true; 
         if (confirm)
         {
             UserService.RemoveUser(new GetUserDTO { Email = email });
-            _allUsers = UserService.GetAllUsers(); // refrescar lista
+            _allUsers = UserService.GetAllUsers(); 
         }
     }
 
