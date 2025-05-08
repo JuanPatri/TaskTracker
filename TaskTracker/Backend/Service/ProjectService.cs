@@ -337,14 +337,12 @@ public class ProjectService
         _projectRepository.Update(project);
     }
 
-    public bool ValidateTaskStatus(TaskDataDTO taskDto, Status status)
+    public bool ValidateTaskStatus(TaskDataDTO taskData, Status status)
     {
-        if (taskDto.Dependencies.Count == 0 || status == Status.Pending){
-            return true;
-        }
-
-        return false;
+        return taskData.Dependencies.Count == 0 || status == Status.Pending;    
     }
+
+
     
     #endregion
 
