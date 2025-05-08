@@ -6,8 +6,8 @@
 @inject ProjectService ProjectService
 @implements IDisposable
 
-<PageTitle>Crear Proyecto</PageTitle>
-<h1>Crear Proyecto</h1>
+<PageTitle>Create Project</PageTitle>
+<h1>Create Project</h1>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
@@ -21,46 +21,46 @@
 
 @if (_availableUsers == null)
 {
-    <p>Cargando usuarios...</p>
+    <p>Charging users...</p>
 }
 else
 {
     <form class="mb-3" @onsubmit="HandleSubmit">
         <div class="mb-3">
-            <label class="form-label">Nombre</label>
+            <label class="form-label">Name</label>
             <input type="text" class="form-control" @bind="_projectData.Name" required />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Descripción</label>
+            <label class="form-label">Description</label>
             <textarea class="form-control" @bind="_projectData.Description" required></textarea>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Fecha de Inicio</label>
+            <label class="form-label">Start Date</label>
             <input type="date" class="form-control" @bind="_projectData.StartDate" required />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Fecha de Fin</label>
+            <label class="form-label">Finish Date</label>
             <input type="date" class="form-control" @bind="_projectData.FinishDate" required />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Miembros del Proyecto</label>
+            <label class="form-label">Project Members</label>
             <select class="form-select" multiple @onchange="OnMembersSelected">
                 @foreach (var user in _availableUsers)
                 {
                     <option value="@user.Email">@user.Name @user.LastName</option>
                 }
             </select>
-            <div class="form-text">Mantén presionado Ctrl para seleccionar múltiples miembros</div>
+            <div class="form-text">Hold down Ctrl to select multiple members</div>
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Administrador del Proyecto</label>
+            <label class="form-label">Project Administrator</label>
             <select class="form-select" @onchange="OnAdminSelected">
-                <option value="">Seleccionar administrador</option>
+                <option value="">Select Administrator</option>
                 @foreach (var user in _availableUsers)
                 {
                     <option value="@user.Email">@user.Name @user.LastName</option>
@@ -68,7 +68,7 @@ else
             </select>
         </div>
 
-        <button type="submit" class="btn btn-primary">Crear Proyecto</button>
+        <button type="submit" class="btn btn-primary">Create Project</button>
     </form>
 }
 
@@ -112,7 +112,7 @@ else
         {
             if (string.IsNullOrEmpty(_selectedAdmin))
             {
-                _errorMessage = "Debe seleccionar un administrador";
+                _errorMessage = "Please select an administrator.";
                 return;
             }
 
@@ -120,7 +120,7 @@ else
             _projectData.Users = _selectedMembers;
 
             ProjectService.AddProject(_projectData);
-            _successMessage = "Proyecto creado exitosamente!";
+            _successMessage = "Project created successfully";
             _errorMessage = string.Empty;
             await Task.Delay(2000);
             NavigationManager.NavigateTo("/ProjectManagement");
