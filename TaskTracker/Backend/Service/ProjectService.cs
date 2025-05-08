@@ -97,11 +97,16 @@ public class ProjectService
     
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
+        
+        if (string.IsNullOrWhiteSpace(projectDto.Administrator.Password))
+        {
+            User? fullAdmin = _userRepository.Find(u => u.Email == projectDto.Administrator.Email);
+            projectDto.Administrator.Password = fullAdmin?.Password ?? "";
+        }
+        
         List<User> users = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
-        
-        
 
         Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;

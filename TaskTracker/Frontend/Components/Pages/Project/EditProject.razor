@@ -1,5 +1,6 @@
 @page "/EditProject"
 @using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.UserDTOs
 @using Backend.Service
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
@@ -91,6 +92,15 @@
         {
             if (_project != null)
             {
+                // Console.WriteLine($"{_project.Administrator.Password == null}");
+                // _project.Administrator = new UserDataDTO(){
+                //     Email = SessionService.CurrentUser!.Email,
+                //     Name = SessionService.CurrentUser.Name,
+                //     LastName = SessionService.CurrentUser.LastName,
+                //     BirthDate = SessionService.CurrentUser.BirthDate,
+                //     Password = SessionService.CurrentUser.Password,
+                //     Admin = SessionService.CurrentUser.Admin
+                // };;
                 await Task.FromResult(ProjectService.UpdateProject(_project));
                 NavigationManager.NavigateTo("/ProjectManagement");
             }
