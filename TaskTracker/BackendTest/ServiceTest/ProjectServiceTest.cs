@@ -769,7 +769,7 @@ public class
 
         Status status = Status.Completed;
         
-        bool isValid = _projectService.ValidateTaskStatus(taskDto, status);
+        bool isValid = _projectService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
     }
 

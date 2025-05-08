@@ -114,6 +114,7 @@ else
     {
         _selectedTaskTitle = e.Value?.ToString() ?? "";
         var task = ProjectService.GetTaskByTitle(_selectedTaskTitle);
+        
 
         if (task != null)
         {
@@ -122,7 +123,7 @@ else
                 Title = task.Title,
                 Description = task.Description,
                 Duration = task.Duration,
-                Status = task.Status
+                Status = task.Status,
             };
 
             _durationInHours = task.Duration;
@@ -133,7 +134,7 @@ else
     {
         if (Enum.TryParse<Status>(e.Value?.ToString(), out Status newStatus))
         {
-            bool isValid = ProjectService.ValidateTaskStatus(_editingTask, newStatus);
+            bool isValid = ProjectService.ValidateTaskStatus(_editingTask.Title, newStatus);
         
             if (isValid)
             {
@@ -141,8 +142,7 @@ else
             }
             else
             {
-                _errorMessage = "No se puede cambiar el estado debido a restricciones.";
-            }
+                _errorMessage = "Cannot change the task status, as the tasks it depends on have not been completed.";            }
         }
     }
     
