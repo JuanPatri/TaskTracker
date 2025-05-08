@@ -1,8 +1,12 @@
 @page "/ProjectManagement"
+@using Backend.Domain
 @using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.UserDTOs
 @using Backend.Service
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
+@inject UserService UserService
+@inject SessionService SessionService
 
 <PageTitle>Project Management</PageTitle>
 <h1>Project Management</h1>
@@ -28,6 +32,16 @@
                 <td>@project.StartDate.ToShortDateString()</td>
                 <td>@project.FinishDate.ToShortDateString()</td>
                 <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
+                <td>
+                    <div class="btn-group">
+                        @if (CanEditProject(project))
+                        {
+                            <button class="btn btn-warning" @onclick="() => GoToEditProject(project)">
+                                Edit
+                            </button>
+                        }
+                    </div>
+                </td>
             </tr>
         }
         </tbody>
@@ -40,14 +54,27 @@ else
 
 @code {
     private List<ProjectDataDTO> _projects = new();
+    private User? _currentUser;
 
     protected override void OnInitialized()
     {
         _projects = ProjectService.GetAllProjectsDTOs();
+        _currentUser = SessionService.CurrentUser;
+    }
+    
+    private bool CanEditProject(ProjectDataDTO project)
+    {
+        return _currentUser.Admin || project.Administrator.Email == _currentUser.Email;
     }
 
     public void GoToCreateProject()
     {
         NavigationManager.NavigateTo("/CreateProject", true);
+    }
+    
+    private void GoToEditProject(ProjectDataDTO project)
+    {
+        ProjectService.SelectedProject = project;
+        NavigationManager.NavigateTo($"/EditProject", true);
     }
 }

@@ -18,6 +18,7 @@ public class ProjectService
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     public readonly IRepository<User> _userRepository;
+    public ProjectDataDTO? SelectedProject { get; set; }
     
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
         IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<User> userRepository)

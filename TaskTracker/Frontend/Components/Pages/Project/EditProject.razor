@@ -1,0 +1,110 @@
+@page "/EditProject"
+@using Backend.DTOs.ProjectDTOs
+@using Backend.Service
+@inject NavigationManager NavigationManager
+@inject ProjectService ProjectService
+@inject SessionService SessionService
+
+<PageTitle>Edit Project</PageTitle>
+
+@if (_project != null)
+{
+    <div class="container">
+        <h1>Edit Project</h1>
+
+        @if (!string.IsNullOrEmpty(_errorMessage))
+        {
+            <div class="alert alert-danger">
+                @_errorMessage
+            </div>
+        }
+
+        <EditForm Model="@_project" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name</label>
+                <InputText id="name" class="form-control" @bind-Value="_project.Name" />
+                <ValidationMessage For="@(() => _project.Name)" />
+            </div>
+
+            <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <InputTextArea id="description" class="form-control" @bind-Value="_project.Description" rows="3" />
+                <ValidationMessage For="@(() => _project.Description)" />
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="startDate" class="form-label">Start Date</label>
+                    <InputDate id="startDate" class="form-control" @bind-Value="_project.StartDate" />
+                    <ValidationMessage For="@(() => _project.StartDate)" />
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="finishDate" class="form-label">Finish Date</label>
+                    <InputDate id="finishDate" class="form-control" @bind-Value="_project.FinishDate" />
+                    <ValidationMessage For="@(() => _project.FinishDate)" />
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary me-2">Save</button>
+                <button type="button" class="btn btn-secondary" @onclick="GoBack">Cancel</button>
+            </div>
+        </EditForm>
+    </div>
+}
+
+@code {
+    private ProjectDataDTO? _project;
+    private string? _errorMessage;
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            _project = ProjectService.SelectedProject;
+
+            if (_project == null)
+            {
+                NavigationManager.NavigateTo("/ProjectManagement");
+                return;
+            }
+
+            var currentUser = SessionService.CurrentUser;
+            if (!currentUser.Admin && _project.Administrator.Email != currentUser.Email)
+            {
+                NavigationManager.NavigateTo("/unauthorized");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Error loading project";
+            Console.WriteLine($"Error: {ex.Message}");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            if (_project != null)
+            {
+                await Task.FromResult(ProjectService.UpdateProject(_project));
+                NavigationManager.NavigateTo("/ProjectManagement");
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Error updating project";
+            Console.WriteLine($"Error: {ex.Message}");
+            StateHasChanged();
+        }
+    }
+
+    private void GoBack()
+    {
+        NavigationManager.NavigateTo("/ProjectManagement");
+    }
+}
