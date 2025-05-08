@@ -1,79 +1,177 @@
 @page "/EditTask"
+@using Backend.Service
+@using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.TaskDTOs
+@using Backend.Domain.Enums
+@inject ProjectService ProjectService
+@inject NavigationManager NavigationManager
+
 <PageTitle>Edit Task</PageTitle>
 
-<form class="mb-3">
-    <h1>Edit Task</h1>
+<h1>Edit Task</h1>
 
-
-    <div class="mb-3">
-        <label for="project" class="form-label">Project</label>
-        <select id="project" class="form-select">
-            <option value="">Select a project</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="task" class="form-label">Task</label>
-        <select id="task" class="form-select">
-            <option value="">Select task to edit</option>
-        </select>
-    </div>
-
-    <div class="mb-3">
-        <label for="description" class="form-label">Description</label>
-        <textarea class="form-control" id="description" rows="3" placeholder="Edit task description"></textarea>
-    </div>
-
-    <div class="mb-3">
-        <label for="startDate" class="form-label">Start Date</label>
-        <input type="date" class="form-control" id="startDate">
-        <div class="form-text text-muted">Select present or future date</div>
-    </div>
-
-    <div class="mb-3">
-        <label for="duration" class="form-label">Duration</label>
-        <input type="time" class="form-control" id="duration" placeholder="Edit task duration"/>
-    </div>
-
-    <div class="mb-3">
-        <label for="dependencies" class="form-label">Task Dependencies</label>
-        <select id="dependencies" multiple class="form-select"></select>
-        <div class="form-text">Hold Ctrl to select multiple tasks</div>
-    </div>
-
-    <div class="mb-3">
-        <label for="resource" class="form-label">ResourceDTOss</label>
-        <select id="resource" multiple class="form-select"></select>
-        <div class="form-text">Hold Ctrl to select multiple resources</div>
-    </div>
-
-    <div class="mb-3">
-        <label class="form-label">Task status</label>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="status" id="pending" value="Pending">
-            <label class="form-check-label" for="pending">
-                Pending
-            </label>
+@if (_projects.Any())
+{
+    <form class="mb-3" @onsubmit="HandleSubmit">
+        <div class="mb-3">
+            <label for="project" class="form-label">Project</label>
+            <select id="project" class="form-select" @onchange="OnProjectSelected">
+                <option value="">Select a project</option>
+                @foreach (var project in _projects)
+                {
+                    <option value="@project.Id" selected="@(_selectedProjectId == project.Id)">
+                        @project.Name
+                    </option>
+                }
+            </select>
         </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="status" id="completed" value="completed">
-            <label class="form-check-label" for="completed">
-                Completed
-            </label>
-        </div>
-        <div class="form-check">
-            <input class="form-check-input" type="radio" name="status" id="blocked" value="blocked">
-            <label class="form-check-label" for="blocked">
-                Blocked
-            </label>
-        </div>
-    </div>
+
+        @if (_tasks.Any())
+        {
+            <div class="mb-3">
+                <label for="task" class="form-label">Task</label>
+                <select id="task" class="form-select" @onchange="OnTaskSelected">
+                    <option value="">Select task to edit</option>
+                    @foreach (var task in _tasks)
+                    {
+                        <option value="@task.Title" selected="@(_selectedTaskTitle == task.Title)">
+                            @task.Title
+                        </option>
+                    }
+                </select>
+            </div>
+        }
+
+        @if (_editingTask != null)
+        {
+            <div class="mb-3">
+                <label>Description</label>
+                <textarea class="form-control" @bind="_editingTask.Description"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label>Duration</label>
+                <input type="text" class="form-control" @bind="_durationString" />
+            </div>
+
+            <div class="mb-3">
+                <label>Status</label>
+                <select class="form-select" @bind="_editingTask.Status">
+                    <option value="@Status.Pending">Pending</option>
+                    <option value="@Status.Completed">Completed</option>
+                    <option value="@Status.Blocked">Blocked</option>
+                </select>
+            </div>
+            
+            
+
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        }
+    </form>
     
-    <button type="submit" class="btn btn-primary">Edit Task</button>
-</form>
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="alert alert-success">@_successMessage</div>
+    }
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger">@_errorMessage</div>
+    }
 
+}
+else
+{
+    <p>Loading projects...</p>
+}
 
 @code {
-    
+    private List<GetProjectDTO> _projects = new();
+    private List<GetTaskDTO> _tasks = new();
+    private string _selectedTaskTitle = string.Empty;
+    private int _selectedProjectId;
+    private TaskDataDTO? _editingTask;
+    private string _durationString = string.Empty;
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
+
+
+    protected override void OnInitialized()
+    {
+        _projects = ProjectService.GetAllProjects()
+            .Select(p => new GetProjectDTO { Id = p.Id, Name = p.Name })
+            .ToList();
+    }
+
+    private void OnProjectSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int id))
+        {
+            _selectedProjectId = id;
+            _tasks = ProjectService.GetTasksForProjectWithId(id);
+            _selectedTaskTitle = string.Empty;
+            _editingTask = null;
+        }
+    }
+
+    private void OnTaskSelected(ChangeEventArgs e)
+    {
+        _selectedTaskTitle = e.Value?.ToString() ?? "";
+        var task = ProjectService.GetTaskByTitle(_selectedTaskTitle);
+
+        if (task != null)
+        {
+            _editingTask = new TaskDataDTO
+            {
+                Title = task.Title,
+                Description = task.Description,
+                Duration = task.Duration,
+                Status = task.Status
+            };
+
+            _durationString = task.Duration.ToString(@"hh\:mm");
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        _errorMessage = string.Empty;
+        _successMessage = string.Empty;
+
+        try
+        {
+            if (_editingTask == null)
+            {
+                _errorMessage = "No task selected.";
+                return;
+            }
+
+            if (!TimeSpan.TryParse(_durationString, out var parsedDuration))
+            {
+                _errorMessage = "Invalid duration format. Use HH:mm.";
+                return;
+            }
+
+            _editingTask.Duration = parsedDuration;
+
+            var result = ProjectService.UpdateTask(_editingTask);
+
+            if (result != null)
+            {
+                _successMessage = "Task updated successfully.";
+                await Task.Delay(1500); 
+                NavigationManager.NavigateTo("/TaskManagement");
+            }
+            else
+            {
+                _errorMessage = "Task update failed.";
+            }
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Unexpected error: {ex.Message}";
+        }
+    }
+
+
 
 }
