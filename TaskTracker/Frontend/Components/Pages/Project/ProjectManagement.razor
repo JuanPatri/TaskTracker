@@ -58,7 +58,7 @@ else
 
     protected override void OnInitialized()
     {
-        _projects = ProjectService.GetAllProjectsDTOs();
+        _projects = ProjectService.ProjectsDataByUserEmail(_currentUser.Email);
         _currentUser = SessionService.CurrentUser;
     }
     
