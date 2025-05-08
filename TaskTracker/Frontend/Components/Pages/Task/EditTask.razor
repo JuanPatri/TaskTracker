@@ -142,7 +142,8 @@ else
             }
             else
             {
-                _errorMessage = "Cannot change the task status, as the tasks it depends on have not been completed.";            }
+                _errorMessage = "Cannot change the task status, as the tasks it depends on have not been completed.";
+            }
         }
     }
     
@@ -158,8 +159,14 @@ else
                 _errorMessage = "No task selected.";
                 return;
             }
-            
-            
+
+            bool isStatusValid = ProjectService.ValidateTaskStatus(_editingTask.Title, _editingTask.Status);
+            if (!isStatusValid)
+            {
+                _errorMessage = "Cannot save the task because the current status is invalid based on dependencies.";
+                return;
+            }
+
             _editingTask.Duration = _durationInHours;
 
             var result = ProjectService.UpdateTask(_editingTask);
@@ -167,7 +174,7 @@ else
             if (result != null)
             {
                 _successMessage = "Task updated successfully.";
-                await Task.Delay(1500); 
+                await Task.Delay(1500);
                 NavigationManager.NavigateTo("/TaskManagement");
             }
             else
@@ -179,5 +186,4 @@ else
         {
             _errorMessage = $"Unexpected error: {ex.Message}";
         }
-    }
-}
+    }}
