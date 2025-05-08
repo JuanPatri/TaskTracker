@@ -36,6 +36,9 @@
                     <div class="btn-group">
                         @if (CanEditProject(project))
                         {
+                            <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteProject(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
+                                Delete
+                            </button>
                             <button class="btn btn-warning" @onclick="() => GoToEditProject(project)">
                                 Edit
                             </button>
@@ -76,5 +79,11 @@ else
     {
         ProjectService.SelectedProject = project;
         NavigationManager.NavigateTo($"/EditProject", true);
+    }
+    
+    private void DeleteProject(GetProjectDTO project)
+    {
+        ProjectService.RemoveProject(project);
+        _projects = ProjectService.ProjectsDataByUserEmail(_currentUser.Email);
     }
 }
