@@ -13,6 +13,7 @@ public class Task
     private List<Task> _dependencies = new List<Task>();
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
     private List<Task> _finishToStartDependencies = new List<Task>();
+    private List<Task> _startToStartDependencies = new List<Task>();
 
     public string Title
     {
@@ -74,6 +75,15 @@ public class Task
     {
         get => _finishToStartDependencies;
         set => _finishToStartDependencies = value; 
+    }
+    
+    public List<Task> StartToStartDependencies
+    {
+        get => _startToStartDependencies;
+        set
+        {
+            _startToStartDependencies = value; 
+        } 
     }
     public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
     {
