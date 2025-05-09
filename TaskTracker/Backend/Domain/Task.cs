@@ -80,10 +80,7 @@ public class Task
     public List<Task> StartToStartDependencies
     {
         get => _startToStartDependencies;
-        set
-        {
-            _startToStartDependencies = value; 
-        } 
+        set => _startToStartDependencies = value; 
     }
     public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
     {
