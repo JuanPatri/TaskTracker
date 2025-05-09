@@ -185,5 +185,13 @@ public class ProjectTest
         _project.ExclusiveResources = resources;
         Assert.AreEqual(resources, _project.ExclusiveResources);
     }
+    
+    [TestMethod]
+    public void SetCriticalPathForProjectTest()
+    {
+        List<Task> criticalPath = new List<Task>();
+        _project.CriticalPath = criticalPath;
+        Assert.AreEqual(criticalPath, _project.CriticalPath);
+    }
 
 }
