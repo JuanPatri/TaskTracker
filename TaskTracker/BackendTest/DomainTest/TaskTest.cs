@@ -133,7 +133,8 @@ public class TaskTest
         Assert.AreEqual(startToStartDependencies, _task.StartToStartDependencies); 
     }
 
-    [TestMethod] public void SetSlackForTaskTest()
+    [TestMethod] 
+    public void SetSlackForTaskTest()
     {
         double slack = 0.5;
         _task.Slack = slack;

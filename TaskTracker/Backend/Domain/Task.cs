@@ -14,7 +14,7 @@ public class Task
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
     private List<Task> _finishToStartDependencies = new List<Task>();
     private List<Task> _startToStartDependencies = new List<Task>();
-
+    private double _slack;
     public string Title
     {
         get => _title;
@@ -81,6 +81,15 @@ public class Task
     {
         get => _startToStartDependencies;
         set => _startToStartDependencies = value; 
+    }
+    
+    public double Slack
+    {
+        get => _slack;
+        set
+        {
+            _slack = value; 
+        } 
     }
     public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
     {
