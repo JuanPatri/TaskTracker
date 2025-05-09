@@ -13,6 +13,7 @@ public class Project
     private List<Task> _tasks = new List<Task>();
     private List<User> _users = new List<User>();
     private List<Resource> _exclusiveResources = new List<Resource>();
+    private List<Task> _criticalPath = new List<Task>();
 
     private const int MaxDescriptionLength = 400;
     public string Name
@@ -90,6 +91,15 @@ public class Project
     {
         get => _exclusiveResources;
         set => _exclusiveResources = value;
+    }
+
+    public List<Task> CriticalPath
+    {
+        get => _criticalPath;
+        set
+        {
+            _criticalPath = value;
+        }
     }
     
     public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
