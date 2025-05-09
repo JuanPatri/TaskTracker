@@ -121,6 +121,18 @@ public class TaskTest
     }
 
     [TestMethod]
+    public void SetStartToStartDependencies ()
+    {
+        List<Task> startToStartDependencies = new List<Task>
+        {
+            new Task { Title = "Task 1" },
+            new Task { Title = "Task 2" }
+        };
+        _task.StartToStartDependencies = startToStartDependencies;
+        
+        Assert.AreEqual(startToStartDependencies, _task.StartToStartDependencies); 
+    }
+    [TestMethod]
     public void FromDtoShouldCreateTaskWithCorrectValues()
     {
         TaskDataDTO taskDto = new TaskDataDTO
