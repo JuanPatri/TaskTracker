@@ -12,6 +12,7 @@ public class Task
     private Status _status = Status.Pending;
     private List<Task> _dependencies = new List<Task>();
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
+    private List<Task> _finishToStartDependencies = new List<Task>();
 
     public string Title
     {
@@ -69,6 +70,14 @@ public class Task
         } 
     }
     
+    public List<Task> FinishToStartDependencies
+    {
+        get => _finishToStartDependencies;
+        set
+        {
+            _finishToStartDependencies = value; 
+        } 
+    }
     public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
     {
         return new Task()
