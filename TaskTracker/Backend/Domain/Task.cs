@@ -86,10 +86,7 @@ public class Task
     public double Slack
     {
         get => _slack;
-        set
-        {
-            _slack = value; 
-        } 
+        set => _slack = value; 
     }
     public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
     {
