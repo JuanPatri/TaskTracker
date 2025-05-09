@@ -96,10 +96,7 @@ public class Project
     public List<Task> CriticalPath
     {
         get => _criticalPath;
-        set
-        {
-            _criticalPath = value;
-        }
+        set => _criticalPath = value;
     }
     
     public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
