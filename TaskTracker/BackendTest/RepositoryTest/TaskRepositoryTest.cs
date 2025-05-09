@@ -64,7 +64,6 @@ public void UpdateExistingTaskTest()
         Description = "Updated Description",
         Duration = 0.5,  
         Status = Status.Completed,  
-        Dependencies = new List<TaskItem>()  
     };
     
     TaskItem? originalTask = _taskRepository.Find(t => t.Title == _task.Title);

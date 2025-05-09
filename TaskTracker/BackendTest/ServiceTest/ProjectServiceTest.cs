@@ -612,12 +612,12 @@ public class
 
         Task taskWithDependency = new Task();
         taskWithDependency.Title = "MainTask";
-        taskWithDependency.Dependencies = new List<Task> { dependencyTask1 };
+        taskWithDependency.FinishToStartDependencies = new List<Task> { dependencyTask1 };
         _taskRepository.Add(taskWithDependency);
 
         Task taskWithoutSearchedDependency = new Task();
         taskWithoutSearchedDependency.Title = "AnotherTask";
-        taskWithoutSearchedDependency.Dependencies = new List<Task> { dependencyTask2 };
+        taskWithoutSearchedDependency.FinishToStartDependencies = new List<Task> { dependencyTask2 };
         _taskRepository.Add(taskWithoutSearchedDependency);
 
         List<string> searchList = new List<string>()
@@ -625,7 +625,39 @@ public class
             "Task1"
         };
 
-        List<Task> tasks = _projectService.GetTaskDependenciesWithTitle(searchList);
+        List<Task> tasks = _projectService.GetTaskFinishToStartDependenciesWithTitleTask(searchList);
+
+        Assert.AreEqual(1, tasks.Count);
+        Assert.AreEqual("MainTask", tasks[0].Title);
+    }
+
+    [TestMethod]
+    public void GetTaskStartToStartDependenciesWithTitleShouldReturnTask()
+    {
+        Task dependencyTask1 = new Task();
+        dependencyTask1.Title = "Task1";
+        _taskRepository.Add(dependencyTask1);
+
+        Task dependencyTask2 = new Task();
+        dependencyTask2.Title = "Task2";
+        _taskRepository.Add(dependencyTask2);
+
+        Task taskWithDependency = new Task();
+        taskWithDependency.Title = "MainTask";
+        taskWithDependency.StartToStartDependencies = new List<Task> { dependencyTask1 };
+        _taskRepository.Add(taskWithDependency);
+
+        Task taskWithoutSearchedDependency = new Task();
+        taskWithoutSearchedDependency.Title = "AnotherTask";
+        taskWithoutSearchedDependency.StartToStartDependencies = new List<Task> { dependencyTask2 };
+        _taskRepository.Add(taskWithoutSearchedDependency);
+
+        List<string> searchList = new List<string>()
+        {
+            "Task1"
+        };
+
+        List<Task> tasks = _projectService.GetTaskStartToStartDependenciesWithTitleTask(searchList);
 
         Assert.AreEqual(1, tasks.Count);
         Assert.AreEqual("MainTask", tasks[0].Title);
