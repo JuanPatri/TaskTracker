@@ -153,6 +153,7 @@
 
     private string? _selectedDependencyTaskTitle;
     private string? _selectedDependencyType;
+    private List<(string Title, string Type)> _dependencyDisplayList = new();
     private List<string> _taskDependencies = new();
 
     private int _selectedProjectId;
@@ -248,15 +249,23 @@
                 if (!_taskDependencies.Contains(selectedTask.Title))
                 {
                     _taskDependencies.Add(selectedTask.Title);
+                    _dependencyDisplayList.Add((selectedTask.Title, "FS"));
                 }
             }
             else if (_selectedDependencyType == "SS")
             {
+                if (!_taskDependencies.Contains(selectedTask.Title))
+                {
+                    _taskDependencies.Add(selectedTask.Title);
+                    _dependencyDisplayList.Add((selectedTask.Title, "SS"));
+                }
+
                 foreach (var dep in selectedTask.Dependencies)
                 {
                     if (!_taskDependencies.Contains(dep.Title))
                     {
                         _taskDependencies.Add(dep.Title);
+                        _dependencyDisplayList.Add((dep.Title, "SS"));
                     }
                 }
             }
@@ -265,6 +274,7 @@
             _selectedDependencyType = null;
         }
     }
+
 
     private void RemoveDependencyFromTask(string taskTitle)
     {
