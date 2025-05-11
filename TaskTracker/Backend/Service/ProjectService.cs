@@ -275,6 +275,7 @@ public class ProjectService
         Users = project.Users.Select(u => u.Email).ToList() 
     };
 
+    
     #endregion
     
     #region Task

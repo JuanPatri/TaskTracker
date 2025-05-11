@@ -428,7 +428,7 @@ public class
     }
 
     [TestMethod]
-    public void GetExclusiveResourcesForProjectShouldReturnEmpty_WhenProjectNotFound()
+    public void GetExclusiveResourcesForProjectShouldReturnEmptyWhenProjectNotFound()
     {
         List<GetResourceDto> result = _projectService.GetExclusiveResourcesForProject(999);
         Assert.IsNotNull(result);
@@ -436,7 +436,7 @@ public class
     }
 
     [TestMethod]
-    public void GetTasksForProjectWithIdShouldReturnEmpty_WhenProjectNotFound()
+    public void GetTasksForProjectWithIdShouldReturnEmptyWhenProjectNotFound()
     {
         List<GetTaskDTO> result = _projectService.GetTasksForProjectWithId(999);
         Assert.IsNotNull(result);
@@ -444,7 +444,7 @@ public class
     }
 
     [TestMethod]
-    public void AddTaskToProject_ShouldThrow_WhenProjectNotFound()
+    public void AddTaskToProjectShouldThrowWhenProjectNotFound()
     {
         TaskDataDTO taskDto = new TaskDataDTO
         {
@@ -461,7 +461,7 @@ public class
     }
 
     [TestMethod]
-    public void ProjectsDataByUserEmail_ShouldReturnAssociatedProjects()
+    public void ProjectsDataByUserEmailShouldReturnAssociatedProjects()
     {
         var user = new User { Name = "Ana", LastName = "Lopez", Email = "ana@example.com" };
         var admin = new User { Name = "Admin", LastName = "Root", Email = "admin@example.com", Admin = true };
@@ -483,44 +483,80 @@ public class
         _projectRepository.Add(project);
 
         List<ProjectDataDTO> result = _projectService.ProjectsDataByUserEmail("ana@example.com");
-        
+
         Assert.AreEqual(project.Id, result[0].Id);
         Assert.AreEqual(project.Name, result[0].Name);
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
-    
-    [TestMethod]
-    public void AnalyzeProjectShouldReturnCorrectAnalysis()
-    {
-        Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
-        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
 
-        _taskRepository.Add(taskA);
-        _taskRepository.Add(taskB);
-        _taskRepository.Add(taskC);
-        _taskRepository.Add(taskD);
+    [TestMethod]
+    public void GetEstimatedFinishDateShouldReturnCorrectDate()
+    {
+        Task taskA = new Task { Title = "A", Duration = 24 }; 
+        Task taskB = new Task { Title = "B", Duration = 48, Dependencies = new List<Task> { taskA } };
 
         Project project = new Project
         {
-            Id = 88,
-            Name = "Project Analyzed",
+            Id = 100,
+            Name = "Project 100",
             StartDate = DateOnly.FromDateTime(DateTime.Today),
             Administrator = new User(),
-            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+            Tasks = new List<Task> { taskA, taskB }
         };
 
         _projectRepository.Add(project);
-
-        ProjectAnalysisDTO analysis = _projectService.AnalyzeProject(88);
-
-        Assert.AreEqual(DateTime.Today.AddHours(7), analysis.EstimatedFinishDate);
-        Assert.AreEqual("A", analysis.CriticalTaskTitles[0]);
-        Assert.AreEqual(1, analysis.NonCriticalTaskSlack.Count);
-        Assert.AreEqual(1, analysis.NonCriticalTaskSlack["C"]);
+        
+        DateOnly result = _projectService.GetEstimatedFinishDate(100);
+        
+        Assert.AreEqual(DateOnly.FromDateTime(DateTime.Today).AddDays(3), result);
     }
-    
+
+    [TestMethod]
+    public void GetCriticalTasksShouldReturnOnlyCritical()
+    {
+        Task taskA = new Task { Title = "A", Duration = 24 }; 
+        Task taskB = new Task { Title = "B", Duration = 24, Dependencies = new List<Task> { taskA } }; 
+        Task taskC = new Task { Title = "C", Duration = 12, Dependencies = new List<Task> { taskA } }; 
+
+        Project project = new Project
+        {
+            Id = 101,
+            Name = "Project 101",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Administrator = new User(),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectRepository.Add(project);
+        
+        var criticalTasks = _projectService.GetCriticalTasks(101);
+        
+        CollectionAssert.AreEquivalent(new List<string> { "A", "B" }, criticalTasks);
+    }
+
+    [TestMethod]
+    public void GetNonCriticalTasksSlackShouldReturnCorrectSlack()
+    {
+        Task taskA = new Task { Title = "A", Duration = 24 };
+        Task taskB = new Task { Title = "B", Duration = 48, Dependencies = new List<Task> { taskA } }; 
+        Task taskC = new Task { Title = "C", Duration = 24, Dependencies = new List<Task> { taskA } }; 
+        Project project = new Project
+        {
+            Id = 102,
+            Name = "Project 102",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Administrator = new User(),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectRepository.Add(project);
+        
+        var slackMap = _projectService.GetNonCriticalTasksSlack(102);
+        
+        Assert.AreEqual(24, slackMap["C"]);
+        Assert.IsFalse(slackMap.ContainsKey("B")); 
+    }
+
     #endregion
 
     #region TaskTest
@@ -833,7 +869,7 @@ public class
         };
 
         Status status = Status.Completed;
-        
+
         bool isValid = _projectService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
     }
