@@ -488,6 +488,39 @@ public class
         Assert.AreEqual(project.Name, result[0].Name);
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
+    
+    [TestMethod]
+    public void AnalyzeProjectShouldReturnCorrectAnalysis()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
+        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+
+        _taskRepository.Add(taskA);
+        _taskRepository.Add(taskB);
+        _taskRepository.Add(taskC);
+        _taskRepository.Add(taskD);
+
+        Project project = new Project
+        {
+            Id = 88,
+            Name = "Project Analyzed",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Administrator = new User(),
+            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+        };
+
+        _projectRepository.Add(project);
+
+        ProjectAnalysisDTO analysis = _projectService.AnalyzeProject(88);
+
+        Assert.AreEqual(DateTime.Today.AddHours(7), analysis.EstimatedFinishDate);
+        Assert.AreEqual("A", analysis.CriticalTaskTitles[0]);
+        Assert.AreEqual(1, analysis.NonCriticalTaskSlack.Count);
+        Assert.AreEqual(1, analysis.NonCriticalTaskSlack["C"]);
+    }
+    
     #endregion
 
     #region TaskTest
