@@ -488,7 +488,6 @@ public class
         Assert.AreEqual(project.Name, result[0].Name);
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
-    
 
     #endregion
 
@@ -805,6 +804,33 @@ public class
 
         bool isValid = _projectService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
+    }
+    
+    [TestMethod]
+    public void CalculateEarlyTimesTasksWithDependenciesComputesCorrectStartAndFinish()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        Project project = new Project
+        {
+            StartDate = new DateOnly(2025, 5, 11),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectService.CalculateEarlyTimes(project);
+
+        DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+
+        Assert.AreEqual(baseStart, taskA.EarlyStart);
+        Assert.AreEqual(baseStart.AddDays(2), taskA.EarlyFinish);
+
+        Assert.AreEqual(taskA.EarlyFinish, taskB.EarlyStart);
+        Assert.AreEqual(taskB.EarlyStart.AddDays(3), taskB.EarlyFinish);
+
+        Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
+        Assert.AreEqual(taskC.EarlyStart.AddDays(1), taskC.EarlyFinish);
     }
 
     #endregion

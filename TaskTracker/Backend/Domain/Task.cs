@@ -12,6 +12,8 @@ public class Task
     private Status _status = Status.Pending;
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
     private List<Task> _dependencies = new List<Task>();
+    public DateTime EarlyStart { get; set; }
+    public DateTime EarlyFinish { get; set; }
     
     public string Title
     {

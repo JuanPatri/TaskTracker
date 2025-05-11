@@ -275,7 +275,7 @@ public class ProjectService
         Users = project.Users.Select(u => u.Email).ToList() 
     };
     
-   
+    
     
     
 
@@ -357,6 +357,72 @@ public class ProjectService
         
         return taskDependencies.Count < 0 || status == Status.Pending;    
     }
+    
+   public void CalculateEarlyTimes(Project project)
+   {
+       foreach (var task in project.Tasks)
+       {
+           task.EarlyStart = DateTime.MinValue;
+           task.EarlyFinish = DateTime.MinValue;
+       }
+   
+       var orderedTasks = GetTopologicalOrder(project.Tasks);
+   
+       foreach (var task in orderedTasks)
+       {
+           DateTime es;
+   
+           if (task.Dependencies == null || task.Dependencies.Count == 0)
+           {
+               es = project.StartDate.ToDateTime(new TimeOnly(0, 0)); 
+           }
+           else
+           {
+               es = task.Dependencies
+                   .Max(dep => dep.EarlyFinish);
+           }
+   
+           DateTime ef = es.AddDays(task.Duration); 
+   
+           task.EarlyStart = es;
+           task.EarlyFinish = ef;
+       }
+   }
+   
+   private List<Task> GetTopologicalOrder(List<Task> tasks)
+   {
+       var visited = new HashSet<Task>();
+       var result = new List<Task>();
+   
+       foreach (var task in tasks)
+       {
+           if (!visited.Contains(task))
+           {
+               VisitRecursive(task, visited, result);
+           }
+       }
+   
+       return result; 
+   }
+   
+   private void VisitRecursive(Task task, HashSet<Task> visited, List<Task> result)
+   {
+       visited.Add(task);
+   
+       if (task.Dependencies != null)
+       {
+           foreach (var dependency in task.Dependencies)
+           {
+               if (!visited.Contains(dependency))
+               {
+                   VisitRecursive(dependency, visited, result);
+               }
+           }
+       }
+   
+       result.Add(task);
+   }
+
     
     #endregion
 
