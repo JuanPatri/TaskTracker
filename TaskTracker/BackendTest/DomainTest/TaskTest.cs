@@ -97,29 +97,16 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void SetFinishToStartDependencies()
+    public void SetDependencies()
     {
         List<Task> finishToStartDependencies = new List<Task>
         {
             new Task { Title = "Task 1" },
             new Task { Title = "Task 2" }
         };
-        _task.FinishToStartDependencies = finishToStartDependencies;
+        _task.Dependencies = finishToStartDependencies;
         
-        Assert.AreEqual(finishToStartDependencies, _task.FinishToStartDependencies);
-    }
-
-    [TestMethod]
-    public void SetStartToStartDependencies ()
-    {
-        List<Task> startToStartDependencies = new List<Task>
-        {
-            new Task { Title = "Task 1" },
-            new Task { Title = "Task 2" }
-        };
-        _task.StartToStartDependencies = startToStartDependencies;
-        
-        Assert.AreEqual(startToStartDependencies, _task.StartToStartDependencies); 
+        Assert.AreEqual(finishToStartDependencies, _task.Dependencies);
     }
 
     [TestMethod] 
@@ -132,7 +119,6 @@ public class TaskTest
 [TestMethod]
 public void FromDtoShouldCreateTaskWithCorrectValues()
 {
-    // Arrange
     TaskDataDTO taskDto = new TaskDataDTO
     {
         Title = "Task 1",
@@ -146,14 +132,9 @@ public void FromDtoShouldCreateTaskWithCorrectValues()
         Slack = 1.0
     };
 
-    List<Task> finishToStartDependencies = new List<Task>
+    List<Task> dependencies = new List<Task>
     {
         new Task { Title = "Task 3", Description = "Description of Task 3" }
-    };
-
-    List<Task> startToStartDependencies = new List<Task>
-    {
-        new Task { Title = "Task 4", Description = "Description of Task 4" }
     };
 
     List<(int, Resource)> resources = new List<(int, Resource)>
@@ -161,7 +142,7 @@ public void FromDtoShouldCreateTaskWithCorrectValues()
         (1, new Resource { Name = "Resource 1" })
     };
 
-    Task task = Task.FromDto(taskDto, resources, startToStartDependencies, finishToStartDependencies);
+    Task task = Task.FromDto(taskDto, resources, dependencies);
     
     Assert.AreEqual("Task 1", task.Title);
     Assert.AreEqual("Description of Task 1", task.Description);
@@ -173,15 +154,8 @@ public void FromDtoShouldCreateTaskWithCorrectValues()
     Assert.AreEqual(resources[0].Item1, task.Resources[0].Item1);      
     Assert.AreEqual(resources[0].Item2.Name, task.Resources[0].Item2.Name); 
 
-    Assert.IsNotNull(task.FinishToStartDependencies);
-    Assert.AreEqual(1, task.FinishToStartDependencies.Count);
-    Assert.AreEqual("Task 3", task.FinishToStartDependencies[0].Title);
-    Assert.AreEqual("Description of Task 3", task.FinishToStartDependencies[0].Description);
-
-    Assert.IsNotNull(task.StartToStartDependencies);
-    Assert.AreEqual(1, task.StartToStartDependencies.Count);
-    Assert.AreEqual("Task 4", task.StartToStartDependencies[0].Title);
-    Assert.AreEqual("Description of Task 4", task.StartToStartDependencies[0].Description);
+    Assert.IsNotNull(task.Dependencies);
+    Assert.AreEqual("Task 3", task.Dependencies[0].Title);
 
     Assert.AreEqual(1.0, task.Slack);
 }

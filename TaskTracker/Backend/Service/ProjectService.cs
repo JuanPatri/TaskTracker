@@ -113,23 +113,23 @@ public class ProjectService
         return updatedProject;
     }
     
-    public List<Task> GetTaskFinishToStartDependenciesWithTitleTask(List<string> titlesTask)
+    public List<Task> GetTaskDependenciesWithTitleTask(List<string> titlesTask)
     {
         List<Task> taskDependencies = _taskRepository.FindAll()
-            .Where(t => t.FinishToStartDependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
+            .Where(t => t.Dependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
             .ToList();
 
         return taskDependencies;
     }
 
-    public List<Task> GetTaskStartToStartDependenciesWithTitleTask(List<string> titlesTask)
-    {
-        List<Task> taskDependencies = _taskRepository.FindAll()
-            .Where(t => t.StartToStartDependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
-            .ToList();
-
-        return taskDependencies;
-    }
+    // public List<Task> GetTaskStartToStartDependenciesWithTitleTask(List<string> titlesTask)
+    // {
+    //     List<Task> taskDependencies = _taskRepository.FindAll()
+    //         .Where(t => t.StartToStartDependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
+    //         .ToList();
+    //
+    //     return taskDependencies;
+    // }
     public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
         return resourceName
@@ -284,12 +284,11 @@ public class ProjectService
         {
             throw new Exception("Task already exists");
         }
-        List<Task> taskFinishToStartDependencies = GetTaskFinishToStartDependenciesWithTitleTask(taskDto.Dependencies);
-        List<Task> taskStartToStartDependencies = GetTaskStartToStartDependenciesWithTitleTask(taskDto.Dependencies);
+        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        Task createdTask = Task.FromDto(taskDto, resourceList, taskFinishToStartDependencies, taskStartToStartDependencies);
+        Task createdTask = Task.FromDto(taskDto, resourceList, dependencies);
         return _taskRepository.Add(createdTask);
     }
     public Task GetTaskByTitle(string title)
@@ -302,12 +301,11 @@ public class ProjectService
     }
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        List<Task> taskFinishToStartDependencies = GetTaskFinishToStartDependenciesWithTitleTask(taskDto.Dependencies);
-        List<Task> taskStartToStartDependencies = GetTaskStartToStartDependenciesWithTitleTask(taskDto.Dependencies);
+        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        return _taskRepository.Update(Task.FromDto(taskDto, resourceList, taskFinishToStartDependencies, taskStartToStartDependencies));
+        return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
     }
     public void RemoveTask(GetTaskDTO task)
     {
@@ -337,12 +335,11 @@ public class ProjectService
             throw new ArgumentException($"No project found with the ID {projectId}.");
         }
 
-        List<Task> taskFinishToStartDependencies = GetTaskFinishToStartDependenciesWithTitleTask(taskDto.Dependencies);
-        List<Task> taskStartToStartDependencies = GetTaskStartToStartDependenciesWithTitleTask(taskDto.Dependencies);
+        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
-        Task newTask = Task.FromDto(taskDto, resourceList, taskFinishToStartDependencies, taskStartToStartDependencies);
+        Task newTask = Task.FromDto(taskDto, resourceList, dependencies);
 
         project.Tasks.Add(newTask);
 
@@ -351,7 +348,7 @@ public class ProjectService
 
     public bool ValidateTaskStatus(string title, Status status)
     {
-        List<Task> taskDependencies = GetTaskFinishToStartDependenciesWithTitleTask(new List<string> { title });
+        List<Task> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
         
         return taskDependencies.Count < 0 || status == Status.Pending;    
     }

@@ -11,8 +11,7 @@ public class Task
     private double _duration;
     private Status _status = Status.Pending;
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
-    private List<Task> _finishToStartDependencies = new List<Task>();
-    private List<Task> _startToStartDependencies = new List<Task>();
+    private List<Task> _dependencies = new List<Task>();
     private double _slack;
     public string Title
     {
@@ -64,16 +63,10 @@ public class Task
         } 
     }
     
-    public List<Task> FinishToStartDependencies
+    public List<Task> Dependencies
     {
-        get => _finishToStartDependencies;
-        set => _finishToStartDependencies = value; 
-    }
-    
-    public List<Task> StartToStartDependencies
-    {
-        get => _startToStartDependencies;
-        set => _startToStartDependencies = value; 
+        get => _dependencies;
+        set => _dependencies = value; 
     }
     
     public double Slack
@@ -81,7 +74,7 @@ public class Task
         get => _slack;
         set => _slack = value; 
     }
-    public static Task FromDto(TaskDataDTO taskDataDto, List<(int, Resource)> resource, List<Task> startToStartDependencies, List<Task> finishToStartDependencies)
+    public static Task FromDto(TaskDataDTO taskDataDto, List<(int, Resource)> resource, List<Task> dependencies)
     {
         return new Task()
         {
@@ -90,8 +83,7 @@ public class Task
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
             Resources = resource,
-            FinishToStartDependencies = finishToStartDependencies,
-            StartToStartDependencies = startToStartDependencies,
+            Dependencies = dependencies,
             Slack = taskDataDto.Slack
         };
     }
