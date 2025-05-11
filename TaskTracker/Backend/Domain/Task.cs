@@ -8,11 +8,11 @@ public class Task
 {
     private string _title = String.Empty;
     private string _description = String.Empty;
-    private double _duration;
+    private int _duration;
     private Status _status = Status.Pending;
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
     private List<Task> _dependencies = new List<Task>();
-    private double _slack;
+    
     public string Title
     {
         get => _title;
@@ -37,13 +37,13 @@ public class Task
         }
     }
 
-    public double Duration
+    public int Duration
     {
         get => _duration;
         set
         {
             if (value < 0.5)
-                throw new ArgumentException("The duration must be at least 0.5 hours (30 minutes)");
+                throw new ArgumentException("The duration must be at least 1 day");
             _duration = value;
         }
     }
@@ -69,11 +69,6 @@ public class Task
         set => _dependencies = value; 
     }
     
-    public double Slack
-    {
-        get => _slack;
-        set => _slack = value; 
-    }
     public static Task FromDto(TaskDataDTO taskDataDto, List<(int, Resource)> resource, List<Task> dependencies)
     {
         return new Task()
@@ -84,7 +79,6 @@ public class Task
             Status = taskDataDto.Status,
             Resources = resource,
             Dependencies = dependencies,
-            Slack = taskDataDto.Slack
         };
     }
     

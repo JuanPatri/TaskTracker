@@ -62,7 +62,7 @@ public void UpdateExistingTaskTest()
     {
         Title = "Task 1",
         Description = "Updated Description",
-        Duration = 0.5,  
+        Duration = 1,  
         Status = Status.Completed,  
     };
     

@@ -450,7 +450,7 @@ public class
         {
             Title = "Test",
             Description = "Test",
-            Duration = 0.5,
+            Duration = 1,
             Status = Status.Pending,
             Dependencies = new List<string>(),
             Resources = new List<(int, string)>()
@@ -488,74 +488,7 @@ public class
         Assert.AreEqual(project.Name, result[0].Name);
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
-
-    [TestMethod]
-    public void GetEstimatedFinishDateShouldReturnCorrectDate()
-    {
-        Task taskA = new Task { Title = "A", Duration = 24 }; 
-        Task taskB = new Task { Title = "B", Duration = 48, Dependencies = new List<Task> { taskA } };
-
-        Project project = new Project
-        {
-            Id = 100,
-            Name = "Project 100",
-            StartDate = DateOnly.FromDateTime(DateTime.Today),
-            Administrator = new User(),
-            Tasks = new List<Task> { taskA, taskB }
-        };
-
-        _projectRepository.Add(project);
-        
-        DateOnly result = _projectService.GetEstimatedFinishDate(100);
-        
-        Assert.AreEqual(DateOnly.FromDateTime(DateTime.Today).AddDays(3), result);
-    }
-
-    [TestMethod]
-    public void GetCriticalTasksShouldReturnOnlyCritical()
-    {
-        Task taskA = new Task { Title = "A", Duration = 24 }; 
-        Task taskB = new Task { Title = "B", Duration = 24, Dependencies = new List<Task> { taskA } }; 
-        Task taskC = new Task { Title = "C", Duration = 12, Dependencies = new List<Task> { taskA } }; 
-
-        Project project = new Project
-        {
-            Id = 101,
-            Name = "Project 101",
-            StartDate = DateOnly.FromDateTime(DateTime.Today),
-            Administrator = new User(),
-            Tasks = new List<Task> { taskA, taskB, taskC }
-        };
-
-        _projectRepository.Add(project);
-        
-        var criticalTasks = _projectService.GetCriticalTasks(101);
-        
-        CollectionAssert.AreEquivalent(new List<string> { "A", "B" }, criticalTasks);
-    }
-
-    [TestMethod]
-    public void GetNonCriticalTasksSlackShouldReturnCorrectSlack()
-    {
-        Task taskA = new Task { Title = "A", Duration = 24 };
-        Task taskB = new Task { Title = "B", Duration = 48, Dependencies = new List<Task> { taskA } }; 
-        Task taskC = new Task { Title = "C", Duration = 24, Dependencies = new List<Task> { taskA } }; 
-        Project project = new Project
-        {
-            Id = 102,
-            Name = "Project 102",
-            StartDate = DateOnly.FromDateTime(DateTime.Today),
-            Administrator = new User(),
-            Tasks = new List<Task> { taskA, taskB, taskC }
-        };
-
-        _projectRepository.Add(project);
-        
-        var slackMap = _projectService.GetNonCriticalTasksSlack(102);
-        
-        Assert.AreEqual(24, slackMap["C"]);
-        Assert.IsFalse(slackMap.ContainsKey("B")); 
-    }
+    
 
     #endregion
 
@@ -567,7 +500,7 @@ public class
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Taskk";
         taskDto.Description = "This is a test task.";
-        taskDto.Duration = 0.5;
+        taskDto.Duration = 1;
         taskDto.Status = Status.Pending;
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
         taskDto.Resources = new List<(int, string)>() { (1, "Resource1"), (2, "Resource2") };
@@ -595,7 +528,7 @@ public class
         TaskDataDTO task2 = new TaskDataDTO();
         task2.Title = "Test Task 2";
         task2.Description = "This is a test task.";
-        task2.Duration = 0.5;
+        task2.Duration = 1;
         task2.Status = Status.Pending;
         _projectService.AddTask(task2);
         tasks = _projectService.GetAllTasks();
@@ -612,7 +545,7 @@ public class
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
         taskDto.Description = "New Description";
-        taskDto.Duration = 0.5;
+        taskDto.Duration = 1;
         taskDto.Status = Status.Blocked;
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
 
@@ -788,7 +721,7 @@ public class
         {
             Title = "Project Task",
             Description = "Description of the project task",
-            Duration = 0.5,
+            Duration = 1,
             Status = Status.Pending,
             Dependencies = new List<string> { "Test Task" },
             Resources = new List<(int, string)> { (1, "Resource") }

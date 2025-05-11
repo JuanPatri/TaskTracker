@@ -53,7 +53,7 @@ public class TaskTest
     [TestMethod]
     public void SetDurationForTaskTest()
     {
-        double durationTask = 0.5;
+        int durationTask = 1;
         
         _task.Duration = durationTask;
 
@@ -77,10 +77,10 @@ public class TaskTest
     [TestMethod]
     public void SetDurationNullReturnsAnException()
     {
-        double durationTask = 0.4;
+        int durationTask = 0;
 
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Duration = durationTask);
-        Assert.AreEqual("The duration must be at least 0.5 hours (30 minutes)", ex.Message);
+        Assert.AreEqual("The duration must be at least 1 day", ex.Message);
     }
     
     [TestMethod]
@@ -108,14 +108,7 @@ public class TaskTest
         
         Assert.AreEqual(finishToStartDependencies, _task.Dependencies);
     }
-
-    [TestMethod] 
-    public void SetSlackForTaskTest()
-    {
-        double slack = 0.5;
-        _task.Slack = slack;
-        Assert.AreEqual(slack, _task.Slack);
-    }
+    
 [TestMethod]
 public void FromDtoShouldCreateTaskWithCorrectValues()
 {
@@ -123,7 +116,7 @@ public void FromDtoShouldCreateTaskWithCorrectValues()
     {
         Title = "Task 1",
         Description = "Description of Task 1",
-        Duration = 0.5,
+        Duration = 1,
         Status = Status.Blocked,
         Dependencies = new List<string> { "Task 1", "Task 2" },
         Resources = new List<(int, string)> { (1, "Resource 1") },
@@ -146,7 +139,7 @@ public void FromDtoShouldCreateTaskWithCorrectValues()
     
     Assert.AreEqual("Task 1", task.Title);
     Assert.AreEqual("Description of Task 1", task.Description);
-    Assert.AreEqual(0.5, task.Duration);
+    Assert.AreEqual(1, task.Duration);
     Assert.AreEqual(Status.Blocked, task.Status);
 
     Assert.IsNotNull(task.Resources);
@@ -156,7 +149,6 @@ public void FromDtoShouldCreateTaskWithCorrectValues()
 
     Assert.IsNotNull(task.Dependencies);
     Assert.AreEqual("Task 3", task.Dependencies[0].Title);
-
-    Assert.AreEqual(1.0, task.Slack);
+    
 }
 }
