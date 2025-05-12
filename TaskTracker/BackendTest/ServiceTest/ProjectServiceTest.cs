@@ -808,20 +808,22 @@ public class
     }
     
     [TestMethod]
-    public void CalculateEarlyTimes_SimpleSequence_ComputesCorrectStartAndFinish()
+    public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
 
+        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
         Project project = new Project
         {
-            StartDate = new DateOnly(2025, 5, 11),
+            StartDate = startDate,
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
-        
+
         _projectService.CalculateEarlyTimes(project);
-        
+
         DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
 
         Assert.AreEqual(baseStart, taskA.EarlyStart);
@@ -835,32 +837,37 @@ public class
     }
     
     [TestMethod]
-    public void CalculateLateTimes_ShouldComputeCorrectLateStartAndFinish()
+    public void CalculateLateTimesShouldComputeCorrectLateStartAndFinish()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
 
+        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
         Project project = new Project
         {
-            StartDate = new DateOnly(2025, 5, 11),
+            StartDate = startDate,
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
         _projectService.CalculateLateTimes(project);
 
-        Assert.AreEqual(new DateTime(2025, 5, 16), taskC.LateStart);
-        Assert.AreEqual(new DateTime(2025, 5, 17), taskC.LateFinish);
+        DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
 
-        Assert.AreEqual(new DateTime(2025, 5, 13), taskB.LateStart);
-        Assert.AreEqual(new DateTime(2025, 5, 16), taskB.LateFinish);
+        Assert.AreEqual(baseStart.AddDays(5), taskC.LateStart); 
+        Assert.AreEqual(baseStart.AddDays(6), taskC.LateFinish);
 
-        Assert.AreEqual(new DateTime(2025, 5, 11), taskA.LateStart);
-        Assert.AreEqual(new DateTime(2025, 5, 13), taskA.LateFinish);
+        Assert.AreEqual(baseStart.AddDays(2), taskB.LateStart);
+        Assert.AreEqual(baseStart.AddDays(5), taskB.LateFinish);
+
+        Assert.AreEqual(baseStart, taskA.LateStart);
+        Assert.AreEqual(baseStart.AddDays(2), taskA.LateFinish);
     }
 
+
     [TestMethod]
-    public void GetCriticalPath_ShouldReturnCorrectTasks()
+    public void GetCriticalPathShouldReturnCorrectTasks()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };

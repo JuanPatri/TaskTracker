@@ -1,6 +1,7 @@
 @page "/ViewTaskFromProyect/{projectId:int}"
 @using Backend.Domain
 @using Backend.Service
+@using Task = Backend.Domain.Task
 @inject ProjectService ProjectService
 
 <h3>View Tasks from project: @projectName</h3>
@@ -15,6 +16,25 @@ else if (project.Tasks.Count == 0)
 }
 else
 {
+    <div class="alert alert-info">
+        <strong>Critical Path:</strong>
+        @if (criticalPath.Any())
+        {
+            @foreach (var task in criticalPath)
+            {
+                <span>@task.Title</span>
+                @if (task != criticalPath.Last())
+                {
+                    <span> → </span>
+                }
+            }
+        }
+        else
+        {
+            <span>Not available</span>
+        }
+    </div>
+
     <table class="table table-bordered table-striped">
         <thead>
         <tr>
@@ -45,11 +65,11 @@ else
 }
 
 @code {
-    [Parameter]
-    public int projectId { get; set; }
+    [Parameter] public int projectId { get; set; }
 
     private Project? project;
     private string projectName = "";
+    private List<Task> criticalPath = new();
 
     protected override void OnParametersSet()
     {
@@ -59,7 +79,8 @@ else
         {
             ProjectService.CalculateLateTimes(project);
             projectName = project.Name;
-            
+            criticalPath = ProjectService.GetCriticalPath(project);
         }
     }
+
 }
