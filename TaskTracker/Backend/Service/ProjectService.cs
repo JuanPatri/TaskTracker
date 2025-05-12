@@ -320,6 +320,11 @@ public class ProjectService
     public void RemoveTask(GetTaskDTO task)
     {
         _taskRepository.Delete(task.Title);
+
+        foreach (var project in _projectRepository.FindAll())
+        {
+            project.Tasks.RemoveAll(projTask => projTask.Title == task.Title);
+        }
     }
 
     public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
@@ -546,8 +551,12 @@ public class ProjectService
         return false;
     }
 
-
-
+    public string? GetAdminEmailByTaskTitle(string title)
+    {
+        Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
+        return projectWithTask?.Administrator.Email;
+    }
+    
     #endregion
 
     #region Resource
