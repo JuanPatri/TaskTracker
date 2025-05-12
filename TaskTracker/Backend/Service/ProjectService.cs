@@ -434,7 +434,7 @@ private void TopologicalSortDFS(Task task, HashSet<Task> visited, HashSet<Task> 
 
     tempVisited.Add(task);
 
-    // Process dependencies first
+
     if (task.Dependencies != null)
     {
         foreach (var dependency in task.Dependencies)
@@ -445,8 +445,6 @@ private void TopologicalSortDFS(Task task, HashSet<Task> visited, HashSet<Task> 
 
     tempVisited.Remove(task);
     visited.Add(task);
-    
-    // Add to result - this will ensure dependencies are added before dependent tasks
     result.Add(task);
 }
     

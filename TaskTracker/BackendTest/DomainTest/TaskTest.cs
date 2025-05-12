@@ -167,4 +167,12 @@ public class TaskTest
         _task.EarlyFinish = fecha;
         Assert.AreEqual(fecha, _task.EarlyFinish);
     }
+    
+    [TestMethod]
+    public void SetUserDateCompleated()
+    {
+        DateTime fecha = new DateTime(2025, 10, 16);
+        _task.DateCompleated = fecha;
+        Assert.AreEqual(fecha, _task.DateCompleated);
+    }
 }
