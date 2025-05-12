@@ -15,6 +15,7 @@ public class Task
     public DateTime EarlyStart { get; set; }
     public DateTime EarlyFinish { get; set; }
     public DateTime? DateCompleated { get; set; }
+    public DateTime LateTimes { get; set; }
     
     public string Title
     {

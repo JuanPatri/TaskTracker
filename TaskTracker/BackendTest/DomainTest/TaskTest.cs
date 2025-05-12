@@ -153,7 +153,7 @@ public class TaskTest
     }
     
     [TestMethod]
-    public void SetUserEarlyStart()
+    public void SetTaskEarlyStart()
     {
         DateTime fecha = new DateTime(2025, 10, 14);
         _task.EarlyStart = fecha;
@@ -161,7 +161,7 @@ public class TaskTest
     }
     
     [TestMethod]
-    public void SetUserEarlyFinish()
+    public void SetTaskEarlyFinish()
     {
         DateTime fecha = new DateTime(2025, 10, 15);
         _task.EarlyFinish = fecha;
@@ -169,10 +169,18 @@ public class TaskTest
     }
     
     [TestMethod]
-    public void SetUserDateCompleated()
+    public void SetTaskDateCompleated()
     {
         DateTime fecha = new DateTime(2025, 10, 16);
         _task.DateCompleated = fecha;
         Assert.AreEqual(fecha, _task.DateCompleated);
+    }
+    
+    [TestMethod]
+    public void SetTaskLateTimes()
+    {
+        DateTime fecha = new DateTime(2025, 10, 17);
+        _task.LateTimes = fecha;
+        Assert.AreEqual(fecha, _task.LateTimes);
     }
 }
