@@ -103,4 +103,10 @@ public class NotificationTest
         _notification.Projects = projects;
         Assert.AreEqual(projects, _notification.Projects);
     }
+    
+    [TestMethod]
+    public void AddNullProjectsToNotificationReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentNullException>(() => _notification.Projects = null);
+    }
 }
