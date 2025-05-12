@@ -120,16 +120,6 @@ public class ProjectService
             .Where(t => titlesTask.Contains(t.Title))
             .ToList();
     }
-
-
-    // public List<Task> GetTaskStartToStartDependenciesWithTitleTask(List<string> titlesTask)
-    // {
-    //     List<Task> taskDependencies = _taskRepository.FindAll()
-    //         .Where(t => t.StartToStartDependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
-    //         .ToList();
-    //
-    //     return taskDependencies;
-    // }
     public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
         return resourceName
@@ -275,6 +265,13 @@ public class ProjectService
         },
         Users = project.Users.Select(u => u.Email).ToList()
     };
+    
+    public DateTime GetEstimatedProjectFinishDate(Project project)
+    {
+        CalculateEarlyTimes(project);
+        return project.Tasks.Max(t => t.EarlyFinish);
+    }
+
 
     #endregion
 
@@ -500,10 +497,52 @@ public class ProjectService
     public List<Task> GetCriticalPath(Project project)
     {
         CalculateLateTimes(project);
-        return project.Tasks
+
+        var criticalTasks = project.Tasks
             .Where(t => t.EarlyStart == t.LateStart)
+            .ToHashSet();
+
+        var startTasks = project.Tasks
+            .Where(t => t.Dependencies == null || t.Dependencies.Count == 0)
+            .Where(t => criticalTasks.Contains(t))
             .ToList();
+
+        foreach (var start in startTasks)
+        {
+            var path = new List<Task>();
+            if (BuildCriticalPath(start, project.Tasks, criticalTasks, path))
+            {
+                return path;
+            }
+        }
+
+        return new List<Task>(); 
     }
+
+    private bool BuildCriticalPath(Task current, List<Task> allTasks, HashSet<Task> criticalTasks, List<Task> path)
+    {
+        path.Add(current);
+
+        var successors = allTasks
+            .Where(t => t.Dependencies.Contains(current))
+            .Where(t => criticalTasks.Contains(t))
+            .ToList();
+
+        if (successors.Count == 0)
+        {
+            return true; 
+        }
+
+        foreach (var next in successors)
+        {
+            if (BuildCriticalPath(next, allTasks, criticalTasks, path))
+                return true;
+        }
+
+        path.Remove(current); 
+        return false;
+    }
+
 
 
     #endregion

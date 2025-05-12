@@ -489,6 +489,25 @@ public class
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
 
+    [TestMethod]
+    public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        Project project = new Project
+        {
+            StartDate = new DateOnly(2025, 5, 12),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectService.CalculateEarlyTimes(project);
+        DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
+
+        Assert.AreEqual(new DateTime(2025, 5, 18), finish);
+    }
+
     #endregion
 
     #region TaskTest
