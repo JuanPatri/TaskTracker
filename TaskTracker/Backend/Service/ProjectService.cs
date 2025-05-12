@@ -313,9 +313,7 @@ public class ProjectService
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
-
-        Console.WriteLine($"{taskDto.Duration}");
-
+        
         return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
     }
 
