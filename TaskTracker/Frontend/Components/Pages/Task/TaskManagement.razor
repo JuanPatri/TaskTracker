@@ -7,7 +7,6 @@
 
 <button class="btn btn-primary" @onclick="GoToCreateTask">Create</button>
 <button class="btn btn-primary" @onclick="GoToEditTask">Edit</button>
-<button class="btn btn-primary" @onclick="GoToStatsTask">Status Panel</button>
 
 @code {
     
@@ -21,8 +20,4 @@
         NavigationManager.NavigateTo("/EditTask", true);
     }
     
-    public void GoToStatsTask()
-    {
-        NavigationManager.NavigateTo("/StatusPanelTask", true);
-    }
     }
