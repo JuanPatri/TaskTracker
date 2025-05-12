@@ -6,9 +6,11 @@ public class Notification
 {
     private string _message;
     private DateTime _date;
-    private TypeOfNotification _validateTypeOfNotification;
+    private TypeOfNotification _typeOfNotification;
     private int _impact;
     private List<Task> _task;
+    private List<User> _users;
+    private List<Project> _projects;
     
     private const int MinImpact = 1;
     public string Message
@@ -31,10 +33,10 @@ public class Notification
         }
     }
     
-    public TypeOfNotification ValidateTypeOfNotification
+    public TypeOfNotification TypeOfNotification
     {
-        get => _validateTypeOfNotification;
-        set => _validateTypeOfNotification = value;
+        get => _typeOfNotification;
+        set => _typeOfNotification = value;
     }
     
     public int Impact
@@ -54,6 +56,16 @@ public class Notification
         {
             if (value == null) throw new ArgumentNullException("The task cannot be null");
             _task = value;
+        }
+    }
+    
+    public List<User> Users
+    {
+        get => _users;
+        set
+        {
+            if (value == null) throw new ArgumentNullException("The users cannot be null");
+            _users = value;
         }
     }
 }

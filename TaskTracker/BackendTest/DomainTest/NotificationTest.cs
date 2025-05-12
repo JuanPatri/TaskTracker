@@ -51,8 +51,8 @@ public class NotificationTest
     [TestMethod]
     public void AddTypeOfNotificationTest()
     {
-        _notification.ValidateTypeOfNotification = TypeOfNotification.Delay;
-        Assert.AreEqual(TypeOfNotification.Delay, _notification.ValidateTypeOfNotification);
+        _notification.TypeOfNotification = TypeOfNotification.Delay;
+        Assert.AreEqual(TypeOfNotification.Delay, _notification.TypeOfNotification);
     }
     
     [TestMethod]
@@ -80,5 +80,13 @@ public class NotificationTest
     public void AddNullTaskToNotificationReturnsExceptionTest()
     {
         Assert.ThrowsException<ArgumentNullException>(() => _notification.Task = null);
+    }
+    
+    [TestMethod]
+    public void AddUsersToNotificationTest()
+    {
+        List<User> users = new List<User>();
+        _notification.Users = users;
+        Assert.AreEqual(users, _notification.Users);
     }
 }

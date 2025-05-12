@@ -604,6 +604,12 @@ public class ProjectService
 
     #endregion
 
+    #region Notification
+
+    
+
+    #endregion
+
     #region ResourceType
 
     public ResourceType? AddResourceType(ResourceTypeDto resourceType)
