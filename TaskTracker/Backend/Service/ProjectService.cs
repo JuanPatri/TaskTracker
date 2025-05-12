@@ -297,6 +297,7 @@ public class ProjectService
         {
             Console.WriteLine($" - {dep.Title}");
         }
+
         return _taskRepository.Add(createdTask);
     }
 
@@ -317,7 +318,7 @@ public class ProjectService
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
         Console.WriteLine($"{taskDto.Duration}");
-        
+
         return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
     }
 
@@ -349,19 +350,19 @@ public class ProjectService
         {
             throw new ArgumentException($"No project found with the ID {projectId}.");
         }
-        
+
         Task? taskInRepository = _taskRepository.Find(t => t.Title == taskDto.Title);
 
         if (taskInRepository == null)
         {
             throw new InvalidOperationException("Task must be added to repository before linking to project.");
         }
-        
+
         if (!project.Tasks.Contains(taskInRepository))
         {
             project.Tasks.Add(taskInRepository);
         }
-        
+
         _projectRepository.Update(project);
     }
 
@@ -372,82 +373,93 @@ public class ProjectService
 
         return taskDependencies.Count < 0 || status == Status.Pending;
     }
-    
+
 
     public void CalculateEarlyTimes(Project project)
-{
-    var orderedTasks = GetTopologicalOrder(project.Tasks);
-    
-    foreach (var task in project.Tasks)
     {
-        task.EarlyStart = default;
-        task.EarlyFinish = default;
-    }
+        var orderedTasks = GetTopologicalOrder(project.Tasks);
 
-    foreach (var task in orderedTasks)
-    {
-        DateTime es;
-
-        if (task.Dependencies == null || task.Dependencies.Count == 0)
+        foreach (var task in project.Tasks)
         {
-            es = project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        }
-        else
-        {
-            es = task.Dependencies.Max(dep => dep.EarlyFinish);
+            task.EarlyStart = default;
+            task.EarlyFinish = default;
         }
 
-        DateTime ef = es.AddDays(task.Duration);
-
-        task.EarlyStart = es;
-        task.EarlyFinish = ef;
-    }
-}
-
-private List<Task> GetTopologicalOrder(List<Task> tasks)
-{
-    var visited = new HashSet<Task>();
-    var tempVisited = new HashSet<Task>();
-    var result = new List<Task>();
-
-    foreach (var task in tasks)
-    {
-        if (!visited.Contains(task))
+        foreach (var task in orderedTasks)
         {
-            TopologicalSortDFS(task, visited, tempVisited, result);
-        }
-    }
-    return result;
-}
+            DateTime es;
 
-private void TopologicalSortDFS(Task task, HashSet<Task> visited, HashSet<Task> tempVisited, List<Task> result)
-{
-    if (tempVisited.Contains(task))
-    {
-        throw new InvalidOperationException("Cycle detected in task dependencies");
-    }
+            if (task.Dependencies == null || task.Dependencies.Count == 0)
+            {
+                es = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            }
+            else
+            {
+                es = task.Dependencies
+                    .Max(dep => dep.Status == Status.Completed && dep.DateCompleated.HasValue
+                        ? dep.DateCompleated.Value
+                        : dep.EarlyFinish);
+            }
 
-    if (visited.Contains(task))
-    {
-        return;
-    }
-
-    tempVisited.Add(task);
-
-
-    if (task.Dependencies != null)
-    {
-        foreach (var dependency in task.Dependencies)
-        {
-            TopologicalSortDFS(dependency, visited, tempVisited, result);
+            if (task.Status == Status.Completed && task.DateCompleated.HasValue)
+            {
+                task.EarlyStart = task.DateCompleated.Value;
+                task.EarlyFinish = task.DateCompleated.Value.AddDays(task.Duration);
+            }
+            else
+            {
+                task.EarlyStart = es;
+                task.EarlyFinish = es.AddDays(task.Duration);
+            }
         }
     }
 
-    tempVisited.Remove(task);
-    visited.Add(task);
-    result.Add(task);
-}
-    
+
+
+    private List<Task> GetTopologicalOrder(List<Task> tasks)
+    {
+        var visited = new HashSet<Task>();
+        var tempVisited = new HashSet<Task>();
+        var result = new List<Task>();
+
+        foreach (var task in tasks)
+        {
+            if (!visited.Contains(task))
+            {
+                TopologicalSortDFS(task, visited, tempVisited, result);
+            }
+        }
+
+        return result;
+    }
+
+    private void TopologicalSortDFS(Task task, HashSet<Task> visited, HashSet<Task> tempVisited, List<Task> result)
+    {
+        if (tempVisited.Contains(task))
+        {
+            throw new InvalidOperationException("Cycle detected in task dependencies");
+        }
+
+        if (visited.Contains(task))
+        {
+            return;
+        }
+
+        tempVisited.Add(task);
+
+
+        if (task.Dependencies != null)
+        {
+            foreach (var dependency in task.Dependencies)
+            {
+                TopologicalSortDFS(dependency, visited, tempVisited, result);
+            }
+        }
+
+        tempVisited.Remove(task);
+        visited.Add(task);
+        result.Add(task);
+    }
 
     #endregion
 

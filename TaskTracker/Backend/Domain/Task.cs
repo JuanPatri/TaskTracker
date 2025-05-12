@@ -14,7 +14,7 @@ public class Task
     private List<Task> _dependencies = new List<Task>();
     public DateTime EarlyStart { get; set; }
     public DateTime EarlyFinish { get; set; }
-    public DateTime DateCompleated { get; set; }
+    public DateTime? DateCompleated { get; set; }
     
     public string Title
     {

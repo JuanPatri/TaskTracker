@@ -12,5 +12,6 @@ public class TaskDataDTO
     public List<(int, string)> Resources { get; set; } = new List<(int, string)>();
     public List<string> FinishToStartDependencies { get; set; } = new List<string>();
     public List<string> StartToStartDependencies { get; set; } = new List<string>();
+    public DateTime? DateCompleated { get; set; } = null;
     public double Slack { get; set; } = 0;
 }
