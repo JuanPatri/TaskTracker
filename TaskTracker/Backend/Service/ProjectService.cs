@@ -468,6 +468,35 @@ public class ProjectService
 
         return task.Dependencies.All(d => d.Status == Status.Completed);
     }
+    
+    public void CalculateLateTimes(Project project)
+    {
+        CalculateEarlyTimes(project);
+        DateTime maxEF = project.Tasks.Max(t => t.EarlyFinish);
+
+        foreach (var task in project.Tasks)
+        {
+            task.LateFinish = maxEF;
+            task.LateStart = maxEF.AddDays(-task.Duration);
+        }
+
+        List<Task> ordered = GetTopologicalOrder(project.Tasks);
+        ordered.Reverse();
+
+        foreach (var task in ordered)
+        {
+            var successors = project.Tasks
+                .Where(t => t.Dependencies.Contains(task))
+                .ToList();
+
+            if (successors.Any())
+            {
+                task.LateFinish = successors.Min(s => s.LateStart);
+                task.LateStart = task.LateFinish.AddDays(-task.Duration);
+            }
+        }
+    }
+
 
     #endregion
 

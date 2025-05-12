@@ -810,7 +810,6 @@ public class
     [TestMethod]
     public void CalculateEarlyTimes_SimpleSequence_ComputesCorrectStartAndFinish()
     {
-        // Arrange
         Task taskA = new Task { Title = "A", Duration = 2 };
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
@@ -820,11 +819,9 @@ public class
             StartDate = new DateOnly(2025, 5, 11),
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
-
-        // Act
+        
         _projectService.CalculateEarlyTimes(project);
-
-        // Assert
+        
         DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
 
         Assert.AreEqual(baseStart, taskA.EarlyStart);
@@ -836,6 +833,32 @@ public class
         Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
         Assert.AreEqual(taskC.EarlyStart.AddDays(1), taskC.EarlyFinish);
     }
+    
+    [TestMethod]
+    public void CalculateLateTimes_ShouldComputeCorrectLateStartAndFinish()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        Project project = new Project
+        {
+            StartDate = new DateOnly(2025, 5, 11),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectService.CalculateLateTimes(project);
+
+        Assert.AreEqual(new DateTime(2025, 5, 16), taskC.LateStart);
+        Assert.AreEqual(new DateTime(2025, 5, 17), taskC.LateFinish);
+
+        Assert.AreEqual(new DateTime(2025, 5, 13), taskB.LateStart);
+        Assert.AreEqual(new DateTime(2025, 5, 16), taskB.LateFinish);
+
+        Assert.AreEqual(new DateTime(2025, 5, 11), taskA.LateStart);
+        Assert.AreEqual(new DateTime(2025, 5, 13), taskA.LateFinish);
+    }
+
 
     #endregion
 
