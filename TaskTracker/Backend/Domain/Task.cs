@@ -8,11 +8,16 @@ public class Task
 {
     private string _title = String.Empty;
     private string _description = String.Empty;
-    private double _duration;
+    private int _duration;
     private Status _status = Status.Pending;
-    private List<Task> _dependencies = new List<Task>();
     private List<(int, Resource)> _resources = new List<(int, Resource)>();
-
+    private List<Task> _dependencies = new List<Task>();
+    public DateTime EarlyStart { get; set; }
+    public DateTime EarlyFinish { get; set; }
+    public DateTime? DateCompleated { get; set; }
+    public DateTime LateStart { get; set; }
+    public DateTime LateFinish { get; set; }
+    
     public string Title
     {
         get => _title;
@@ -37,13 +42,13 @@ public class Task
         }
     }
 
-    public double Duration
+    public int Duration
     {
         get => _duration;
         set
         {
             if (value < 0.5)
-                throw new ArgumentException("The duration must be at least 0.5 hours (30 minutes)");
+                throw new ArgumentException("The duration must be at least 1 day");
             _duration = value;
         }
     }
@@ -52,12 +57,6 @@ public class Task
     {
         get => _status;
         set => _status = value;
-    }
-    
-    public List<Task> Dependencies
-    {
-        get => _dependencies;
-        set => _dependencies = value;
     }
     
     public List<(int, Resource)> Resources
@@ -69,7 +68,13 @@ public class Task
         } 
     }
     
-    public static Task FromDto(TaskDataDTO taskDataDto, List<Task> dependencies, List<(int, Resource)> resource)
+    public List<Task> Dependencies
+    {
+        get => _dependencies;
+        set => _dependencies = value; 
+    }
+    
+    public static Task FromDto(TaskDataDTO taskDataDto, List<(int, Resource)> resource, List<Task> dependencies)
     {
         return new Task()
         {
@@ -77,8 +82,8 @@ public class Task
             Description = taskDataDto.Description,
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
+            Resources = resource,
             Dependencies = dependencies,
-            Resources = resource
         };
     }
     

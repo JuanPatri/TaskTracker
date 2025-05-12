@@ -1,0 +1,98 @@
+@page "/ViewTaskFromProyect/{projectId:int}"
+@using Backend.Domain
+@using Backend.Service
+@using Task = Backend.Domain.Task
+@inject ProjectService ProjectService
+
+<h3>View Tasks from project: @projectName</h3>
+
+@if (project == null)
+{
+    <p class="text-danger">Project not found.</p>
+}
+else if (project.Tasks.Count == 0)
+{
+    <p>No tasks found for this project.</p>
+}
+else
+{
+    <div class="alert alert-warning">
+        <strong>Estimated Finish:</strong> @estimatedFinishDate.ToShortDateString()
+    </div>
+
+    <div class="alert alert-info">
+        <strong>Critical Path:</strong>
+        @if (criticalPath.Any())
+        {
+            @foreach (var task in criticalPath)
+            {
+                <span>@task.Title</span>
+                @if (task != criticalPath.Last())
+                {
+                    <span> → </span>
+                }
+            }
+        }
+        else
+        {
+            <span>Not available</span>
+        }
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Duration (days)</th>
+            <th>Status</th>
+            <th>Early Start</th>
+            <th>Early Finish</th>
+            <th>Late Start</th>
+            <th>Late Finish</th>
+            <th>Slack (days)</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var task in project.Tasks)
+        {
+            <tr>
+                <td>@task.Title</td>
+                <td>@task.Duration</td>
+                <td>@task.Status</td>
+                <td>@task.EarlyStart.ToShortDateString()</td>
+                <td>@task.EarlyFinish.ToShortDateString()</td>
+                <td>@task.LateStart.ToShortDateString()</td>
+                <td>@task.LateFinish.ToShortDateString()</td>
+                <td>@(task.LateStart.Subtract(task.EarlyStart).Days)</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter] public int projectId { get; set; }
+
+    private Project? project;
+    private string projectName = "";
+    private List<Task> criticalPath = new();
+    private DateTime estimatedFinishDate;
+
+    protected override void OnParametersSet()
+    {
+        project = ProjectService.GetProjectById(projectId);
+
+        if (project != null && project.Tasks.Any())
+        {
+            ProjectService.CalculateLateTimes(project);
+            projectName = project.Name;
+            criticalPath = ProjectService.GetCriticalPath(project);
+            estimatedFinishDate = ProjectService.GetEstimatedProjectFinishDate(project);
+        }
+        else if (project != null)
+        {
+            projectName = project.Name;
+        }
+
+    }
+}

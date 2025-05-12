@@ -3,6 +3,7 @@
 @using Backend.DTOs.ProjectDTOs
 @using Backend.DTOs.UserDTOs
 @using Backend.Service
+@using Task = System.Threading.Tasks.Task
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
 @inject UserService UserService
@@ -36,6 +37,9 @@
                     <div class="btn-group">
                         @if (CanEditProject(project))
                         {
+                            <button class="btn btn-sm btn-success me-2" @onclick="() => ViewTasks(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
+                                View Tasks
+                            </button>
                             <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteProject(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
                                 Delete
                             </button>
@@ -71,7 +75,7 @@ else
             _projects = new List<ProjectDataDTO>();
         }
     }
-    
+
     private bool CanEditProject(ProjectDataDTO project)
     {
         return _currentUser.Admin || project.Administrator.Email == _currentUser.Email;
@@ -81,16 +85,22 @@ else
     {
         NavigationManager.NavigateTo("/CreateProject", true);
     }
-    
+
     private void GoToEditProject(ProjectDataDTO project)
     {
         ProjectService.SelectedProject = project;
         NavigationManager.NavigateTo($"/EditProject", true);
     }
-    
+
     private void DeleteProject(GetProjectDTO project)
     {
         ProjectService.RemoveProject(project);
         _projects = ProjectService.ProjectsDataByUserEmail(_currentUser.Email);
     }
+
+    private void ViewTasks(GetProjectDTO getProjectDto)
+    {
+        NavigationManager.NavigateTo($"/ViewTaskFromProyect/{getProjectDto.Id}", true);
+    }
+
 }

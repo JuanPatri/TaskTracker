@@ -1,19 +1,155 @@
 @page "/TaskManagement"
+@using Backend.Domain
+@using Backend.DTOs.TaskDTOs
+@using Backend.DTOs.ProjectDTOs
+@using Backend.Service
 @inject NavigationManager NavigationManager
+@inject SessionService SessionService
+@inject ProjectService ProjectService
 
 <PageTitle>Task Management</PageTitle>
 <h1>Task Management</h1>
 
+<div class="form-group mb-3">
+    <label for="project">Project <span class="text-danger">*</span></label>
+    <select id="project" class="form-control" @bind="SelectedProjectId" required>
+        <option value="0">Select a project</option>
+        @foreach (var project in _projects)
+        {
+            <option value="@project.Id">@project.Name</option>
+        }
+    </select>
+</div>
 
-<button class="btn btn-primary" @onclick="GoToCreateTask">Create</button>
-<button class="btn btn-primary" @onclick="GoToEditTask">Edit</button>
-<button class="btn btn-primary" @onclick="GoToStatsTask">Status Panel</button>
+@if (_tasks != null && _tasks.Any())
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var task in _tasks)
+        { 
+            <tr>
+                <td>@task.Title</td>
+                <td>@task.Description</td>
+                <td>@task.Duration</td>
+                <td>@task.Status</td>
+                <td>
+                    <div class="btn-group">
+                        @if (CanDeleteTask(task))
+                        {
+                            <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteTask(new GetTaskDTO() { Title = task.Title })">
+                                Delete
+                            </button>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+} 
+else 
+{
+    <p>No tasks found for the selected project.</p>
+}
+
+<button class="btn btn-primary me-2" @onclick="GoToCreateTask">Create Task</button>
+<button class="btn btn-primary" @onclick="GoToEditTask">Edit Task</button>
 
 @code {
+    private List<ProjectDataDTO> _projects = new();
+    private List<TaskDataDTO> _tasks = new();
+    private User? _currentUser;
+    private int _selectedProjectId;
+
+    private int SelectedProjectId
+    {
+        get => _selectedProjectId;
+        set
+        {
+            _selectedProjectId = value;
+            OnProjectChanged(value);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (SessionService.IsLoggedIn() && SessionService.CurrentUser != null)
+        {
+            _currentUser = SessionService.CurrentUser;
+            _projects = ProjectService.ProjectsDataByUserEmail(_currentUser.Email);
+            
+            _tasks = new List<TaskDataDTO>();
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/Login", true);
+        }
+    }
+    
+    private void OnProjectChanged(int selectedProjectId)
+    {
+        if (selectedProjectId > 0)
+        {
+            LoadTasksForProject(selectedProjectId);
+        }
+        else
+        {
+            _tasks = new List<TaskDataDTO>();
+        }
+    }
+    
+    private void LoadTasksForProject(int projectId)
+    {
+        if (projectId <= 0) return;
+        
+        try
+        {
+            List<GetTaskDTO> projectTasks = ProjectService.GetTasksForProjectWithId(projectId);
+            
+            _tasks = new List<TaskDataDTO>();
+            
+            foreach (var taskInfo in projectTasks)
+            {
+                var task = ProjectService.GetTaskByTitle(taskInfo.Title);
+                
+                if (task != null)
+                {
+                    _tasks.Add(new TaskDataDTO
+                    {
+                        Title = task.Title,
+                        Description = task.Description,
+                        Duration = task.Duration,
+                        Status = task.Status
+                    });
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading tasks: {ex.Message}");
+            _tasks = new List<TaskDataDTO>();
+        }
+    }
     
     public void GoToCreateTask()
     {
-        NavigationManager.NavigateTo("/CreateTask", true);
+        if (SelectedProjectId > 0)
+        {
+            NavigationManager.NavigateTo($"/CreateTask?projectId={SelectedProjectId}", true);
+        }
+        else
+        {
+            NavigationManager.NavigateTo("/CreateTask", true);
+        }
     }
     
     public void GoToEditTask()
@@ -21,8 +157,28 @@
         NavigationManager.NavigateTo("/EditTask", true);
     }
     
-    public void GoToStatsTask()
+    private void DeleteTask(GetTaskDTO deleteTask)
     {
-        NavigationManager.NavigateTo("/StatusPanelTask", true);
+        try
+        {
+            ProjectService.RemoveTask(deleteTask);
+            
+            if (SelectedProjectId > 0)
+            {
+                LoadTasksForProject(SelectedProjectId);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting task: {ex.Message}");
+        }
     }
+    
+    private bool CanDeleteTask(TaskDataDTO task)
+    {
+        if (_currentUser == null) return false;
+        
+        return _currentUser.Admin || 
+               ProjectService.GetAdminEmailByTaskTitle(task.Title) == _currentUser.Email;
     }
+}

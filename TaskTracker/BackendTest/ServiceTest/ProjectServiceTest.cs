@@ -428,7 +428,7 @@ public class
     }
 
     [TestMethod]
-    public void GetExclusiveResourcesForProjectShouldReturnEmpty_WhenProjectNotFound()
+    public void GetExclusiveResourcesForProjectShouldReturnEmptyWhenProjectNotFound()
     {
         List<GetResourceDto> result = _projectService.GetExclusiveResourcesForProject(999);
         Assert.IsNotNull(result);
@@ -436,7 +436,7 @@ public class
     }
 
     [TestMethod]
-    public void GetTasksForProjectWithIdShouldReturnEmpty_WhenProjectNotFound()
+    public void GetTasksForProjectWithIdShouldReturnEmptyWhenProjectNotFound()
     {
         List<GetTaskDTO> result = _projectService.GetTasksForProjectWithId(999);
         Assert.IsNotNull(result);
@@ -444,13 +444,13 @@ public class
     }
 
     [TestMethod]
-    public void AddTaskToProject_ShouldThrow_WhenProjectNotFound()
+    public void AddTaskToProjectShouldThrowWhenProjectNotFound()
     {
         TaskDataDTO taskDto = new TaskDataDTO
         {
             Title = "Test",
             Description = "Test",
-            Duration = 0.5,
+            Duration = 1,
             Status = Status.Pending,
             Dependencies = new List<string>(),
             Resources = new List<(int, string)>()
@@ -461,7 +461,7 @@ public class
     }
 
     [TestMethod]
-    public void ProjectsDataByUserEmail_ShouldReturnAssociatedProjects()
+    public void ProjectsDataByUserEmailShouldReturnAssociatedProjects()
     {
         var user = new User { Name = "Ana", LastName = "Lopez", Email = "ana@example.com" };
         var admin = new User { Name = "Admin", LastName = "Root", Email = "admin@example.com", Admin = true };
@@ -483,11 +483,31 @@ public class
         _projectRepository.Add(project);
 
         List<ProjectDataDTO> result = _projectService.ProjectsDataByUserEmail("ana@example.com");
-        
+
         Assert.AreEqual(project.Id, result[0].Id);
         Assert.AreEqual(project.Name, result[0].Name);
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
+
+    [TestMethod]
+    public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        Project project = new Project
+        {
+            StartDate = new DateOnly(2025, 5, 12),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectService.CalculateEarlyTimes(project);
+        DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
+
+        Assert.AreEqual(new DateTime(2025, 5, 18), finish);
+    }
+
     #endregion
 
     #region TaskTest
@@ -498,7 +518,7 @@ public class
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Taskk";
         taskDto.Description = "This is a test task.";
-        taskDto.Duration = 0.5;
+        taskDto.Duration = 1;
         taskDto.Status = Status.Pending;
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
         taskDto.Resources = new List<(int, string)>() { (1, "Resource1"), (2, "Resource2") };
@@ -526,7 +546,7 @@ public class
         TaskDataDTO task2 = new TaskDataDTO();
         task2.Title = "Test Task 2";
         task2.Description = "This is a test task.";
-        task2.Duration = 0.5;
+        task2.Duration = 1;
         task2.Status = Status.Pending;
         _projectService.AddTask(task2);
         tasks = _projectService.GetAllTasks();
@@ -543,7 +563,7 @@ public class
         TaskDataDTO taskDto = new TaskDataDTO();
         taskDto.Title = "Test Task";
         taskDto.Description = "New Description";
-        taskDto.Duration = 0.5;
+        taskDto.Duration = 1;
         taskDto.Status = Status.Blocked;
         taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
 
@@ -602,34 +622,63 @@ public class
     [TestMethod]
     public void GetTaskDependenciesWithTitleShouldReturnTask()
     {
-        Task dependencyTask1 = new Task();
-        dependencyTask1.Title = "Task1";
+        Task dependencyTask1 = new Task { Title = "Task1" };
+        Task dependencyTask2 = new Task { Title = "Task2" };
         _taskRepository.Add(dependencyTask1);
-
-        Task dependencyTask2 = new Task();
-        dependencyTask2.Title = "Task2";
         _taskRepository.Add(dependencyTask2);
 
-        Task taskWithDependency = new Task();
-        taskWithDependency.Title = "MainTask";
-        taskWithDependency.Dependencies = new List<Task> { dependencyTask1 };
+        Task taskWithDependency = new Task
+        {
+            Title = "MainTask",
+            Dependencies = new List<Task> { dependencyTask1 }
+        };
         _taskRepository.Add(taskWithDependency);
 
-        Task taskWithoutSearchedDependency = new Task();
-        taskWithoutSearchedDependency.Title = "AnotherTask";
-        taskWithoutSearchedDependency.Dependencies = new List<Task> { dependencyTask2 };
+        Task taskWithoutSearchedDependency = new Task
+        {
+            Title = "AnotherTask",
+            Dependencies = new List<Task> { dependencyTask2 }
+        };
         _taskRepository.Add(taskWithoutSearchedDependency);
 
-        List<string> searchList = new List<string>()
-        {
-            "Task1"
-        };
+        List<string> searchList = new List<string> { "Task1" };
 
-        List<Task> tasks = _projectService.GetTaskDependenciesWithTitle(searchList);
+        List<Task> tasks = _projectService.GetTaskDependenciesWithTitleTask(searchList);
 
         Assert.AreEqual(1, tasks.Count);
-        Assert.AreEqual("MainTask", tasks[0].Title);
+        Assert.AreEqual("Task1", tasks[0].Title);
     }
+
+    [TestMethod]
+    public void GetTaskDependenciesWithTitleTask_ShouldReturnMatchingTasks()
+    {
+        Task dependencyTask1 = new Task { Title = "Task1" };
+        Task dependencyTask2 = new Task { Title = "Task2" };
+        _taskRepository.Add(dependencyTask1);
+        _taskRepository.Add(dependencyTask2);
+
+        Task taskWithDependency = new Task
+        {
+            Title = "MainTask",
+            Dependencies = new List<Task> { dependencyTask1 }
+        };
+        _taskRepository.Add(taskWithDependency);
+
+        Task taskWithoutSearchedDependency = new Task
+        {
+            Title = "AnotherTask",
+            Dependencies = new List<Task> { dependencyTask2 }
+        };
+        _taskRepository.Add(taskWithoutSearchedDependency);
+
+        List<string> searchList = new List<string> { "Task1" };
+
+        List<Task> tasks = _projectService.GetTaskDependenciesWithTitleTask(searchList);
+
+        Assert.AreEqual(1, tasks.Count);
+        Assert.AreEqual("Task1", tasks[0].Title);
+    }
+
 
     [TestMethod]
     public void GetResourcesWithName_ShouldReturnResourceWithCorrectQuantity()
@@ -687,10 +736,10 @@ public class
         {
             Title = "Project Task",
             Description = "Description of the project task",
-            Duration = 0.5,
+            Duration = 1,
             Status = Status.Pending,
-            Dependencies = new List<string> { "Test Task" },
-            Resources = new List<(int, string)> { (1, "Resource") }
+            Dependencies = new List<string>(),
+            Resources = new List<(int, string)>()
         };
 
         Project project = new Project
@@ -711,20 +760,24 @@ public class
 
         _projectRepository.Add(project);
 
-        Project initialProject = _projectRepository.Find(p => p.Id == 99);
+        var initialProject = _projectRepository.Find(p => p.Id == 99);
         Assert.AreEqual(0, initialProject.Tasks.Count);
 
+        _projectService.AddTask(taskDto);
         _projectService.AddTaskToProject(taskDto, project.Id);
 
-        Project updatedProject = _projectRepository.Find(p => p.Id == 99);
+        var updatedProject = _projectRepository.Find(p => p.Id == 99);
 
-        Task addedTask = updatedProject.Tasks[0];
+        Assert.AreEqual(1, updatedProject.Tasks.Count);
+
+        var addedTask = updatedProject.Tasks[0];
         Assert.IsNotNull(addedTask);
         Assert.AreEqual(taskDto.Title, addedTask.Title);
         Assert.AreEqual(taskDto.Description, addedTask.Description);
         Assert.AreEqual(taskDto.Duration, addedTask.Duration);
         Assert.AreEqual(taskDto.Status, addedTask.Status);
     }
+
 
     [TestMethod]
     public void DecreaseResourceQuantityShouldThrowWhenProjectNotFound()
@@ -768,10 +821,91 @@ public class
         };
 
         Status status = Status.Completed;
-        
+
         bool isValid = _projectService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
     }
+    
+    [TestMethod]
+    public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
+        Project project = new Project
+        {
+            StartDate = startDate,
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectService.CalculateEarlyTimes(project);
+
+        DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+
+        Assert.AreEqual(baseStart, taskA.EarlyStart);
+        Assert.AreEqual(baseStart.AddDays(2), taskA.EarlyFinish);
+
+        Assert.AreEqual(taskA.EarlyFinish, taskB.EarlyStart);
+        Assert.AreEqual(taskB.EarlyStart.AddDays(3), taskB.EarlyFinish);
+
+        Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
+        Assert.AreEqual(taskC.EarlyStart.AddDays(1), taskC.EarlyFinish);
+    }
+    
+    [TestMethod]
+    public void CalculateLateTimesShouldComputeCorrectLateStartAndFinish()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
+
+        Project project = new Project
+        {
+            StartDate = startDate,
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectService.CalculateLateTimes(project);
+
+        DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+
+        Assert.AreEqual(baseStart.AddDays(5), taskC.LateStart); 
+        Assert.AreEqual(baseStart.AddDays(6), taskC.LateFinish);
+
+        Assert.AreEqual(baseStart.AddDays(2), taskB.LateStart);
+        Assert.AreEqual(baseStart.AddDays(5), taskB.LateFinish);
+
+        Assert.AreEqual(baseStart, taskA.LateStart);
+        Assert.AreEqual(baseStart.AddDays(2), taskA.LateFinish);
+    }
+
+
+    [TestMethod]
+    public void GetCriticalPathShouldReturnCorrectTasks()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
+        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+        };
+
+        List<Task> result = _projectService.GetCriticalPath(project);
+        List<String> titles = result.Select(t => t.Title).ToList();
+
+        Assert.AreEqual(3, result.Count);
+        CollectionAssert.AreEquivalent(new List<string> { "A", "B", "D" }, titles);
+    }
+
 
     #endregion
 

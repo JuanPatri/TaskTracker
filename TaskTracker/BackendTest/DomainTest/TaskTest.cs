@@ -1,6 +1,7 @@
 ﻿using Backend.DTOs.TaskDTOs;
 
 namespace BackendTest.DomainTest;
+
 using Backend.Domain;
 using Backend.Domain.Enums;
 
@@ -28,7 +29,7 @@ public class TaskTest
         _task.Title = expectedTitle;
         Assert.AreEqual(expectedTitle, _task.Title);
     }
-    
+
     [TestMethod]
     public void PutTitleNullReturnsAnException()
     {
@@ -53,8 +54,8 @@ public class TaskTest
     [TestMethod]
     public void SetDurationForTaskTest()
     {
-        double durationTask = 0.5;
-        
+        int durationTask = 1;
+
         _task.Duration = durationTask;
 
         Assert.AreEqual(durationTask, _task.Duration);
@@ -66,17 +67,6 @@ public class TaskTest
         _task.Status = Status.Pending;
         Assert.AreEqual(Status.Pending, _task.Status);
     }
-    
-
-    [TestMethod]
-    public void SetDependencyTaskTest()
-    {
-        List<Task> dependencyTask = new List<Task>();
-    
-        _task.Dependencies = dependencyTask;
-    
-        Assert.AreEqual(dependencyTask, _task.Dependencies);
-    }
 
     [TestMethod]
     public void SetDescriptionNullReturnsAnException()
@@ -84,16 +74,16 @@ public class TaskTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Description = null);
         Assert.AreEqual("The description cannot be empty", ex.Message);
     }
-    
+
     [TestMethod]
     public void SetDurationNullReturnsAnException()
     {
-        double durationTask = 0.4;
+        int durationTask = 0;
 
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _task.Duration = durationTask);
-        Assert.AreEqual("The duration must be at least 0.5 hours (30 minutes)", ex.Message);
+        Assert.AreEqual("The duration must be at least 1 day", ex.Message);
     }
-    
+
     [TestMethod]
     public void SetResourcesTaskTest()
     {
@@ -102,9 +92,22 @@ public class TaskTest
         {
             (2, res)
         };
-        
+
         _task.Resources = resources;
         Assert.AreEqual(resources, _task.Resources);
+    }
+
+    [TestMethod]
+    public void SetDependencies()
+    {
+        List<Task> finishToStartDependencies = new List<Task>
+        {
+            new Task { Title = "Task 1" },
+            new Task { Title = "Task 2" }
+        };
+        _task.Dependencies = finishToStartDependencies;
+
+        Assert.AreEqual(finishToStartDependencies, _task.Dependencies);
     }
 
     [TestMethod]
@@ -114,31 +117,77 @@ public class TaskTest
         {
             Title = "Task 1",
             Description = "Description of Task 1",
-            Duration = 0.5,
+            Duration = 1,
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
-            Resources = new List<(int, string)> { (1, "Resource 1") }
+            Resources = new List<(int, string)> { (1, "Resource 1") },
+            FinishToStartDependencies = new List<string> { "Task 3" },
+            StartToStartDependencies = new List<string> { "Task 4" },
+            Slack = 1.0
         };
+
         List<Task> dependencies = new List<Task>
         {
-            new Task { Title = "Task 1" },
-            new Task { Title = "Task 2" }
+            new Task { Title = "Task 3", Description = "Description of Task 3" }
         };
+
         List<(int, Resource)> resources = new List<(int, Resource)>
         {
             (1, new Resource { Name = "Resource 1" })
         };
-        
-        Task task = Task.FromDto(taskDto, dependencies, resources);
-        
+
+        Task task = Task.FromDto(taskDto, resources, dependencies);
+
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
-        Assert.AreEqual(0.5, task.Duration);
+        Assert.AreEqual(1, task.Duration);
         Assert.AreEqual(Status.Blocked, task.Status);
-        Assert.IsNotNull(task.Dependencies);
-        Assert.IsNotNull(task.Resources);
-        Assert.AreEqual(2, task.Dependencies.Count);
-        Assert.AreEqual(1, task.Resources.Count);
-    }
 
+        Assert.IsNotNull(task.Resources);
+        Assert.AreEqual(1, task.Resources.Count);
+        Assert.AreEqual(resources[0].Item1, task.Resources[0].Item1);
+        Assert.AreEqual(resources[0].Item2.Name, task.Resources[0].Item2.Name);
+
+        Assert.IsNotNull(task.Dependencies);
+        Assert.AreEqual("Task 3", task.Dependencies[0].Title);
+    }
+    
+    [TestMethod]
+    public void SetTaskEarlyStart()
+    {
+        DateTime fecha = new DateTime(2025, 10, 14);
+        _task.EarlyStart = fecha;
+        Assert.AreEqual(fecha, _task.EarlyStart);
+    }
+    
+    [TestMethod]
+    public void SetTaskEarlyFinish()
+    {
+        DateTime fecha = new DateTime(2025, 10, 15);
+        _task.EarlyFinish = fecha;
+        Assert.AreEqual(fecha, _task.EarlyFinish);
+    }
+    
+    [TestMethod]
+    public void SetTaskDateCompleated()
+    {
+        DateTime fecha = new DateTime(2025, 10, 16);
+        _task.DateCompleated = fecha;
+        Assert.AreEqual(fecha, _task.DateCompleated);
+    }
+    
+    [TestMethod]
+    public void SetTaskLateStart()
+    {
+        DateTime fecha = new DateTime(2025, 10, 17);
+        _task.LateStart = fecha;
+        Assert.AreEqual(fecha, _task.LateStart);
+    }
+    [TestMethod]
+    public void SetTaskLateFinish()
+    {
+        DateTime fecha = new DateTime(2025, 10, 18);
+        _task.LateFinish = fecha;
+        Assert.AreEqual(fecha, _task.LateFinish);
+    }
 }

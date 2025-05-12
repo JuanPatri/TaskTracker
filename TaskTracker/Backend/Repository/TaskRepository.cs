@@ -1,4 +1,6 @@
-﻿namespace Backend.Repository;
+﻿using Backend.Domain.Enums;
+
+namespace Backend.Repository;
 using Backend.Domain;
 
 public class TaskRepository : IRepository<Task>
@@ -34,12 +36,14 @@ public class TaskRepository : IRepository<Task>
             existingTask.Description = updateTask.Description;
             existingTask.Duration = updateTask.Duration;
             existingTask.Status = updateTask.Status;
-            // existingTask.Project = updateTask.Project;
-            // existingTask.Dependencies = updateTask.Dependencies;
-            // existingTask.Resources = updateTask.Resources;
-            
+            if(existingTask.Status == Status.Completed)
+            {
+                existingTask.DateCompleated = DateTime.Now;
+            }
+            Console.WriteLine($"{existingTask.Duration}");
             return existingTask;
         }
+
         return null;
     }
 
