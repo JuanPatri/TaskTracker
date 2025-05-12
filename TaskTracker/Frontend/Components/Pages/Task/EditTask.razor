@@ -51,7 +51,7 @@
 
             <div class="mb-3">
                 <label>Duration (hours)</label>
-                <input type="number" min="0.5" step="0.25" class="form-control" @bind="_durationInHours" />
+                <input type="number" min="0.5" step="0.25" class="form-control" @bind="_durationInHours"/>
                 <small class="form-text text-muted">Minimum: 0.5 hours (30 minutes). Use 0.25 for 15min, 0.5 for 30min, 0.75 for 45min, etc.</small>
             </div>
 
@@ -63,15 +63,16 @@
                     <option value="@Status.Blocked">Blocked</option>
                 </select>
             </div>
-            
+
             <button type="submit" class="btn btn-primary">Save Changes</button>
         }
     </form>
-    
+
     @if (!string.IsNullOrEmpty(_successMessage))
     {
         <div class="alert alert-success">@_successMessage</div>
     }
+
     @if (!string.IsNullOrEmpty(_errorMessage))
     {
         <div class="alert alert-danger">@_errorMessage</div>
@@ -114,7 +115,7 @@ else
     {
         _selectedTaskTitle = e.Value?.ToString() ?? "";
         var task = ProjectService.GetTaskByTitle(_selectedTaskTitle);
-        
+
 
         if (task != null)
         {
@@ -124,29 +125,31 @@ else
                 Description = task.Description,
                 Duration = task.Duration,
                 Status = task.Status,
+                Dependencies = task.Dependencies.Select(d => d.Title).ToList()
             };
 
             _durationInHours = task.Duration;
         }
     }
-    
+
     private void OnStatusChanged(ChangeEventArgs e)
     {
         if (Enum.TryParse<Status>(e.Value?.ToString(), out Status newStatus))
         {
-            bool isValid = ProjectService.ValidateTaskStatus(_editingTask.Title, newStatus);
-        
-            if (isValid)
+            if (newStatus == Status.Completed)
             {
-                _editingTask.Status = newStatus;
+                if (!ProjectService.CanMarkTaskAsCompleted(_editingTask))
+                {
+                    _errorMessage = "Cannot mark this task as completed because not all its dependencies are completed.";
+                    return;
+                }
             }
-            else
-            {
-                _errorMessage = "Cannot change the task status, as the tasks it depends on have not been completed.";
-            }
+
+            _editingTask.Status = newStatus;
         }
     }
-    
+
+
     private async Task HandleSubmit()
     {
         _errorMessage = string.Empty;
@@ -160,17 +163,16 @@ else
                 return;
             }
 
-            bool isStatusValid = ProjectService.ValidateTaskStatus(_editingTask.Title, _editingTask.Status);
-            if (!isStatusValid)
+            if (_editingTask.Status == Status.Completed && !ProjectService.CanMarkTaskAsCompleted(_editingTask))
             {
-                _errorMessage = "Cannot save the task because the current status is invalid based on dependencies.";
+                _errorMessage = "Cannot mark this task as completed because not all dependencies are completed.";
                 return;
             }
 
             _editingTask.Duration = _durationInHours;
-            Console.WriteLine($"{_editingTask.Duration}");
+
             var result = ProjectService.UpdateTask(_editingTask);
-            Console.WriteLine($"{_editingTask.Duration}");
+
             if (result != null)
             {
                 _successMessage = "Task updated successfully.";
@@ -186,4 +188,7 @@ else
         {
             _errorMessage = $"Unexpected error: {ex.Message}";
         }
-    }}
+    }
+
+
+}

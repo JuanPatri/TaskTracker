@@ -403,8 +403,8 @@ public class ProjectService
 
             if (task.Status == Status.Completed && task.DateCompleated.HasValue)
             {
-                task.EarlyStart = task.DateCompleated.Value;
-                task.EarlyFinish = task.DateCompleated.Value.AddDays(task.Duration);
+                task.EarlyFinish = task.DateCompleated.Value;
+                task.EarlyStart = task.DateCompleated.Value.AddDays(-task.Duration);
             }
             else
             {
@@ -459,6 +459,14 @@ public class ProjectService
         tempVisited.Remove(task);
         visited.Add(task);
         result.Add(task);
+    }
+    
+    public bool CanMarkTaskAsCompleted(TaskDataDTO dto)
+    {
+        var task = _taskRepository.Find(t => t.Title == dto.Title);
+        if (task == null) return false;
+
+        return task.Dependencies.All(d => d.Status == Status.Completed);
     }
 
     #endregion
