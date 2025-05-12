@@ -313,15 +313,18 @@ public class ProjectService
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
-
-        Console.WriteLine($"{taskDto.Duration}");
-
+        
         return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
     }
 
     public void RemoveTask(GetTaskDTO task)
     {
         _taskRepository.Delete(task.Title);
+
+        foreach (var project in _projectRepository.FindAll())
+        {
+            project.Tasks.RemoveAll(projTask => projTask.Title == task.Title);
+        }
     }
 
     public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
@@ -469,6 +472,11 @@ public class ProjectService
     public void CalculateLateTimes(Project project)
     {
         CalculateEarlyTimes(project);
+        
+                
+        if (project.Tasks == null || !project.Tasks.Any())
+            throw new InvalidOperationException("The project has no defined tasks.");
+        
         DateTime maxEF = project.Tasks.Max(t => t.EarlyFinish);
 
         foreach (var task in project.Tasks)
@@ -543,8 +551,12 @@ public class ProjectService
         return false;
     }
 
-
-
+    public string? GetAdminEmailByTaskTitle(string title)
+    {
+        Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
+        return projectWithTask?.Administrator.Email;
+    }
+    
     #endregion
 
     #region Resource

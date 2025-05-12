@@ -49,10 +49,10 @@
                 <textarea class="form-control" @bind="_editingTask.Description"></textarea>
             </div>
 
-            <div class="mb-3">
-                <label>Duration (hours)</label>
-                <input type="number" min="0.5" step="0.25" class="form-control" @bind="_durationInHours"/>
-                <small class="form-text text-muted">Minimum: 0.5 hours (30 minutes). Use 0.25 for 15min, 0.5 for 30min, 0.75 for 45min, etc.</small>
+            <div class="form-group mb-3">
+                <label for="duration">Duration (days) <span class="text-danger">*</span></label>
+                <input id="duration" type="number" min="1" step="1" class="form-control" @bind="_editingTask.Duration" required/>
+                <small class="form-text text-muted">Minimum: 1 day.</small>
             </div>
 
             <div class="mb-3">
