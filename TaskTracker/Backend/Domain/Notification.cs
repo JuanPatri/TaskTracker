@@ -58,7 +58,6 @@ public class Notification
             _task = value;
         }
     }
-    
     public List<User> Users
     {
         get => _users;
@@ -66,6 +65,15 @@ public class Notification
         {
             if (value == null) throw new ArgumentNullException("The users cannot be null");
             _users = value;
+        }
+    }
+    public List<Project> Projects
+    {
+        get => _projects;
+        set
+        {
+            if (value == null) throw new ArgumentNullException("The projects cannot be null");
+            _projects = value;
         }
     }
 }

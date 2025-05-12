@@ -95,4 +95,12 @@ public class NotificationTest
     {
         Assert.ThrowsException<ArgumentNullException>(() => _notification.Users = null);
     }
+    
+    [TestMethod]
+    public void AddProjectsToNotificationTest()
+    {
+        List<Project> projects = new List<Project>();
+        _notification.Projects = projects;
+        Assert.AreEqual(projects, _notification.Projects);
+    }
 }
