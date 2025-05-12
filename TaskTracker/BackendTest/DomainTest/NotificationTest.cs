@@ -89,4 +89,10 @@ public class NotificationTest
         _notification.Users = users;
         Assert.AreEqual(users, _notification.Users);
     }
+    
+    [TestMethod]
+    public void AddNullUsersToNotificationReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentNullException>(() => _notification.Users = null);
+    }
 }
