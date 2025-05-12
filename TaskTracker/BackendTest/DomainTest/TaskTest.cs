@@ -177,10 +177,17 @@ public class TaskTest
     }
     
     [TestMethod]
-    public void SetTaskLateTimes()
+    public void SetTaskLateStart()
     {
         DateTime fecha = new DateTime(2025, 10, 17);
-        _task.LateTimes = fecha;
-        Assert.AreEqual(fecha, _task.LateTimes);
+        _task.LateStart = fecha;
+        Assert.AreEqual(fecha, _task.LateStart);
+    }
+    [TestMethod]
+    public void SetTaskLateFinish()
+    {
+        DateTime fecha = new DateTime(2025, 10, 18);
+        _task.LateFinish = fecha;
+        Assert.AreEqual(fecha, _task.LateFinish);
     }
 }
