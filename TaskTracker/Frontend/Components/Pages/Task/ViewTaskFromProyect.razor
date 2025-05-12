@@ -1,0 +1,70 @@
+@page "/ViewTaskFromProyect/{projectId:int}"
+@using Backend.Domain
+@using Backend.Service
+@inject ProjectService ProjectService
+
+<h3>View Tasks from project: @projectName</h3>
+
+@if (project == null)
+{
+    <p class="text-danger">Project not found.</p>
+}
+else if (project.Tasks.Count == 0)
+{
+    <p>No tasks found for this project.</p>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>Title</th>
+            <th>Duration (days)</th>
+            <th>Status</th>
+            <th>Early Start</th>
+            <th>Early Finish</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var task in project.Tasks)
+        {
+            <tr>
+                <td>@task.Title</td>
+                <td>@task.Duration</td>
+                <td>@task.Status</td>
+                <td>@task.EarlyStart.ToShortDateString()</td>
+                <td>@task.EarlyFinish.ToShortDateString()</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    [Parameter]
+    public int projectId { get; set; }
+
+    private Project? project;
+    private string projectName = "";
+
+    protected override void OnParametersSet()
+    {
+        project = ProjectService.GetProjectById(projectId);
+        Console.WriteLine(">>> Duraciones actuales:");
+        foreach (var task in project.Tasks)
+        {
+            Console.WriteLine($"- {task.Title} | Duration: {task.Duration}");
+        }
+        
+        foreach (var task in project.Tasks)
+        {
+            Console.WriteLine($"→ {task.Title}: duración = {task.Duration}, ES = {task.EarlyStart}, EF = {task.EarlyFinish}");
+        }
+        
+        if (project != null)
+        {
+            ProjectService.CalculateEarlyTimes(project);
+            projectName = project.Name;
+        }
+    }
+}

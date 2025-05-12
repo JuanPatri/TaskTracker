@@ -37,9 +37,10 @@ public class TaskRepository : IRepository<Task>
             // existingTask.Project = updateTask.Project;
             // existingTask.Dependencies = updateTask.Dependencies;
             // existingTask.Resources = updateTask.Resources;
-            
+            Console.WriteLine($"{existingTask.Duration}");
             return existingTask;
         }
+
         return null;
     }
 

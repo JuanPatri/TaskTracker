@@ -168,9 +168,9 @@ else
             }
 
             _editingTask.Duration = _durationInHours;
-
+            Console.WriteLine($"{_editingTask.Duration}");
             var result = ProjectService.UpdateTask(_editingTask);
-
+            Console.WriteLine($"{_editingTask.Duration}");
             if (result != null)
             {
                 _successMessage = "Task updated successfully.";

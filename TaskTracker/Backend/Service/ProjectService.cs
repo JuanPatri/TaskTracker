@@ -14,15 +14,16 @@ public class ProjectService
 {
     private readonly IRepository<Project> _projectRepository;
     private int _idProject;
-    private int _idResourceType ;
+    private int _idResourceType;
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     public readonly IRepository<User> _userRepository;
     public ProjectDataDTO? SelectedProject { get; set; }
-    
+
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
-        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<User> userRepository)
+        IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository,
+        IRepository<User> userRepository)
     {
         _projectRepository = projectRepository;
         _idProject = 2;
@@ -33,15 +34,16 @@ public class ProjectService
         _userRepository = userRepository;
     }
 
-    
+
     #region Project
+
     public Project AddProject(ProjectDataDTO project)
     {
         ValidateProjectName(project.Name);
 
         List<User> associatedUsers = GetUsersFromEmails(project.Users);
-        
-        if(!project.Users.Contains(project.Administrator.Email))
+
+        if (!project.Users.Contains(project.Administrator.Email))
         {
             associatedUsers.Add(_userRepository.Find(u => u.Email == project.Administrator.Email));
         }
@@ -80,31 +82,30 @@ public class ProjectService
             })
             .ToList();
     }
-    
+
     public void RemoveProject(GetProjectDTO project)
     {
         _projectRepository.Delete(project.Id.ToString());
     }
-    
+
     public Project? GetProject(GetProjectDTO project)
     {
         return _projectRepository.Find(p => p.Id == project.Id);
     }
-    
+
     public List<Project> GetAllProjects()
     {
         return _projectRepository.FindAll().ToList();
     }
-    
+
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        
         if (string.IsNullOrWhiteSpace(projectDto.Administrator.Password))
         {
             User? fullAdmin = _userRepository.Find(u => u.Email == projectDto.Administrator.Email);
             projectDto.Administrator.Password = fullAdmin?.Password ?? "";
         }
-        
+
         List<User> users = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
@@ -112,15 +113,14 @@ public class ProjectService
         Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
         return updatedProject;
     }
-    
+
     public List<Task> GetTaskDependenciesWithTitleTask(List<string> titlesTask)
     {
-        List<Task> taskDependencies = _taskRepository.FindAll()
-            .Where(t => t.Dependencies.Any(dependency => titlesTask.Contains(dependency.Title)))
+        return _taskRepository.FindAll()
+            .Where(t => titlesTask.Contains(t.Title))
             .ToList();
-
-        return taskDependencies;
     }
+
 
     // public List<Task> GetTaskStartToStartDependenciesWithTitleTask(List<string> titlesTask)
     // {
@@ -143,7 +143,7 @@ public class ProjectService
     {
         return _resourceRepository.Find(resource => resource.Name == resourceName);
     }
-    
+
     public List<GetProjectDTO> GetProjectsByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
@@ -152,15 +152,15 @@ public class ProjectService
         return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
 
-    private  Func<Project, bool> ProjectHasUserAdmin(string userEmail) =>
-        project => project.Users != null 
+    private Func<Project, bool> ProjectHasUserAdmin(string userEmail) =>
+        project => project.Users != null
                    && project.Users.Any(user => project.Administrator.Email == user.Email);
-    
+
     public List<GetProjectDTO> GetProjectsByUserEmailNotAdmin(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
-            .Where(project => project.Users != null && project.Users.Any(user => user.Email == userEmail) 
-                             && project.Administrator.Email != userEmail);
+            .Where(project => project.Users != null && project.Users.Any(user => user.Email == userEmail)
+                                                    && project.Administrator.Email != userEmail);
 
         return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
@@ -170,26 +170,26 @@ public class ProjectService
         Id = project.Id,
         Name = project.Name
     };
-    
+
     public void AddExclusiveResourceToProject(int projectId, ResourceDataDto resourceDto)
     {
         Project project = _projectRepository.Find(p => p.Id == projectId);
-    
+
         if (project == null)
             throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
-    
+
         Resource newResource = new Resource
         {
             Name = resourceDto.Name,
             Description = resourceDto.Description,
             Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
         };
-    
+
         project.ExclusiveResources.Add(newResource);
-    
+
         _projectRepository.Update(project);
     }
-    
+
     public List<ProjectDataDTO> GetAllProjectsDTOs()
     {
         return GetAllProjects()
@@ -204,7 +204,8 @@ public class ProjectService
                     Name = p.Administrator.Name,
                     LastName = p.Administrator.LastName,
                     Email = p.Administrator.Email
-                }            })
+                }
+            })
             .ToList();
     }
 
@@ -219,7 +220,7 @@ public class ProjectService
             .Select(r => new GetResourceDto { Name = r.Name })
             .ToList();
     }
-    
+
     public void DecreaseResourceQuantity(int projectId, string resourceName)
     {
         Project project = _projectRepository.Find(p => p.Id == projectId);
@@ -237,7 +238,7 @@ public class ProjectService
                 {
                     task.Resources[i] = (qty - 1, resource);
                     updated = true;
-                    break; 
+                    break;
                 }
             }
 
@@ -250,7 +251,7 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
-    
+
     public List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
@@ -258,7 +259,7 @@ public class ProjectService
 
         return filteredProjects.Select(ToProjectDataDto).ToList();
     }
-    
+
     private ProjectDataDTO ToProjectDataDto(Project project) => new ProjectDataDTO
     {
         Id = project.Id,
@@ -272,50 +273,59 @@ public class ProjectService
             LastName = project.Administrator.LastName,
             Email = project.Administrator.Email
         },
-        Users = project.Users.Select(u => u.Email).ToList() 
+        Users = project.Users.Select(u => u.Email).ToList()
     };
-    
-    
-    
-    
 
-    
     #endregion
-    
+
     #region Task
+
     public Task AddTask(TaskDataDTO taskDto)
     {
-        if(_taskRepository.Find(t => t.Title == taskDto.Title) != null)
+        if (_taskRepository.Find(t => t.Title == taskDto.Title) != null)
         {
             throw new Exception("Task already exists");
         }
+
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
         Task createdTask = Task.FromDto(taskDto, resourceList, dependencies);
+        Console.WriteLine("Dependencies:");
+        foreach (var dep in createdTask.Dependencies)
+        {
+            Console.WriteLine($" - {dep.Title}");
+        }
         return _taskRepository.Add(createdTask);
     }
+
     public Task GetTaskByTitle(string title)
     {
         return _taskRepository.Find(t => t.Title == title);
     }
+
     public List<Task> GetAllTasks()
     {
         return _taskRepository.FindAll().ToList();
     }
+
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
-        
+
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
 
+        Console.WriteLine($"{taskDto.Duration}");
+        
         return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
     }
+
     public void RemoveTask(GetTaskDTO task)
     {
         _taskRepository.Delete(task.Title);
     }
+
     public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
     {
         Project? project = GetProjectById(projectId);
@@ -326,179 +336,202 @@ public class ProjectService
             .ToList();
     }
 
-    private Project? GetProjectById(int projectId)
+    public Project? GetProjectById(int projectId)
     {
         return _projectRepository.Find(project => project.Id == projectId);
     }
-    
+
     public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
     {
-        Project project = _projectRepository.Find(p => p.Id == projectId);        
-        
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+
         if (project == null)
         {
             throw new ArgumentException($"No project found with the ID {projectId}.");
         }
-
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         
-        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
+        Task? taskInRepository = _taskRepository.Find(t => t.Title == taskDto.Title);
 
-        Task newTask = Task.FromDto(taskDto, resourceList, dependencies);
-
-        project.Tasks.Add(newTask);
-
+        if (taskInRepository == null)
+        {
+            throw new InvalidOperationException("Task must be added to repository before linking to project.");
+        }
+        
+        if (!project.Tasks.Contains(taskInRepository))
+        {
+            project.Tasks.Add(taskInRepository);
+        }
+        
         _projectRepository.Update(project);
     }
+
 
     public bool ValidateTaskStatus(string title, Status status)
     {
         List<Task> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
-        
-        return taskDependencies.Count < 0 || status == Status.Pending;    
+
+        return taskDependencies.Count < 0 || status == Status.Pending;
     }
     
-   public void CalculateEarlyTimes(Project project)
-   {
-       foreach (var task in project.Tasks)
-       {
-           task.EarlyStart = DateTime.MinValue;
-           task.EarlyFinish = DateTime.MinValue;
-       }
-   
-       var orderedTasks = GetTopologicalOrder(project.Tasks);
-   
-       foreach (var task in orderedTasks)
-       {
-           DateTime es;
-   
-           if (task.Dependencies == null || task.Dependencies.Count == 0)
-           {
-               es = project.StartDate.ToDateTime(new TimeOnly(0, 0)); 
-           }
-           else
-           {
-               es = task.Dependencies
-                   .Max(dep => dep.EarlyFinish);
-           }
-   
-           DateTime ef = es.AddDays(task.Duration); 
-   
-           task.EarlyStart = es;
-           task.EarlyFinish = ef;
-       }
-   }
-   
-   private List<Task> GetTopologicalOrder(List<Task> tasks)
-   {
-       var visited = new HashSet<Task>();
-       var result = new List<Task>();
-   
-       foreach (var task in tasks)
-       {
-           if (!visited.Contains(task))
-           {
-               VisitRecursive(task, visited, result);
-           }
-       }
-   
-       return result; 
-   }
-   
-   private void VisitRecursive(Task task, HashSet<Task> visited, List<Task> result)
-   {
-       visited.Add(task);
-   
-       if (task.Dependencies != null)
-       {
-           foreach (var dependency in task.Dependencies)
-           {
-               if (!visited.Contains(dependency))
-               {
-                   VisitRecursive(dependency, visited, result);
-               }
-           }
-       }
-   
-       result.Add(task);
-   }
 
+    public void CalculateEarlyTimes(Project project)
+{
+    var orderedTasks = GetTopologicalOrder(project.Tasks);
     
+    foreach (var task in project.Tasks)
+    {
+        task.EarlyStart = default;
+        task.EarlyFinish = default;
+    }
+
+    foreach (var task in orderedTasks)
+    {
+        DateTime es;
+
+        if (task.Dependencies == null || task.Dependencies.Count == 0)
+        {
+            es = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        }
+        else
+        {
+            es = task.Dependencies.Max(dep => dep.EarlyFinish);
+        }
+
+        DateTime ef = es.AddDays(task.Duration);
+
+        task.EarlyStart = es;
+        task.EarlyFinish = ef;
+    }
+}
+
+private List<Task> GetTopologicalOrder(List<Task> tasks)
+{
+    var visited = new HashSet<Task>();
+    var tempVisited = new HashSet<Task>();
+    var result = new List<Task>();
+
+    foreach (var task in tasks)
+    {
+        if (!visited.Contains(task))
+        {
+            TopologicalSortDFS(task, visited, tempVisited, result);
+        }
+    }
+    return result;
+}
+
+private void TopologicalSortDFS(Task task, HashSet<Task> visited, HashSet<Task> tempVisited, List<Task> result)
+{
+    if (tempVisited.Contains(task))
+    {
+        throw new InvalidOperationException("Cycle detected in task dependencies");
+    }
+
+    if (visited.Contains(task))
+    {
+        return;
+    }
+
+    tempVisited.Add(task);
+
+    // Process dependencies first
+    if (task.Dependencies != null)
+    {
+        foreach (var dependency in task.Dependencies)
+        {
+            TopologicalSortDFS(dependency, visited, tempVisited, result);
+        }
+    }
+
+    tempVisited.Remove(task);
+    visited.Add(task);
+    
+    // Add to result - this will ensure dependencies are added before dependent tasks
+    result.Add(task);
+}
+    
+
     #endregion
 
     #region Resource
+
     public Resource? AddResource(ResourceDataDto resource)
     {
-        if(_resourceRepository.Find(r => r.Name == resource.Name) != null)
+        if (_resourceRepository.Find(r => r.Name == resource.Name) != null)
         {
             throw new Exception("Resource already exists");
         }
+
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
         Resource? createdResource = _resourceRepository.Add(Resource.FromDto(resource, resourceType));
         return createdResource;
     }
-    
+
     public void RemoveResource(GetResourceDto resource)
     {
         _resourceRepository.Delete(resource.Name);
     }
-    
+
     public Resource? GetResource(GetResourceDto resource)
     {
         return _resourceRepository.Find(r => r.Name == resource.Name);
     }
-    
+
     public List<Resource> GetAllResources()
     {
         return _resourceRepository.FindAll().ToList();
     }
-    
+
     public Resource? UpdateResource(ResourceDataDto resourceDto)
     {
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
         Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
         return updatedResource;
     }
-    
+
     public List<GetResourceDto> GetResourcesForSystem()
     {
         return _resourceRepository.FindAll()
             .Select(resource => new GetResourceDto { Name = resource.Name })
             .ToList();
     }
+
     #endregion
 
     #region ResourceType
+
     public ResourceType? AddResourceType(ResourceTypeDto resourceType)
     {
-        if(_resourceTypeRepository.Find(r => r.Name == resourceType.Name) != null)
+        if (_resourceTypeRepository.Find(r => r.Name == resourceType.Name) != null)
         {
             throw new Exception("Resource type already exists");
         }
+
         resourceType.Id = _idResourceType++;
         ResourceType? createdResourceType = _resourceTypeRepository.Add(ResourceType.Fromdto(resourceType));
         return createdResourceType;
     }
-    
+
     public void RemoveResourceType(ResourceTypeDto resourceType)
     {
         _resourceTypeRepository.Delete(resourceType.Id.ToString());
     }
-    
+
     public ResourceType? GetResourceType(ResourceTypeDto resourceType)
     {
         return _resourceTypeRepository.Find(r => r.Id == resourceType.Id);
     }
-    
+
     public List<ResourceType> GetAllResourcesType()
     {
         return _resourceTypeRepository.FindAll().ToList();
     }
-    
+
     public ResourceType? UpdateResourceType(ResourceTypeDto resourceTypeDto)
     {
         ResourceType? updatedResourceType = _resourceTypeRepository.Update(ResourceType.Fromdto(resourceTypeDto));
         return updatedResourceType;
     }
+
     #endregion
 }
