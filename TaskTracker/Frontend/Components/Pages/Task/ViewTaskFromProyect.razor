@@ -23,6 +23,8 @@ else
             <th>Status</th>
             <th>Early Start</th>
             <th>Early Finish</th>
+            <th>Late Start</th>
+            <th>Late Finish</th>
         </tr>
         </thead>
         <tbody>
@@ -34,6 +36,8 @@ else
                 <td>@task.Status</td>
                 <td>@task.EarlyStart.ToShortDateString()</td>
                 <td>@task.EarlyFinish.ToShortDateString()</td>
+                <td>@task.LateStart.ToShortDateString()</td>
+                <td>@task.LateFinish.ToShortDateString()</td>
             </tr>
         }
         </tbody>
@@ -50,21 +54,12 @@ else
     protected override void OnParametersSet()
     {
         project = ProjectService.GetProjectById(projectId);
-        Console.WriteLine(">>> Duraciones actuales:");
-        foreach (var task in project.Tasks)
-        {
-            Console.WriteLine($"- {task.Title} | Duration: {task.Duration}");
-        }
-        
-        foreach (var task in project.Tasks)
-        {
-            Console.WriteLine($"→ {task.Title}: duración = {task.Duration}, ES = {task.EarlyStart}, EF = {task.EarlyFinish}");
-        }
-        
+
         if (project != null)
         {
-            ProjectService.CalculateEarlyTimes(project);
+            ProjectService.CalculateLateTimes(project);
             projectName = project.Name;
+            
         }
     }
 }

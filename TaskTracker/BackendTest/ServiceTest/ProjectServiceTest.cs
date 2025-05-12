@@ -859,6 +859,27 @@ public class
         Assert.AreEqual(new DateTime(2025, 5, 13), taskA.LateFinish);
     }
 
+    [TestMethod]
+    public void GetCriticalPath_ShouldReturnCorrectTasks()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
+        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+        };
+
+        List<Task> result = _projectService.GetCriticalPath(project);
+        List<String> titles = result.Select(t => t.Title).ToList();
+
+        Assert.AreEqual(3, result.Count);
+        CollectionAssert.AreEquivalent(new List<string> { "A", "B", "D" }, titles);
+    }
+
 
     #endregion
 

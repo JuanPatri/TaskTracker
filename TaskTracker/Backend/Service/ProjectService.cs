@@ -485,7 +485,7 @@ public class ProjectService
 
         foreach (var task in ordered)
         {
-            var successors = project.Tasks
+            List<Task> successors = project.Tasks
                 .Where(t => t.Dependencies.Contains(task))
                 .ToList();
 
@@ -495,6 +495,14 @@ public class ProjectService
                 task.LateStart = task.LateFinish.AddDays(-task.Duration);
             }
         }
+    }
+
+    public List<Task> GetCriticalPath(Project project)
+    {
+        CalculateLateTimes(project);
+        return project.Tasks
+            .Where(t => t.EarlyStart == t.LateStart)
+            .ToList();
     }
 
 
