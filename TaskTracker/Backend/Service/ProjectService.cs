@@ -467,6 +467,11 @@ public class ProjectService
     public void CalculateLateTimes(Project project)
     {
         CalculateEarlyTimes(project);
+        
+                
+        if (project.Tasks == null || !project.Tasks.Any())
+            throw new InvalidOperationException("The project has no defined tasks.");
+        
         DateTime maxEF = project.Tasks.Max(t => t.EarlyFinish);
 
         foreach (var task in project.Tasks)

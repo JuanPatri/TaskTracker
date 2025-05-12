@@ -82,12 +82,17 @@ else
     {
         project = ProjectService.GetProjectById(projectId);
 
-        if (project != null)
+        if (project != null && project.Tasks.Any())
         {
             ProjectService.CalculateLateTimes(project);
             projectName = project.Name;
             criticalPath = ProjectService.GetCriticalPath(project);
             estimatedFinishDate = ProjectService.GetEstimatedProjectFinishDate(project);
         }
+        else if (project != null)
+        {
+            projectName = project.Name;
+        }
+
     }
 }
