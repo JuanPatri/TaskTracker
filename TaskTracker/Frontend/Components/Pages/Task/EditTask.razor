@@ -169,10 +169,7 @@ else
                 return;
             }
 
-            _editingTask.Duration = _durationInHours;
-
-            
-            Backend.Domain.Task? result = ProjectService.UpdateTask(_editingTask);
+            var result = ProjectService.UpdateTask(_editingTask);
 
             if (result != null)
             {
