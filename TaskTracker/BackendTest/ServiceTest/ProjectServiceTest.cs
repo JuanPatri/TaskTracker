@@ -1187,7 +1187,29 @@ public class
         Assert.AreEqual(notificationDto.TypeOfNotification, notification.TypeOfNotification);
     }
     
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
+        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
     
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+        };
+    
+        _projectService.CalculateEarlyTimes(project);
+        _projectService.CalculateLateTimes(project);
+    
+        Assert.IsTrue(_projectService.IsTaskCritical(project, taskA.Title));
+        Assert.IsTrue(_projectService.IsTaskCritical(project, taskB.Title));
+        Assert.IsTrue(_projectService.IsTaskCritical(project, taskD.Title));
+        Assert.IsFalse(_projectService.IsTaskCritical(project, taskC.Title));
+    }
+
     #endregion
 }
     
