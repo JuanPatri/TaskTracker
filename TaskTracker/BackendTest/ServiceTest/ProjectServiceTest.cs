@@ -6,6 +6,7 @@ using Backend.Repository;
 using Backend.Service;
 using Backend.DTOs.TaskDTOs;
 using Backend.Domain.Enums;
+using Backend.DTOs.NotificationDTOs;
 using Backend.DTOs.ResourceDTOs;
 using Backend.DTOs.ResourceTypeDTOs;
 
@@ -1147,7 +1148,11 @@ public class
 
     #region NotificationTest
 
-    
+    [TestMethod]
+    public void CreateNotificationService()
+    {
+        Assert.IsNotNull(_projectService);
+    }
 
     #endregion
 }

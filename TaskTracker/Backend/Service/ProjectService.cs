@@ -608,6 +608,17 @@ public class ProjectService
 
     #region Notification
     
+    public bool IsTaskCritical(Project project, string taskTitle)
+    {
+        if (project == null)
+        {
+            throw new ArgumentNullException(nameof(project), "El proyecto no puede ser nulo.");
+        }
+        var criticalPath = GetCriticalPath(project);
+        return criticalPath.Any(task => task.Title.Equals(taskTitle));
+    }
+
+    
     #endregion
 
     #region ResourceType
