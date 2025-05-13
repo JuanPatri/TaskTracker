@@ -1301,7 +1301,14 @@ public class
         Assert.IsTrue(usuarios.Any(u => u.Email == "ana@mail.com"));
     }
     
-    
+    [TestMethod]
+    public void GetUsersFromProject_DeberiaRetornarListaVacia_SiNoExisteProyecto()
+    {
+        var usuarios = _projectService.GetUsersFromProject(999);
+
+        Assert.IsNotNull(usuarios);
+        Assert.AreEqual(0, usuarios.Count);
+    }
     #endregion
 }
     
