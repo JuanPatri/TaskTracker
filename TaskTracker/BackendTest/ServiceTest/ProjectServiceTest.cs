@@ -1209,6 +1209,20 @@ public class
         Assert.IsTrue(_projectService.IsTaskCritical(project, taskD.Title));
         Assert.IsFalse(_projectService.IsTaskCritical(project, taskC.Title));
     }
+    
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnFalse_WhenTaskDoesNotExist()
+    {
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task>()
+        };
+    
+        bool result = _projectService.IsTaskCritical(project, "TareaInexistente");
+    
+        Assert.IsFalse(result);
+    }
 
     #endregion
 }

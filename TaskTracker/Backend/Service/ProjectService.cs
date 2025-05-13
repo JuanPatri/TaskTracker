@@ -610,9 +610,14 @@ public class ProjectService
     
     public bool IsTaskCritical(Project project, string taskTitle)
     {
+        var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
         if (project == null)
         {
             throw new ArgumentNullException(nameof(project), "El proyecto no puede ser nulo.");
+        }
+        if (task == null)
+        {
+            return false;
         }
         var criticalPath = GetCriticalPath(project);
         return criticalPath.Any(task => task.Title.Equals(taskTitle));
