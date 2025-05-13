@@ -646,6 +646,14 @@ public class ProjectService
         return GetEstimatedProjectFinishDate(proyecto);
     }
 
+    public List<User> GetUsersFromProject(int projectId)
+    {
+        var project = GetProjectById(projectId);
+        if (project == null || project.Users == null)
+            return new List<User>();
+        return project.Users;
+    }
+
     #endregion
 
     #region ResourceType

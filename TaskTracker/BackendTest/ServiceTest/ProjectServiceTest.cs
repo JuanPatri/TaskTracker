@@ -1278,6 +1278,30 @@ public class
         Assert.AreEqual(esperado, fecha);
     }
     
+    [TestMethod]
+    public void GetUsersFromProject_DeberiaRetornarUsuariosDelProyecto()
+    {
+        var user1 = new User { Name = "Juan", Email = "juan@mail.com" };
+        var user2 = new User { Name = "Ana", Email = "ana@mail.com" };
+        _userRepository.Add(user1);
+        _userRepository.Add(user2);
+    
+        var project = new Project
+        {
+            Id = 10,
+            Name = "Proyecto X",
+            Users = new List<User> { user1, user2 }
+        };
+        _projectRepository.Add(project);
+    
+        var usuarios = _projectService.GetUsersFromProject(10);
+    
+        Assert.AreEqual(2, usuarios.Count);
+        Assert.IsTrue(usuarios.Any(u => u.Email == "juan@mail.com"));
+        Assert.IsTrue(usuarios.Any(u => u.Email == "ana@mail.com"));
+    }
+    
+    
     #endregion
 }
     
