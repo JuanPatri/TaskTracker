@@ -171,7 +171,8 @@ else
 
             _editingTask.Duration = _durationInHours;
 
-            var result = ProjectService.UpdateTask(_editingTask);
+            
+            Backend.Domain.Task? result = ProjectService.UpdateTask(_editingTask);
 
             if (result != null)
             {

@@ -10,4 +10,10 @@
       <ProjectReference Include="..\Backend\Backend.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Syncfusion.Blazor.Core" Version="29.1.41" />
+      <PackageReference Include="Syncfusion.Blazor.Gantt" Version="29.1.41" />
+      <PackageReference Include="Syncfusion.Blazor.Themes" Version="29.1.41" />
+    </ItemGroup>
+
 </Project>
