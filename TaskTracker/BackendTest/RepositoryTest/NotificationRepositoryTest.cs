@@ -71,4 +71,13 @@ public class NotificationRepositoryTest
         };
         Assert.IsNull(_notificationRepository.Update(updateNotification));
     }
+    
+    [TestMethod]
+    public void DeleteNotificationTest()
+    {
+        _notificationRepository.Add(_notification);
+        Assert.AreEqual(_notificationRepository.FindAll().Count, 1);
+        _notificationRepository.Delete(_notification.Message);
+        Assert.AreEqual(_notificationRepository.FindAll().Count, 0);
+    }
 }

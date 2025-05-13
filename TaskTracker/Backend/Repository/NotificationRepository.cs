@@ -46,6 +46,10 @@ public class NotificationRepository : IRepository<Notification>
 
     public void Delete(string entity)
     {
-        throw new NotImplementedException();
+        Notification? notification = _notifications.FirstOrDefault(n => n.Message == entity);
+        if (notification != null)
+        {
+            _notifications.Remove(notification);
+        }
     }
 }
