@@ -498,7 +498,7 @@ public class
 
         Project project = new Project
         {
-            StartDate = new DateOnly(2025, 5, 12),
+            StartDate = new DateOnly(2025, 9, 12),
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
