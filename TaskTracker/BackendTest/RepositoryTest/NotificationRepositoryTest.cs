@@ -57,4 +57,18 @@ public class NotificationRepositoryTest
         Assert.AreEqual(_notification.Message, "UpdatedMessage");
     }
 
+    [TestMethod]
+    public void UpdateNonExistingNotificationReturnsNullTest()
+    {
+        Notification updateNotification = new Notification()
+        {
+            Message = "NonExistingMessage",
+            Date = DateTime.Now.AddSeconds(5),
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Users = new List<User>(),
+            Projects = new List<Project>()
+        };
+        Assert.IsNull(_notificationRepository.Update(updateNotification));
+    }
 }
