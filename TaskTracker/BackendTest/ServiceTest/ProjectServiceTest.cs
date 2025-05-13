@@ -1379,6 +1379,14 @@ public class
         Assert.AreEqual(2, notifications[0].Impact);
     }
     
+    [TestMethod]
+    public void GetNotificationsForUser_ShouldReturnEmptyList_WhenNoNotificationsForUser()
+    {
+        var notifications = _projectService.GetNotificationsForUser("nonexistent@mail.com");
+    
+        Assert.IsNotNull(notifications);
+        Assert.AreEqual(0, notifications.Count);
+    }
     #endregion
 }
     
