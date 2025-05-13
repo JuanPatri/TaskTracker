@@ -666,6 +666,25 @@ public class ProjectService
                 return $"The task '{taskTitle}' has had a change. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
         }
     }
+    public Notification CreateNotification(int duracionVieja, int duracionNueva, int projectId, string taskTitle)
+    {
+        int impacto = CalcularImpacto(duracionVieja, duracionNueva);
+        TypeOfNotification tipo = ObtenerTipoDeNotificacionPorImpacto(impacto);
+        DateTime nuevaFechaFin = GetNewEstimatedEndDate(projectId);
+        List<User> users = GetUsersFromProject(projectId);
+        string message = GenerateNotificationMessage(tipo, taskTitle, nuevaFechaFin);
+        
+        var notificacion = new Notification
+        {
+            Message = message,
+            TypeOfNotification = tipo,
+            Impact = impacto,
+            Date = nuevaFechaFin,
+            Users = users,
+        };
+
+        return _notificationRepository.Add(notificacion);
+    }
 
     #endregion
 

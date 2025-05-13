@@ -1325,6 +1325,35 @@ public class
         var defaultMessage = service.GenerateNotificationMessage((TypeOfNotification)99, "Task3", date);
         Assert.AreEqual("The task 'Task3' has had a change. The new estimated project end date is 2024-06-10.", defaultMessage);
     }
+    
+    [TestMethod]
+    public void CreateNotification_ShouldCreateAndReturnNotificationWithCorrectData()
+    {
+        var user = new User { Name = "John", Email = "john@mail.com" };
+        var project = new Project
+        {
+            Id = 1,
+            Name = "Project Test",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Users = new List<User> { user },
+            Tasks = new List<Task> { new Task { Title = "Task1", Duration = 5 } }
+        };
+        _userRepository.Add(user);
+        _projectRepository.Add(project);
+
+        int oldDuration = 5;
+        int newDuration = 8;
+        string taskTitle = "Task1";
+
+        var notification = _projectService.CreateNotification(oldDuration, newDuration, 1, taskTitle);
+
+        Assert.IsNotNull(notification);
+        Assert.AreEqual(TypeOfNotification.Delay, notification.TypeOfNotification);
+        Assert.AreEqual(3, notification.Impact);
+        Assert.IsTrue(notification.Message.Contains("Task1"));
+        Assert.AreEqual(1, notification.Users.Count);
+        Assert.AreEqual("john@mail.com", notification.Users[0].Email);
+    }
     #endregion
 }
     
