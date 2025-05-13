@@ -24,6 +24,7 @@ public class
     private UserRepository _userRepository;
     private Task _task;
     private Resource _resource;
+    private NotificationRepository _notificationRepository;
 
     [TestInitialize]
     public void OnInitialize()
@@ -33,8 +34,9 @@ public class
         _resourceRepository = new ResourceRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
         _userRepository = new UserRepository();
+        _notificationRepository = new NotificationRepository();
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository,
-            _resourceTypeRepository, _userRepository);
+            _resourceTypeRepository, _userRepository, _notificationRepository);
 
         _project = new Project()
         {
@@ -1140,6 +1142,12 @@ public class
         Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
         Assert.IsTrue(resources.Any(r => r.Name == "Additional Resource"));
     }
+
+    #endregion
+
+    #region NotificationTest
+
+    
 
     #endregion
 }

@@ -15,6 +15,7 @@ builder.Services.AddSingleton<IRepository<Task>, TaskRepository>();
 builder.Services.AddSingleton<IRepository<Project>, ProjectRepository>();
 builder.Services.AddSingleton<IRepository<Resource>, ResourceRepository>();
 builder.Services.AddSingleton<IRepository<ResourceType>, ResourceTypeRepository>();
+builder.Services.AddSingleton<IRepository<Notification>, NotificationRepository>();
 
 //services
 builder.Services.AddSingleton<UserService>();

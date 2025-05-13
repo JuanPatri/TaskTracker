@@ -19,11 +19,12 @@ public class ProjectService
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     public readonly IRepository<User> _userRepository;
+    public readonly IRepository<Notification> _notificationRepository;
     public ProjectDataDTO? SelectedProject { get; set; }
 
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
         IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository,
-        IRepository<User> userRepository)
+        IRepository<User> userRepository, IRepository<Notification> notificationRepository)
     {
         _projectRepository = projectRepository;
         _idProject = 2;
@@ -32,6 +33,7 @@ public class ProjectService
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _userRepository = userRepository;
+        _notificationRepository = notificationRepository;
     }
 
 
@@ -602,6 +604,10 @@ public class ProjectService
             .ToList();
     }
 
+    #endregion
+
+    #region Notification
+    
     #endregion
 
     #region ResourceType
