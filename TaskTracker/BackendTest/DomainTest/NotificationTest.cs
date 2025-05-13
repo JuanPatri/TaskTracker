@@ -61,9 +61,16 @@ public class NotificationTest
         _notification.Impact = 5;
         Assert.AreEqual(5, _notification.Impact);
     }
+    
+    [TestMethod]
+    public void AddNegativeImpactForNotificationTest()
+    {
+        _notification.Impact = -3;
+        Assert.AreEqual(-3, _notification.Impact);
+    }    
 
     [TestMethod]
-    public void AddZeroOrNegativeImpactForNotificationReturnsExceptionTest()
+    public void AddZeroImpactForNotificationReturnsExceptionTest()
     {
         Assert.ThrowsException<ArgumentException>(() => _notification.Impact = 0);
     }

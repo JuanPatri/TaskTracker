@@ -11,7 +11,7 @@ public class Notification
     private List<User> _users;
     private List<Project> _projects;
     
-    private const int MinImpact = 1;
+    private const int Zero = 0;
     public string Message
     {
         get => _message;
@@ -43,7 +43,7 @@ public class Notification
         get => _impact;
         set
         {
-            if (value < MinImpact) throw new ArgumentException("The impact must be greater than 0");
+            if (value == Zero) throw new ArgumentException("The impact can't be 0");
             _impact = value;
         }
     }
