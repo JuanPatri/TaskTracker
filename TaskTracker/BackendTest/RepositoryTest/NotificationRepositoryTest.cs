@@ -30,5 +30,13 @@ public class NotificationRepositoryTest
         _notificationRepository.Add(_notification);
         Assert.AreEqual(_notificationRepository.Find(n => n.Message == "new notification"), _notification);
     }
+    
+    [TestMethod]
+    public void SearchForAllNotificationInTheListTest()
+    {
+        Assert.AreEqual(_notificationRepository.FindAll().Count, 0);
+        _notificationRepository.Add(_notification);
+        Assert.AreEqual(_notificationRepository.FindAll().Count, 1);
+    }
 
 }
