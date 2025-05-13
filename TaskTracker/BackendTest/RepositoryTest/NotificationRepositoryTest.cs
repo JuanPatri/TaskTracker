@@ -23,5 +23,12 @@ public class NotificationRepositoryTest
     {
         Assert.IsNotNull(_notificationRepository);
     }
+    
+    [TestMethod]
+    public void AddNotificationToListTest()
+    {
+        _notificationRepository.Add(_notification);
+        Assert.AreEqual(_notificationRepository.Find(n => n.Message == "new notification"), _notification);
+    }
 
 }

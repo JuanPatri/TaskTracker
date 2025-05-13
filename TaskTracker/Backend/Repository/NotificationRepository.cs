@@ -19,7 +19,7 @@ public class NotificationRepository : IRepository<Notification>
 
     public Notification? Find(Func<Notification, bool> predicate)
     {
-        throw new NotImplementedException();
+        return _notifications.FirstOrDefault(predicate);
     }
 
     public IList<Notification> FindAll()
