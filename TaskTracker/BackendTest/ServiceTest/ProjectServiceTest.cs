@@ -1230,6 +1230,16 @@ public class
         bool result = _projectService.IsTaskCritical(null, "CualquierTarea");
         Assert.IsFalse(result);
     }
+    
+    [TestMethod]
+    public void ObtenerTipoDeNotificacionPorImpacto_ShouldReturnCorrectType()
+    {
+        var service = new ProjectService(null, null, null, null, null, null);
+
+        Assert.AreEqual(TypeOfNotification.Delay, service.ObtenerTipoDeNotificacionPorImpacto(1));
+        Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(0));
+        Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(-5));
+    }
     #endregion
 }
     

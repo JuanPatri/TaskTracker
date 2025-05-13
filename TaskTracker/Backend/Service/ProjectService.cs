@@ -623,6 +623,15 @@ public class ProjectService
         var criticalPath = GetCriticalPath(project);
         return criticalPath.Any(task => task.Title.Equals(taskTitle));
     }
+    
+    public TypeOfNotification ObtenerTipoDeNotificacionPorImpacto(int impacto)
+    {
+        if (impacto > 0)
+            return TypeOfNotification.Delay;
+        else
+            return TypeOfNotification.DurationAdjustment;
+    }
+
 
     
     #endregion
