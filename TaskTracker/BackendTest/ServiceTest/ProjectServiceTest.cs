@@ -499,16 +499,20 @@ public class
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
 
+        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
         Project project = new Project
         {
-            StartDate = new DateOnly(2025, 5, 12),
+            StartDate = startDate,
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
         _projectService.CalculateEarlyTimes(project);
         DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
 
-        Assert.AreEqual(new DateTime(2025, 5, 18), finish);
+        DateTime expectedFinish = startDate.ToDateTime(new TimeOnly(0, 0))
+            .AddDays(taskA.Duration + taskB.Duration + taskC.Duration);
+        
+        Assert.AreEqual(expectedFinish, finish);
     }
 
     #endregion
@@ -1154,5 +1158,36 @@ public class
         Assert.IsNotNull(_projectService);
     }
 
+    [TestMethod]
+    public void AddNotificationShouldReturnNotification()
+    {
+        var user = new User { Name = "User", Email = "user@example.com" };
+        var project = new Project { Name = "Test Project" };
+        _userRepository.Add(user);
+        _projectRepository.Add(project);
+    
+        NotificationDataDTO notificationDto = new NotificationDataDTO()
+        {
+            Message = "Message test",
+            Date = DateTime.Now.AddMinutes(1),
+            Impact = 1,
+            TypeOfNotification = TypeOfNotification.Delay,
+            Projects = new List<string> { "Test Project" },
+            Users = new List<string> { "user@example.com" }
+        };
+    
+        var users = _userRepository.FindAll().Where(u => notificationDto.Users.Contains(u.Email)).ToList();
+        var projects = _projectRepository.FindAll().Where(p => notificationDto.Projects.Contains(p.Name)).ToList();
+    
+        var notification = _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects));
+    
+        Assert.IsNotNull(notification);
+        Assert.AreEqual(notificationDto.Message, notification.Message);
+        Assert.AreEqual(notificationDto.Impact, notification.Impact);
+        Assert.AreEqual(notificationDto.TypeOfNotification, notification.TypeOfNotification);
+    }
+    
+    
     #endregion
 }
+    

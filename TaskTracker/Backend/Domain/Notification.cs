@@ -1,4 +1,5 @@
 using Backend.Domain.Enums;
+using Backend.DTOs.NotificationDTOs;
 
 namespace Backend.Domain;
 
@@ -64,5 +65,18 @@ public class Notification
             if (value == null) throw new ArgumentNullException("The projects cannot be null");
             _projects = value;
         }
+    }
+
+    public static Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects)
+    {
+        return new Notification()
+        {
+            Message = notificationDataDto.Message,
+            Date = notificationDataDto.Date,
+            TypeOfNotification = notificationDataDto.TypeOfNotification,
+            Impact = notificationDataDto.Impact,
+            Users = users,
+            Projects = projects
+        };
     }
 }
