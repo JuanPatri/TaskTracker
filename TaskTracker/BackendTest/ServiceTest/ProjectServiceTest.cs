@@ -1240,6 +1240,22 @@ public class
         Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(0));
         Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(-5));
     }
+    
+    [TestMethod]
+    public void CalcularImpacto_DeberiaRetornarDiferenciaEntreDuraciones()
+    {
+        var service = new ProjectService(null, null, null, null, null, null);
+
+        int impacto = service.CalcularImpacto(5, 8);
+
+        Assert.AreEqual(3, impacto);
+
+        impacto = service.CalcularImpacto(10, 7);
+        Assert.AreEqual(-3, impacto);
+
+        impacto = service.CalcularImpacto(4, 4);
+        Assert.AreEqual(0, impacto);
+    }
     #endregion
 }
     

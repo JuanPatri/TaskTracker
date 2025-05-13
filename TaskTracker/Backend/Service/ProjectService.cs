@@ -632,6 +632,10 @@ public class ProjectService
             return TypeOfNotification.DurationAdjustment;
     }
 
+    public int CalcularImpacto(int duracionVieja, int duracionNueva)
+    {
+        return duracionNueva - duracionVieja;
+    }
 
     
     #endregion
