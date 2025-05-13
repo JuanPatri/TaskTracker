@@ -1354,6 +1354,31 @@ public class
         Assert.AreEqual(1, notification.Users.Count);
         Assert.AreEqual("john@mail.com", notification.Users[0].Email);
     }
+    
+    [TestMethod]
+    public void GetNotificationsForUser_ShouldReturnNotificationsForGivenEmail()
+    {
+        var user = new User { Name = "John", Email = "john@mail.com" };
+        _userRepository.Add(user);
+    
+        var notification = new Notification
+        {
+            Message = "Test notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Date = DateTime.Now.AddMinutes(1),
+            Users = new List<User> { user }
+        };
+        _notificationRepository.Add(notification);
+    
+        var notifications = _projectService.GetNotificationsForUser("john@mail.com");
+    
+        Assert.AreEqual(1, notifications.Count);
+        Assert.AreEqual("Test notification", notifications[0].Message);
+        Assert.AreEqual(TypeOfNotification.Delay, notifications[0].TypeOfNotification);
+        Assert.AreEqual(2, notifications[0].Impact);
+    }
+    
     #endregion
 }
     

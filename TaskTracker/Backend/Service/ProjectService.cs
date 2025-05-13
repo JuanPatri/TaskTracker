@@ -686,6 +686,13 @@ public class ProjectService
         return _notificationRepository.Add(notificacion);
     }
 
+    public List<Notification> GetNotificationsForUser(string email)
+    {
+        return _notificationRepository
+            .FindAll()
+            .Where(n => n.Users != null && n.Users.Any(u => u.Email == email))
+            .ToList();
+    }
     #endregion
 
     #region ResourceType
