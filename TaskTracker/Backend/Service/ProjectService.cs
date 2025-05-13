@@ -610,11 +610,12 @@ public class ProjectService
     
     public bool IsTaskCritical(Project project, string taskTitle)
     {
-        var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
-        if (project == null)
+        
+        if (project == null || project.Tasks == null)
         {
-            throw new ArgumentNullException(nameof(project), "El proyecto no puede ser nulo.");
+            return false;
         }
+        var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
         if (task == null)
         {
             return false;

@@ -1224,6 +1224,12 @@ public class
         Assert.IsFalse(result);
     }
 
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnFalse_WhenProjectIsNull()
+    {
+        bool result = _projectService.IsTaskCritical(null, "CualquierTarea");
+        Assert.IsFalse(result);
+    }
     #endregion
 }
     
