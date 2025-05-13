@@ -47,10 +47,9 @@ public class NotificationRepositoryTest
         Notification updateNotification = new Notification()
         {
             Message = "UpdatedMessage",
-            Date = DateTime.Now,
+            Date = DateTime.Now.AddSeconds(5),
             TypeOfNotification = TypeOfNotification.Delay,
             Impact = 2,
-            Task = new List<Task>(),
             Users = new List<User>(),
             Projects = new List<Project>()
         };
