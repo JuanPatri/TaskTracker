@@ -637,7 +637,15 @@ public class ProjectService
         return duracionNueva - duracionVieja;
     }
 
-    
+    public DateTime GetNewEstimatedEndDate(int projectId)
+    {
+        var proyecto = GetProjectById(projectId);
+        if (proyecto == null)
+            throw new ArgumentException("Proyecto no encontrado");
+
+        return GetEstimatedProjectFinishDate(proyecto);
+    }
+
     #endregion
 
     #region ResourceType

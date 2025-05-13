@@ -1256,6 +1256,28 @@ public class
         impacto = service.CalcularImpacto(4, 4);
         Assert.AreEqual(0, impacto);
     }
+    
+    [TestMethod]
+    public void GetNewEstimatedEndDate_DeberiaRetornarFechaEstimada_CuandoProyectoExiste()
+    {
+        var project = new Project
+        {
+            Id = 123,
+            Name = "Proyecto Test",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Tasks = new List<Task>
+            {
+                new Task { Title = "Tarea1", Duration = 3 }
+            }
+        };
+        _projectRepository.Add(project);
+    
+        var fecha = _projectService.GetNewEstimatedEndDate(123);
+    
+        var esperado = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3);
+        Assert.AreEqual(esperado, fecha);
+    }
+    
     #endregion
 }
     
