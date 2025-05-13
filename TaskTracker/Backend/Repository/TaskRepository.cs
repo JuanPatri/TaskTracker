@@ -40,7 +40,6 @@ public class TaskRepository : IRepository<Task>
             {
                 existingTask.DateCompleated = DateTime.Now;
             }
-            Console.WriteLine($"{existingTask.Duration}");
             return existingTask;
         }
 

@@ -53,6 +53,8 @@
         }
         </tbody>
     </table>
+    
+    <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
 }
 else
 {
@@ -101,6 +103,11 @@ else
     private void ViewTasks(GetProjectDTO getProjectDto)
     {
         NavigationManager.NavigateTo($"/ViewTaskFromProyect/{getProjectDto.Id}", true);
+    }
+
+    private void GoToDiagram()
+    {
+        NavigationManager.NavigateTo("/Diagram", true);
     }
 
 }

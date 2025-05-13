@@ -1,0 +1,219 @@
+@page "/Diagram"
+@using Backend.DTOs.ProjectDTOs
+@using Backend.DTOs.TaskDTOs
+@using Backend.Service
+
+@inject SessionService Session
+@inject ProjectService ProjectService
+
+<h3>Task Timeline</h3>
+
+<div class="form-group mb-3">
+    <label for="project">Project <span class="text-danger">*</span></label>
+    <select id="project"
+            class="form-control"
+            value="@SelectedProjectId"
+            @onchange="HandleProjectChanged"
+            required>
+        <option value="">Select a project</option>
+        @foreach (var proj in _projectDtos)
+        {
+            <option value="@proj.Id">@proj.Name</option>
+        }
+    </select>
+</div>
+
+@if (SelectedProject != null && ProjectTasks.Count > 0)
+{
+    <div class="mt-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h4>@SelectedProject.Name - Timeline</h4>
+            <div class="d-flex">
+                <div class="legend-item me-3">
+                    <div class="color-box regular"></div>
+                    <span>Regular Task</span>
+                </div>
+                <div class="legend-item">
+                    <div class="color-box critical"></div>
+                    <span>Critical Path</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered timeline-table">
+                <thead>
+                <tr>
+                    <th style="width: 300px;">Activity</th>
+                    @for (int day = 0; day <= TotalDays; day++)
+                    {
+                        <th class="text-center day-column">@day</th>
+                    }
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var task in ProjectTasks)
+                {
+                    <tr>
+                        <td class="task-name">@task.Title</td>
+                        @for (int day = 0; day <= TotalDays; day++)
+                        {
+                            var dayDate = SelectedProject.StartDate.ToDateTime(TimeOnly.MinValue).AddDays(day);
+                            bool isTaskActiveOnDay = dayDate >= task.EarlyStart && dayDate < task.EarlyFinish;
+                            bool isTaskCritical = CriticalPathTasks.Contains(task);
+
+                            <td class="@(isTaskActiveOnDay ? (isTaskCritical ? "task-cell critical" : "task-cell regular") : "")"></td>
+                        }
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="task-details mt-4">
+        <h4>Task Details</h4>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                <tr>
+                    <th>Task</th>
+                    <th>Duration (days)</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Dependencies</th>
+                    <th>Critical Path</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var task in ProjectTasks)
+                {
+                    var isCritical = CriticalPathTasks.Contains(task);
+                    <tr class="@(isCritical ? "table-danger" : "")">
+                        <td>@task.Title</td>
+                        <td>@task.Duration</td>
+                        <td>@task.EarlyStart.ToShortDateString()</td>
+                        <td>@task.EarlyFinish.ToShortDateString()</td>
+                        <td>
+                            @if (task.Dependencies != null && task.Dependencies.Count > 0)
+                            {
+                                <span>@string.Join(", ", task.Dependencies.Select(d => d.Title))</span>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                        <td>@(isCritical ? "Yes" : "No")</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else if (SelectedProjectId > 0)
+{
+    <div class="alert alert-info">
+        There are no tasks available for this project. Please add tasks to view the timeline.
+    </div>
+}
+
+@code {
+    private List<GetProjectDTO> _projectDtos = new();
+    private List<GetTaskDTO> _taskTitleDtos = new();
+    private List<Backend.Domain.Task> ProjectTasks = new();
+    private List<Backend.Domain.Task> CriticalPathTasks = new();
+    private int SelectedProjectId;
+    private Backend.Domain.Project? SelectedProject;
+    private DateTime ProjectEndDate;
+    private double ProjectDuration;
+    private int TotalDays => (int)Math.Ceiling(ProjectDuration);
+
+    protected override void OnInitialized()
+    {
+        if (Session.IsLoggedIn())
+            _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
+    }
+
+    private void HandleProjectChanged(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int selectedId))
+        {
+            SelectedProjectId = selectedId;
+            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(SelectedProjectId);
+
+            SelectedProject = ProjectService.GetProjectById(SelectedProjectId);
+
+            if (SelectedProject != null)
+            {
+                ProjectService.CalculateEarlyTimes(SelectedProject);
+                ProjectService.CalculateLateTimes(SelectedProject);
+
+                ProjectTasks = SelectedProject.Tasks;
+
+                CriticalPathTasks = ProjectService.GetCriticalPath(SelectedProject);
+
+                ProjectEndDate = ProjectService.GetEstimatedProjectFinishDate(SelectedProject);
+                ProjectDuration = (ProjectEndDate - SelectedProject.StartDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+            }
+
+            StateHasChanged();
+        }
+    }
+}
+
+<style>
+    .legend-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .color-box {
+        width: 20px;
+        height: 20px;
+        margin-right: 5px;
+        border: 1px solid #ddd;
+    }
+
+    .color-box.regular {
+        background-color: #3498db;
+    }
+
+    .color-box.critical {
+        background-color: #e74c3c;
+    }
+
+    .timeline-table {
+        border-collapse: collapse;
+    }
+
+    .timeline-table th,
+    .timeline-table td {
+        border: 1px solid #dee2e6;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .day-column {
+        width: 40px;
+        min-width: 40px;
+    }
+
+    .task-name {
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .task-cell {
+        height: 40px;
+    }
+
+    .task-cell.regular {
+        background-color: #3498db;
+    }
+
+    .task-cell.critical {
+        background-color: #e74c3c;
+    }
+</style>

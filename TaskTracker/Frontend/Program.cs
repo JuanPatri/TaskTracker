@@ -21,6 +21,7 @@ builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<ProjectService>();
 
+
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

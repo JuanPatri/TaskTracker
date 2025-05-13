@@ -498,14 +498,16 @@ public class
 
         Project project = new Project
         {
-            StartDate = new DateOnly(2025, 5, 12),
+            StartDate = new DateOnly(2025, 9, 12),
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
         _projectService.CalculateEarlyTimes(project);
         DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
 
-        Assert.AreEqual(new DateTime(2025, 5, 18), finish);
+        // La fecha esperada debe ser la fecha de inicio + la duración total de la ruta crítica
+        // 12/09/2025 + 2 días (A) + 3 días (B) + 1 día (C) = 18/09/2025
+        Assert.AreEqual(new DateTime(2025, 9, 18), finish);
     }
 
     #endregion
