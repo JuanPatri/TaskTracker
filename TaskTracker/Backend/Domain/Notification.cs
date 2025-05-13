@@ -8,7 +8,6 @@ public class Notification
     private DateTime _date;
     private TypeOfNotification _typeOfNotification;
     private int _impact;
-    private List<Task> _task;
     private List<User> _users;
     private List<Project> _projects;
     
@@ -46,16 +45,6 @@ public class Notification
         {
             if (value < MinImpact) throw new ArgumentException("The impact must be greater than 0");
             _impact = value;
-        }
-    }
-    
-    public List<Task> Task
-    {
-        get => _task;
-        set
-        {
-            if (value == null) throw new ArgumentNullException("The task cannot be null");
-            _task = value;
         }
     }
     public List<User> Users

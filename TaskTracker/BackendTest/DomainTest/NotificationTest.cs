@@ -67,21 +67,7 @@ public class NotificationTest
     {
         Assert.ThrowsException<ArgumentException>(() => _notification.Impact = 0);
     }
-    
-    [TestMethod]
-    public void AddTaskToNotificationTest()
-    {
-        List<Task> task = new List<Task>();
-        _notification.Task = task;
-        Assert.AreEqual(task, _notification.Task);
-    }
-    
-    [TestMethod]
-    public void AddNullTaskToNotificationReturnsExceptionTest()
-    {
-        Assert.ThrowsException<ArgumentNullException>(() => _notification.Task = null);
-    }
-    
+
     [TestMethod]
     public void AddUsersToNotificationTest()
     {

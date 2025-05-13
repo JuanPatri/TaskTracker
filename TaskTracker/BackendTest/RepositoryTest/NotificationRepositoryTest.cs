@@ -38,5 +38,24 @@ public class NotificationRepositoryTest
         _notificationRepository.Add(_notification);
         Assert.AreEqual(_notificationRepository.FindAll().Count, 1);
     }
+    
+    [TestMethod]
+    public void UpdateExistingNotificationUpdatesFieldsCorrectlyTest()
+    {
+        _notification.Message = "UpdatedMessage";
+        _notificationRepository.Add(_notification);
+        Notification updateNotification = new Notification()
+        {
+            Message = "UpdatedMessage",
+            Date = DateTime.Now,
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Task = new List<Task>(),
+            Users = new List<User>(),
+            Projects = new List<Project>()
+        };
+        _notificationRepository.Update(updateNotification);
+        Assert.AreEqual(_notification.Message, "UpdatedMessage");
+    }
 
 }
