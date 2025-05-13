@@ -654,6 +654,19 @@ public class ProjectService
         return project.Users;
     }
 
+    public string GenerateNotificationMessage(TypeOfNotification type, string taskTitle, DateTime newEstimatedEndDate)
+    {
+        switch (type)
+        {
+            case TypeOfNotification.Delay:
+                return $"The critical task '{taskTitle}' has caused a delay. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
+            case TypeOfNotification.DurationAdjustment:
+                return $"The duration of the critical task '{taskTitle}' was adjusted. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
+            default:
+                return $"The task '{taskTitle}' has had a change. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
+        }
+    }
+
     #endregion
 
     #region ResourceType

@@ -1227,87 +1227,103 @@ public class
     [TestMethod]
     public void IsTaskCritical_ShouldReturnFalse_WhenProjectIsNull()
     {
-        bool result = _projectService.IsTaskCritical(null, "CualquierTarea");
+        bool result = _projectService.IsTaskCritical(null, "AnyTask");
         Assert.IsFalse(result);
     }
     
     [TestMethod]
-    public void ObtenerTipoDeNotificacionPorImpacto_ShouldReturnCorrectType()
+    public void GetNotificationTypeByImpact_ShouldReturnCorrectType()
     {
         var service = new ProjectService(null, null, null, null, null, null);
-
+    
         Assert.AreEqual(TypeOfNotification.Delay, service.ObtenerTipoDeNotificacionPorImpacto(1));
         Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(0));
         Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(-5));
     }
     
     [TestMethod]
-    public void CalcularImpacto_DeberiaRetornarDiferenciaEntreDuraciones()
+    public void CalculateImpact_ShouldReturnDifferenceBetweenDurations()
     {
         var service = new ProjectService(null, null, null, null, null, null);
-
-        int impacto = service.CalcularImpacto(5, 8);
-
-        Assert.AreEqual(3, impacto);
-
-        impacto = service.CalcularImpacto(10, 7);
-        Assert.AreEqual(-3, impacto);
-
-        impacto = service.CalcularImpacto(4, 4);
-        Assert.AreEqual(0, impacto);
+    
+        int impact = service.CalcularImpacto(5, 8);
+    
+        Assert.AreEqual(3, impact);
+    
+        impact = service.CalcularImpacto(10, 7);
+        Assert.AreEqual(-3, impact);
+    
+        impact = service.CalcularImpacto(4, 4);
+        Assert.AreEqual(0, impact);
     }
     
     [TestMethod]
-    public void GetNewEstimatedEndDate_DeberiaRetornarFechaEstimada_CuandoProyectoExiste()
+    public void GetNewEstimatedEndDate_ShouldReturnEstimatedDate_WhenProjectExists()
     {
         var project = new Project
         {
             Id = 123,
-            Name = "Proyecto Test",
+            Name = "Test Project",
             StartDate = DateOnly.FromDateTime(DateTime.Today),
             Tasks = new List<Task>
             {
-                new Task { Title = "Tarea1", Duration = 3 }
+                new Task { Title = "Task1", Duration = 3 }
             }
         };
         _projectRepository.Add(project);
     
-        var fecha = _projectService.GetNewEstimatedEndDate(123);
+        var date = _projectService.GetNewEstimatedEndDate(123);
     
-        var esperado = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3);
-        Assert.AreEqual(esperado, fecha);
+        var expected = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3);
+        Assert.AreEqual(expected, date);
     }
     
     [TestMethod]
-    public void GetUsersFromProject_DeberiaRetornarUsuariosDelProyecto()
+    public void GetUsersFromProject_ShouldReturnProjectUsers()
     {
-        var user1 = new User { Name = "Juan", Email = "juan@mail.com" };
-        var user2 = new User { Name = "Ana", Email = "ana@mail.com" };
+        var user1 = new User { Name = "John", Email = "john@mail.com" };
+        var user2 = new User { Name = "Anna", Email = "anna@mail.com" };
         _userRepository.Add(user1);
         _userRepository.Add(user2);
     
         var project = new Project
         {
             Id = 10,
-            Name = "Proyecto X",
+            Name = "Project X",
             Users = new List<User> { user1, user2 }
         };
         _projectRepository.Add(project);
     
-        var usuarios = _projectService.GetUsersFromProject(10);
+        var users = _projectService.GetUsersFromProject(10);
     
-        Assert.AreEqual(2, usuarios.Count);
-        Assert.IsTrue(usuarios.Any(u => u.Email == "juan@mail.com"));
-        Assert.IsTrue(usuarios.Any(u => u.Email == "ana@mail.com"));
+        Assert.AreEqual(2, users.Count);
+        Assert.IsTrue(users.Any(u => u.Email == "john@mail.com"));
+        Assert.IsTrue(users.Any(u => u.Email == "anna@mail.com"));
     }
     
     [TestMethod]
-    public void GetUsersFromProject_DeberiaRetornarListaVacia_SiNoExisteProyecto()
+    public void GetUsersFromProject_ShouldReturnEmptyList_WhenProjectDoesNotExist()
     {
-        var usuarios = _projectService.GetUsersFromProject(999);
-
-        Assert.IsNotNull(usuarios);
-        Assert.AreEqual(0, usuarios.Count);
+        var users = _projectService.GetUsersFromProject(999);
+    
+        Assert.IsNotNull(users);
+        Assert.AreEqual(0, users.Count);
+    }
+    
+    [TestMethod]
+    public void GenerateNotificationMessage_ShouldReturnCorrectMessage_ByType()
+    {
+        var service = new ProjectService(null, null, null, null, null, null);
+        var date = new DateTime(2024, 6, 10);
+    
+        var delayMessage = service.GenerateNotificationMessage(TypeOfNotification.Delay, "Task1", date);
+        Assert.AreEqual("The critical task 'Task1' has caused a delay. The new estimated project end date is 2024-06-10.", delayMessage);
+    
+        var adjustmentMessage = service.GenerateNotificationMessage(TypeOfNotification.DurationAdjustment, "Task2", date);
+        Assert.AreEqual("The duration of the critical task 'Task2' was adjusted. The new estimated project end date is 2024-06-10.", adjustmentMessage);
+    
+        var defaultMessage = service.GenerateNotificationMessage((TypeOfNotification)99, "Task3", date);
+        Assert.AreEqual("The task 'Task3' has had a change. The new estimated project end date is 2024-06-10.", defaultMessage);
     }
     #endregion
 }
