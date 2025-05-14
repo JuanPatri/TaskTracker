@@ -24,6 +24,8 @@ public class User
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The username cannot be empty");
             _name = value;
+            
+            if(value.Any(char.IsDigit)) throw new ArgumentException("The username cannot contain digits");
         }
     }
     
