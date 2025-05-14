@@ -495,6 +495,19 @@ public class
         Assert.AreEqual(new DateTime(2025, 9, 18), finish);
     }
 
+    [TestMethod]
+    public void GetAdminEmailByTaskTitleTest()
+    {
+        _project.Administrator = new User { Email = "admin@example.com" };
+        var task = new Task { Title = "Test Task" };
+        _project.Tasks.Add(task); 
+
+
+        string? email = _projectService.GetAdminEmailByTaskTitle("Test Task");
+
+        Assert.IsNotNull(email);
+        Assert.AreEqual("admin@example.com", email);
+    }
     #endregion
 
     #region TaskTest
