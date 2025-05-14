@@ -42,11 +42,6 @@ else
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Finish Date</label>
-            <input type="date" class="form-control" @bind="_projectData.FinishDate" required />
-        </div>
-
-        <div class="mb-3">
             <label class="form-label">Project Members</label>
             <select class="form-select" multiple @onchange="OnMembersSelected">
                 @foreach (var user in _availableUsers)

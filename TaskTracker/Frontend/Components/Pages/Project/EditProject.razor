@@ -40,12 +40,6 @@
                     <InputDate id="startDate" class="form-control" @bind-Value="_project.StartDate" />
                     <ValidationMessage For="@(() => _project.StartDate)" />
                 </div>
-
-                <div class="col-md-6 mb-3">
-                    <label for="finishDate" class="form-label">Finish Date</label>
-                    <InputDate id="finishDate" class="form-control" @bind-Value="_project.FinishDate" disabled/>
-                    <ValidationMessage For="@(() => _project.FinishDate)" />
-                </div>
             </div>
 
             <div class="mt-4">
