@@ -45,7 +45,6 @@ public class
             Name = "Test Project",
             Description = "Description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
             Administrator = new User()
         };
         _projectRepository.Add(_project);
@@ -84,7 +83,6 @@ public class
             Name = "Project 2",
             Description = "Description of project 2",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
             Administrator = new UserDataDTO()
             {
                 Name = "John",
@@ -124,7 +122,6 @@ public class
             Name = "Project1",
             Description = "Description1",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(1)),
             Administrator = new User()
         };
 
@@ -158,7 +155,6 @@ public class
             Name = "Project 1",
             Description = "Description of project 1",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
             Administrator = new User()
         };
 
@@ -170,7 +166,6 @@ public class
             Name = "Project 1",
             Description = "Updated description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(12)),
             Administrator = new UserDataDTO()
             {
                 Name = "John",
@@ -196,7 +191,6 @@ public class
             Name = "DuplicateName",
             Description = "Desc",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
             Administrator = new User()
         };
         _projectRepository.Add(existingProject);
@@ -206,7 +200,6 @@ public class
             Name = "DuplicateName",
             Description = "New Desc",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(6)),
             Administrator = new UserDataDTO
             {
                 Name = "Admin",
@@ -252,8 +245,7 @@ public class
             Id = 1,
             Name = "Project 1",
             Description = "Description of project 1",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)), 
             Administrator = adminUser,
             Users = new List<User> { adminUser }
         };
@@ -326,7 +318,6 @@ public class
             Name = "Exclusive Project",
             Description = "Project with exclusive resources",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
             Administrator = new User { Name = "Admin", Email = "admin@example.com" },
             ExclusiveResources = new List<Resource> { exclusiveResource1, exclusiveResource2 }
         };
@@ -373,7 +364,6 @@ public class
             Name = "Project One",
             Description = "First Project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
             Administrator = admin,
             Users = new List<User> { member }
         };
@@ -384,8 +374,7 @@ public class
             Name = "Project Two",
             Description = "Second Project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(10)),
-            Administrator = member, // user is admin here
+            Administrator = member, 
             Users = new List<User> { member }
         };
 
@@ -414,7 +403,6 @@ public class
             Name = "Office Setup",
             Description = "Setup project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(5)),
             Administrator = new User { Email = "admin@example.com" },
             Tasks = new List<Task> { task },
             Users = new List<User>()
@@ -478,7 +466,6 @@ public class
             Name = "Test Project",
             Description = "Project description",
             StartDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now).AddDays(10),
             Administrator = admin,
             Users = new List<User> { user }
         };
@@ -502,17 +489,17 @@ public class
         var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
         Project project = new Project
         {
-            StartDate = startDate,
+
+            StartDate = new DateOnly(2025, 9, 12),
+
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
         _projectService.CalculateEarlyTimes(project);
         DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
 
-        DateTime expectedFinish = startDate.ToDateTime(new TimeOnly(0, 0))
-            .AddDays(taskA.Duration + taskB.Duration + taskC.Duration);
-        
-        Assert.AreEqual(expectedFinish, finish);
+
+        Assert.AreEqual(new DateTime(2025, 9, 18), finish);
     }
 
     #endregion
@@ -755,7 +742,6 @@ public class
             Name = "Task Project",
             Description = "Description of the project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddMonths(1)),
             Administrator = new User
             {
                 Name = "Administrator User",
@@ -808,7 +794,6 @@ public class
             Tasks = new List<Task> { task },
             Description = "desc",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
             Administrator = new User()
         };
         _projectRepository.Add(project);

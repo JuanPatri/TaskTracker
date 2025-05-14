@@ -31,7 +31,6 @@
             <tr>
                 <td>@project.Name</td>
                 <td>@project.StartDate.ToShortDateString()</td>
-                <td>@project.FinishDate.ToShortDateString()</td>
                 <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
                 <td>
                     <div class="btn-group">
@@ -53,6 +52,8 @@
         }
         </tbody>
     </table>
+    
+    <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
 }
 else
 {
@@ -101,6 +102,11 @@ else
     private void ViewTasks(GetProjectDTO getProjectDto)
     {
         NavigationManager.NavigateTo($"/ViewTaskFromProyect/{getProjectDto.Id}", true);
+    }
+
+    private void GoToDiagram()
+    {
+        NavigationManager.NavigateTo("/Diagram", true);
     }
 
 }

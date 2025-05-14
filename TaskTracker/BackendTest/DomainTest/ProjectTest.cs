@@ -70,23 +70,6 @@ public class ProjectTest
         DateOnly pastDate = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
         Assert.ThrowsException<ArgumentException>(() => _project.StartDate = pastDate);
     }
-
-    [TestMethod]
-    public void AddFinishDateForProjectTest()
-    {
-        DateOnly finishDate = DateOnly.FromDateTime(DateTime.Today.AddDays(5));
-        _project.FinishDate = finishDate;
-        Assert.AreEqual<DateOnly>(finishDate, _project.FinishDate);
-    }
-    
-    [TestMethod]
-    public void FinishDateBeforeStartDateReturnsExceptionTest()
-    {
-        DateOnly startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(5));
-        DateOnly finishDate = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
-        _project.StartDate = startDate;
-        Assert.ThrowsException<ArgumentException>(() => _project.FinishDate = finishDate);
-    }
     
     [TestMethod]
     public void AddAdministratorForProjectTest()
@@ -133,7 +116,6 @@ public class ProjectTest
             Name = "Test Project",
             Description = "This is a test project",
             StartDate = new DateOnly (2026, 1, 1),
-            FinishDate = new DateOnly (2026, 12, 31),
             Administrator = new UserDataDTO
             {
                 Name = "Pedro",
@@ -163,7 +145,6 @@ public class ProjectTest
         Assert.AreEqual(dto.Name, result.Name);
         Assert.AreEqual(dto.Description, result.Description);
         Assert.AreEqual(dto.StartDate, result.StartDate);
-        Assert.AreEqual(dto.FinishDate, result.FinishDate);
         Assert.IsNotNull(result.Administrator);
         Assert.AreEqual(dto.Administrator.Name, result.Administrator.Name);
         Assert.AreEqual(dto.Administrator.LastName, result.Administrator.LastName);

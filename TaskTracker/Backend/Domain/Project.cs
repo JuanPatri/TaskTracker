@@ -8,7 +8,6 @@ public class Project
     private string _name;
     private string _description;
     private DateOnly _startDate;
-    private DateOnly _finishDate;
     private User _administrator;
     private List<Task> _tasks = new List<Task>();
     private List<User> _users = new List<User>();
@@ -43,16 +42,6 @@ public class Project
         {
             if (value < DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("The project start date cannot be in the past");
             _startDate = value;
-        }
-    }
-    
-    public DateOnly FinishDate 
-    {
-        get => _finishDate;
-        set
-        {
-            if (value < _startDate) throw new ArgumentException("The finish date cannot be before the start date");
-            _finishDate = value;
         }
     }
     public User Administrator
@@ -107,7 +96,6 @@ public class Project
             Name = projectDataDto.Name,
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,
-            FinishDate = projectDataDto.FinishDate,
             Administrator = User.FromDto(projectDataDto.Administrator),
             Users = users
         };
