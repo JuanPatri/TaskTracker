@@ -6,6 +6,7 @@ using Backend.Repository;
 using Backend.Service;
 using Backend.DTOs.TaskDTOs;
 using Backend.Domain.Enums;
+using Backend.DTOs.NotificationDTOs;
 using Backend.DTOs.ResourceDTOs;
 using Backend.DTOs.ResourceTypeDTOs;
 
@@ -24,6 +25,7 @@ public class
     private UserRepository _userRepository;
     private Task _task;
     private Resource _resource;
+    private NotificationRepository _notificationRepository;
 
     [TestInitialize]
     public void OnInitialize()
@@ -33,8 +35,9 @@ public class
         _resourceRepository = new ResourceRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
         _userRepository = new UserRepository();
+        _notificationRepository = new NotificationRepository();
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceRepository,
-            _resourceTypeRepository, _userRepository);
+            _resourceTypeRepository, _userRepository, _notificationRepository);
 
         _project = new Project()
         {
@@ -326,9 +329,9 @@ public class
         Assert.IsTrue(result.Any(r => r.Name == "Printer"));
         Assert.IsTrue(result.Any(r => r.Name == "Designer"));
     }
-
+    
     [TestMethod]
-    public void GetProjectsByUserEmailNotAdminShouldReturnProjectsWhereUserIsMemberButNotAdmin()
+    public void GetAllProjectsByUserEmailShouldReturnAllProjectsWhereUserIsMember()
     {
         string userEmail = "user@example.com";
 
@@ -371,18 +374,20 @@ public class
             Name = "Project Two",
             Description = "Second Project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = member, 
+            Administrator = member,
             Users = new List<User> { member }
         };
 
         _projectRepository.Add(project1);
         _projectRepository.Add(project2);
+        
+        List<GetProjectDTO> result = _projectService.GetAllProjectsByUserEmail(userEmail);
 
-        List<GetProjectDTO> result = _projectService.GetProjectsByUserEmailNotAdmin(userEmail);
-
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("Project One", result[0].Name);
+        Assert.AreEqual(2, result.Count);
+        Assert.IsTrue(result.Any(p => p.Name == "Project One"));
+        Assert.IsTrue(result.Any(p => p.Name == "Project Two"));
     }
+
 
     [TestMethod]
     public void DecreaseResourceQuantityShouldDecreaseQuantityByOne()
@@ -483,14 +488,18 @@ public class
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
 
+        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
         Project project = new Project
         {
+
             StartDate = new DateOnly(2025, 9, 12),
+
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
         _projectService.CalculateEarlyTimes(project);
         DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
+
 
         Assert.AreEqual(new DateTime(2025, 9, 18), finish);
     }
@@ -1519,4 +1528,309 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
     }
 
     #endregion
+
+    #region NotificationTest
+
+    [TestMethod]
+    public void CreateNotificationService()
+    {
+        Assert.IsNotNull(_projectService);
+    }
+
+    [TestMethod]
+    public void AddNotificationShouldReturnNotification()
+    {
+        var user = new User { Name = "User", Email = "user@example.com" };
+        var project = new Project { Name = "Test Project" };
+        _userRepository.Add(user);
+        _projectRepository.Add(project);
+    
+        NotificationDataDTO notificationDto = new NotificationDataDTO()
+        {
+            Id = 1,
+            Message = "Message test",
+            Date = DateTime.Now.AddMinutes(1),
+            Impact = 1,
+            TypeOfNotification = TypeOfNotification.Delay,
+            Projects = new List<string> { "Test Project" },
+            Users = new List<string> { "user@example.com" }
+        };
+    
+        var users = _userRepository.FindAll().Where(u => notificationDto.Users.Contains(u.Email)).ToList();
+        var projects = _projectRepository.FindAll().Where(p => notificationDto.Projects.Contains(p.Name)).ToList();
+    
+        var notification = _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects, new List<string>()));
+    
+        Assert.IsNotNull(notification);
+        Assert.AreEqual(notificationDto.Message, notification.Message);
+        Assert.AreEqual(notificationDto.Impact, notification.Impact);
+        Assert.AreEqual(notificationDto.TypeOfNotification, notification.TypeOfNotification);
+    }
+    
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
+        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+    
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+        };
+    
+        _projectService.CalculateEarlyTimes(project);
+        _projectService.CalculateLateTimes(project);
+    
+        Assert.IsTrue(_projectService.IsTaskCritical(project, taskA.Title));
+        Assert.IsTrue(_projectService.IsTaskCritical(project, taskB.Title));
+        Assert.IsTrue(_projectService.IsTaskCritical(project, taskD.Title));
+        Assert.IsFalse(_projectService.IsTaskCritical(project, taskC.Title));
+    }
+    
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnFalse_WhenTaskDoesNotExist()
+    {
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task>()
+        };
+    
+        bool result = _projectService.IsTaskCritical(project, "TareaInexistente");
+    
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnFalse_WhenProjectIsNull()
+    {
+        bool result = _projectService.IsTaskCritical(null, "AnyTask");
+        Assert.IsFalse(result);
+    }
+    
+    [TestMethod]
+    public void GetNotificationTypeByImpact_ShouldReturnCorrectType()
+    {
+        var service = new ProjectService(null, null, null, null, null, null);
+    
+        Assert.AreEqual(TypeOfNotification.Delay, service.ObtenerTipoDeNotificacionPorImpacto(1));
+        Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(0));
+        Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(-5));
+    }
+    
+    [TestMethod]
+    public void CalculateImpact_ShouldReturnDifferenceBetweenDurations()
+    {
+        var service = new ProjectService(null, null, null, null, null, null);
+    
+        int impact = service.CalcularImpacto(5, 8);
+    
+        Assert.AreEqual(3, impact);
+    
+        impact = service.CalcularImpacto(10, 7);
+        Assert.AreEqual(-3, impact);
+    
+        impact = service.CalcularImpacto(4, 4);
+        Assert.AreEqual(0, impact);
+    }
+    
+    [TestMethod]
+    public void GetNewEstimatedEndDate_ShouldReturnEstimatedDate_WhenProjectExists()
+    {
+        var project = new Project
+        {
+            Id = 123,
+            Name = "Test Project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Tasks = new List<Task>
+            {
+                new Task { Title = "Task1", Duration = 3 }
+            }
+        };
+        _projectRepository.Add(project);
+    
+        var date = _projectService.GetNewEstimatedEndDate(123);
+    
+        var expected = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3);
+        Assert.AreEqual(expected, date);
+    }
+    
+    [TestMethod]
+    public void GetUsersFromProject_ShouldReturnProjectUsers()
+    {
+        var user1 = new User { Name = "John", Email = "john@mail.com" };
+        var user2 = new User { Name = "Anna", Email = "anna@mail.com" };
+        _userRepository.Add(user1);
+        _userRepository.Add(user2);
+    
+        var project = new Project
+        {
+            Id = 10,
+            Name = "Project X",
+            Users = new List<User> { user1, user2 }
+        };
+        _projectRepository.Add(project);
+    
+        var users = _projectService.GetUsersFromProject(10);
+    
+        Assert.AreEqual(2, users.Count);
+        Assert.IsTrue(users.Any(u => u.Email == "john@mail.com"));
+        Assert.IsTrue(users.Any(u => u.Email == "anna@mail.com"));
+    }
+    
+    [TestMethod]
+    public void GetUsersFromProject_ShouldReturnEmptyList_WhenProjectDoesNotExist()
+    {
+        var users = _projectService.GetUsersFromProject(999);
+    
+        Assert.IsNotNull(users);
+        Assert.AreEqual(0, users.Count);
+    }
+    
+    [TestMethod]
+    public void GenerateNotificationMessage_ShouldReturnCorrectMessage_ByType()
+    {
+        var service = new ProjectService(null, null, null, null, null, null);
+        var date = new DateTime(2024, 6, 10);
+    
+        var delayMessage = service.GenerateNotificationMessage(TypeOfNotification.Delay, "Task1", date);
+        Assert.AreEqual("The critical task 'Task1' has caused a delay. The new estimated project end date is 2024-06-10.", delayMessage);
+    
+        var adjustmentMessage = service.GenerateNotificationMessage(TypeOfNotification.DurationAdjustment, "Task2", date);
+        Assert.AreEqual("The duration of the critical task 'Task2' was adjusted. The new estimated project end date is 2024-06-10.", adjustmentMessage);
+    
+        var defaultMessage = service.GenerateNotificationMessage((TypeOfNotification)99, "Task3", date);
+        Assert.AreEqual("The task 'Task3' has had a change. The new estimated project end date is 2024-06-10.", defaultMessage);
+    }
+    
+    [TestMethod]
+    public void CreateNotification_ShouldCreateAndReturnNotificationWithCorrectData()
+    {
+        var user = new User { Name = "John", Email = "john@mail.com" };
+        var project = new Project
+        {
+            Id = 1,
+            Name = "Project Test",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            Users = new List<User> { user },
+            Tasks = new List<Task> { new Task { Title = "Task1", Duration = 5 } }
+        };
+        _userRepository.Add(user);
+        _projectRepository.Add(project);
+
+        int oldDuration = 5;
+        int newDuration = 8;
+        string taskTitle = "Task1";
+
+        var notification = _projectService.CreateNotification(oldDuration, newDuration, 1, taskTitle);
+
+        Assert.IsNotNull(notification);
+        Assert.AreEqual(TypeOfNotification.Delay, notification.TypeOfNotification);
+        Assert.AreEqual(3, notification.Impact);
+        Assert.IsTrue(notification.Message.Contains("Task1"));
+        Assert.AreEqual(1, notification.Users.Count);
+        Assert.AreEqual("john@mail.com", notification.Users[0].Email);
+    }
+    
+    [TestMethod]
+    public void GetNotificationsForUser_ShouldReturnNotificationsForGivenEmail()
+    {
+        var user = new User { Name = "John", Email = "john@mail.com" };
+        _userRepository.Add(user);
+    
+        var notification = new Notification
+        {
+            Message = "Test notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Date = DateTime.Now.AddMinutes(1),
+            Users = new List<User> { user }
+        };
+        _notificationRepository.Add(notification);
+    
+        var notifications = _projectService.GetNotificationsForUser("john@mail.com");
+    
+        Assert.AreEqual(1, notifications.Count);
+        Assert.AreEqual("Test notification", notifications[0].Message);
+        Assert.AreEqual(TypeOfNotification.Delay, notifications[0].TypeOfNotification);
+        Assert.AreEqual(2, notifications[0].Impact);
+    }
+    
+    [TestMethod]
+    public void GetNotificationsForUserShouldReturnEmptyListWhenNoNotificationsForUser()
+    {
+        var notifications = _projectService.GetNotificationsForUser("nonexistent@mail.com");
+    
+        Assert.IsNotNull(notifications);
+        Assert.AreEqual(0, notifications.Count);
+    }
+    
+    [TestMethod]
+    public void MarkNotificationAsViewedAddsUserToViewedList()
+    {
+        var notification = new Notification
+        {
+            Id = 1,
+            Message = "Test notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Date = DateTime.Now.AddMinutes(1),
+            Projects = new List<Project>(),
+            Users = new List<User>(),
+            ViewedBy = new List<string>()
+        };
+        var notificationRepository = new NotificationRepository();
+        notificationRepository.Add(notification);
+
+        var service = new ProjectService(
+            null, null, null, null, null, notificationRepository);
+
+        service.MarkNotificationAsViewed(1, "user@email.com");
+
+        var updated = notificationRepository.Find(n => n.Id == 1);
+        Assert.IsTrue(updated.ViewedBy.Contains("user@email.com"));
+    }
+    
+    [TestMethod]
+    public void GetUnviewedNotificationsForUser_ShouldReturnOnlyUnviewedNotifications()
+    {
+        var user = new User { Name = "John", Email = "john@mail.com" };
+        var notificationViewed = new Notification
+        {
+            Id = 1,
+            Message = "Viewed notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 1,
+            Date = DateTime.Now.AddMinutes(1),
+            Users = new List<User> { user },
+            ViewedBy = new List<string> { "john@mail.com" }
+        };
+        var notificationUnviewed = new Notification
+        {
+            Id = 2,
+            Message = "Unviewed notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Date = DateTime.Now.AddMinutes(2),
+            Users = new List<User> { user },
+            ViewedBy = new List<string>()
+        };
+
+        var notificationRepository = new NotificationRepository();
+        notificationRepository.Add(notificationViewed);
+        notificationRepository.Add(notificationUnviewed);
+
+        var service = new ProjectService(
+            null, null, null, null, null, notificationRepository);
+
+        var unviewed = service.GetUnviewedNotificationsForUser("john@mail.com");
+
+        Assert.AreEqual(1, unviewed.Count);
+        Assert.AreEqual("Unviewed notification", unviewed[0].Message);
+    }
+    #endregion
 }
+    

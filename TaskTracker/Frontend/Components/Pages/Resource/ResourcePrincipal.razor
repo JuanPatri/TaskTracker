@@ -41,7 +41,7 @@ else
     {
         if (Session.IsLoggedIn())
         {
-            _userProjects = ProjectService.GetProjectsByUserEmailNotAdmin(Session.CurrentUser.Email);
+            _userProjects = ProjectService.GetAllProjectsByUserEmail(Session.CurrentUser.Email);
         }
     }
 

@@ -1,16 +1,20 @@
 using Backend.Domain.Enums;
+using Backend.DTOs.NotificationDTOs;
 
 namespace Backend.Domain;
 
 public class Notification
 {
+    private int _id;
     private string _message;
     private DateTime _date;
-    private TypeOfNotification _validateTypeOfNotification;
+    private TypeOfNotification _typeOfNotification;
     private int _impact;
-    private List<Task> _task;
+    private List<User> _users;
+    private List<Project> _projects;
+    private List<string> _viewedBy = new List<string>();
     
-    private const int MinImpact = 1;
+    private const int Zero = 0;
     public string Message
     {
         get => _message;
@@ -31,10 +35,10 @@ public class Notification
         }
     }
     
-    public TypeOfNotification ValidateTypeOfNotification
+    public TypeOfNotification TypeOfNotification
     {
-        get => _validateTypeOfNotification;
-        set => _validateTypeOfNotification = value;
+        get => _typeOfNotification;
+        set => _typeOfNotification = value;
     }
     
     public int Impact
@@ -42,18 +46,57 @@ public class Notification
         get => _impact;
         set
         {
-            if (value < MinImpact) throw new ArgumentException("The impact must be greater than 0");
+            if (value == Zero) throw new ArgumentException("The impact can't be 0");
             _impact = value;
         }
     }
-    
-    public List<Task> Task
+    public List<User> Users
     {
-        get => _task;
+        get => _users;
         set
         {
-            if (value == null) throw new ArgumentNullException("The task cannot be null");
-            _task = value;
+            if (value == null) throw new ArgumentNullException("The users cannot be null");
+            _users = value;
         }
+    }
+    public List<Project> Projects
+    {
+        get => _projects;
+        set
+        {
+            if (value == null) throw new ArgumentNullException("The projects cannot be null");
+            _projects = value;
+        }
+    }
+    
+    public List<string> ViewedBy
+    {
+        get => _viewedBy;
+        set => _viewedBy = value ?? new List<string>();
+    }
+    
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("El Id de la notificación debe ser positivo");
+            _id = value;
+        }
+    }
+
+    public static Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects, List<string> viewedBy)
+    {
+        return new Notification()
+        {
+            Id = notificationDataDto.Id,
+            Message = notificationDataDto.Message,
+            Date = notificationDataDto.Date,
+            TypeOfNotification = notificationDataDto.TypeOfNotification,
+            Impact = notificationDataDto.Impact,
+            Users = users,
+            Projects = projects,
+            ViewedBy = viewedBy
+        };
     }
 }
