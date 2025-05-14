@@ -313,7 +313,7 @@ public class
         {
             Id = projectId,
             Name = "Exclusive Project",
-            Description = "Project with exclusive resources",
+            Description = "Description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Administrator = new User { Name = "Admin", Email = "admin@example.com" },
             ExclusiveResources = new List<Resource> { exclusiveResource1, exclusiveResource2 }
@@ -608,7 +608,7 @@ public void UpdateProject_ShouldUseExistingAdminPassword_WhenPasswordIsEmpty()
     {
         Id = 500,
         Name = "Existing Project",
-        Description = "Original description",
+        Description = "Description",
         StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
         Administrator = adminUser,
         Users = new List<User> { adminUser }
@@ -682,7 +682,7 @@ public void UpdateProject_ShouldUpdateUsersBasedOnEmails()
     {
         Id = 600,
         Name = "Project With Users",
-        Description = "Original description",
+        Description = "Description",
         StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
         Administrator = adminUser,
         Users = new List<User> { adminUser }
