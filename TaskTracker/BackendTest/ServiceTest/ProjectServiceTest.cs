@@ -496,6 +496,87 @@ public class
     }
 
     [TestMethod]
+public void GetAllUsers_ReturnsAllUsersAsUserDataDTOs()
+{
+    int initialUserCount = _userRepository.FindAll().Count();
+
+    User testUser1 = new User
+    {
+        Name = "John",
+        LastName = "Doe",
+        Email = "john.doe@example.com",
+        Password = "JohnDoe123@", 
+        BirthDate = new DateTime(1980, 1, 1),
+        Admin = true
+    };
+
+    User testUser2 = new User
+    {
+        Name = "Jane",
+        LastName = "Smith",
+        Email = "jane.smith@example.com",
+        Password = "JaneSmith456#", 
+        BirthDate = new DateTime(1985, 5, 5),
+        Admin = false
+    };
+
+    _userRepository.Add(testUser1);
+    _userRepository.Add(testUser2);
+
+    List<UserDataDTO> result = _projectService.GetAllUsers();
+
+    Assert.IsNotNull(result);
+    Assert.AreEqual(initialUserCount + 2, result.Count);
+
+    Assert.IsTrue(result.Any(u => u.Email == "john.doe@example.com"));
+    Assert.IsTrue(result.Any(u => u.Email == "jane.smith@example.com"));
+    
+    UserDataDTO johnDto = result.FirstOrDefault(u => u.Email == "john.doe@example.com");
+    Assert.IsNotNull(johnDto);
+    Assert.AreEqual("John", johnDto.Name);
+    Assert.AreEqual("Doe", johnDto.LastName);
+    Assert.AreEqual("JohnDoe123@", johnDto.Password);
+    Assert.AreEqual(new DateTime(1980, 1, 1), johnDto.BirthDate);
+    Assert.IsTrue(johnDto.Admin);
+    
+    UserDataDTO janeDto = result.FirstOrDefault(u => u.Email == "jane.smith@example.com");
+    Assert.IsNotNull(janeDto);
+    Assert.AreEqual("Jane", janeDto.Name);
+    Assert.AreEqual("Smith", janeDto.LastName);
+    Assert.AreEqual("JaneSmith456#", janeDto.Password);
+    Assert.AreEqual(new DateTime(1985, 5, 5), janeDto.BirthDate);
+    Assert.IsFalse(janeDto.Admin);
+}
+
+[TestMethod]
+public void GetAllUsers_MapsPropertiesCorrectly()
+{
+    User testUser = new User
+    {
+        Name = "Test",
+        LastName = "User",
+        Email = "test.user@example.com",
+        Password = "TestUser789$", 
+        BirthDate = new DateTime(1990, 10, 10),
+        Admin = true
+    };
+
+    _userRepository.Add(testUser);
+
+    List<UserDataDTO> result = _projectService.GetAllUsers();
+
+    UserDataDTO testUserDto = result.FirstOrDefault(u => u.Email == "test.user@example.com");
+    Assert.IsNotNull(testUserDto);
+    
+    Assert.AreEqual(testUser.Name, testUserDto.Name);
+    Assert.AreEqual(testUser.LastName, testUserDto.LastName);
+    Assert.AreEqual(testUser.Email, testUserDto.Email);
+    Assert.AreEqual(testUser.Password, testUserDto.Password);
+    Assert.AreEqual(testUser.BirthDate, testUserDto.BirthDate);
+    Assert.AreEqual(testUser.Admin, testUserDto.Admin);
+}
+
+    [TestMethod]
     public void GetAdminEmailByTaskTitleTest()
     {
         _project.Administrator = new User { Email = "admin@example.com" };
