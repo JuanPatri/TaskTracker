@@ -1179,7 +1179,7 @@ public class
         var users = _userRepository.FindAll().Where(u => notificationDto.Users.Contains(u.Email)).ToList();
         var projects = _projectRepository.FindAll().Where(p => notificationDto.Projects.Contains(p.Name)).ToList();
     
-        var notification = _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects));
+        var notification = _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects, new List<string>()));
     
         Assert.IsNotNull(notification);
         Assert.AreEqual(notificationDto.Message, notification.Message);

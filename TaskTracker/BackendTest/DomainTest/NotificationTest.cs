@@ -102,4 +102,11 @@ public class NotificationTest
     {
         Assert.ThrowsException<ArgumentNullException>(() => _notification.Projects = null);
     }
+    
+    [TestMethod]
+    public void ViewedBy_ShouldBeEmptyByDefault()
+    {
+        Assert.IsNotNull(_notification.ViewedBy);
+        Assert.AreEqual(0, _notification.ViewedBy.Count);
+    }
 }

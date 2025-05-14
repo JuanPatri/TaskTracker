@@ -11,6 +11,7 @@ public class Notification
     private int _impact;
     private List<User> _users;
     private List<Project> _projects;
+    private List<string> _viewedBy = new List<string>();
     
     private const int Zero = 0;
     public string Message
@@ -66,8 +67,14 @@ public class Notification
             _projects = value;
         }
     }
+    
+    public List<string> ViewedBy
+    {
+        get => _viewedBy;
+        set => _viewedBy = value ?? new List<string>();
+    }
 
-    public static Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects)
+    public static Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects, List<string> viewedBy)
     {
         return new Notification()
         {
@@ -76,7 +83,8 @@ public class Notification
             TypeOfNotification = notificationDataDto.TypeOfNotification,
             Impact = notificationDataDto.Impact,
             Users = users,
-            Projects = projects
+            Projects = projects,
+            ViewedBy = viewedBy
         };
     }
 }

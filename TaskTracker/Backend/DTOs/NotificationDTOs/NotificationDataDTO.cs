@@ -13,6 +13,7 @@ public class NotificationDataDTO
     public List<string> Task { get; set; } = new List<string>();
     public List<string> Users { get; set; } = new List<string>();
     public List<string> Projects { get; set; } = new List<string>();
+    public List<string> ViewedBy { get; set; } = new List<string>();    
     
     public Notification ToEntity()
     {
