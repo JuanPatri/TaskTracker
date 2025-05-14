@@ -702,6 +702,10 @@ public class ProjectService
         if (notification != null && !notification.ViewedBy.Contains(userEmail))
         {
             notification.ViewedBy.Add(userEmail);
+            if (notification.Projects == null)
+            {
+                notification.Projects = new List<Project>();
+            }
             _notificationRepository.Update(notification);
         }
     }

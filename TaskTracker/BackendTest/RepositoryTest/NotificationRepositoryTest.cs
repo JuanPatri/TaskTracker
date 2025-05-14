@@ -15,6 +15,7 @@ public class NotificationRepositoryTest
     {
         _notificationRepository = new NotificationRepository();
         _notification = new Notification();
+        _notification.Id = 1;
         _notification.Message = "new notification";
     }
     
@@ -46,12 +47,14 @@ public class NotificationRepositoryTest
         _notificationRepository.Add(_notification);
         Notification updateNotification = new Notification()
         {
+            Id = _notification.Id,
             Message = "UpdatedMessage",
             Date = DateTime.Now.AddSeconds(5),
             TypeOfNotification = TypeOfNotification.Delay,
             Impact = 2,
             Users = new List<User>(),
-            Projects = new List<Project>()
+            Projects = new List<Project>(),
+            ViewedBy = new List<string>()
         };
         _notificationRepository.Update(updateNotification);
         Assert.AreEqual(_notification.Message, "UpdatedMessage");
@@ -62,12 +65,14 @@ public class NotificationRepositoryTest
     {
         Notification updateNotification = new Notification()
         {
+            Id = 999,
             Message = "NonExistingMessage",
             Date = DateTime.Now.AddSeconds(5),
             TypeOfNotification = TypeOfNotification.Delay,
             Impact = 2,
             Users = new List<User>(),
-            Projects = new List<Project>()
+            Projects = new List<Project>(),
+            ViewedBy = new List<string>()
         };
         Assert.IsNull(_notificationRepository.Update(updateNotification));
     }
