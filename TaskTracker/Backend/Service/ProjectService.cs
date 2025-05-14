@@ -188,7 +188,6 @@ public class ProjectService
                 Name = p.Name,
                 Description = p.Description,
                 StartDate = p.StartDate,
-                FinishDate = p.FinishDate,
                 Administrator = new UserDataDTO
                 {
                     Name = p.Administrator.Name,
@@ -256,7 +255,6 @@ public class ProjectService
         Name = project.Name,
         Description = project.Description,
         StartDate = project.StartDate,
-        FinishDate = project.FinishDate,
         Administrator = new UserDataDTO
         {
             Name = project.Administrator.Name,

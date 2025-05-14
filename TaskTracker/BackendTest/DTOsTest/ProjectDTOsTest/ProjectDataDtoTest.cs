@@ -41,15 +41,6 @@ public class ProjectDataDtoTest
     }
     
     [TestMethod]
-    public void AddFinishDateToProjectTest()
-    {
-        ProjectDataDTO projectDto = new ProjectDataDTO();
-        DateOnly finishDate = new DateOnly(2025, 12, 31);
-        projectDto.FinishDate = finishDate;
-        Assert.AreEqual(finishDate, projectDto.FinishDate);
-    }
-
-    [TestMethod]
     public void AddAdministratorToProjectTest()
     {
         ProjectDataDTO projectDto = new ProjectDataDTO();
@@ -80,7 +71,6 @@ public class ProjectDataDtoTest
             Name = "Project A",
             Description = "This is a test project.",
             StartDate = new DateOnly(2025, 10, 01),
-            FinishDate = new DateOnly(2025, 12, 31),
             Administrator = new UserDataDTO
             {
                 Name = "John",

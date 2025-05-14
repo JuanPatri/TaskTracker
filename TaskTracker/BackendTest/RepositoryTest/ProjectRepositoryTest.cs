@@ -20,7 +20,6 @@ public class ProjectRepositoryTest
             Name = "Project1",
             Description = "Description1",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(1)),
             Administrator = new User()
         };
     }
@@ -58,7 +57,6 @@ public class ProjectRepositoryTest
             Name = "Updated Project",
             Description = "UpdatedDescription",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(2)),
             Administrator = new User()
             {
                 Name = "Admin",
@@ -75,7 +73,6 @@ public class ProjectRepositoryTest
         Assert.AreEqual(updateProject.Name, updatedProject.Name);
         Assert.AreEqual(updateProject.Description, updatedProject.Description);
         Assert.AreEqual(updateProject.StartDate, updatedProject.StartDate);
-        Assert.AreEqual(updateProject.FinishDate, updatedProject.FinishDate);
         Assert.AreEqual(updateProject.Administrator.Email, updatedProject.Administrator.Email);
     }
     
@@ -90,7 +87,6 @@ public class ProjectRepositoryTest
             Name = "NonExistentProject",
             Description = "UpdatedDescription",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-            FinishDate = DateOnly.FromDateTime(DateTime.Now.AddYears(2)),
             Administrator = new User()
             {
                 Name = "Admin",
