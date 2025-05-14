@@ -64,10 +64,11 @@ public class User
         {
             if (value == default(DateTime)) throw new ArgumentException("The birth date cannot be empty");
             
-            var maxDate = DateTime.Today.AddYears(-18);
+            DateTime maxDate = DateTime.Today.AddYears(-18);
+            DateTime minDate = DateTime.Today.AddYears(-100);
 
 
-            if (value > maxDate) throw new ArgumentException("User must be between 18 and 100 years old");
+            if (value < minDate || value > maxDate) throw new ArgumentException("User must be between 18 and 100 years old");
             
             _birthDate = value;
         }
