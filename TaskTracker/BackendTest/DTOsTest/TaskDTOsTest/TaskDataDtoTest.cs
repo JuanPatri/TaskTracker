@@ -59,5 +59,14 @@ public class TaskDataDtoTest
         List<(int, string)> resource = new List<(int, string)> { (1, "Resource 1") };
         _taskDataDto.Resources = resource;
         Assert.AreEqual(resource, _taskDataDto.Resources);
-    } 
+    }
+
+    [TestMethod]
+    public void SetDateCompleatedForTask()
+    {
+        DateTime expectedDate = DateTime.Now;
+        _taskDataDto.DateCompleated = expectedDate;
+
+        Assert.AreEqual(expectedDate, _taskDataDto.DateCompleated);
+    }
 }
