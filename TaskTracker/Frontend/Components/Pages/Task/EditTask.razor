@@ -103,6 +103,8 @@ else
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _taskOriginallyCompleted = false;
+    private int _oldDuration;
+
 
     protected override void OnInitialized()
     {
@@ -139,8 +141,8 @@ else
                 Status = task.Status,
                 Dependencies = task.Dependencies.Select(d => d.Title).ToList()
             };
-
             _durationInHours = task.Duration;
+            _oldDuration = task.Duration;
         }
     }
 
@@ -183,6 +185,11 @@ else
 
             var result = ProjectService.UpdateTask(_editingTask);
 
+            if (ProjectService.IsTaskCritical(ProjectService.GetProjectById(_selectedProjectId), _editingTask.Title))
+            {
+                ProjectService.CreateNotification(_oldDuration,_editingTask.Duration, _selectedProjectId, _editingTask.Title);
+            }
+            
             if (result != null)
             {
                 _successMessage = "Task updated successfully.";
