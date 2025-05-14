@@ -739,22 +739,94 @@ public void SelectedProject_PropertyWorksCorrectly()
     #region TaskTest
 
     
-    [TestMethod]
-    public void AddTaskToRepository()
+  [TestMethod]
+public void AddTask_WithExistingDependenciesAndResources_ShouldAddTaskWithCorrectDependenciesAndResources()
+{
+    Task dependency1 = new Task { Title = "Dependency1" };
+    Task dependency2 = new Task { Title = "Dependency2" };
+    _taskRepository.Add(dependency1);
+    _taskRepository.Add(dependency2);
+
+    Resource resource1 = new Resource { 
+        Name = "TestResource1", 
+        Description = "Resource for testing", 
+        Type = new ResourceType { Id = 1, Name = "Type1" } 
+    };
+    Resource resource2 = new Resource { 
+        Name = "TestResource2", 
+        Description = "Another resource", 
+        Type = new ResourceType { Id = 2, Name = "Type2" } 
+    };
+    _resourceRepository.Add(resource1);
+    _resourceRepository.Add(resource2);
+
+    TaskDataDTO taskDto = new TaskDataDTO
     {
-        TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Test Taskk";
-        taskDto.Description = "This is a test task.";
-        taskDto.Duration = 1;
-        taskDto.Status = Status.Pending;
-        taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
-        taskDto.Resources = new List<(int, string)>() { (1, "Resource1"), (2, "Resource2") };
+        Title = "Task With Real Dependencies And Resources",
+        Description = "Task that has real dependencies and resources",
+        Duration = 3,
+        Status = Status.Pending,
+        Dependencies = new List<string> { "Dependency1", "Dependency2" },
+        Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
+    };
 
-        Task? task = _projectService.AddTask(taskDto);
+    Task addedTask = _projectService.AddTask(taskDto);
 
-        Assert.IsNotNull(task);
-        Assert.AreEqual(_taskRepository.FindAll().Last(), task);
-    }
+    Assert.IsNotNull(addedTask);
+    Assert.AreEqual("Task With Real Dependencies And Resources", addedTask.Title);
+    
+    Assert.IsNotNull(addedTask.Dependencies);
+    Assert.AreEqual(2, addedTask.Dependencies.Count);
+    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency1"));
+    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency2"));
+    
+    Assert.IsNotNull(addedTask.Resources);
+    Assert.AreEqual(2, addedTask.Resources.Count);
+    Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource1" && r.Item1 == 2));
+    Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource2" && r.Item1 == 3));
+
+    Task? taskInRepo = _taskRepository.Find(t => t.Title == "Task With Real Dependencies And Resources");
+    Assert.IsNotNull(taskInRepo);
+    Assert.AreEqual(addedTask, taskInRepo);
+}
+
+[TestMethod]
+public void AddTask_WithDuplicateTitle_ShouldThrowException()
+{
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Test Task", 
+        Description = "This is a duplicate task",
+        Duration = 2,
+        Status = Status.Pending,
+        Dependencies = new List<string>(),
+        Resources = new List<(int, string)>()
+    };
+
+    Assert.ThrowsException<Exception>(() => _projectService.AddTask(taskDto));
+}
+
+[TestMethod]
+public void AddTask_WithNonExistentDependenciesAndResources_ShouldAddTaskWithEmptyCollections()
+{
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Nonexistent Dependencies",
+        Description = "This task refers to non-existent dependencies and resources",
+        Duration = 2,
+        Status = Status.Pending,
+        Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
+        Resources = new List<(int, string)> { (1, "NonexistentRes1"), (2, "NonexistentRes2") }
+    };
+
+    Task addedTask = _projectService.AddTask(taskDto);
+
+    Assert.IsNotNull(addedTask);
+    
+    Assert.AreEqual(0, addedTask.Dependencies.Count);
+    
+    Assert.AreEqual(0, addedTask.Resources.Count);
+}
 
     [TestMethod]
     public void FindTaskByTitleReturnTask()
