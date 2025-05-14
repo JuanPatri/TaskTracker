@@ -716,6 +716,24 @@ public void UpdateProject_ShouldUpdateUsersBasedOnEmails()
     Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user1.Email));
     Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user2.Email));
 }
+
+[TestMethod]
+public void SelectedProject_PropertyWorksCorrectly()
+{
+    Assert.IsNull(_projectService.SelectedProject);
+    
+    ProjectDataDTO projectDto = new ProjectDataDTO
+    {
+        Id = 1001,
+        Name = "Selected Test Project"
+    };
+
+    _projectService.SelectedProject = projectDto;
+    Assert.AreEqual(projectDto, _projectService.SelectedProject);
+    
+    _projectService.SelectedProject = null;
+    Assert.IsNull(_projectService.SelectedProject);
+}
     #endregion
 
     #region TaskTest
