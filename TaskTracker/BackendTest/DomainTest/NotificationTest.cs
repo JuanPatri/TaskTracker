@@ -139,4 +139,11 @@ public class NotificationTest
         var notification = new Notification();
         Assert.ThrowsException<ArgumentException>(() => notification.Id = 0);
     }
+    
+    [TestMethod]
+    public void SetNegativeIdShouldThrowException()
+    {
+        var notification = new Notification();
+        Assert.ThrowsException<ArgumentException>(() => notification.Id = -5);
+    }
 }
