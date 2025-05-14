@@ -381,12 +381,18 @@ public class ProjectService
 
         foreach (var task in project.Tasks)
         {
-            task.EarlyStart = default;
-            task.EarlyFinish = default;
+            if (task.Status != Status.Completed)
+            {
+                task.EarlyStart = default;
+                task.EarlyFinish = default;
+            }
         }
 
         foreach (var task in orderedTasks)
         {
+            if (task.Status == Status.Completed)
+                continue;
+
             DateTime es;
 
             if (task.Dependencies == null || task.Dependencies.Count == 0)
@@ -401,21 +407,11 @@ public class ProjectService
                         : dep.EarlyFinish);
             }
 
-            if (task.Status == Status.Completed && task.DateCompleated.HasValue)
-            {
-                task.EarlyFinish = task.DateCompleated.Value;
-                task.EarlyStart = task.DateCompleated.Value.AddDays(-task.Duration);
-            }
-            else
-            {
-                task.EarlyStart = es;
-                task.EarlyFinish = es.AddDays(task.Duration);
-            }
+            task.EarlyStart = es;
+            task.EarlyFinish = es.AddDays(task.Duration);
         }
     }
-
-
-
+    
     private List<Task> GetTopologicalOrder(List<Task> tasks)
     {
         var visited = new HashSet<Task>();
