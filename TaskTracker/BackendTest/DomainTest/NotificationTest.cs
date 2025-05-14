@@ -104,9 +104,16 @@ public class NotificationTest
     }
     
     [TestMethod]
-    public void ViewedBy_ShouldBeEmptyByDefault()
+    public void ViewedByShouldBeEmptyByDefault()
     {
         Assert.IsNotNull(_notification.ViewedBy);
         Assert.AreEqual(0, _notification.ViewedBy.Count);
+    }
+    
+    [TestMethod]
+    public void AddEmailToViewedByTest()
+    {
+        _notification.ViewedBy.Add("user@mail.com");
+        Assert.IsTrue(_notification.ViewedBy.Contains("user@mail.com"));
     }
 }
