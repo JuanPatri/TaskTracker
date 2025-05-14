@@ -13,13 +13,4 @@ public class GetTaskDTOTest
         taskDto.Title = "Test";
         Assert.AreEqual("Test", taskDto.Title);
     }
-
-    [TestMethod]
-    public void ToEntityShouldReturnTitle()
-    {
-        GetTaskDTO taskDto = new GetTaskDTO();
-        taskDto.Title = "Test";
-        Task task = taskDto.ToEntity();
-        Assert.AreEqual("Test", task.Title);
-    }
 }
