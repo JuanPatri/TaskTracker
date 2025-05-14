@@ -693,6 +693,7 @@ public class ProjectService
         return _notificationRepository
             .FindAll()
             .Where(n => n.Users != null && n.Users.Any(u => u.Email == email))
+            .Where(n => n.ViewedBy == null || !n.ViewedBy.Contains(email))
             .ToList();
     }
     
