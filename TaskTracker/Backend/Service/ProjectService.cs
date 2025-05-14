@@ -274,6 +274,7 @@ public class ProjectService
         return project.Tasks.Max(t => t.EarlyFinish);
     }
 
+
     #endregion
 
     #region Task
@@ -380,8 +381,20 @@ public class ProjectService
     {
         var orderedTasks = GetTopologicalOrder(project.Tasks);
 
+        foreach (var task in project.Tasks)
+        {
+            if (task.Status != Status.Completed)
+            {
+                task.EarlyStart = default;
+                task.EarlyFinish = default;
+            }
+        }
+
         foreach (var task in orderedTasks)
         {
+            if (task.Status == Status.Completed)
+                continue;
+
             DateTime es;
 
             if (task.Dependencies == null || task.Dependencies.Count == 0)

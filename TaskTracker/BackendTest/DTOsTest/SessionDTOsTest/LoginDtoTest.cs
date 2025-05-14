@@ -8,17 +8,13 @@ public class LoginDtoTest
 {
     
     [TestMethod]
-    public void ToEntityShouldReturnUser()
+    public void LoginDtoShouldHaveDefaultValues()
     {
-        LoginDto dto = new LoginDto
-        {
-            Email = "test@mail.com",
-            Password = "Password123!"
-        };
+        LoginDto loginDto = new LoginDto();
+
         
-        User user = dto.ToEntity();
-        
-        Assert.AreEqual(dto.Email, user.Email);
-        Assert.AreEqual(dto.Password, user.Password);
+        Assert.AreEqual(string.Empty, loginDto.Email);
+        Assert.AreEqual(string.Empty, loginDto.Password);
     }
+    
 }

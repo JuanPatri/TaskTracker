@@ -121,9 +121,6 @@ public class TaskTest
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
             Resources = new List<(int, string)> { (1, "Resource 1") },
-            FinishToStartDependencies = new List<string> { "Task 3" },
-            StartToStartDependencies = new List<string> { "Task 4" },
-            Slack = 1.0
         };
 
         List<Task> dependencies = new List<Task>
