@@ -140,6 +140,7 @@ public class UserTest
     }
 
     [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void BirthDate_SetWithAgeLessThan18_ThrowsArgumentException()
     {
         _user.BirthDate = new DateTime(2025, 03, 14);
