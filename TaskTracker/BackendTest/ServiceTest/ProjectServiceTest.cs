@@ -586,6 +586,86 @@ public class
     }
 
     [TestMethod]
+public void CanMarkTaskAsCompleted_ReturnsFalse_WhenTaskDoesNotExist()
+{
+    TaskDataDTO nonExistentTaskDto = new TaskDataDTO
+    {
+        Title = "Non-Existent Task",
+        Description = "This task does not exist in the repository"
+    };
+
+    bool result = _projectService.CanMarkTaskAsCompleted(nonExistentTaskDto);
+
+    Assert.IsFalse(result);
+}
+
+[TestMethod]
+public void CanMarkTaskAsCompleted_ReturnsTrue_WhenAllDependenciesAreCompleted()
+{
+    Task dependency1 = new Task 
+    { 
+        Title = "Dependency 1", 
+        Status = Status.Completed 
+    };
+    Task dependency2 = new Task 
+    { 
+        Title = "Dependency 2", 
+        Status = Status.Completed 
+    };
+    _taskRepository.Add(dependency1);
+    _taskRepository.Add(dependency2);
+
+    Task taskWithCompletedDependencies = new Task
+    {
+        Title = "Task With Completed Dependencies",
+        Dependencies = new List<Task> { dependency1, dependency2 }
+    };
+    _taskRepository.Add(taskWithCompletedDependencies);
+
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Completed Dependencies"
+    };
+
+    bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
+
+    Assert.IsTrue(result);
+}
+
+[TestMethod]
+public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted()
+{
+    Task completedDependency = new Task 
+    { 
+        Title = "Completed Dependency", 
+        Status = Status.Completed 
+    };
+    Task pendingDependency = new Task 
+    { 
+        Title = "Pending Dependency", 
+        Status = Status.Pending 
+    };
+    _taskRepository.Add(completedDependency);
+    _taskRepository.Add(pendingDependency);
+
+    Task taskWithMixedDependencies = new Task
+    {
+        Title = "Task With Mixed Dependencies",
+        Dependencies = new List<Task> { completedDependency, pendingDependency }
+    };
+    _taskRepository.Add(taskWithMixedDependencies);
+
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Mixed Dependencies"
+    };
+
+    bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
+
+    
+    Assert.IsFalse(result);
+}
+    [TestMethod]
     public void RemoveTaskShouldDeleteTask()
     {
         Assert.AreEqual(1, _taskRepository.FindAll().Count());

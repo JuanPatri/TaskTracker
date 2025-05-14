@@ -457,7 +457,7 @@ public class ProjectService
     
     public bool CanMarkTaskAsCompleted(TaskDataDTO dto)
     {
-        var task = _taskRepository.Find(t => t.Title == dto.Title);
+        Task task = _taskRepository.Find(t => t.Title == dto.Title);
         if (task == null) return false;
 
         return task.Dependencies.All(d => d.Status == Status.Completed);
