@@ -146,6 +146,12 @@ public class UserTest
         _user.BirthDate = new DateTime(2025, 03, 14);
     }
 
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void BirthDate_SetWithAgeGreaterThan100_ThrowsArgumentException()
+    {
+        _user.BirthDate = new DateTime(1900, 03, 14);
+    }
     
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
