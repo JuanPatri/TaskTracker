@@ -28,6 +28,7 @@
 
         @if (_tasks.Any())
         {
+            
             <div class="mb-3">
                 <label for="task" class="form-label">Task</label>
                 <select id="task" class="form-select" @onchange="OnTaskSelected">
@@ -44,27 +45,36 @@
 
         @if (_editingTask != null)
         {
-            <div class="mb-3">
-                <label>Description</label>
-                <textarea class="form-control" @bind="_editingTask.Description"></textarea>
-            </div>
+            @if (!_taskOriginallyCompleted)
+            {
+                <div class="mb-3">
+                    <label>Description</label>
+                    <textarea class="form-control" @bind="_editingTask.Description"></textarea>
+                </div>
 
-            <div class="form-group mb-3">
-                <label for="duration">Duration (days) <span class="text-danger">*</span></label>
-                <input id="duration" type="number" min="1" step="1" class="form-control" @bind="_editingTask.Duration" required/>
-                <small class="form-text text-muted">Minimum: 1 day.</small>
-            </div>
+                <div class="form-group mb-3">
+                    <label for="duration">Duration (days) <span class="text-danger">*</span></label>
+                    <input id="duration" type="number" min="1" step="1" class="form-control" @bind="_editingTask.Duration" required/>
+                    <small class="form-text text-muted">Minimum: 1 day.</small>
+                </div>
 
-            <div class="mb-3">
-                <label>Status</label>
-                <select class="form-select" value="@_editingTask.Status" @onchange="OnStatusChanged">
-                    <option value="@Status.Pending">Pending</option>
-                    <option value="@Status.Completed">Completed</option>
-                    <option value="@Status.Blocked">Blocked</option>
-                </select>
-            </div>
+                <div class="mb-3">
+                    <label>Status</label>
+                    <select class="form-select" value="@_editingTask.Status" @onchange="OnStatusChanged">
+                        <option value="@Status.Pending">Pending</option>
+                        <option value="@Status.Completed">Completed</option>
+                        <option value="@Status.Blocked">Blocked</option>
+                    </select>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    This task is already completed. You cannot edit it.
+                </div>
+            }
         }
     </form>
 
@@ -92,6 +102,7 @@ else
     private int _durationInHours;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
+    private bool _taskOriginallyCompleted = false;
 
     protected override void OnInitialized()
     {
@@ -119,6 +130,7 @@ else
 
         if (task != null)
         {
+            _taskOriginallyCompleted = task.Status == Status.Completed;
             _editingTask = new TaskDataDTO
             {
                 Title = task.Title,
@@ -187,6 +199,4 @@ else
             _errorMessage = $"Unexpected error: {ex.Message}";
         }
     }
-
-
 }
