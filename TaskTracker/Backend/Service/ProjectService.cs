@@ -123,6 +123,7 @@ public class ProjectService
             .Where(t => titlesTask.Contains(t.Title))
             .ToList();
     }
+
     public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
         return resourceName
@@ -266,13 +267,12 @@ public class ProjectService
         },
         Users = project.Users.Select(u => u.Email).ToList()
     };
-    
+
     public DateTime GetEstimatedProjectFinishDate(Project project)
     {
         CalculateEarlyTimes(project);
         return project.Tasks.Max(t => t.EarlyFinish);
     }
-
 
     #endregion
 
@@ -314,7 +314,7 @@ public class ProjectService
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
         List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
-        
+
         return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
     }
 
@@ -380,20 +380,8 @@ public class ProjectService
     {
         var orderedTasks = GetTopologicalOrder(project.Tasks);
 
-        foreach (var task in project.Tasks)
-        {
-            if (task.Status != Status.Completed)
-            {
-                task.EarlyStart = default;
-                task.EarlyFinish = default;
-            }
-        }
-
         foreach (var task in orderedTasks)
         {
-            if (task.Status == Status.Completed)
-                continue;
-
             DateTime es;
 
             if (task.Dependencies == null || task.Dependencies.Count == 0)
@@ -403,77 +391,21 @@ public class ProjectService
             else
             {
                 es = task.Dependencies
-                    .Max(dep => dep.Status == Status.Completed && dep.DateCompleated.HasValue
-                        ? dep.DateCompleated.Value
-                        : dep.EarlyFinish);
+                    .Max(dep => dep.EarlyFinish);
             }
 
             task.EarlyStart = es;
             task.EarlyFinish = es.AddDays(task.Duration);
         }
     }
-    
-    private List<Task> GetTopologicalOrder(List<Task> tasks)
-    {
-        var visited = new HashSet<Task>();
-        var tempVisited = new HashSet<Task>();
-        var result = new List<Task>();
 
-        foreach (var task in tasks)
-        {
-            if (!visited.Contains(task))
-            {
-                TopologicalSortDFS(task, visited, tempVisited, result);
-            }
-        }
-
-        return result;
-    }
-
-    private void TopologicalSortDFS(Task task, HashSet<Task> visited, HashSet<Task> tempVisited, List<Task> result)
-    {
-        if (tempVisited.Contains(task))
-        {
-            throw new InvalidOperationException("Cycle detected in task dependencies");
-        }
-
-        if (visited.Contains(task))
-        {
-            return;
-        }
-
-        tempVisited.Add(task);
-
-
-        if (task.Dependencies != null)
-        {
-            foreach (var dependency in task.Dependencies)
-            {
-                TopologicalSortDFS(dependency, visited, tempVisited, result);
-            }
-        }
-
-        tempVisited.Remove(task);
-        visited.Add(task);
-        result.Add(task);
-    }
-    
-    public bool CanMarkTaskAsCompleted(TaskDataDTO dto)
-    {
-        var task = _taskRepository.Find(t => t.Title == dto.Title);
-        if (task == null) return false;
-
-        return task.Dependencies.All(d => d.Status == Status.Completed);
-    }
-    
     public void CalculateLateTimes(Project project)
     {
         CalculateEarlyTimes(project);
-        
-                
+
         if (project.Tasks == null || !project.Tasks.Any())
             throw new InvalidOperationException("The project has no defined tasks.");
-        
+
         DateTime maxEF = project.Tasks.Max(t => t.EarlyFinish);
 
         foreach (var task in project.Tasks)
@@ -499,18 +431,71 @@ public class ProjectService
         }
     }
 
+    private List<Task> GetTopologicalOrder(List<Task> tasks)
+    {
+        var visited = new List<Task>();
+        var tempVisited = new List<Task>();
+        var result = new List<Task>();
+
+        foreach (var task in tasks)
+        {
+            if (!visited.Contains(task))
+            {
+                TopologicalSortDFS(task, visited, tempVisited, result);
+            }
+        }
+
+        return result;
+    }
+
+    private void TopologicalSortDFS(Task task, List<Task> visited, List<Task> tempVisited, List<Task> result)
+    {
+        if (tempVisited.Contains(task))
+        {
+            throw new InvalidOperationException("Cycle detected in task dependencies");
+        }
+
+        if (visited.Contains(task))
+        {
+            return;
+        }
+
+        tempVisited.Add(task);
+
+        if (task.Dependencies != null)
+        {
+            foreach (var dependency in task.Dependencies)
+            {
+                TopologicalSortDFS(dependency, visited, tempVisited, result);
+            }
+        }
+
+        tempVisited.Remove(task);
+        visited.Add(task);
+        result.Add(task);
+    }
+
     public List<Task> GetCriticalPath(Project project)
     {
         CalculateLateTimes(project);
 
-        var criticalTasks = project.Tasks
-            .Where(t => t.EarlyStart == t.LateStart)
-            .ToHashSet();
+        var criticalTasks = new List<Task>();
+        foreach (var t in project.Tasks)
+        {
+            if (t.EarlyStart == t.LateStart)
+            {
+                criticalTasks.Add(t);
+            }
+        }
 
-        var startTasks = project.Tasks
-            .Where(t => t.Dependencies == null || t.Dependencies.Count == 0)
-            .Where(t => criticalTasks.Contains(t))
-            .ToList();
+        var startTasks = new List<Task>();
+        foreach (var t in project.Tasks)
+        {
+            if ((t.Dependencies == null || t.Dependencies.Count == 0) && criticalTasks.Contains(t))
+            {
+                startTasks.Add(t);
+            }
+        }
 
         foreach (var start in startTasks)
         {
@@ -521,21 +506,20 @@ public class ProjectService
             }
         }
 
-        return new List<Task>(); 
+        return new List<Task>();
     }
 
-    private bool BuildCriticalPath(Task current, List<Task> allTasks, HashSet<Task> criticalTasks, List<Task> path)
+    private bool BuildCriticalPath(Task current, List<Task> allTasks, List<Task> criticalTasks, List<Task> path)
     {
         path.Add(current);
 
         var successors = allTasks
-            .Where(t => t.Dependencies.Contains(current))
-            .Where(t => criticalTasks.Contains(t))
+            .Where(t => t.Dependencies.Contains(current) && criticalTasks.Contains(t))
             .ToList();
 
         if (successors.Count == 0)
         {
-            return true; 
+            return true;
         }
 
         foreach (var next in successors)
@@ -544,8 +528,17 @@ public class ProjectService
                 return true;
         }
 
-        path.Remove(current); 
+        path.Remove(current);
         return false;
+    }
+
+
+    public bool CanMarkTaskAsCompleted(TaskDataDTO dto)
+    {
+        var task = _taskRepository.Find(t => t.Title == dto.Title);
+        if (task == null) return false;
+
+        return task.Dependencies.All(d => d.Status == Status.Completed);
     }
 
     public string? GetAdminEmailByTaskTitle(string title)
@@ -553,7 +546,7 @@ public class ProjectService
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
         return projectWithTask?.Administrator.Email;
     }
-    
+
     #endregion
 
     #region Resource
@@ -602,23 +595,24 @@ public class ProjectService
     #endregion
 
     #region Notification
-    
+
     public bool IsTaskCritical(Project project, string taskTitle)
     {
-        
         if (project == null || project.Tasks == null)
         {
             return false;
         }
+
         var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
         if (task == null)
         {
             return false;
         }
+
         var criticalPath = GetCriticalPath(project);
         return criticalPath.Any(task => task.Title.Equals(taskTitle));
     }
-    
+
     public TypeOfNotification ObtenerTipoDeNotificacionPorImpacto(int impacto)
     {
         if (impacto > 0)
@@ -654,13 +648,17 @@ public class ProjectService
         switch (type)
         {
             case TypeOfNotification.Delay:
-                return $"The critical task '{taskTitle}' has caused a delay. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
+                return
+                    $"The critical task '{taskTitle}' has caused a delay. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
             case TypeOfNotification.DurationAdjustment:
-                return $"The duration of the critical task '{taskTitle}' was adjusted. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
+                return
+                    $"The duration of the critical task '{taskTitle}' was adjusted. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
             default:
-                return $"The task '{taskTitle}' has had a change. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
+                return
+                    $"The task '{taskTitle}' has had a change. The new estimated project end date is {newEstimatedEndDate:yyyy-MM-dd}.";
         }
     }
+
     public Notification CreateNotification(int duracionVieja, int duracionNueva, int projectId, string taskTitle)
     {
         int impacto = CalcularImpacto(duracionVieja, duracionNueva);
@@ -690,7 +688,7 @@ public class ProjectService
             .Where(n => n.ViewedBy == null || !n.ViewedBy.Contains(email))
             .ToList();
     }
-    
+
     public void MarkNotificationAsViewed(int notificationId, string userEmail)
     {
         var notification = _notificationRepository.Find(n => n.Id == notificationId);
@@ -701,10 +699,11 @@ public class ProjectService
             {
                 notification.Projects = new List<Project>();
             }
+
             _notificationRepository.Update(notification);
         }
     }
-    
+
     public List<Notification> GetUnviewedNotificationsForUser(string email)
     {
         return _notificationRepository
@@ -712,6 +711,7 @@ public class ProjectService
             .Where(n => n.Users != null && n.Users.Any(u => u.Email == email) && !n.ViewedBy.Contains(email))
             .ToList();
     }
+
     #endregion
 
     #region ResourceType
