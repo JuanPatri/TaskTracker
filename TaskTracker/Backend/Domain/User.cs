@@ -36,6 +36,8 @@ public class User
         {
             if(string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The user last name cannot be empty");
             _lastName = value;
+            
+            if(value.Any(char.IsDigit)) throw new ArgumentException("The user last name cannot contain digits");
         }
     }
 
