@@ -138,6 +138,13 @@ public class UserTest
     {
         _user.LastName = "Rodriguez1234";
     }
+
+    [TestMethod]
+    public void BirthDate_SetWithAgeLessThan18_ThrowsArgumentException()
+    {
+        _user.BirthDate = new DateTime(2025, 03, 14);
+    }
+
     
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
