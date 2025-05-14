@@ -143,8 +143,7 @@ public class ProjectService
     }
 
     private Func<Project, bool> ProjectHasUserAdmin(string userEmail) =>
-        project => project.Users != null
-                   && project.Users.Any(user => project.Administrator.Email == user.Email);
+        project => project.Administrator.Email == userEmail;
 
     public List<GetProjectDTO> GetProjectsByUserEmailNotAdmin(string userEmail)
     {
