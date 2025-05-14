@@ -134,6 +134,13 @@ public class UserTest
     
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    public void PutLastNameWithNumbersReturnsAnException()
+    {
+        _user.LastName = "Rodriguez1234";
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutNumberReturnsAnException()
     {
         _user.Password = "PedroRodriguez@";
