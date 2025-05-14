@@ -146,4 +146,14 @@ public class NotificationTest
         var notification = new Notification();
         Assert.ThrowsException<ArgumentException>(() => notification.Id = -5);
     }
+    
+    [TestMethod]
+    public void MultipleNotificationsShouldHaveDifferentIds()
+    {
+        var n1 = new Notification();
+        var n2 = new Notification();
+        n1.Id = 1;
+        n2.Id = 2;
+        Assert.AreNotEqual(n1.Id, n2.Id);
+    }
 }
