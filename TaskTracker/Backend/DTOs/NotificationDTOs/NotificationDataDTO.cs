@@ -6,6 +6,7 @@ namespace Backend.DTOs.NotificationDTOs;
 
 public class NotificationDataDTO
 {
+    public int Id { get; set; }
     public string Message { get; set; } = string.Empty;
     public DateTime Date { get; set; } = DateTime.Now;
     public TypeOfNotification TypeOfNotification { get; set; }
@@ -19,7 +20,8 @@ public class NotificationDataDTO
     {
         return new Notification
         {
-            Message = Message,
+            Id = Id,
+            Message = Message
         };
     }
 }
