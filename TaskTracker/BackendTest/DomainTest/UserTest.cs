@@ -120,9 +120,37 @@ public class UserTest
     
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    public void PutNameWithNumbersReturnsAnException()
+    {
+        _user.Name = "Pedro1234";
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutSpecialCharacterReturnsAnException()
     {
         _user.Password = "Pedro12345";
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void PutLastNameWithNumbersReturnsAnException()
+    {
+        _user.LastName = "Rodriguez1234";
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void BirthDate_SetWithAgeLessThan18_ThrowsArgumentException()
+    {
+        _user.BirthDate = new DateTime(2025, 03, 14);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void BirthDate_SetWithAgeGreaterThan100_ThrowsArgumentException()
+    {
+        _user.BirthDate = new DateTime(1900, 03, 14);
     }
     
     [TestMethod]
