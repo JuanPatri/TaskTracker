@@ -89,6 +89,7 @@ public class Notification
     {
         return new Notification()
         {
+            Id = notificationDataDto.Id,
             Message = notificationDataDto.Message,
             Date = notificationDataDto.Date,
             TypeOfNotification = notificationDataDto.TypeOfNotification,

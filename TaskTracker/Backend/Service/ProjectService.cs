@@ -20,6 +20,7 @@ public class ProjectService
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     public readonly IRepository<User> _userRepository;
     public readonly IRepository<Notification> _notificationRepository;
+    private int _notificationId = 1;
     public ProjectDataDTO? SelectedProject { get; set; }
 
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
@@ -673,9 +674,10 @@ public class ProjectService
         DateTime nuevaFechaFin = GetNewEstimatedEndDate(projectId);
         List<User> users = GetUsersFromProject(projectId);
         string message = GenerateNotificationMessage(tipo, taskTitle, nuevaFechaFin);
-        
+
         var notificacion = new Notification
         {
+            Id = _notificationId++,
             Message = message,
             TypeOfNotification = tipo,
             Impact = impacto,
@@ -694,7 +696,15 @@ public class ProjectService
             .ToList();
     }
     
-    
+    public void MarkNotificationAsViewed(int notificationId, string userEmail)
+    {
+        var notification = _notificationRepository.Find(n => n.Id == notificationId);
+        if (notification != null && !notification.ViewedBy.Contains(userEmail))
+        {
+            notification.ViewedBy.Add(userEmail);
+            _notificationRepository.Update(notification);
+        }
+    }
     #endregion
 
     #region ResourceType

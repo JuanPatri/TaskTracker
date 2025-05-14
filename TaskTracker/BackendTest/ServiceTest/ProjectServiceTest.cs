@@ -1168,6 +1168,7 @@ public class
     
         NotificationDataDTO notificationDto = new NotificationDataDTO()
         {
+            Id = 1,
             Message = "Message test",
             Date = DateTime.Now.AddMinutes(1),
             Impact = 1,
@@ -1380,12 +1381,38 @@ public class
     }
     
     [TestMethod]
-    public void GetNotificationsForUser_ShouldReturnEmptyList_WhenNoNotificationsForUser()
+    public void GetNotificationsForUserShouldReturnEmptyListWhenNoNotificationsForUser()
     {
         var notifications = _projectService.GetNotificationsForUser("nonexistent@mail.com");
     
         Assert.IsNotNull(notifications);
         Assert.AreEqual(0, notifications.Count);
+    }
+    
+    [TestMethod]
+    public void MarkNotificationAsViewedAddsUserToViewedList()
+    {
+        var notification = new Notification
+        {
+            Id = 1,
+            Message = "Test notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Date = DateTime.Now.AddMinutes(1),
+            Projects = new List<Project>(),
+            Users = new List<User>(),
+            ViewedBy = new List<string>()
+        };
+        var notificationRepository = new NotificationRepository();
+        notificationRepository.Add(notification);
+
+        var service = new ProjectService(
+            null, null, null, null, null, notificationRepository);
+
+        service.MarkNotificationAsViewed(1, "user@email.com");
+
+        var updated = notificationRepository.Find(n => n.Id == 1);
+        Assert.IsTrue(updated.ViewedBy.Contains("user@email.com"));
     }
     #endregion
 }
