@@ -120,6 +120,13 @@ public class UserTest
     
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
+    public void PutNameWithNumbersReturnsAnException()
+    {
+        _user.Name = "Pedro1234";
+    }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
     public void PutPasswordWithoutSpecialCharacterReturnsAnException()
     {
         _user.Password = "Pedro12345";
