@@ -133,7 +133,7 @@ else if (SelectedProjectId > 0)
     protected override void OnInitialized()
     {
         if (Session.IsLoggedIn())
-            _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
+            _projectDtos = ProjectService.GetAllProjectsByUserEmail(Session.CurrentUser.Email);
     }
 
     private void HandleProjectChanged(ChangeEventArgs e)
