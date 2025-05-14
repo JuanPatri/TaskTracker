@@ -124,4 +124,12 @@ public class NotificationTest
         Assert.IsNotNull(_notification.ViewedBy);
         Assert.AreEqual(0, _notification.ViewedBy.Count);
     }
+    
+    [TestMethod]
+    public void SetValidIdShouldAssignId()
+    {
+        var notification = new Notification();
+        notification.Id = 1;
+        Assert.AreEqual(1, notification.Id);
+    }
 }

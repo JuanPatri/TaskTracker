@@ -693,6 +693,8 @@ public class ProjectService
             .Where(n => n.Users != null && n.Users.Any(u => u.Email == email))
             .ToList();
     }
+    
+    
     #endregion
 
     #region ResourceType

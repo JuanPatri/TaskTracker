@@ -5,6 +5,7 @@ namespace Backend.Domain;
 
 public class Notification
 {
+    private int _id;
     private string _message;
     private DateTime _date;
     private TypeOfNotification _typeOfNotification;
@@ -72,6 +73,16 @@ public class Notification
     {
         get => _viewedBy;
         set => _viewedBy = value ?? new List<string>();
+    }
+    
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("El Id de la notificación debe ser positivo");
+            _id = value;
+        }
     }
 
     public static Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects, List<string> viewedBy)
