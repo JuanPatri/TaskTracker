@@ -589,10 +589,138 @@ public void GetAllUsers_MapsPropertiesCorrectly()
         Assert.IsNotNull(email);
         Assert.AreEqual("admin@example.com", email);
     }
+    
+    [TestMethod]
+public void UpdateProject_ShouldUseExistingAdminPassword_WhenPasswordIsEmpty()
+{
+    User adminUser = new User
+    {
+        Name = "Admin",
+        LastName = "User",
+        Email = "admin.user@example.com",
+        Password = "AdminPass123$", 
+        BirthDate = new DateTime(1985, 5, 5),
+        Admin = true
+    };
+    _userRepository.Add(adminUser);
+
+    Project existingProject = new Project
+    {
+        Id = 500,
+        Name = "Existing Project",
+        Description = "Original description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Administrator = adminUser,
+        Users = new List<User> { adminUser }
+    };
+    _projectRepository.Add(existingProject);
+
+    ProjectDataDTO projectUpdateDto = new ProjectDataDTO
+    {
+        Id = 500,
+        Name = "Updated Project Name",
+        Description = "Updated description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+        Administrator = new UserDataDTO
+        {
+            Name = adminUser.Name,
+            LastName = adminUser.LastName,
+            Email = adminUser.Email,
+            Password = "", 
+            BirthDate = adminUser.BirthDate,
+            Admin = adminUser.Admin
+        },
+        Users = new List<string> { adminUser.Email }
+    };
+
+    Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
+
+    Assert.IsNotNull(updatedProject);
+    Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
+    Assert.AreEqual(projectUpdateDto.Description, updatedProject.Description);
+    Assert.AreEqual(adminUser.Password, updatedProject.Administrator.Password); 
+}
+
+[TestMethod]
+public void UpdateProject_ShouldUpdateUsersBasedOnEmails()
+{
+    User adminUser = new User
+    {
+        Name = "Admin",
+        LastName = "User",
+        Email = "admin@test.com",
+        Password = "AdminTest123$",
+        BirthDate = new DateTime(1980, 1, 1),
+        Admin = true
+    };
+
+    User user1 = new User
+    {
+        Name = "User",
+        LastName = "One",
+        Email = "user1@test.com",
+        Password = "UserOne123$",
+        BirthDate = new DateTime(1990, 2, 2),
+        Admin = false
+    };
+
+    User user2 = new User
+    {
+        Name = "User",
+        LastName = "Two",
+        Email = "user2@test.com",
+        Password = "UserTwo123$",
+        BirthDate = new DateTime(1995, 3, 3),
+        Admin = false
+    };
+
+    _userRepository.Add(adminUser);
+    _userRepository.Add(user1);
+    _userRepository.Add(user2);
+
+    Project existingProject = new Project
+    {
+        Id = 600,
+        Name = "Project With Users",
+        Description = "Original description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Administrator = adminUser,
+        Users = new List<User> { adminUser }
+    };
+    _projectRepository.Add(existingProject);
+
+    ProjectDataDTO projectUpdateDto = new ProjectDataDTO
+    {
+        Id = 600,
+        Name = "Updated Project With Users",
+        Description = "Updated with more users",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+        Administrator = new UserDataDTO
+        {
+            Name = adminUser.Name,
+            LastName = adminUser.LastName,
+            Email = adminUser.Email,
+            Password = adminUser.Password,
+            BirthDate = adminUser.BirthDate,
+            Admin = adminUser.Admin
+        },
+        Users = new List<string> { adminUser.Email, user1.Email, user2.Email }
+    };
+
+    Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
+
+    Assert.IsNotNull(updatedProject);
+    Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
+    Assert.AreEqual(3, updatedProject.Users.Count); 
+    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == adminUser.Email));
+    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user1.Email));
+    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user2.Email));
+}
     #endregion
 
     #region TaskTest
 
+    
     [TestMethod]
     public void AddTaskToRepository()
     {
