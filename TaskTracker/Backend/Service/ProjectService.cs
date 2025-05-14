@@ -705,6 +705,14 @@ public class ProjectService
             _notificationRepository.Update(notification);
         }
     }
+    
+    public List<Notification> GetUnviewedNotificationsForUser(string email)
+    {
+        return _notificationRepository
+            .FindAll()
+            .Where(n => n.Users != null && n.Users.Any(u => u.Email == email) && !n.ViewedBy.Contains(email))
+            .ToList();
+    }
     #endregion
 
     #region ResourceType

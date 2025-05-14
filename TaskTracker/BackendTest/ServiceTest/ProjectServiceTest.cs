@@ -1414,6 +1414,44 @@ public class
         var updated = notificationRepository.Find(n => n.Id == 1);
         Assert.IsTrue(updated.ViewedBy.Contains("user@email.com"));
     }
+    
+    [TestMethod]
+    public void GetUnviewedNotificationsForUser_ShouldReturnOnlyUnviewedNotifications()
+    {
+        var user = new User { Name = "John", Email = "john@mail.com" };
+        var notificationViewed = new Notification
+        {
+            Id = 1,
+            Message = "Viewed notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 1,
+            Date = DateTime.Now.AddMinutes(1),
+            Users = new List<User> { user },
+            ViewedBy = new List<string> { "john@mail.com" }
+        };
+        var notificationUnviewed = new Notification
+        {
+            Id = 2,
+            Message = "Unviewed notification",
+            TypeOfNotification = TypeOfNotification.Delay,
+            Impact = 2,
+            Date = DateTime.Now.AddMinutes(2),
+            Users = new List<User> { user },
+            ViewedBy = new List<string>()
+        };
+
+        var notificationRepository = new NotificationRepository();
+        notificationRepository.Add(notificationViewed);
+        notificationRepository.Add(notificationUnviewed);
+
+        var service = new ProjectService(
+            null, null, null, null, null, notificationRepository);
+
+        var unviewed = service.GetUnviewedNotificationsForUser("john@mail.com");
+
+        Assert.AreEqual(1, unviewed.Count);
+        Assert.AreEqual("Unviewed notification", unviewed[0].Message);
+    }
     #endregion
 }
     

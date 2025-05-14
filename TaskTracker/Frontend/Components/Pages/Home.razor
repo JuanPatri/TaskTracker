@@ -26,7 +26,10 @@ else
                 <ul class="mb-0">
                     @foreach (var notification in notifications)
                     {
-                        <li class="notification-message">@notification.Message</li>
+                        <li class="notification-message">
+                            @notification.Message
+                            <button class="btn btn-link" @onclick="() => MarkAsViewed(notification.Id)">Marcar como vista</button>
+                        </li>
                     }
                 </ul>
             </div>
@@ -68,6 +71,14 @@ else
             var user = Session.CurrentUser;
             notifications = ProjectService.GetNotificationsForUser(user.Email);
         }
+    }
+    
+    private void MarkAsViewed(int notificationId)
+    {
+        var user = Session.CurrentUser;
+        ProjectService.MarkNotificationAsViewed(notificationId, user.Email);
+        notifications = ProjectService.GetUnviewedNotificationsForUser(user.Email);
+        StateHasChanged();
     }
     
     void GoToLoginUser()
