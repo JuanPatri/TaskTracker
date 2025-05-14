@@ -132,4 +132,11 @@ public class NotificationTest
         notification.Id = 1;
         Assert.AreEqual(1, notification.Id);
     }
+    
+    [TestMethod]
+    public void SetZeroIdShouldThrowException()
+    {
+        var notification = new Notification();
+        Assert.ThrowsException<ArgumentException>(() => notification.Id = 0);
+    }
 }
