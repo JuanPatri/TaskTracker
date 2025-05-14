@@ -329,9 +329,9 @@ public class
         Assert.IsTrue(result.Any(r => r.Name == "Printer"));
         Assert.IsTrue(result.Any(r => r.Name == "Designer"));
     }
-
+    
     [TestMethod]
-    public void GetProjectsByUserEmailNotAdminShouldReturnProjectsWhereUserIsMemberButNotAdmin()
+    public void GetAllProjectsByUserEmailShouldReturnAllProjectsWhereUserIsMember()
     {
         string userEmail = "user@example.com";
 
@@ -374,18 +374,20 @@ public class
             Name = "Project Two",
             Description = "Second Project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = member, 
+            Administrator = member,
             Users = new List<User> { member }
         };
 
         _projectRepository.Add(project1);
         _projectRepository.Add(project2);
+        
+        List<GetProjectDTO> result = _projectService.GetAllProjectsByUserEmail(userEmail);
 
-        List<GetProjectDTO> result = _projectService.GetProjectsByUserEmailNotAdmin(userEmail);
-
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual("Project One", result[0].Name);
+        Assert.AreEqual(2, result.Count);
+        Assert.IsTrue(result.Any(p => p.Name == "Project One"));
+        Assert.IsTrue(result.Any(p => p.Name == "Project Two"));
     }
+
 
     [TestMethod]
     public void DecreaseResourceQuantityShouldDecreaseQuantityByOne()

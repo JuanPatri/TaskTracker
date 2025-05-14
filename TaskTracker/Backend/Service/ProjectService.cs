@@ -148,11 +148,12 @@ public class ProjectService
     private Func<Project, bool> ProjectHasUserAdmin(string userEmail) =>
         project => project.Administrator.Email == userEmail;
 
-    public List<GetProjectDTO> GetProjectsByUserEmailNotAdmin(string userEmail)
+    public List<GetProjectDTO> GetAllProjectsByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
-            .Where(project => project.Users != null && project.Users.Any(user => user.Email == userEmail)
-                                                    && project.Administrator.Email != userEmail);
+            .Where(project =>
+                project.Users != null &&
+                project.Users.Any(user => user.Email == userEmail));
 
         return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
