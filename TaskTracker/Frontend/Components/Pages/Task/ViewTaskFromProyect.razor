@@ -7,7 +7,13 @@
 
 <h3>View Tasks from project: @project?.Name</h3>
 
-@if (project == null)
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+<div class="alert alert-danger">
+    <strong>Error:</strong> @_errorMessage
+</div>
+}
+else if (project == null)
 {
     <p class="text-danger">Project not found.</p>
 }
@@ -75,9 +81,17 @@ else
     [Parameter] public int projectId { get; set; }
 
     private GetProjectDTO? project;
+    private string _errorMessage = string.Empty;
 
     protected override void OnParametersSet()
     {
-        project = ProjectService.GetProjectWithCriticalPath(projectId);
+        try
+        {
+            project = ProjectService.GetProjectWithCriticalPath(projectId);
+        }
+        catch (Exception e)
+        {
+            _errorMessage = $"An error occurred while loading the project: {e.Message}";
+        }
     }
 }
