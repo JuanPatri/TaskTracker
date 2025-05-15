@@ -12,12 +12,4 @@ public class GetProjectDTO
     public List<string> CriticalPathTitles { get; set; } = new();
     public DateOnly StartDate { get; set; }
     
-    public Project ToEntity()
-    {
-        return new Project() 
-        {
-            Id = Id,
-            Name = Name
-        };
-    }
 }

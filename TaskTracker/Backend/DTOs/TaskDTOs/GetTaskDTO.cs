@@ -13,11 +13,4 @@ public class GetTaskDTO
     public DateTime LateFinish { get; set; }
     public int Slack => (LateStart - EarlyStart).Days;
     
-    public Task ToEntity()
-    {
-        return new Task()
-        {
-            Title = Title
-        };
-    }
 }

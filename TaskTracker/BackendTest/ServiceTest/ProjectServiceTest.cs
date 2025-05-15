@@ -316,7 +316,7 @@ public class
         {
             Id = projectId,
             Name = "Exclusive Project",
-            Description = "Project with exclusive resources",
+            Description = "Description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Administrator = new User { Name = "Admin", Email = "admin@example.com" },
             ExclusiveResources = new List<Resource> { exclusiveResource1, exclusiveResource2 }
@@ -535,24 +535,337 @@ public class
 
     #endregion
 
-    #region TaskTest
+    public void GetAllUsers_ReturnsAllUsersAsUserDataDTOs()
+    {
+      int initialUserCount = _userRepository.FindAll().Count();
+
+      User testUser1 = new User
+      {
+          Name = "John",
+          LastName = "Doe",
+          Email = "john.doe@example.com",
+          Password = "JohnDoe123@", 
+          BirthDate = new DateTime(1980, 1, 1),
+          Admin = true
+      };
+
+      User testUser2 = new User
+      {
+        Name = "Jane",
+        LastName = "Smith",
+        Email = "jane.smith@example.com",
+        Password = "JaneSmith456#", 
+        BirthDate = new DateTime(1985, 5, 5),
+        Admin = false
+      };
+
+    _userRepository.Add(testUser1);
+    _userRepository.Add(testUser2);
+
+    List<UserDataDTO> result = _projectService.GetAllUsers();
+
+    Assert.IsNotNull(result);
+    Assert.AreEqual(initialUserCount + 2, result.Count);
+
+    Assert.IsTrue(result.Any(u => u.Email == "john.doe@example.com"));
+    Assert.IsTrue(result.Any(u => u.Email == "jane.smith@example.com"));
+    
+    UserDataDTO johnDto = result.FirstOrDefault(u => u.Email == "john.doe@example.com");
+    Assert.IsNotNull(johnDto);
+    Assert.AreEqual("John", johnDto.Name);
+    Assert.AreEqual("Doe", johnDto.LastName);
+    Assert.AreEqual("JohnDoe123@", johnDto.Password);
+    Assert.AreEqual(new DateTime(1980, 1, 1), johnDto.BirthDate);
+    Assert.IsTrue(johnDto.Admin);
+    
+    UserDataDTO janeDto = result.FirstOrDefault(u => u.Email == "jane.smith@example.com");
+    Assert.IsNotNull(janeDto);
+    Assert.AreEqual("Jane", janeDto.Name);
+    Assert.AreEqual("Smith", janeDto.LastName);
+    Assert.AreEqual("JaneSmith456#", janeDto.Password);
+    Assert.AreEqual(new DateTime(1985, 5, 5), janeDto.BirthDate);
+    Assert.IsFalse(janeDto.Admin);
+}
+
+[TestMethod]
+public void GetAllUsers_MapsPropertiesCorrectly()
+{
+    User testUser = new User
+    {
+        Name = "Test",
+        LastName = "User",
+        Email = "test.user@example.com",
+        Password = "TestUser789$", 
+        BirthDate = new DateTime(1990, 10, 10),
+        Admin = true
+    };
+
+    _userRepository.Add(testUser);
+
+    List<UserDataDTO> result = _projectService.GetAllUsers();
+
+    UserDataDTO testUserDto = result.FirstOrDefault(u => u.Email == "test.user@example.com");
+    Assert.IsNotNull(testUserDto);
+    
+    Assert.AreEqual(testUser.Name, testUserDto.Name);
+    Assert.AreEqual(testUser.LastName, testUserDto.LastName);
+    Assert.AreEqual(testUser.Email, testUserDto.Email);
+    Assert.AreEqual(testUser.Password, testUserDto.Password);
+    Assert.AreEqual(testUser.BirthDate, testUserDto.BirthDate);
+    Assert.AreEqual(testUser.Admin, testUserDto.Admin);
+}
 
     [TestMethod]
-    public void AddTaskToRepository()
+    public void GetAdminEmailByTaskTitleTest()
     {
-        TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Test Taskk";
-        taskDto.Description = "This is a test task.";
-        taskDto.Duration = 1;
-        taskDto.Status = Status.Pending;
-        taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
-        taskDto.Resources = new List<(int, string)>() { (1, "Resource1"), (2, "Resource2") };
+        _project.Administrator = new User { Email = "admin@example.com" };
+        var task = new Task { Title = "Test Task" };
+        _project.Tasks.Add(task); 
 
-        Task? task = _projectService.AddTask(taskDto);
 
-        Assert.IsNotNull(task);
-        Assert.AreEqual(_taskRepository.FindAll().Last(), task);
+        string? email = _projectService.GetAdminEmailByTaskTitle("Test Task");
+
+        Assert.IsNotNull(email);
+        Assert.AreEqual("admin@example.com", email);
     }
+    
+    [TestMethod]
+public void UpdateProject_ShouldUseExistingAdminPassword_WhenPasswordIsEmpty()
+{
+    User adminUser = new User
+    {
+        Name = "Admin",
+        LastName = "User",
+        Email = "admin.user@example.com",
+        Password = "AdminPass123$", 
+        BirthDate = new DateTime(1985, 5, 5),
+        Admin = true
+    };
+    _userRepository.Add(adminUser);
+
+    Project existingProject = new Project
+    {
+        Id = 500,
+        Name = "Existing Project",
+        Description = "Description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Administrator = adminUser,
+        Users = new List<User> { adminUser }
+    };
+    _projectRepository.Add(existingProject);
+
+    ProjectDataDTO projectUpdateDto = new ProjectDataDTO
+    {
+        Id = 500,
+        Name = "Updated Project Name",
+        Description = "Updated description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+        Administrator = new UserDataDTO
+        {
+            Name = adminUser.Name,
+            LastName = adminUser.LastName,
+            Email = adminUser.Email,
+            Password = "", 
+            BirthDate = adminUser.BirthDate,
+            Admin = adminUser.Admin
+        },
+        Users = new List<string> { adminUser.Email }
+    };
+
+    Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
+
+    Assert.IsNotNull(updatedProject);
+    Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
+    Assert.AreEqual(projectUpdateDto.Description, updatedProject.Description);
+    Assert.AreEqual(adminUser.Password, updatedProject.Administrator.Password); 
+}
+
+[TestMethod]
+public void UpdateProject_ShouldUpdateUsersBasedOnEmails()
+{
+    User adminUser = new User
+    {
+        Name = "Admin",
+        LastName = "User",
+        Email = "admin@test.com",
+        Password = "AdminTest123$",
+        BirthDate = new DateTime(1980, 1, 1),
+        Admin = true
+    };
+
+    User user1 = new User
+    {
+        Name = "User",
+        LastName = "One",
+        Email = "user1@test.com",
+        Password = "UserOne123$",
+        BirthDate = new DateTime(1990, 2, 2),
+        Admin = false
+    };
+
+    User user2 = new User
+    {
+        Name = "User",
+        LastName = "Two",
+        Email = "user2@test.com",
+        Password = "UserTwo123$",
+        BirthDate = new DateTime(1995, 3, 3),
+        Admin = false
+    };
+
+    _userRepository.Add(adminUser);
+    _userRepository.Add(user1);
+    _userRepository.Add(user2);
+
+    Project existingProject = new Project
+    {
+        Id = 600,
+        Name = "Project With Users",
+        Description = "Description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Administrator = adminUser,
+        Users = new List<User> { adminUser }
+    };
+    _projectRepository.Add(existingProject);
+
+    ProjectDataDTO projectUpdateDto = new ProjectDataDTO
+    {
+        Id = 600,
+        Name = "Updated Project With Users",
+        Description = "Updated with more users",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+        Administrator = new UserDataDTO
+        {
+            Name = adminUser.Name,
+            LastName = adminUser.LastName,
+            Email = adminUser.Email,
+            Password = adminUser.Password,
+            BirthDate = adminUser.BirthDate,
+            Admin = adminUser.Admin
+        },
+        Users = new List<string> { adminUser.Email, user1.Email, user2.Email }
+    };
+
+    Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
+
+    Assert.IsNotNull(updatedProject);
+    Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
+    Assert.AreEqual(3, updatedProject.Users.Count); 
+    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == adminUser.Email));
+    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user1.Email));
+    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user2.Email));
+}
+
+[TestMethod]
+public void SelectedProject_PropertyWorksCorrectly()
+{
+    Assert.IsNull(_projectService.SelectedProject);
+    
+    ProjectDataDTO projectDto = new ProjectDataDTO
+    {
+        Id = 1001,
+        Name = "Selected Test Project"
+    };
+
+    _projectService.SelectedProject = projectDto;
+    Assert.AreEqual(projectDto, _projectService.SelectedProject);
+    
+    _projectService.SelectedProject = null;
+    Assert.IsNull(_projectService.SelectedProject);
+}
+    #endregion
+
+    #region TaskTest
+
+    
+  [TestMethod]
+public void AddTask_WithExistingDependenciesAndResources_ShouldAddTaskWithCorrectDependenciesAndResources()
+{
+    Task dependency1 = new Task { Title = "Dependency1" };
+    Task dependency2 = new Task { Title = "Dependency2" };
+    _taskRepository.Add(dependency1);
+    _taskRepository.Add(dependency2);
+
+    Resource resource1 = new Resource { 
+        Name = "TestResource1", 
+        Description = "Resource for testing", 
+        Type = new ResourceType { Id = 1, Name = "Type1" } 
+    };
+    Resource resource2 = new Resource { 
+        Name = "TestResource2", 
+        Description = "Another resource", 
+        Type = new ResourceType { Id = 2, Name = "Type2" } 
+    };
+    _resourceRepository.Add(resource1);
+    _resourceRepository.Add(resource2);
+
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Real Dependencies And Resources",
+        Description = "Task that has real dependencies and resources",
+        Duration = 3,
+        Status = Status.Pending,
+        Dependencies = new List<string> { "Dependency1", "Dependency2" },
+        Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
+    };
+
+    Task addedTask = _projectService.AddTask(taskDto);
+
+    Assert.IsNotNull(addedTask);
+    Assert.AreEqual("Task With Real Dependencies And Resources", addedTask.Title);
+    
+    Assert.IsNotNull(addedTask.Dependencies);
+    Assert.AreEqual(2, addedTask.Dependencies.Count);
+    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency1"));
+    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency2"));
+    
+    Assert.IsNotNull(addedTask.Resources);
+    Assert.AreEqual(2, addedTask.Resources.Count);
+    Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource1" && r.Item1 == 2));
+    Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource2" && r.Item1 == 3));
+
+    Task? taskInRepo = _taskRepository.Find(t => t.Title == "Task With Real Dependencies And Resources");
+    Assert.IsNotNull(taskInRepo);
+    Assert.AreEqual(addedTask, taskInRepo);
+}
+
+[TestMethod]
+public void AddTask_WithDuplicateTitle_ShouldThrowException()
+{
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Test Task", 
+        Description = "This is a duplicate task",
+        Duration = 2,
+        Status = Status.Pending,
+        Dependencies = new List<string>(),
+        Resources = new List<(int, string)>()
+    };
+
+    Assert.ThrowsException<Exception>(() => _projectService.AddTask(taskDto));
+}
+
+[TestMethod]
+public void AddTask_WithNonExistentDependenciesAndResources_ShouldAddTaskWithEmptyCollections()
+{
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Nonexistent Dependencies",
+        Description = "This task refers to non-existent dependencies and resources",
+        Duration = 2,
+        Status = Status.Pending,
+        Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
+        Resources = new List<(int, string)> { (1, "NonexistentRes1"), (2, "NonexistentRes2") }
+    };
+
+    Task addedTask = _projectService.AddTask(taskDto);
+
+    Assert.IsNotNull(addedTask);
+    
+    Assert.AreEqual(0, addedTask.Dependencies.Count);
+    
+    Assert.AreEqual(0, addedTask.Resources.Count);
+}
 
     [TestMethod]
     public void FindTaskByTitleReturnTask()
@@ -610,6 +923,86 @@ public class
         Assert.AreEqual("New Description", _task.Description);
     }
 
+    [TestMethod]
+public void CanMarkTaskAsCompleted_ReturnsFalse_WhenTaskDoesNotExist()
+{
+    TaskDataDTO nonExistentTaskDto = new TaskDataDTO
+    {
+        Title = "Non-Existent Task",
+        Description = "This task does not exist in the repository"
+    };
+
+    bool result = _projectService.CanMarkTaskAsCompleted(nonExistentTaskDto);
+
+    Assert.IsFalse(result);
+}
+
+[TestMethod]
+public void CanMarkTaskAsCompleted_ReturnsTrue_WhenAllDependenciesAreCompleted()
+{
+    Task dependency1 = new Task 
+    { 
+        Title = "Dependency 1", 
+        Status = Status.Completed 
+    };
+    Task dependency2 = new Task 
+    { 
+        Title = "Dependency 2", 
+        Status = Status.Completed 
+    };
+    _taskRepository.Add(dependency1);
+    _taskRepository.Add(dependency2);
+
+    Task taskWithCompletedDependencies = new Task
+    {
+        Title = "Task With Completed Dependencies",
+        Dependencies = new List<Task> { dependency1, dependency2 }
+    };
+    _taskRepository.Add(taskWithCompletedDependencies);
+
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Completed Dependencies"
+    };
+
+    bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
+
+    Assert.IsTrue(result);
+}
+
+[TestMethod]
+public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted()
+{
+    Task completedDependency = new Task 
+    { 
+        Title = "Completed Dependency", 
+        Status = Status.Completed 
+    };
+    Task pendingDependency = new Task 
+    { 
+        Title = "Pending Dependency", 
+        Status = Status.Pending 
+    };
+    _taskRepository.Add(completedDependency);
+    _taskRepository.Add(pendingDependency);
+
+    Task taskWithMixedDependencies = new Task
+    {
+        Title = "Task With Mixed Dependencies",
+        Dependencies = new List<Task> { completedDependency, pendingDependency }
+    };
+    _taskRepository.Add(taskWithMixedDependencies);
+
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Mixed Dependencies"
+    };
+
+    bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
+
+    
+    Assert.IsFalse(result);
+}
     [TestMethod]
     public void RemoveTaskShouldDeleteTask()
     {

@@ -23,6 +23,9 @@ public class User
         set
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The username cannot be empty");
+            
+            if(value.Any(char.IsDigit)) throw new ArgumentException("The username cannot contain digits");
+            
             _name = value;
         }
     }
@@ -33,6 +36,9 @@ public class User
         set
         {
             if(string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The user last name cannot be empty");
+            
+            if(value.Any(char.IsDigit)) throw new ArgumentException("The user last name cannot contain digits");
+            
             _lastName = value;
         }
     }
@@ -43,7 +49,9 @@ public class User
         set
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The email cannot be empty");
+            
             if (!Regex.IsMatch(value, @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")) throw new ArgumentException("Error in the email format");
+            
             _email = value;
         }
         
@@ -55,6 +63,13 @@ public class User
         set 
         {
             if (value == default(DateTime)) throw new ArgumentException("The birth date cannot be empty");
+            
+            DateTime maxDate = DateTime.Today.AddYears(-18);
+            DateTime minDate = DateTime.Today.AddYears(-100);
+
+
+            if (value < minDate || value > maxDate) throw new ArgumentException("User must be between 18 and 100 years old");
+            
             _birthDate = value;
         }
     }
