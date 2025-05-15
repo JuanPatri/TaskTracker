@@ -273,7 +273,33 @@ public class ProjectService
         CalculateEarlyTimes(project);
         return project.Tasks.Max(t => t.EarlyFinish);
     }
+    public GetProjectDTO? GetProjectWithCriticalPath(int projectId)
+    {
+        var project = GetProjectById(projectId);
+        if (project == null) return null;
 
+        CalculateLateTimes(project);
+
+        var criticalTasks = GetCriticalPath(project);
+        var estimatedFinish = GetEstimatedProjectFinishDate(project);
+
+        return new GetProjectDTO
+        {
+            Name = project.Name,
+            EstimatedFinish = estimatedFinish,
+            CriticalPathTitles = criticalTasks.Select(t => t.Title).ToList(),
+            Tasks = project.Tasks.Select(t => new GetTaskDTO
+            {
+                Title = t.Title,
+                Duration = t.Duration,
+                Status = t.Status.ToString(),
+                EarlyStart = t.EarlyStart,
+                EarlyFinish = t.EarlyFinish,
+                LateStart = t.LateStart,
+                LateFinish = t.LateFinish
+            }).ToList()
+        };
+    }
     #endregion
 
     #region Task

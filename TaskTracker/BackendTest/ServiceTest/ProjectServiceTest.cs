@@ -504,6 +504,35 @@ public class
         Assert.AreEqual(new DateTime(2025, 9, 18), finish);
     }
 
+    [TestMethod]
+    public void GetProjectWithCriticalPathShouldReturnCorrectDTO()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+
+        _project.Tasks = new List<Task> { taskA, taskB, taskC };
+        
+       GetProjectDTO result = _projectService.GetProjectWithCriticalPath(35);
+       
+        CollectionAssert.AreEqual(new List<string> { "A", "B", "C" }, result.CriticalPathTitles);
+
+        GetTaskDTO dtoA = result.Tasks.First(t => t.Title == "A");
+        GetTaskDTO dtoB = result.Tasks.First(t => t.Title == "B");
+        GetTaskDTO dtoC = result.Tasks.First(t => t.Title == "C");
+
+        DateTime startDate = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+
+        Assert.AreEqual(startDate, dtoA.EarlyStart);
+        Assert.AreEqual(startDate.AddDays(2), dtoA.EarlyFinish);
+
+        Assert.AreEqual(dtoA.EarlyFinish, dtoB.EarlyStart);
+        Assert.AreEqual(dtoB.EarlyStart.AddDays(3), dtoB.EarlyFinish);
+
+        Assert.AreEqual(dtoB.EarlyFinish, dtoC.EarlyStart);
+        Assert.AreEqual(dtoC.EarlyStart.AddDays(1), dtoC.EarlyFinish);
+    }
+
     #endregion
 
     #region TaskTest
