@@ -297,7 +297,8 @@ public class ProjectService
                 EarlyFinish = t.EarlyFinish,
                 LateStart = t.LateStart,
                 LateFinish = t.LateFinish
-            }).ToList()
+            }).ToList(),
+            StartDate = project.StartDate
         };
     }
     #endregion
@@ -364,7 +365,7 @@ public class ProjectService
             .ToList();
     }
 
-    public Project? GetProjectById(int projectId)
+    private Project? GetProjectById(int projectId)
     {
         return _projectRepository.Find(project => project.Id == projectId);
     }
@@ -572,6 +573,15 @@ public class ProjectService
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
         return projectWithTask?.Administrator.Email;
     }
+    
+    public bool IsTaskCriticalById(int projectId, string taskTitle)
+    {
+        var project = GetProjectById(projectId);
+        if (project == null) return false;
+
+        return IsTaskCritical(project, taskTitle);
+    }
+
 
     #endregion
 

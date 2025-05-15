@@ -23,11 +23,11 @@
     </select>
 </div>
 
-@if (SelectedProject != null && ProjectTasks.Count > 0)
+@if (SelectedProjectName != null && ProjectTasks.Count > 0)
 {
     <div class="mt-4">
         <div class="d-flex justify-content-between mb-3">
-            <h4>@SelectedProject.Name - Timeline</h4>
+            <h4>@SelectedProjectName - Timeline</h4>
             <div class="d-flex">
                 <div class="legend-item me-3">
                     <div class="color-box regular"></div>
@@ -58,9 +58,9 @@
                         <td class="task-name">@task.Title</td>
                         @for (int day = 0; day <= TotalDays; day++)
                         {
-                            var dayDate = SelectedProject.StartDate.ToDateTime(TimeOnly.MinValue).AddDays(day);
+                            var dayDate = SelectedProjectStartDate.AddDays(day);
                             bool isTaskActiveOnDay = dayDate >= task.EarlyStart && dayDate < task.EarlyFinish;
-                            bool isTaskCritical = CriticalPathTasks.Contains(task);
+                            bool isTaskCritical = CriticalPathTitles.Contains(task.Title);
 
                             <td class="@(isTaskActiveOnDay ? (isTaskCritical ? "task-cell critical" : "task-cell regular") : "")"></td>
                         }
@@ -81,29 +81,18 @@
                     <th>Duration (days)</th>
                     <th>Start Date</th>
                     <th>End Date</th>
-                    <th>Dependencies</th>
                     <th>Critical Path</th>
                 </tr>
                 </thead>
                 <tbody>
                 @foreach (var task in ProjectTasks)
                 {
-                    var isCritical = CriticalPathTasks.Contains(task);
+                    var isCritical = CriticalPathTitles.Contains(task.Title);
                     <tr class="@(isCritical ? "table-danger" : "")">
                         <td>@task.Title</td>
                         <td>@task.Duration</td>
                         <td>@task.EarlyStart.ToShortDateString()</td>
                         <td>@task.EarlyFinish.ToShortDateString()</td>
-                        <td>
-                            @if (task.Dependencies != null && task.Dependencies.Count > 0)
-                            {
-                                <span>@string.Join(", ", task.Dependencies.Select(d => d.Title))</span>
-                            }
-                            else
-                            {
-                                <span>-</span>
-                            }
-                        </td>
                         <td>@(isCritical ? "Yes" : "No")</td>
                     </tr>
                 }
@@ -121,11 +110,11 @@ else if (SelectedProjectId > 0)
 
 @code {
     private List<GetProjectDTO> _projectDtos = new();
-    private List<GetTaskDTO> _taskTitleDtos = new();
-    private List<Backend.Domain.Task> ProjectTasks = new();
-    private List<Backend.Domain.Task> CriticalPathTasks = new();
+    private List<GetTaskDTO> ProjectTasks = new();
+    private List<string> CriticalPathTitles = new();
     private int SelectedProjectId;
-    private Backend.Domain.Project? SelectedProject;
+    private string? SelectedProjectName;
+    private DateTime SelectedProjectStartDate;
     private DateTime ProjectEndDate;
     private double ProjectDuration;
     private int TotalDays => (int)Math.Ceiling(ProjectDuration);
@@ -141,26 +130,24 @@ else if (SelectedProjectId > 0)
         if (int.TryParse(e.Value?.ToString(), out int selectedId))
         {
             SelectedProjectId = selectedId;
-            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(SelectedProjectId);
 
-            SelectedProject = ProjectService.GetProjectById(SelectedProjectId);
+            GetProjectDTO projectDto = ProjectService.GetProjectWithCriticalPath(SelectedProjectId);
 
-            if (SelectedProject != null)
+            if (projectDto != null)
             {
-                ProjectService.CalculateEarlyTimes(SelectedProject);
-                ProjectService.CalculateLateTimes(SelectedProject);
+                SelectedProjectName = projectDto.Name;
+                SelectedProjectStartDate = projectDto.StartDate.ToDateTime(TimeOnly.MinValue);
+                ProjectEndDate = projectDto.EstimatedFinish;
+                ProjectDuration = (ProjectEndDate - SelectedProjectStartDate).TotalDays;
 
-                ProjectTasks = SelectedProject.Tasks;
-
-                CriticalPathTasks = ProjectService.GetCriticalPath(SelectedProject);
-
-                ProjectEndDate = ProjectService.GetEstimatedProjectFinishDate(SelectedProject);
-                ProjectDuration = (ProjectEndDate - SelectedProject.StartDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+                ProjectTasks = projectDto.Tasks;
+                CriticalPathTitles = projectDto.CriticalPathTitles;
             }
 
             StateHasChanged();
         }
     }
+
 }
 
 <style>

@@ -928,6 +928,42 @@ public class
         Assert.AreEqual(3, result.Count);
         CollectionAssert.AreEquivalent(new List<string> { "A", "B", "D" }, titles);
     }
+    
+    [TestMethod]
+    public void IsTaskCriticalByProjectIdShouldReturnTrueIfTaskIsCritical()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+    
+        Project project = new Project
+        {
+            Id = 99,
+            Name = "Critical Project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
+
+        _projectRepository.Add(project);
+        
+        bool resultA = _projectService.IsTaskCriticalById(99, "A");
+        bool resultB = _projectService.IsTaskCriticalById(99, "B");
+        bool resultC = _projectService.IsTaskCriticalById(99, "C");
+        
+        Assert.IsTrue(resultA);
+        Assert.IsTrue(resultB);
+        Assert.IsTrue(resultC);
+    }
+
+    [TestMethod]
+    public void IsTaskCriticalByProjectIdShouldReturnFalseIfProjectOrTaskNotFound()
+    {
+        bool resultMissingTask = _projectService.IsTaskCriticalById(99, "NotRealTask");
+        Assert.IsFalse(resultMissingTask);
+        
+        bool resultMissingProject = _projectService.IsTaskCriticalById(999, "Whatever");
+        Assert.IsFalse(resultMissingProject);
+    }
 
 
     #endregion

@@ -10,6 +10,7 @@ public class GetProjectDTO
     public DateTime EstimatedFinish { get; set; }
     public List<GetTaskDTO> Tasks { get; set; } = new();
     public List<string> CriticalPathTitles { get; set; } = new();
+    public DateOnly StartDate { get; set; }
     
     public Project ToEntity()
     {
