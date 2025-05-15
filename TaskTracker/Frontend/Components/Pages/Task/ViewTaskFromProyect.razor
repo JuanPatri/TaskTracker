@@ -1,9 +1,12 @@
 @page "/ViewTaskFromProyect/{projectId:int}"
 @using Backend.Domain
+@using Backend.Domain.Enums
 @using Backend.DTOs.ProjectDTOs
 @using Backend.Service
 @using Task = Backend.Domain.Task
 @inject ProjectService ProjectService
+@using Backend.Domain.Enums 
+
 
 <h3>View Tasks from project: @project?.Name</h3>
 
@@ -57,6 +60,7 @@ else
             <th>Late Start</th>
             <th>Late Finish</th>
             <th>Slack (days)</th>
+            <th>Date Completed</th>
         </tr>
         </thead>
         <tbody>
@@ -71,6 +75,16 @@ else
                 <td>@task.LateStart.ToShortDateString()</td>
                 <td>@task.LateFinish.ToShortDateString()</td>
                 <td>@(task.LateStart.Subtract(task.EarlyStart).Days)</td>
+                <td>
+                    @if (task.Status == "Completed" && task.DateCompleated != null)
+                    {
+                        @task.DateCompleated?.ToShortDateString()
+                    }
+                    else
+                    {
+                        <span>-</span>
+                    }
+                </td>
             </tr>
         }
         </tbody>

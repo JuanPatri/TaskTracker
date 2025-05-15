@@ -21,7 +21,6 @@
         <tr>
             <th>Name</th>
             <th>Start Date</th>
-            <th>Finish Date</th>
             <th>Administrator</th>
         </tr>
         </thead>
@@ -34,11 +33,11 @@
                 <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
                 <td>
                     <div class="btn-group">
+                        <button class="btn btn-sm btn-success me-2" @onclick="() => ViewTasks(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
+                            View Tasks
+                        </button>
                         @if (CanEditProject(project))
                         {
-                            <button class="btn btn-sm btn-success me-2" @onclick="() => ViewTasks(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
-                                View Tasks
-                            </button>
                             <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteProject(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
                                 Delete
                             </button>

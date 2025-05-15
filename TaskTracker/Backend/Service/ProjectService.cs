@@ -295,7 +295,8 @@ public class ProjectService
                 EarlyStart = t.EarlyStart,
                 EarlyFinish = t.EarlyFinish,
                 LateStart = t.LateStart,
-                LateFinish = t.LateFinish
+                LateFinish = t.LateFinish,
+                DateCompleated = t.DateCompleated 
             }).ToList(),
             StartDate = project.StartDate
         };
