@@ -12,5 +12,5 @@ public class GetTaskDTO
     public DateTime LateStart { get; set; }
     public DateTime LateFinish { get; set; }
     public int Slack => (LateStart - EarlyStart).Days;
-    
+    public DateTime? DateCompleated { get; set; }
 }

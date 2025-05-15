@@ -11,5 +11,4 @@ public class GetProjectDTO
     public List<GetTaskDTO> Tasks { get; set; } = new();
     public List<string> CriticalPathTitles { get; set; } = new();
     public DateOnly StartDate { get; set; }
-    
 }
