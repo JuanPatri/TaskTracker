@@ -50,8 +50,15 @@ else
                     <td>@user.Name</td>
                     <td>@user.LastName</td>
                     <td>
-                        <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteUser(user.Email)">Delete</button>
-                        <button class="btn btn-sm btn-primary" @onclick="() => EditUser(user.Email)">Edit</button>
+                        @if (user.Email != "admin@admin.com")
+                        {
+                            <button class="btn btn-sm btn-danger me-2" @onclick="() => DeleteUser(user.Email)">Delete</button>
+                            <button class="btn btn-sm btn-primary" @onclick="() => EditUser(user.Email)">Edit</button>
+                        }
+                        else
+                        {
+                            <span class="text-muted">This user cannot be edited or deleted.</span>
+                        }
                     </td>
                 </tr>
             }
