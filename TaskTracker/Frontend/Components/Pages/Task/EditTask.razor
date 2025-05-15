@@ -185,9 +185,13 @@ else
                 return;
             }
 
+            bool wasCritical = ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
+
             var result = ProjectService.UpdateTask(_editingTask);
 
-            if (ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title))
+            bool isStillCritical = ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
+
+            if ((wasCritical || isStillCritical) && _oldDuration != _editingTask.Duration)
             {
                 ProjectService.CreateNotification(_oldDuration, _editingTask.Duration, _selectedProjectId, _editingTask.Title);
             }
