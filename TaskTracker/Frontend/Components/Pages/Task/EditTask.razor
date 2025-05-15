@@ -5,6 +5,7 @@
 @using Backend.Domain.Enums
 @inject ProjectService ProjectService
 @inject NavigationManager NavigationManager
+@inject SessionService Session
 
 <PageTitle>Edit Task</PageTitle>
 
@@ -106,9 +107,7 @@ else
 
     protected override void OnInitialized()
     {
-        _projects = ProjectService.GetAllProjects()
-            .Select(p => new GetProjectDTO { Id = p.Id, Name = p.Name })
-            .ToList();
+        _projects = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
     }
 
     private void OnProjectSelected(ChangeEventArgs e)
