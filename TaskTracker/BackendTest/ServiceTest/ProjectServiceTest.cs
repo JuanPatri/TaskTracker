@@ -245,7 +245,7 @@ public class
             Id = 1,
             Name = "Project 1",
             Description = "Description of project 1",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)), 
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Administrator = adminUser,
             Users = new List<User> { adminUser }
         };
@@ -329,7 +329,7 @@ public class
         Assert.IsTrue(result.Any(r => r.Name == "Printer"));
         Assert.IsTrue(result.Any(r => r.Name == "Designer"));
     }
-    
+
     [TestMethod]
     public void GetAllProjectsByUserEmailShouldReturnAllProjectsWhereUserIsMember()
     {
@@ -380,7 +380,7 @@ public class
 
         _projectRepository.Add(project1);
         _projectRepository.Add(project2);
-        
+
         List<GetProjectDTO> result = _projectService.GetAllProjectsByUserEmail(userEmail);
 
         Assert.AreEqual(2, result.Count);
@@ -491,7 +491,6 @@ public class
         var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
         Project project = new Project
         {
-
             StartDate = new DateOnly(2025, 9, 12),
 
             Tasks = new List<Task> { taskA, taskB, taskC }
@@ -512,9 +511,9 @@ public class
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
 
         _project.Tasks = new List<Task> { taskA, taskB, taskC };
-        
-       GetProjectDTO result = _projectService.GetProjectWithCriticalPath(35);
-       
+
+        GetProjectDTO result = _projectService.GetProjectWithCriticalPath(35);
+
         CollectionAssert.AreEqual(new List<string> { "A", "B", "C" }, result.CriticalPathTitles);
 
         GetTaskDTO dtoA = result.Tasks.First(t => t.Title == "A");
@@ -532,95 +531,93 @@ public class
         Assert.AreEqual(dtoB.EarlyFinish, dtoC.EarlyStart);
         Assert.AreEqual(dtoC.EarlyStart.AddDays(1), dtoC.EarlyFinish);
     }
-
-    #endregion
-
+    
     public void GetAllUsers_ReturnsAllUsersAsUserDataDTOs()
     {
-      int initialUserCount = _userRepository.FindAll().Count();
+        int initialUserCount = _userRepository.FindAll().Count();
 
-      User testUser1 = new User
-      {
-          Name = "John",
-          LastName = "Doe",
-          Email = "john.doe@example.com",
-          Password = "JohnDoe123@", 
-          BirthDate = new DateTime(1980, 1, 1),
-          Admin = true
-      };
+        User testUser1 = new User
+        {
+            Name = "John",
+            LastName = "Doe",
+            Email = "john.doe@example.com",
+            Password = "JohnDoe123@",
+            BirthDate = new DateTime(1980, 1, 1),
+            Admin = true
+        };
 
-      User testUser2 = new User
-      {
-        Name = "Jane",
-        LastName = "Smith",
-        Email = "jane.smith@example.com",
-        Password = "JaneSmith456#", 
-        BirthDate = new DateTime(1985, 5, 5),
-        Admin = false
-      };
+        User testUser2 = new User
+        {
+            Name = "Jane",
+            LastName = "Smith",
+            Email = "jane.smith@example.com",
+            Password = "JaneSmith456#",
+            BirthDate = new DateTime(1985, 5, 5),
+            Admin = false
+        };
 
-    _userRepository.Add(testUser1);
-    _userRepository.Add(testUser2);
+        _userRepository.Add(testUser1);
+        _userRepository.Add(testUser2);
 
-    List<UserDataDTO> result = _projectService.GetAllUsers();
+        List<UserDataDTO> result = _projectService.GetAllUsers();
 
-    Assert.IsNotNull(result);
-    Assert.AreEqual(initialUserCount + 2, result.Count);
+        Assert.IsNotNull(result);
+        Assert.AreEqual(initialUserCount + 2, result.Count);
 
-    Assert.IsTrue(result.Any(u => u.Email == "john.doe@example.com"));
-    Assert.IsTrue(result.Any(u => u.Email == "jane.smith@example.com"));
-    
-    UserDataDTO johnDto = result.FirstOrDefault(u => u.Email == "john.doe@example.com");
-    Assert.IsNotNull(johnDto);
-    Assert.AreEqual("John", johnDto.Name);
-    Assert.AreEqual("Doe", johnDto.LastName);
-    Assert.AreEqual("JohnDoe123@", johnDto.Password);
-    Assert.AreEqual(new DateTime(1980, 1, 1), johnDto.BirthDate);
-    Assert.IsTrue(johnDto.Admin);
-    
-    UserDataDTO janeDto = result.FirstOrDefault(u => u.Email == "jane.smith@example.com");
-    Assert.IsNotNull(janeDto);
-    Assert.AreEqual("Jane", janeDto.Name);
-    Assert.AreEqual("Smith", janeDto.LastName);
-    Assert.AreEqual("JaneSmith456#", janeDto.Password);
-    Assert.AreEqual(new DateTime(1985, 5, 5), janeDto.BirthDate);
-    Assert.IsFalse(janeDto.Admin);
-}
+        Assert.IsTrue(result.Any(u => u.Email == "john.doe@example.com"));
+        Assert.IsTrue(result.Any(u => u.Email == "jane.smith@example.com"));
 
-[TestMethod]
-public void GetAllUsers_MapsPropertiesCorrectly()
-{
-    User testUser = new User
+        UserDataDTO johnDto = result.FirstOrDefault(u => u.Email == "john.doe@example.com");
+        Assert.IsNotNull(johnDto);
+        Assert.AreEqual("John", johnDto.Name);
+        Assert.AreEqual("Doe", johnDto.LastName);
+        Assert.AreEqual("JohnDoe123@", johnDto.Password);
+        Assert.AreEqual(new DateTime(1980, 1, 1), johnDto.BirthDate);
+        Assert.IsTrue(johnDto.Admin);
+
+        UserDataDTO janeDto = result.FirstOrDefault(u => u.Email == "jane.smith@example.com");
+        Assert.IsNotNull(janeDto);
+        Assert.AreEqual("Jane", janeDto.Name);
+        Assert.AreEqual("Smith", janeDto.LastName);
+        Assert.AreEqual("JaneSmith456#", janeDto.Password);
+        Assert.AreEqual(new DateTime(1985, 5, 5), janeDto.BirthDate);
+        Assert.IsFalse(janeDto.Admin);
+    }
+
+    [TestMethod]
+    public void GetAllUsers_MapsPropertiesCorrectly()
     {
-        Name = "Test",
-        LastName = "User",
-        Email = "test.user@example.com",
-        Password = "TestUser789$", 
-        BirthDate = new DateTime(1990, 10, 10),
-        Admin = true
-    };
+        User testUser = new User
+        {
+            Name = "Test",
+            LastName = "User",
+            Email = "test.user@example.com",
+            Password = "TestUser789$",
+            BirthDate = new DateTime(1990, 10, 10),
+            Admin = true
+        };
 
-    _userRepository.Add(testUser);
+        _userRepository.Add(testUser);
 
-    List<UserDataDTO> result = _projectService.GetAllUsers();
+        List<UserDataDTO> result = _projectService.GetAllUsers();
 
-    UserDataDTO testUserDto = result.FirstOrDefault(u => u.Email == "test.user@example.com");
-    Assert.IsNotNull(testUserDto);
-    
-    Assert.AreEqual(testUser.Name, testUserDto.Name);
-    Assert.AreEqual(testUser.LastName, testUserDto.LastName);
-    Assert.AreEqual(testUser.Email, testUserDto.Email);
-    Assert.AreEqual(testUser.Password, testUserDto.Password);
-    Assert.AreEqual(testUser.BirthDate, testUserDto.BirthDate);
-    Assert.AreEqual(testUser.Admin, testUserDto.Admin);
-}
+        UserDataDTO testUserDto = result.FirstOrDefault(u => u.Email == "test.user@example.com");
+        Assert.IsNotNull(testUserDto);
+
+        Assert.AreEqual(testUser.Name, testUserDto.Name);
+        Assert.AreEqual(testUser.LastName, testUserDto.LastName);
+        Assert.AreEqual(testUser.Email, testUserDto.Email);
+        Assert.AreEqual(testUser.Password, testUserDto.Password);
+        Assert.AreEqual(testUser.BirthDate, testUserDto.BirthDate);
+        Assert.AreEqual(testUser.Admin, testUserDto.Admin);
+    }
 
     [TestMethod]
     public void GetAdminEmailByTaskTitleTest()
     {
         _project.Administrator = new User { Email = "admin@example.com" };
         var task = new Task { Title = "Test Task" };
-        _project.Tasks.Add(task); 
+        _project.Tasks.Add(task);
 
 
         string? email = _projectService.GetAdminEmailByTaskTitle("Test Task");
@@ -628,244 +625,246 @@ public void GetAllUsers_MapsPropertiesCorrectly()
         Assert.IsNotNull(email);
         Assert.AreEqual("admin@example.com", email);
     }
-    
+
     [TestMethod]
-public void UpdateProject_ShouldUseExistingAdminPassword_WhenPasswordIsEmpty()
-{
-    User adminUser = new User
+    public void UpdateProject_ShouldUseExistingAdminPassword_WhenPasswordIsEmpty()
     {
-        Name = "Admin",
-        LastName = "User",
-        Email = "admin.user@example.com",
-        Password = "AdminPass123$", 
-        BirthDate = new DateTime(1985, 5, 5),
-        Admin = true
-    };
-    _userRepository.Add(adminUser);
-
-    Project existingProject = new Project
-    {
-        Id = 500,
-        Name = "Existing Project",
-        Description = "Description",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-        Administrator = adminUser,
-        Users = new List<User> { adminUser }
-    };
-    _projectRepository.Add(existingProject);
-
-    ProjectDataDTO projectUpdateDto = new ProjectDataDTO
-    {
-        Id = 500,
-        Name = "Updated Project Name",
-        Description = "Updated description",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-        Administrator = new UserDataDTO
+        User adminUser = new User
         {
-            Name = adminUser.Name,
-            LastName = adminUser.LastName,
-            Email = adminUser.Email,
-            Password = "", 
-            BirthDate = adminUser.BirthDate,
-            Admin = adminUser.Admin
-        },
-        Users = new List<string> { adminUser.Email }
-    };
+            Name = "Admin",
+            LastName = "User",
+            Email = "admin.user@example.com",
+            Password = "AdminPass123$",
+            BirthDate = new DateTime(1985, 5, 5),
+            Admin = true
+        };
+        _userRepository.Add(adminUser);
 
-    Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
-
-    Assert.IsNotNull(updatedProject);
-    Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
-    Assert.AreEqual(projectUpdateDto.Description, updatedProject.Description);
-    Assert.AreEqual(adminUser.Password, updatedProject.Administrator.Password); 
-}
-
-[TestMethod]
-public void UpdateProject_ShouldUpdateUsersBasedOnEmails()
-{
-    User adminUser = new User
-    {
-        Name = "Admin",
-        LastName = "User",
-        Email = "admin@test.com",
-        Password = "AdminTest123$",
-        BirthDate = new DateTime(1980, 1, 1),
-        Admin = true
-    };
-
-    User user1 = new User
-    {
-        Name = "User",
-        LastName = "One",
-        Email = "user1@test.com",
-        Password = "UserOne123$",
-        BirthDate = new DateTime(1990, 2, 2),
-        Admin = false
-    };
-
-    User user2 = new User
-    {
-        Name = "User",
-        LastName = "Two",
-        Email = "user2@test.com",
-        Password = "UserTwo123$",
-        BirthDate = new DateTime(1995, 3, 3),
-        Admin = false
-    };
-
-    _userRepository.Add(adminUser);
-    _userRepository.Add(user1);
-    _userRepository.Add(user2);
-
-    Project existingProject = new Project
-    {
-        Id = 600,
-        Name = "Project With Users",
-        Description = "Description",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-        Administrator = adminUser,
-        Users = new List<User> { adminUser }
-    };
-    _projectRepository.Add(existingProject);
-
-    ProjectDataDTO projectUpdateDto = new ProjectDataDTO
-    {
-        Id = 600,
-        Name = "Updated Project With Users",
-        Description = "Updated with more users",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
-        Administrator = new UserDataDTO
+        Project existingProject = new Project
         {
-            Name = adminUser.Name,
-            LastName = adminUser.LastName,
-            Email = adminUser.Email,
-            Password = adminUser.Password,
-            BirthDate = adminUser.BirthDate,
-            Admin = adminUser.Admin
-        },
-        Users = new List<string> { adminUser.Email, user1.Email, user2.Email }
-    };
+            Id = 500,
+            Name = "Existing Project",
+            Description = "Description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = adminUser,
+            Users = new List<User> { adminUser }
+        };
+        _projectRepository.Add(existingProject);
 
-    Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
+        ProjectDataDTO projectUpdateDto = new ProjectDataDTO
+        {
+            Id = 500,
+            Name = "Updated Project Name",
+            Description = "Updated description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
+            Administrator = new UserDataDTO
+            {
+                Name = adminUser.Name,
+                LastName = adminUser.LastName,
+                Email = adminUser.Email,
+                Password = "",
+                BirthDate = adminUser.BirthDate,
+                Admin = adminUser.Admin
+            },
+            Users = new List<string> { adminUser.Email }
+        };
 
-    Assert.IsNotNull(updatedProject);
-    Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
-    Assert.AreEqual(3, updatedProject.Users.Count); 
-    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == adminUser.Email));
-    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user1.Email));
-    Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user2.Email));
-}
+        Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
 
-[TestMethod]
-public void SelectedProject_PropertyWorksCorrectly()
-{
-    Assert.IsNull(_projectService.SelectedProject);
-    
-    ProjectDataDTO projectDto = new ProjectDataDTO
+        Assert.IsNotNull(updatedProject);
+        Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
+        Assert.AreEqual(projectUpdateDto.Description, updatedProject.Description);
+        Assert.AreEqual(adminUser.Password, updatedProject.Administrator.Password);
+    }
+
+    [TestMethod]
+    public void UpdateProject_ShouldUpdateUsersBasedOnEmails()
     {
-        Id = 1001,
-        Name = "Selected Test Project"
-    };
+        User adminUser = new User
+        {
+            Name = "Admin",
+            LastName = "User",
+            Email = "admin@test.com",
+            Password = "AdminTest123$",
+            BirthDate = new DateTime(1980, 1, 1),
+            Admin = true
+        };
 
-    _projectService.SelectedProject = projectDto;
-    Assert.AreEqual(projectDto, _projectService.SelectedProject);
-    
-    _projectService.SelectedProject = null;
-    Assert.IsNull(_projectService.SelectedProject);
-}
+        User user1 = new User
+        {
+            Name = "User",
+            LastName = "One",
+            Email = "user1@test.com",
+            Password = "UserOne123$",
+            BirthDate = new DateTime(1990, 2, 2),
+            Admin = false
+        };
+
+        User user2 = new User
+        {
+            Name = "User",
+            LastName = "Two",
+            Email = "user2@test.com",
+            Password = "UserTwo123$",
+            BirthDate = new DateTime(1995, 3, 3),
+            Admin = false
+        };
+
+        _userRepository.Add(adminUser);
+        _userRepository.Add(user1);
+        _userRepository.Add(user2);
+
+        Project existingProject = new Project
+        {
+            Id = 600,
+            Name = "Project With Users",
+            Description = "Description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = adminUser,
+            Users = new List<User> { adminUser }
+        };
+        _projectRepository.Add(existingProject);
+
+        ProjectDataDTO projectUpdateDto = new ProjectDataDTO
+        {
+            Id = 600,
+            Name = "Updated Project With Users",
+            Description = "Updated with more users",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(3)),
+            Administrator = new UserDataDTO
+            {
+                Name = adminUser.Name,
+                LastName = adminUser.LastName,
+                Email = adminUser.Email,
+                Password = adminUser.Password,
+                BirthDate = adminUser.BirthDate,
+                Admin = adminUser.Admin
+            },
+            Users = new List<string> { adminUser.Email, user1.Email, user2.Email }
+        };
+
+        Project? updatedProject = _projectService.UpdateProject(projectUpdateDto);
+
+        Assert.IsNotNull(updatedProject);
+        Assert.AreEqual(projectUpdateDto.Name, updatedProject.Name);
+        Assert.AreEqual(3, updatedProject.Users.Count);
+        Assert.IsTrue(updatedProject.Users.Any(u => u.Email == adminUser.Email));
+        Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user1.Email));
+        Assert.IsTrue(updatedProject.Users.Any(u => u.Email == user2.Email));
+    }
+
+    [TestMethod]
+    public void SelectedProject_PropertyWorksCorrectly()
+    {
+        Assert.IsNull(_projectService.SelectedProject);
+
+        ProjectDataDTO projectDto = new ProjectDataDTO
+        {
+            Id = 1001,
+            Name = "Selected Test Project"
+        };
+
+        _projectService.SelectedProject = projectDto;
+        Assert.AreEqual(projectDto, _projectService.SelectedProject);
+
+        _projectService.SelectedProject = null;
+        Assert.IsNull(_projectService.SelectedProject);
+    }
+
     #endregion
 
     #region TaskTest
 
-    
-  [TestMethod]
-public void AddTask_WithExistingDependenciesAndResources_ShouldAddTaskWithCorrectDependenciesAndResources()
-{
-    Task dependency1 = new Task { Title = "Dependency1" };
-    Task dependency2 = new Task { Title = "Dependency2" };
-    _taskRepository.Add(dependency1);
-    _taskRepository.Add(dependency2);
-
-    Resource resource1 = new Resource { 
-        Name = "TestResource1", 
-        Description = "Resource for testing", 
-        Type = new ResourceType { Id = 1, Name = "Type1" } 
-    };
-    Resource resource2 = new Resource { 
-        Name = "TestResource2", 
-        Description = "Another resource", 
-        Type = new ResourceType { Id = 2, Name = "Type2" } 
-    };
-    _resourceRepository.Add(resource1);
-    _resourceRepository.Add(resource2);
-
-    TaskDataDTO taskDto = new TaskDataDTO
+    [TestMethod]
+    public void AddTask_WithExistingDependenciesAndResources_ShouldAddTaskWithCorrectDependenciesAndResources()
     {
-        Title = "Task With Real Dependencies And Resources",
-        Description = "Task that has real dependencies and resources",
-        Duration = 3,
-        Status = Status.Pending,
-        Dependencies = new List<string> { "Dependency1", "Dependency2" },
-        Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
-    };
+        Task dependency1 = new Task { Title = "Dependency1" };
+        Task dependency2 = new Task { Title = "Dependency2" };
+        _taskRepository.Add(dependency1);
+        _taskRepository.Add(dependency2);
 
-    Task addedTask = _projectService.AddTask(taskDto);
+        Resource resource1 = new Resource
+        {
+            Name = "TestResource1",
+            Description = "Resource for testing",
+            Type = new ResourceType { Id = 1, Name = "Type1" }
+        };
+        Resource resource2 = new Resource
+        {
+            Name = "TestResource2",
+            Description = "Another resource",
+            Type = new ResourceType { Id = 2, Name = "Type2" }
+        };
+        _resourceRepository.Add(resource1);
+        _resourceRepository.Add(resource2);
 
-    Assert.IsNotNull(addedTask);
-    Assert.AreEqual("Task With Real Dependencies And Resources", addedTask.Title);
-    
-    Assert.IsNotNull(addedTask.Dependencies);
-    Assert.AreEqual(2, addedTask.Dependencies.Count);
-    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency1"));
-    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency2"));
-    
-    Assert.IsNotNull(addedTask.Resources);
-    Assert.AreEqual(2, addedTask.Resources.Count);
-    Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource1" && r.Item1 == 2));
-    Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource2" && r.Item1 == 3));
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Task With Real Dependencies And Resources",
+            Description = "Task that has real dependencies and resources",
+            Duration = 3,
+            Status = Status.Pending,
+            Dependencies = new List<string> { "Dependency1", "Dependency2" },
+            Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
+        };
 
-    Task? taskInRepo = _taskRepository.Find(t => t.Title == "Task With Real Dependencies And Resources");
-    Assert.IsNotNull(taskInRepo);
-    Assert.AreEqual(addedTask, taskInRepo);
-}
+        Task addedTask = _projectService.AddTask(taskDto);
 
-[TestMethod]
-public void AddTask_WithDuplicateTitle_ShouldThrowException()
-{
-    TaskDataDTO taskDto = new TaskDataDTO
+        Assert.IsNotNull(addedTask);
+        Assert.AreEqual("Task With Real Dependencies And Resources", addedTask.Title);
+
+        Assert.IsNotNull(addedTask.Dependencies);
+        Assert.AreEqual(2, addedTask.Dependencies.Count);
+        Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency1"));
+        Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency2"));
+
+        Assert.IsNotNull(addedTask.Resources);
+        Assert.AreEqual(2, addedTask.Resources.Count);
+        Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource1" && r.Item1 == 2));
+        Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource2" && r.Item1 == 3));
+
+        Task? taskInRepo = _taskRepository.Find(t => t.Title == "Task With Real Dependencies And Resources");
+        Assert.IsNotNull(taskInRepo);
+        Assert.AreEqual(addedTask, taskInRepo);
+    }
+
+    [TestMethod]
+    public void AddTask_WithDuplicateTitle_ShouldThrowException()
     {
-        Title = "Test Task", 
-        Description = "This is a duplicate task",
-        Duration = 2,
-        Status = Status.Pending,
-        Dependencies = new List<string>(),
-        Resources = new List<(int, string)>()
-    };
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Test Task",
+            Description = "This is a duplicate task",
+            Duration = 2,
+            Status = Status.Pending,
+            Dependencies = new List<string>(),
+            Resources = new List<(int, string)>()
+        };
 
-    Assert.ThrowsException<Exception>(() => _projectService.AddTask(taskDto));
-}
+        Assert.ThrowsException<Exception>(() => _projectService.AddTask(taskDto));
+    }
 
-[TestMethod]
-public void AddTask_WithNonExistentDependenciesAndResources_ShouldAddTaskWithEmptyCollections()
-{
-    TaskDataDTO taskDto = new TaskDataDTO
+    [TestMethod]
+    public void AddTask_WithNonExistentDependenciesAndResources_ShouldAddTaskWithEmptyCollections()
     {
-        Title = "Task With Nonexistent Dependencies",
-        Description = "This task refers to non-existent dependencies and resources",
-        Duration = 2,
-        Status = Status.Pending,
-        Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
-        Resources = new List<(int, string)> { (1, "NonexistentRes1"), (2, "NonexistentRes2") }
-    };
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Task With Nonexistent Dependencies",
+            Description = "This task refers to non-existent dependencies and resources",
+            Duration = 2,
+            Status = Status.Pending,
+            Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
+            Resources = new List<(int, string)> { (1, "NonexistentRes1"), (2, "NonexistentRes2") }
+        };
 
-    Task addedTask = _projectService.AddTask(taskDto);
+        Task addedTask = _projectService.AddTask(taskDto);
 
-    Assert.IsNotNull(addedTask);
-    
-    Assert.AreEqual(0, addedTask.Dependencies.Count);
-    
-    Assert.AreEqual(0, addedTask.Resources.Count);
-}
+        Assert.IsNotNull(addedTask);
+
+        Assert.AreEqual(0, addedTask.Dependencies.Count);
+
+        Assert.AreEqual(0, addedTask.Resources.Count);
+    }
 
     [TestMethod]
     public void FindTaskByTitleReturnTask()
@@ -924,85 +923,86 @@ public void AddTask_WithNonExistentDependenciesAndResources_ShouldAddTaskWithEmp
     }
 
     [TestMethod]
-public void CanMarkTaskAsCompleted_ReturnsFalse_WhenTaskDoesNotExist()
-{
-    TaskDataDTO nonExistentTaskDto = new TaskDataDTO
+    public void CanMarkTaskAsCompleted_ReturnsFalse_WhenTaskDoesNotExist()
     {
-        Title = "Non-Existent Task",
-        Description = "This task does not exist in the repository"
-    };
+        TaskDataDTO nonExistentTaskDto = new TaskDataDTO
+        {
+            Title = "Non-Existent Task",
+            Description = "This task does not exist in the repository"
+        };
 
-    bool result = _projectService.CanMarkTaskAsCompleted(nonExistentTaskDto);
+        bool result = _projectService.CanMarkTaskAsCompleted(nonExistentTaskDto);
 
-    Assert.IsFalse(result);
-}
+        Assert.IsFalse(result);
+    }
 
-[TestMethod]
-public void CanMarkTaskAsCompleted_ReturnsTrue_WhenAllDependenciesAreCompleted()
-{
-    Task dependency1 = new Task 
-    { 
-        Title = "Dependency 1", 
-        Status = Status.Completed 
-    };
-    Task dependency2 = new Task 
-    { 
-        Title = "Dependency 2", 
-        Status = Status.Completed 
-    };
-    _taskRepository.Add(dependency1);
-    _taskRepository.Add(dependency2);
-
-    Task taskWithCompletedDependencies = new Task
+    [TestMethod]
+    public void CanMarkTaskAsCompleted_ReturnsTrue_WhenAllDependenciesAreCompleted()
     {
-        Title = "Task With Completed Dependencies",
-        Dependencies = new List<Task> { dependency1, dependency2 }
-    };
-    _taskRepository.Add(taskWithCompletedDependencies);
+        Task dependency1 = new Task
+        {
+            Title = "Dependency 1",
+            Status = Status.Completed
+        };
+        Task dependency2 = new Task
+        {
+            Title = "Dependency 2",
+            Status = Status.Completed
+        };
+        _taskRepository.Add(dependency1);
+        _taskRepository.Add(dependency2);
 
-    TaskDataDTO taskDto = new TaskDataDTO
+        Task taskWithCompletedDependencies = new Task
+        {
+            Title = "Task With Completed Dependencies",
+            Dependencies = new List<Task> { dependency1, dependency2 }
+        };
+        _taskRepository.Add(taskWithCompletedDependencies);
+
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Task With Completed Dependencies"
+        };
+
+        bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
+
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted()
     {
-        Title = "Task With Completed Dependencies"
-    };
+        Task completedDependency = new Task
+        {
+            Title = "Completed Dependency",
+            Status = Status.Completed
+        };
+        Task pendingDependency = new Task
+        {
+            Title = "Pending Dependency",
+            Status = Status.Pending
+        };
+        _taskRepository.Add(completedDependency);
+        _taskRepository.Add(pendingDependency);
 
-    bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
+        Task taskWithMixedDependencies = new Task
+        {
+            Title = "Task With Mixed Dependencies",
+            Dependencies = new List<Task> { completedDependency, pendingDependency }
+        };
+        _taskRepository.Add(taskWithMixedDependencies);
 
-    Assert.IsTrue(result);
-}
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Task With Mixed Dependencies"
+        };
 
-[TestMethod]
-public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted()
-{
-    Task completedDependency = new Task 
-    { 
-        Title = "Completed Dependency", 
-        Status = Status.Completed 
-    };
-    Task pendingDependency = new Task 
-    { 
-        Title = "Pending Dependency", 
-        Status = Status.Pending 
-    };
-    _taskRepository.Add(completedDependency);
-    _taskRepository.Add(pendingDependency);
+        bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
 
-    Task taskWithMixedDependencies = new Task
-    {
-        Title = "Task With Mixed Dependencies",
-        Dependencies = new List<Task> { completedDependency, pendingDependency }
-    };
-    _taskRepository.Add(taskWithMixedDependencies);
 
-    TaskDataDTO taskDto = new TaskDataDTO
-    {
-        Title = "Task With Mixed Dependencies"
-    };
+        Assert.IsFalse(result);
+    }
 
-    bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
-
-    
-    Assert.IsFalse(result);
-}
     [TestMethod]
     public void RemoveTaskShouldDeleteTask()
     {
@@ -1241,7 +1241,7 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         bool isValid = _projectService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
     }
-    
+
     [TestMethod]
     public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
     {
@@ -1270,7 +1270,7 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
         Assert.AreEqual(taskC.EarlyStart.AddDays(1), taskC.EarlyFinish);
     }
-    
+
     [TestMethod]
     public void CalculateLateTimesShouldComputeCorrectLateStartAndFinish()
     {
@@ -1290,7 +1290,7 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
 
         DateTime baseStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
 
-        Assert.AreEqual(baseStart.AddDays(5), taskC.LateStart); 
+        Assert.AreEqual(baseStart.AddDays(5), taskC.LateStart);
         Assert.AreEqual(baseStart.AddDays(6), taskC.LateFinish);
 
         Assert.AreEqual(baseStart.AddDays(2), taskB.LateStart);
@@ -1321,14 +1321,14 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         Assert.AreEqual(3, result.Count);
         CollectionAssert.AreEquivalent(new List<string> { "A", "B", "D" }, titles);
     }
-    
+
     [TestMethod]
     public void IsTaskCriticalByProjectIdShouldReturnTrueIfTaskIsCritical()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
-    
+
         Project project = new Project
         {
             Id = 99,
@@ -1338,11 +1338,11 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         };
 
         _projectRepository.Add(project);
-        
+
         bool resultA = _projectService.IsTaskCriticalById(99, "A");
         bool resultB = _projectService.IsTaskCriticalById(99, "B");
         bool resultC = _projectService.IsTaskCriticalById(99, "C");
-        
+
         Assert.IsTrue(resultA);
         Assert.IsTrue(resultB);
         Assert.IsTrue(resultC);
@@ -1353,11 +1353,10 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
     {
         bool resultMissingTask = _projectService.IsTaskCriticalById(99, "NotRealTask");
         Assert.IsFalse(resultMissingTask);
-        
+
         bool resultMissingProject = _projectService.IsTaskCriticalById(999, "Whatever");
         Assert.IsFalse(resultMissingProject);
     }
-
 
     #endregion
 
@@ -1610,7 +1609,7 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         var project = new Project { Name = "Test Project" };
         _userRepository.Add(user);
         _projectRepository.Add(project);
-    
+
         NotificationDataDTO notificationDto = new NotificationDataDTO()
         {
             Id = 1,
@@ -1621,18 +1620,19 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
             Projects = new List<string> { "Test Project" },
             Users = new List<string> { "user@example.com" }
         };
-    
+
         var users = _userRepository.FindAll().Where(u => notificationDto.Users.Contains(u.Email)).ToList();
         var projects = _projectRepository.FindAll().Where(p => notificationDto.Projects.Contains(p.Name)).ToList();
-    
-        var notification = _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects, new List<string>()));
-    
+
+        var notification =
+            _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects, new List<string>()));
+
         Assert.IsNotNull(notification);
         Assert.AreEqual(notificationDto.Message, notification.Message);
         Assert.AreEqual(notificationDto.Impact, notification.Impact);
         Assert.AreEqual(notificationDto.TypeOfNotification, notification.TypeOfNotification);
     }
-    
+
     [TestMethod]
     public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
     {
@@ -1640,22 +1640,22 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
         Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
         Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
-    
+
         Project project = new Project
         {
             StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
             Tasks = new List<Task> { taskA, taskB, taskC, taskD }
         };
-    
+
         _projectService.CalculateEarlyTimes(project);
         _projectService.CalculateLateTimes(project);
-    
+
         Assert.IsTrue(_projectService.IsTaskCritical(project, taskA.Title));
         Assert.IsTrue(_projectService.IsTaskCritical(project, taskB.Title));
         Assert.IsTrue(_projectService.IsTaskCritical(project, taskD.Title));
         Assert.IsFalse(_projectService.IsTaskCritical(project, taskC.Title));
     }
-    
+
     [TestMethod]
     public void IsTaskCritical_ShouldReturnFalse_WhenTaskDoesNotExist()
     {
@@ -1664,9 +1664,9 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
             StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
             Tasks = new List<Task>()
         };
-    
+
         bool result = _projectService.IsTaskCritical(project, "TareaInexistente");
-    
+
         Assert.IsFalse(result);
     }
 
@@ -1676,33 +1676,33 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         bool result = _projectService.IsTaskCritical(null, "AnyTask");
         Assert.IsFalse(result);
     }
-    
+
     [TestMethod]
     public void GetNotificationTypeByImpact_ShouldReturnCorrectType()
     {
         var service = new ProjectService(null, null, null, null, null, null);
-    
+
         Assert.AreEqual(TypeOfNotification.Delay, service.ObtenerTipoDeNotificacionPorImpacto(1));
         Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(0));
         Assert.AreEqual(TypeOfNotification.DurationAdjustment, service.ObtenerTipoDeNotificacionPorImpacto(-5));
     }
-    
+
     [TestMethod]
     public void CalculateImpact_ShouldReturnDifferenceBetweenDurations()
     {
         var service = new ProjectService(null, null, null, null, null, null);
-    
+
         int impact = service.CalcularImpacto(5, 8);
-    
+
         Assert.AreEqual(3, impact);
-    
+
         impact = service.CalcularImpacto(10, 7);
         Assert.AreEqual(-3, impact);
-    
+
         impact = service.CalcularImpacto(4, 4);
         Assert.AreEqual(0, impact);
     }
-    
+
     [TestMethod]
     public void GetNewEstimatedEndDate_ShouldReturnEstimatedDate_WhenProjectExists()
     {
@@ -1717,13 +1717,13 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
             }
         };
         _projectRepository.Add(project);
-    
+
         var date = _projectService.GetNewEstimatedEndDate(123);
-    
+
         var expected = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3);
         Assert.AreEqual(expected, date);
     }
-    
+
     [TestMethod]
     public void GetUsersFromProject_ShouldReturnProjectUsers()
     {
@@ -1731,7 +1731,7 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         var user2 = new User { Name = "Anna", Email = "anna@mail.com" };
         _userRepository.Add(user1);
         _userRepository.Add(user2);
-    
+
         var project = new Project
         {
             Id = 10,
@@ -1739,39 +1739,45 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
             Users = new List<User> { user1, user2 }
         };
         _projectRepository.Add(project);
-    
+
         var users = _projectService.GetUsersFromProject(10);
-    
+
         Assert.AreEqual(2, users.Count);
         Assert.IsTrue(users.Any(u => u.Email == "john@mail.com"));
         Assert.IsTrue(users.Any(u => u.Email == "anna@mail.com"));
     }
-    
+
     [TestMethod]
     public void GetUsersFromProject_ShouldReturnEmptyList_WhenProjectDoesNotExist()
     {
         var users = _projectService.GetUsersFromProject(999);
-    
+
         Assert.IsNotNull(users);
         Assert.AreEqual(0, users.Count);
     }
-    
+
     [TestMethod]
     public void GenerateNotificationMessage_ShouldReturnCorrectMessage_ByType()
     {
         var service = new ProjectService(null, null, null, null, null, null);
         var date = new DateTime(2024, 6, 10);
-    
+
         var delayMessage = service.GenerateNotificationMessage(TypeOfNotification.Delay, "Task1", date);
-        Assert.AreEqual("The critical task 'Task1' has caused a delay. The new estimated project end date is 2024-06-10.", delayMessage);
-    
-        var adjustmentMessage = service.GenerateNotificationMessage(TypeOfNotification.DurationAdjustment, "Task2", date);
-        Assert.AreEqual("The duration of the critical task 'Task2' was adjusted. The new estimated project end date is 2024-06-10.", adjustmentMessage);
-    
+        Assert.AreEqual(
+            "The critical task 'Task1' has caused a delay. The new estimated project end date is 2024-06-10.",
+            delayMessage);
+
+        var adjustmentMessage =
+            service.GenerateNotificationMessage(TypeOfNotification.DurationAdjustment, "Task2", date);
+        Assert.AreEqual(
+            "The duration of the critical task 'Task2' was adjusted. The new estimated project end date is 2024-06-10.",
+            adjustmentMessage);
+
         var defaultMessage = service.GenerateNotificationMessage((TypeOfNotification)99, "Task3", date);
-        Assert.AreEqual("The task 'Task3' has had a change. The new estimated project end date is 2024-06-10.", defaultMessage);
+        Assert.AreEqual("The task 'Task3' has had a change. The new estimated project end date is 2024-06-10.",
+            defaultMessage);
     }
-    
+
     [TestMethod]
     public void CreateNotification_ShouldCreateAndReturnNotificationWithCorrectData()
     {
@@ -1800,13 +1806,13 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         Assert.AreEqual(1, notification.Users.Count);
         Assert.AreEqual("john@mail.com", notification.Users[0].Email);
     }
-    
+
     [TestMethod]
     public void GetNotificationsForUser_ShouldReturnNotificationsForGivenEmail()
     {
         var user = new User { Name = "John", Email = "john@mail.com" };
         _userRepository.Add(user);
-    
+
         var notification = new Notification
         {
             Message = "Test notification",
@@ -1816,24 +1822,24 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
             Users = new List<User> { user }
         };
         _notificationRepository.Add(notification);
-    
+
         var notifications = _projectService.GetNotificationsForUser("john@mail.com");
-    
+
         Assert.AreEqual(1, notifications.Count);
         Assert.AreEqual("Test notification", notifications[0].Message);
         Assert.AreEqual(TypeOfNotification.Delay, notifications[0].TypeOfNotification);
         Assert.AreEqual(2, notifications[0].Impact);
     }
-    
+
     [TestMethod]
     public void GetNotificationsForUserShouldReturnEmptyListWhenNoNotificationsForUser()
     {
         var notifications = _projectService.GetNotificationsForUser("nonexistent@mail.com");
-    
+
         Assert.IsNotNull(notifications);
         Assert.AreEqual(0, notifications.Count);
     }
-    
+
     [TestMethod]
     public void MarkNotificationAsViewedAddsUserToViewedList()
     {
@@ -1859,7 +1865,7 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         var updated = notificationRepository.Find(n => n.Id == 1);
         Assert.IsTrue(updated.ViewedBy.Contains("user@email.com"));
     }
-    
+
     [TestMethod]
     public void GetUnviewedNotificationsForUser_ShouldReturnOnlyUnviewedNotifications()
     {
@@ -1897,6 +1903,6 @@ public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted(
         Assert.AreEqual(1, unviewed.Count);
         Assert.AreEqual("Unviewed notification", unviewed[0].Message);
     }
+
     #endregion
 }
-    
