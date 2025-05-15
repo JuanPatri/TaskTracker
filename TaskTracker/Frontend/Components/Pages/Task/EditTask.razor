@@ -28,7 +28,6 @@
 
         @if (_tasks.Any())
         {
-            
             <div class="mb-3">
                 <label for="task" class="form-label">Task</label>
                 <select id="task" class="form-select" @onchange="OnTaskSelected">
@@ -54,7 +53,7 @@
 
                 <div class="form-group mb-3">
                     <label for="duration">Duration (days) <span class="text-danger">*</span></label>
-                    <input id="duration" type="number" min="1" step="1" class="form-control" @bind="_editingTask.Duration" required/>
+                    <input id="duration" type="number" min="1" step="1" class="form-control" @bind="_editingTask.Duration" required />
                     <small class="form-text text-muted">Minimum: 1 day.</small>
                 </div>
 
@@ -105,7 +104,6 @@ else
     private bool _taskOriginallyCompleted = false;
     private int _oldDuration;
 
-
     protected override void OnInitialized()
     {
         _projects = ProjectService.GetAllProjects()
@@ -128,7 +126,6 @@ else
     {
         _selectedTaskTitle = e.Value?.ToString() ?? "";
         var task = ProjectService.GetTaskByTitle(_selectedTaskTitle);
-
 
         if (task != null)
         {
@@ -163,7 +160,6 @@ else
         }
     }
 
-
     private async Task HandleSubmit()
     {
         _errorMessage = string.Empty;
@@ -171,13 +167,20 @@ else
 
         try
         {
+            if (_selectedProjectId == 0)
+            {
+                _errorMessage = "Please select a project.";
+                return;
+            }
+
             if (_editingTask == null)
             {
                 _errorMessage = "No task selected.";
                 return;
             }
 
-            if (_editingTask.Status == Status.Completed && !ProjectService.CanMarkTaskAsCompleted(_editingTask))
+            if (_editingTask.Status == Status.Completed &&
+                !ProjectService.CanMarkTaskAsCompleted(_editingTask))
             {
                 _errorMessage = "Cannot mark this task as completed because not all dependencies are completed.";
                 return;
@@ -185,11 +188,11 @@ else
 
             var result = ProjectService.UpdateTask(_editingTask);
 
-            if (ProjectService.IsTaskCritical(ProjectService.GetProjectById(_selectedProjectId), _editingTask.Title))
+            if (ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title))
             {
-                ProjectService.CreateNotification(_oldDuration,_editingTask.Duration, _selectedProjectId, _editingTask.Title);
+                ProjectService.CreateNotification(_oldDuration, _editingTask.Duration, _selectedProjectId, _editingTask.Title);
             }
-            
+
             if (result != null)
             {
                 _successMessage = "Task updated successfully.";
