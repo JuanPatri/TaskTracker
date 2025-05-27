@@ -1,14 +1,14 @@
-using Backend.Domain;
 using Backend.Domain.Enums;
-using Backend.DTOs.ProjectDTOs;
-using Backend.DTOs.ResourceDTOs;
-using Backend.DTOs.ResourceTypeDTOs;
-using Backend.Repository;
-using Task = Backend.Domain.Task;
-using Backend.DTOs.TaskDTOs;
-using Backend.DTOs.UserDTOs;
+using Domain;
+using DTOs.ProjectDTOs;
+using DTOs.ResourceDTOs;
+using DTOs.ResourceTypeDTOs;
+using DTOs.TaskDTOs;
+using DTOs.UserDTOs;
+using Repository;
+using Task = Domain.Task;
 
-namespace Backend.Service;
+namespace Service;
 
 public class ProjectService
 {

@@ -1,6 +1,4 @@
-﻿using Task = Backend.Domain.Task;
-
-namespace Backend.DTOs.TaskDTOs;
+﻿namespace DTOs.TaskDTOs;
 
 public class GetTaskDTO
 {

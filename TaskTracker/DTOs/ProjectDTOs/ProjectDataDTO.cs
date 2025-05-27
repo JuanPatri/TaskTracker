@@ -1,7 +1,7 @@
-using Backend.Domain;
 using Backend.DTOs.UserDTOs;
+using DTOs.UserDTOs;
 
-namespace Backend.DTOs.ProjectDTOs;
+namespace DTOs.ProjectDTOs;
 
 public class ProjectDataDTO
 {

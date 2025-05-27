@@ -1,6 +1,4 @@
-using Backend.Domain;
-
-namespace Backend.DTOs.SessionDTOs;
+namespace DTOs.SessionDTOs;
 public class LoginDto
 {
     public string Email { get; set; } = string.Empty;

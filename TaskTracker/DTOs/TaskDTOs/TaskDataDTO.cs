@@ -1,6 +1,6 @@
 ﻿using Backend.Domain.Enums;
 
-namespace Backend.DTOs.TaskDTOs;
+namespace DTOs.TaskDTOs;
 
 public class TaskDataDTO
 { 

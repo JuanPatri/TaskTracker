@@ -1,7 +1,6 @@
-using Backend.Domain;
-using Backend.DTOs.TaskDTOs;
+using DTOs.TaskDTOs;
 
-namespace Backend.DTOs.ProjectDTOs;
+namespace DTOs.ProjectDTOs;
 
 public class GetProjectDTO
 {

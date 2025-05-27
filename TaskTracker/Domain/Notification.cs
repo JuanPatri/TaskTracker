@@ -1,8 +1,8 @@
+using Backend.Domain;
 using Backend.Domain.Enums;
-using Backend.DTOs.NotificationDTOs;
+using DTOs.NotificationDTOs;
 
-namespace Backend.Domain;
-
+namespace Domain;
 public class Notification
 {
     private int _id;

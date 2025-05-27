@@ -1,7 +1,8 @@
 ﻿using Backend.Domain.Enums;
+using Domain;
+using Task = Domain.Task;
 
-namespace Backend.Repository;
-using Backend.Domain;
+namespace Repository;
 
 public class TaskRepository : IRepository<Task>
 {

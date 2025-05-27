@@ -1,6 +1,6 @@
-using Backend.DTOs.ProjectDTOs;
+using DTOs.ProjectDTOs;
 
-namespace Backend.Domain;
+namespace Domain;
 
 public class Project
 {

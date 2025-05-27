@@ -1,7 +1,6 @@
-using Backend.DTOs.ResourceDTOs;
+using DTOs.ResourceDTOs;
 
-namespace Backend.Domain;
-
+namespace Domain;
 public class Resource
 {
     private string _name;

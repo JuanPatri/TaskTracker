@@ -1,8 +1,7 @@
-﻿namespace Backend.Domain;
-
-using Enums;
+﻿using Backend.Domain.Enums;
 using DTOs.TaskDTOs;
-using  Backend.Service;
+
+namespace Domain;
 
 public class Task
 {

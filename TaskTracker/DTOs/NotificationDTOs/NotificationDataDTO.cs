@@ -1,8 +1,6 @@
-using Backend.Domain;
-using Backend.Domain.Enums;
-using Task = Backend.Domain.Task;
+using Domain.Enums;
 
-namespace Backend.DTOs.NotificationDTOs;
+namespace DTOs.NotificationDTOs;
 
 public class NotificationDataDTO
 {

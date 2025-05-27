@@ -1,7 +1,8 @@
 using System.Text.RegularExpressions;
 using Backend.DTOs.UserDTOs;
+using DTOs.UserDTOs;
 
-namespace Backend.Domain;
+namespace Domain;
 
 public class User
 {

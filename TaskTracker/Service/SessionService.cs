@@ -1,6 +1,8 @@
 using Backend.Domain;
-using Backend.DTOs.SessionDTOs;
+using DTOs.SessionDTOs;
 using Backend.DTOs.UserDTOs;
+using Domain;
+using DTOs.SessionDTOs;
 
 
 namespace Backend.Service;

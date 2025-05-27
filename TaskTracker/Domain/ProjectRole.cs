@@ -1,6 +1,6 @@
-﻿namespace Backend.Domain;
-using Enums;
+﻿using Backend.Domain.Enums;
 
+namespace Domain;
 public class ProjectRole
 {
     private RoleType _roleType;

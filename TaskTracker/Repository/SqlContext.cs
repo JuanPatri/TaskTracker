@@ -1,7 +1,8 @@
 ﻿using Backend.Domain;
+using Domain;
 using Microsoft.EntityFrameworkCore;
 using Task = Backend.Domain.Task;
-namespace Backend.Repository;
+namespace Repository;
 
 public class SqlContext : DbContext
 {
@@ -13,6 +14,5 @@ public class SqlContext : DbContext
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
         this.Database.Migrate();
-    
 }
 }

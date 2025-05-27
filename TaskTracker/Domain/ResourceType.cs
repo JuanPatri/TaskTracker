@@ -1,6 +1,6 @@
-using Backend.DTOs.ResourceTypeDTOs;
+using DTOs.ResourceTypeDTOs;
 
-namespace Backend.Domain;
+namespace Domain;
 
 public class ResourceType
 {

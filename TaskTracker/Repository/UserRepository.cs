@@ -1,6 +1,6 @@
-using Backend.Domain;
+using Domain;
 
-namespace Backend.Repository;
+namespace Repository;
 
 public class UserRepository : IRepository<User>
 {

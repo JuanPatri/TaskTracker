@@ -1,6 +1,4 @@
-using Backend.Domain;
-
-namespace Backend.DTOs.ResourceDTOs;
+namespace DTOs.ResourceDTOs;
 
 public class ResourceDataDto
 {

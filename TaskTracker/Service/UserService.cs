@@ -1,6 +1,8 @@
 using Backend.Domain;
 using Backend.DTOs.UserDTOs;
-using Backend.Repository;
+using Domain;
+using DTOs.UserDTOs;
+using Repository;
 
 namespace Backend.Service;
 

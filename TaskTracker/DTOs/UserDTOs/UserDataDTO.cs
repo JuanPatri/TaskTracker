@@ -1,6 +1,4 @@
-using Backend.Domain;
-
-namespace Backend.DTOs.UserDTOs;
+namespace DTOs.UserDTOs;
 
 public class UserDataDTO
 {
