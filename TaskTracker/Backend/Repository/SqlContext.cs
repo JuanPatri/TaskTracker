@@ -1,0 +1,18 @@
+﻿using Backend.Domain;
+using Microsoft.EntityFrameworkCore;
+using Task = Backend.Domain.Task;
+namespace Backend.Repository;
+
+public class SqlContext : DbContext
+{
+    public DbSet<User> Users { get; set; }
+    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Resource> Resources { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    
+    public SqlContext(DbContextOptions<SqlContext> options) : base(options)
+    {
+        this.Database.Migrate();
+    
+}
+}
