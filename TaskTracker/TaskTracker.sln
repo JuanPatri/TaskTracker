@@ -10,6 +10,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{02B4
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackendTest", "BackendTest", "{0F268A41-9C3C-4110-9D04-B26735576B0C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{CABFE8B2-9046-4370-90DA-D54988BCDCBF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
