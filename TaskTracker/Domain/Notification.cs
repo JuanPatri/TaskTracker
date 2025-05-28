@@ -1,6 +1,6 @@
-using Backend.Domain;
-using Backend.Domain.Enums;
+using Domain.Enums;
 using DTOs.NotificationDTOs;
+using Enums;
 
 namespace Domain;
 public class Notification

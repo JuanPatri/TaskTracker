@@ -1,5 +1,6 @@
-﻿using Backend.Domain.Enums;
+﻿using Domain.Enums;
 using DTOs.TaskDTOs;
+using Enums;
 
 namespace Domain;
 
