@@ -1,8 +1,8 @@
-using Backend.Domain;
-using Backend.DTOs.ProjectDTOs;
-using Task = Backend.Domain.Task;
-using Backend.DTOs.UserDTOs;
-using Backend.Repository;
+using Task = Domain.Task;
+using Domain;
+using DTOs.ProjectDTOs;
+using DTOs.UserDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace BackendTest.DomainTest;
 

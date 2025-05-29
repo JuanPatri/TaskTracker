@@ -1,7 +1,8 @@
-using Backend.Domain;
-using Backend.DTOs.SessionDTOs;
-using Backend.Repository;
-using Backend.Service;
+using Repository;
+using Domain;
+using DTOs.SessionDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Service;
 
 namespace BackendTest.ServiceTest;
 

@@ -1,4 +1,4 @@
-﻿namespace Domain.Enums
+﻿namespace Enums
 {
     public enum Status
     {

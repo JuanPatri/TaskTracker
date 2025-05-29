@@ -1,8 +1,10 @@
-using Backend.Domain;
-using Backend.Domain.Enums;
-using Backend.Repository;
+using Domain;
+using Domain.Enums;
+using Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
 
-namespace BackendTest.RepositoryTest;
+namespace RepositoryTest;
 
 [TestClass]
 public class NotificationRepositoryTest

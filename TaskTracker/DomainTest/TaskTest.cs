@@ -1,9 +1,12 @@
-﻿using Backend.DTOs.TaskDTOs;
+﻿using DTOs.TaskDTOs;
+using Domain;
+using Domain.Enums;
+using Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Task = Domain.Task;
 
-namespace BackendTest.DomainTest;
+namespace DomainTest;
 
-using Backend.Domain;
-using Backend.Domain.Enums;
 
 [TestClass]
 public class TaskTest

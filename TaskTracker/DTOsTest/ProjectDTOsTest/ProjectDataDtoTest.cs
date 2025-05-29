@@ -1,8 +1,9 @@
-using Backend.Domain;
-using Backend.DTOs.ProjectDTOs;
-using Backend.DTOs.UserDTOs;
+using Domain;
+using DTOs.ProjectDTOs;
+using DTOs.UserDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DTOsTest.ProjectDTOsTest;
+namespace DTOsTest.ProjectDTOsTest;
 
 [TestClass]
 public class ProjectDataDtoTest

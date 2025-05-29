@@ -1,7 +1,7 @@
-using Backend.Domain;
-using Backend.DTOs.SessionDTOs;
+using DTOs.SessionDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DTOsTest.SessionDTOsTest;
+namespace DTOsTest.SessionDTOsTest;
 
 [TestClass]
 public class LoginDtoTest

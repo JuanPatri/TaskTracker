@@ -1,11 +1,8 @@
-using Backend.Domain;
-using DTOs.SessionDTOs;
-using Backend.DTOs.UserDTOs;
 using Domain;
 using DTOs.SessionDTOs;
+using DTOs.UserDTOs;
 
-
-namespace Backend.Service;
+namespace Service;
 
 public class SessionService
 {

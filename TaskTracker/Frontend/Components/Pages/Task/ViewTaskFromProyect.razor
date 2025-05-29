@@ -1,12 +1,8 @@
 @page "/ViewTaskFromProyect/{projectId:int}"
-@using Backend.Domain
-@using Backend.Domain.Enums
-@using Backend.DTOs.ProjectDTOs
-@using Backend.Service
-@using Task = Backend.Domain.Task
-@inject ProjectService ProjectService
-@using Backend.Domain.Enums 
+@using DTOs.ProjectDTOs
+@using Service
 
+@inject ProjectService ProjectService
 
 <h3>View Tasks from project: @project?.Name</h3>
 

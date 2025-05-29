@@ -1,10 +1,8 @@
-using Backend.Domain;
-using Backend.DTOs.UserDTOs;
 using Domain;
 using DTOs.UserDTOs;
 using Repository;
 
-namespace Backend.Service;
+namespace Service;
 
 public class UserService
 {

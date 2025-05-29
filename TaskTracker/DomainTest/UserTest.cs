@@ -1,7 +1,8 @@
-using Backend.DTOs.UserDTOs;
+using Domain;
+using DTOs.UserDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DomainTest;
-using Backend.Domain;
+namespace DomainTest;
 
 [TestClass]
 public class UserTest

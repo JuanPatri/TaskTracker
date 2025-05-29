@@ -1,4 +1,4 @@
-﻿using Backend.Domain.Enums;
+﻿using Enums;
 
 namespace DTOs.TaskDTOs;
 

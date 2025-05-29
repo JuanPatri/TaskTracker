@@ -1,20 +1,22 @@
-﻿using Backend.Repository;
-using TaskItem = Backend.Domain.Task; 
-using Backend.Domain;
-using Backend.Domain.Enums;
+﻿using Task = Domain.Task;
+using Domain.Enums;
+using Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
+
 namespace BackendTest.RepositoryTest;
 
 [TestClass]
 public class TaskRepositoryTest
 {
-    private IRepository<TaskItem> _taskRepository;
-    private TaskItem _task;
+    private IRepository<Task> _taskRepository;
+    private Task _task;
 
     [TestInitialize]
     public void OnInitialize()
     {
         _taskRepository = new TaskRepository();
-        _task = new TaskItem(); 
+        _task = new Task(); 
         _task.Title = "Task 1";
     }
 
@@ -23,7 +25,7 @@ public class TaskRepositoryTest
     {
         _taskRepository.Add(_task);
         
-        TaskItem foundTask = _taskRepository.Find(t => t.Title == "Task 1");
+        Task foundTask = _taskRepository.Find(t => t.Title == "Task 1");
         Assert.IsNotNull(foundTask);
         Assert.AreEqual(foundTask, _task);
     }
@@ -31,11 +33,11 @@ public class TaskRepositoryTest
     [TestMethod]
     public void FindTaskInListTest()
     {
-        TaskItem task2 = new TaskItem(); 
+        Task task2 = new Task(); 
         task2.Title = "Task 2";
         
         _taskRepository.Add(_task);
-        TaskItem taskFind = _taskRepository.Find(t => t.Title == _task.Title);
+        Task taskFind = _taskRepository.Find(t => t.Title == _task.Title);
         Assert.AreEqual(taskFind, _task);
     }
     
@@ -46,7 +48,7 @@ public class TaskRepositoryTest
         
         Assert.AreEqual(1, _taskRepository.FindAll().Count());
 
-        TaskItem task2 = new TaskItem(); 
+        Task task2 = new Task(); 
         task2.Title = "Task 2";
         _taskRepository.Add(task2);
 
@@ -58,7 +60,7 @@ public void UpdateExistingTaskTest()
 {
     _taskRepository.Add(_task);
     
-    TaskItem updatedTask = new TaskItem
+    Task updatedTask = new Task
     {
         Title = "Task 1",
         Description = "Updated Description",
@@ -66,13 +68,13 @@ public void UpdateExistingTaskTest()
         Status = Status.Completed,  
     };
     
-    TaskItem? originalTask = _taskRepository.Find(t => t.Title == _task.Title);
+    Task? originalTask = _taskRepository.Find(t => t.Title == _task.Title);
     Assert.IsNotNull(originalTask);
     Assert.AreEqual(_task.Title, originalTask.Title);
     
     _taskRepository.Update(updatedTask);
     
-    TaskItem? foundUpdatedTask = _taskRepository.Find(t => t.Title == "Task 1");
+    Task? foundUpdatedTask = _taskRepository.Find(t => t.Title == "Task 1");
     Assert.IsNotNull(foundUpdatedTask);
     Assert.AreEqual("Task 1", foundUpdatedTask.Title);
     Assert.AreEqual("Updated Description", foundUpdatedTask.Description);
@@ -83,7 +85,7 @@ public void UpdateExistingTaskTest()
 public void DeleteTaskFromListTest(){
     _taskRepository.Add(_task);
     
-    TaskItem task2 = new TaskItem(); 
+    Task task2 = new Task(); 
     task2.Title = "Task 2";
     _taskRepository.Add(task2);
     

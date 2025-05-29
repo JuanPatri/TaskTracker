@@ -15,4 +15,11 @@
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\Domain\Domain.csproj" />
+      <ProjectReference Include="..\DTOs\DTOs.csproj" />
+      <ProjectReference Include="..\Repository\Repository.csproj" />
+      <ProjectReference Include="..\Service\Service.csproj" />
+    </ItemGroup>
+
 </Project>

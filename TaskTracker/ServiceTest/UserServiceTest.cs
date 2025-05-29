@@ -1,9 +1,10 @@
-using Backend.Domain;
-using Backend.DTOs.UserDTOs;
-using Backend.Repository;
+using Domain;
+using DTOs.UserDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
+using Service;
 
 namespace BackendTest.ServiceTest;
-using Backend.Service;
 
 [TestClass]
 public class  UserServiceTest

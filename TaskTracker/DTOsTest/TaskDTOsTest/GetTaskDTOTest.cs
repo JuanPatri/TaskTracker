@@ -1,7 +1,7 @@
-﻿using Backend.DTOs.TaskDTOs;
-using Task = Backend.Domain.Task;
+﻿using DTOs.TaskDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DTOsTest.TaskDTOsTest;
+namespace DTOsTest.TaskDTOsTest;
 
 [TestClass]
 public class GetTaskDTOTest

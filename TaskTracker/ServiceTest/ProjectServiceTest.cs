@@ -1,16 +1,18 @@
-using Backend.Domain;
-using Task = Backend.Domain.Task;
-using Backend.DTOs.ProjectDTOs;
-using Backend.DTOs.UserDTOs;
-using Backend.Repository;
-using Backend.Service;
-using Backend.DTOs.TaskDTOs;
-using Backend.Domain.Enums;
-using Backend.DTOs.NotificationDTOs;
-using Backend.DTOs.ResourceDTOs;
-using Backend.DTOs.ResourceTypeDTOs;
+using Domain;
+using Domain.Enums;
+using DTOs.NotificationDTOs;
+using DTOs.ProjectDTOs;
+using DTOs.ResourceDTOs;
+using DTOs.ResourceTypeDTOs;
+using DTOs.TaskDTOs;
+using DTOs.UserDTOs;
+using Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
+using Service;
+using Task = Domain.Task;
 
-namespace BackendTest.ServiceTest;
+namespace ServiceTest;
 
 [TestClass]
 public class

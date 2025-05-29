@@ -1,7 +1,8 @@
-﻿namespace BackendTest.DomainTest;
-using Backend.Domain;
-using Backend.Domain.Enums;
+﻿using Domain;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Domain.Enums;
 
+namespace DomainTest;
 
     [TestClass]
     public class ProjectRoleTest

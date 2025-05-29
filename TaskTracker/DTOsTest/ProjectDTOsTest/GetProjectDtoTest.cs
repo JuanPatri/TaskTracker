@@ -1,6 +1,7 @@
-using Backend.DTOs.ProjectDTOs;
+using DTOs.ProjectDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DTOsTest.ProjectDTOsTest;
+namespace DTOsTest.ProjectDTOsTest;
 
 [TestClass]
 public class GetProjectDtoTest

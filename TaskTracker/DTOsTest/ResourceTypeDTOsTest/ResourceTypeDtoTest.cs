@@ -1,7 +1,8 @@
-using Backend.Domain;
-using Backend.DTOs.ResourceTypeDTOs;
+using Domain;
+using DTOs.ResourceTypeDTOs;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DTOsTest.ResourceTypeDTOsTest;
+namespace DTOsTest.ResourceTypeDTOsTest;
 
 [TestClass]
 public class ResourceTypeDtoTest

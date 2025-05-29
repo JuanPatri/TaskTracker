@@ -1,7 +1,8 @@
 @page "/ProjectResources/{projectId:int}"
-@using Backend.Domain
-@using Backend.DTOs.ProjectDTOs
-@using Backend.Service
+@using Domain
+@using DTOs.ProjectDTOs
+@using Service
+
 @inject ProjectService ProjectService
 @inject SessionService Session
 @inject NavigationManager Navigation

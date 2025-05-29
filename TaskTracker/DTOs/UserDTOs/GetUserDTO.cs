@@ -1,4 +1,4 @@
-namespace Backend.DTOs.UserDTOs;
+namespace DTOs.UserDTOs;
 
 public class GetUserDTO
 {

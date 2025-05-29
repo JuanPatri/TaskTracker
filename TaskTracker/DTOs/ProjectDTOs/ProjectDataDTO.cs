@@ -1,4 +1,3 @@
-using Backend.DTOs.UserDTOs;
 using DTOs.UserDTOs;
 
 namespace DTOs.ProjectDTOs;

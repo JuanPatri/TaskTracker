@@ -1,8 +1,9 @@
-using Backend.Domain;
-using Backend.Domain.Enums;
-using Task = Backend.Domain.Task;
+using Domain;
+using Domain.Enums;
+using Enums;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace BackendTest.DomainTest;
+namespace DomainTest;
 
 [TestClass]
 public class NotificationTest

@@ -1,8 +1,8 @@
-using Backend.Service;
-using Backend.Repository;
-using Backend.Domain;
+using Repository;
+using Domain;
 using Frontend.Components;
-using Task = Backend.Domain.Task;
+using Service;
+using Task = Domain.Task;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,8 +1,10 @@
 @page "/EditTask"
-@using Backend.Service
-@using Backend.DTOs.ProjectDTOs
-@using Backend.DTOs.TaskDTOs
-@using Backend.Domain.Enums
+@using DTOs.ProjectDTOs
+@using DTOs.TaskDTOs
+@using Domain.Enums
+@using Enums
+@using Service
+
 @inject ProjectService ProjectService
 @inject NavigationManager NavigationManager
 @inject SessionService Session

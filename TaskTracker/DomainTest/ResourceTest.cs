@@ -1,5 +1,7 @@
-namespace BackendTest.DomainTest;
-using Backend.Domain;
+using Domain;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace DomainTest;
 
 [TestClass]
 public class ResourceTest

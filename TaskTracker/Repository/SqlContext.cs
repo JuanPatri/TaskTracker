@@ -1,7 +1,7 @@
-﻿using Backend.Domain;
-using Domain;
+﻿using Domain;
 using Microsoft.EntityFrameworkCore;
-using Task = Backend.Domain.Task;
+using Task = Domain.Task;
+
 namespace Repository;
 
 public class SqlContext : DbContext

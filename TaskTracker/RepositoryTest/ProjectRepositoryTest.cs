@@ -1,8 +1,9 @@
-using Backend.Domain;
-using Backend.Repository;
-using Task = Backend.Domain.Task;
+using Domain;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
+using Task = Domain.Task;
 
-namespace BackendTest.RepositoryTest;
+namespace RepositoryTest;
 
 [TestClass]
 public class ProjectRepositoryTest

@@ -1,10 +1,11 @@
-using Backend.Domain.Enums;
+using Domain.Enums;
 using Domain;
 using DTOs.ProjectDTOs;
 using DTOs.ResourceDTOs;
 using DTOs.ResourceTypeDTOs;
 using DTOs.TaskDTOs;
 using DTOs.UserDTOs;
+using Enums;
 using Repository;
 using Task = Domain.Task;
 
