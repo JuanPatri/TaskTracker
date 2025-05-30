@@ -29,6 +29,12 @@ public class UserTest
     }
     
     [TestMethod]
+    public void UserHasAProjectsList()
+    {
+        Assert.IsNotNull(_user.Projects);
+    }
+    
+    [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
     public void PutNameNullReturnsAnException()
     {

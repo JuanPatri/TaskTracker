@@ -14,6 +14,7 @@ public class User
     private DateTime _birthDate= DateTime.Today;
 
     private string _password;
+    public List<Project> Projects { get; set; } = new List<Project>();
     
     public bool Admin { get; set; }
     
