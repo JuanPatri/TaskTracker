@@ -20,9 +20,9 @@ jobs:
       - name: List solution files
         run: find . -name "*.sln" -type f
       - name: Install dependencies
-        run: dotnet restore TaskTracker.sln
+        run: dotnet restore TaskTracker/TaskTracker.sln
       - name: Run build
-        run: dotnet build TaskTracker.sln --configuration Release
+        run: dotnet build TaskTracker/TaskTracker.sln --configuration Release --no-restore
   test:
     name: Test
     permissions: write-all
@@ -36,17 +36,17 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Install Dependencies
-        run: dotnet restore TaskTracker.sln
+        run: dotnet restore TaskTracker/TaskTracker.sln
       - name: Run Build
-        run: dotnet build TaskTracker.sln --configuration Release
+        run: dotnet build TaskTracker/TaskTracker.sln --configuration Release --no-restore
       - name: Generate Test Results
-        run: dotnet test TaskTracker.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-      - name: Uploaded Test Results
+        run: dotnet test TaskTracker/TaskTracker.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+      - name: Upload Test Results
         uses: dorny/test-reporter@v1
         if: always()
         with:
-          name: Uploaded Test Results
-          path: coverage/test-results*
+          name: Test Results
+          path: coverage/test-results*.trx
           reporter: dotnet-trx
           path-replace-backslashes: false
           list-suites: all
@@ -56,7 +56,7 @@ jobs:
           fail-on-empty: true
           only-summary: false
       - name: Generate Test Coverage
-        run: dotnet test TaskTracker.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+        run: dotnet test TaskTracker/TaskTracker.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage
       - name: Join Coverage Reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.9
         with:
@@ -66,7 +66,7 @@ jobs:
       - name: Code Coverage Report
         uses: irongut/CodeCoverageSummary@v1.3.0
         with:
-          filename: coverage/*.xml
+          filename: coverage/Cobertura.xml
           badge: true
           fail_below_min: false
           format: markdown
@@ -83,30 +83,35 @@ jobs:
           path: code-coverage-results.md
       - name: Write to Job Summary
         if: always()
-        run: cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+        run: |
+          if [ -f code-coverage-results.md ]; then
+            cat code-coverage-results.md >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No coverage results found" >> $GITHUB_STEP_SUMMARY
+          fi
       - name: Build Tag
         if: github.event_name == 'push'
         run: |
           git fetch --tags origin
           git config --global user.email "${{ github.actor }}@users.noreply.github.com"
           git config --global user.name "${{ github.actor }}"
-          GIT_TAGS=$(git tag | egrep '^TaskTracker-[0-9]+\.[0-9]+(\.[0-9]+)?$' || true)
+          GIT_TAGS=$(git tag | grep -E '^TaskTracker-[0-9]+\.[0-9]+(\.[0-9]+)?$' || true)
           if [ -z "$GIT_TAGS" ]; then
             LATEST="0.0.0"
           else
             LATEST=$(
               git tag --list |
-              egrep '^TaskTracker-[0-9]+\.[0-9]+(\.[0-9]+)?$' |
+              grep -E '^TaskTracker-[0-9]+\.[0-9]+(\.[0-9]+)?$' |
               sort -V |
               tail -n 1 |
               sed 's/^TaskTracker-//'
             )
           fi
-           if echo $LATEST | egrep '^[0-9]+\.[0-9]+$'; then
+          if echo $LATEST | grep -E '^[0-9]+\.[0-9]+$'; then
             BUMPED="${LATEST}.0"
           else
             BUMPED=$(echo $LATEST | awk -F. '{ print $1 "." $2 "." ($3 + 1) }')
           fi
           echo "bumping ${LATEST} to ${BUMPED}"
           git tag --annotate "TaskTracker-${BUMPED}" --message "TaskTracker via GitHub Actions"
-          git push origin "TaskTracker-${BUMPED}"
+          git push origin "TaskTracker-${BUMBED}"
