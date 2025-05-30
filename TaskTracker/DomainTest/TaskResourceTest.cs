@@ -7,9 +7,16 @@ namespace DomainTest;
 public class TaskResourceTest
 {
     private TaskResource _taskResource;
+    
     [TestInitialize]
     public void OnInitialize()
     {
         _taskResource = new TaskResource();
+    }
+    
+    [TestMethod]
+    public void TaskResourceIsNotNull()
+    {
+        Assert.IsNotNull(_taskResource);
     }
 }
