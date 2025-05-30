@@ -40,4 +40,11 @@ public class TaskResourceTest
         _taskResource.Quantity = 5;
         Assert.AreEqual(5, _taskResource.Quantity);
     }
+    
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void PutQuantityZeroReturnsAnException()
+    {
+        _taskResource.Quantity = 0;
+    }
 }
