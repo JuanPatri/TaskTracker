@@ -33,4 +33,11 @@ public class TaskResourceTest
         _taskResource.ResourceId = 2;
         Assert.AreEqual(2, _taskResource.ResourceId);
     }
+    
+    [TestMethod]
+    public void CreateQuantityForTaskResource()
+    {
+        _taskResource.Quantity = 5;
+        Assert.AreEqual(5, _taskResource.Quantity);
+    }
 }

@@ -4,6 +4,7 @@ public class TaskResource
 {
     private int _taskId;
     private int _resourceId;
+    private int _quantity;
     
     public int TaskId 
     { 
@@ -23,4 +24,13 @@ public class TaskResource
         }
     }
     
+    public int Quantity 
+    { 
+        get => _quantity; 
+        set
+        {
+            if (value <= 0) throw new ArgumentException("Quantity must be greater than 0");
+            _quantity = value;
+        }
+    }
 }
