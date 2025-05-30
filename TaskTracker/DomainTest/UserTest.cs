@@ -29,6 +29,13 @@ public class UserTest
     }
     
     [TestMethod]
+    public void CreateProjectsListForUser()
+    {
+        _user.Projects = new List<Project>();
+        Assert.IsNotNull(_user.Projects);
+    }
+    
+    [TestMethod]
     public void UserHasAProjectsList()
     {
         Assert.IsNotNull(_user.Projects);
