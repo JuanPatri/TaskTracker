@@ -3,6 +3,7 @@ namespace Domain;
 public class TaskResource
 {
     private int _taskId;
+    private int _resourceId;
     
     public int TaskId 
     { 
@@ -12,4 +13,14 @@ public class TaskResource
             _taskId = value;
         }
     }
+    
+    public int ResourceId 
+    { 
+        get => _resourceId; 
+        set
+        {
+            _resourceId = value;
+        }
+    }
+    
 }
