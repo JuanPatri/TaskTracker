@@ -20,17 +20,9 @@ jobs:
       - name: List solution files
         run: find . -name "*.sln" -type f
       - name: Install dependencies
-        run: |
-          dotnet restore TaskTracker/Frontend/Frontend.csproj
-          dotnet restore TaskTracker/Backend/Domain/Domain.csproj
-          dotnet restore TaskTracker/Backend/Repository/Repository.csproj
-          dotnet restore TaskTracker/Backend/Service/Service.csproj
+        run: dotnet restore TaskTracker.sln
       - name: Run build
-        run: |
-          dotnet build TaskTracker/Frontend/Frontend.csproj --configuration Release
-          dotnet build TaskTracker/Backend/Domain/Domain.csproj --configuration Release
-          dotnet build TaskTracker/Backend/Repository/Repository.csproj --configuration Release
-          dotnet build TaskTracker/Backend/Service/Service.csproj --configuration Release
+        run: dotnet build TaskTracker.sln --configuration Release
   test:
     name: Test
     permissions: write-all
@@ -44,31 +36,11 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Install Dependencies
-        run: |
-          dotnet restore TaskTracker/Frontend/Frontend.csproj
-          dotnet restore TaskTracker/Backend/Domain/Domain.csproj
-          dotnet restore TaskTracker/Backend/Repository/Repository.csproj
-          dotnet restore TaskTracker/Backend/Service/Service.csproj
-          dotnet restore TaskTracker/BackendTest/DomainTest/DomainTest.csproj
-          dotnet restore TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj
-          dotnet restore TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj
-          dotnet restore TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj
+        run: dotnet restore TaskTracker.sln
       - name: Run Build
-        run: |
-          dotnet build TaskTracker/Frontend/Frontend.csproj --configuration Release
-          dotnet build TaskTracker/Backend/Domain/Domain.csproj --configuration Release
-          dotnet build TaskTracker/Backend/Repository/Repository.csproj --configuration Release
-          dotnet build TaskTracker/Backend/Service/Service.csproj --configuration Release
-          dotnet build TaskTracker/BackendTest/DomainTest/DomainTest.csproj --configuration Release
-          dotnet build TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj --configuration Release
-          dotnet build TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release
-          dotnet build TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj --configuration Release
+        run: dotnet build TaskTracker.sln --configuration Release
       - name: Generate Test Results
-        run: |
-          dotnet test TaskTracker/BackendTest/DomainTest/DomainTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-          dotnet test TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-          dotnet test TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-          dotnet test TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+        run: dotnet test TaskTracker.sln --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
       - name: Uploaded Test Results
         uses: dorny/test-reporter@v1
         if: always()
@@ -84,11 +56,7 @@ jobs:
           fail-on-empty: true
           only-summary: false
       - name: Generate Test Coverage
-        run: |
-          dotnet test TaskTracker/BackendTest/DomainTest/DomainTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
-          dotnet test TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
-          dotnet test TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
-          dotnet test TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+        run: dotnet test TaskTracker.sln --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
       - name: Join Coverage Reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.9
         with:
