@@ -1,6 +1,8 @@
 using Repository;
 using Domain;
 using Frontend.Components;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Service;
 using Task = Domain.Task;
 
@@ -8,6 +10,14 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+//builder.Services.AddSingleton<InMemoryDatabase>();
+builder.Services.AddDbContext<SqlContext>(
+    options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        providerOptions => providerOptions.EnableRetryOnFailure()
+        )
+    );
 
 //repositories
 builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 

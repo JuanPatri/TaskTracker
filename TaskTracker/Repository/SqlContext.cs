@@ -13,6 +13,7 @@ public class SqlContext : DbContext
     public DbSet<ResourceType> ResourceTypes { get; set; }
     public DbSet<Notification> Notifications { get; set; }
     
+    
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
         this.Database.Migrate();
