@@ -19,4 +19,11 @@ public class TaskResourceTest
     {
         Assert.IsNotNull(_taskResource);
     }
+
+    [TestMethod]
+    public void CreateTaskIdForTaskResource()
+    {
+        _taskResource.TaskId = 1;
+        Assert.AreEqual(1, _taskResource.TaskId);
+    }
 }
