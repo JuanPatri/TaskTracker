@@ -21,16 +21,16 @@ jobs:
         run: find . -name "*.sln" -type f
       - name: Install dependencies
         run: |
-          dotnet restore Frontend/Frontend.csproj
-          dotnet restore Backend/Domain/Domain.csproj
-          dotnet restore Backend/Repository/Repository.csproj
-          dotnet restore Backend/Service/Service.csproj
+          dotnet restore TaskTracker/Frontend/Frontend.csproj
+          dotnet restore TaskTracker/Backend/Domain/Domain.csproj
+          dotnet restore TaskTracker/Backend/Repository/Repository.csproj
+          dotnet restore TaskTracker/Backend/Service/Service.csproj
       - name: Run build
         run: |
-          dotnet build Frontend/Frontend.csproj --configuration Release
-          dotnet build Backend/Domain/Domain.csproj --configuration Release
-          dotnet build Backend/Repository/Repository.csproj --configuration Release
-          dotnet build Backend/Service/Service.csproj --configuration Release
+          dotnet build TaskTracker/Frontend/Frontend.csproj --configuration Release
+          dotnet build TaskTracker/Backend/Domain/Domain.csproj --configuration Release
+          dotnet build TaskTracker/Backend/Repository/Repository.csproj --configuration Release
+          dotnet build TaskTracker/Backend/Service/Service.csproj --configuration Release
   test:
     name: Test
     permissions: write-all
@@ -45,30 +45,30 @@ jobs:
           dotnet-version: ${{ env.DOTNET_VERSION }}
       - name: Install Dependencies
         run: |
-          dotnet restore Frontend/Frontend.csproj
-          dotnet restore Backend/Domain/Domain.csproj
-          dotnet restore Backend/Repository/Repository.csproj
-          dotnet restore Backend/Service/Service.csproj
-          dotnet restore BackendTest/DomainTest/DomainTest.csproj
-          dotnet restore BackendTest/DTOsTest/DTOsTest.csproj
-          dotnet restore BackendTest/RepositoryTest/RepositoryTest.csproj
-          dotnet restore BackendTest/ServiceTest/ServiceTest.csproj
+          dotnet restore TaskTracker/Frontend/Frontend.csproj
+          dotnet restore TaskTracker/Backend/Domain/Domain.csproj
+          dotnet restore TaskTracker/Backend/Repository/Repository.csproj
+          dotnet restore TaskTracker/Backend/Service/Service.csproj
+          dotnet restore TaskTracker/BackendTest/DomainTest/DomainTest.csproj
+          dotnet restore TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj
+          dotnet restore TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj
+          dotnet restore TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj
       - name: Run Build
         run: |
-          dotnet build Frontend/Frontend.csproj --configuration Release
-          dotnet build Backend/Domain/Domain.csproj --configuration Release
-          dotnet build Backend/Repository/Repository.csproj --configuration Release
-          dotnet build Backend/Service/Service.csproj --configuration Release
-          dotnet build BackendTest/DomainTest/DomainTest.csproj --configuration Release
-          dotnet build BackendTest/DTOsTest/DTOsTest.csproj --configuration Release
-          dotnet build BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release
-          dotnet build BackendTest/ServiceTest/ServiceTest.csproj --configuration Release
+          dotnet build TaskTracker/Frontend/Frontend.csproj --configuration Release
+          dotnet build TaskTracker/Backend/Domain/Domain.csproj --configuration Release
+          dotnet build TaskTracker/Backend/Repository/Repository.csproj --configuration Release
+          dotnet build TaskTracker/Backend/Service/Service.csproj --configuration Release
+          dotnet build TaskTracker/BackendTest/DomainTest/DomainTest.csproj --configuration Release
+          dotnet build TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj --configuration Release
+          dotnet build TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release
+          dotnet build TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj --configuration Release
       - name: Generate Test Results
         run: |
-          dotnet test BackendTest/DomainTest/DomainTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-          dotnet test BackendTest/DTOsTest/DTOsTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-          dotnet test BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
-          dotnet test BackendTest/ServiceTest/ServiceTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+          dotnet test TaskTracker/BackendTest/DomainTest/DomainTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+          dotnet test TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+          dotnet test TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
+          dotnet test TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj --configuration Release --no-build --verbosity normal --logger "trx;LogFilePrefix=test-results" --results-directory ./coverage
       - name: Uploaded Test Results
         uses: dorny/test-reporter@v1
         if: always()
@@ -85,10 +85,10 @@ jobs:
           only-summary: false
       - name: Generate Test Coverage
         run: |
-          dotnet test BackendTest/DomainTest/DomainTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
-          dotnet test BackendTest/DTOsTest/DTOsTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
-          dotnet test BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
-          dotnet test BackendTest/ServiceTest/ServiceTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+          dotnet test TaskTracker/BackendTest/DomainTest/DomainTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+          dotnet test TaskTracker/BackendTest/DTOsTest/DTOsTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+          dotnet test TaskTracker/BackendTest/RepositoryTest/RepositoryTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
+          dotnet test TaskTracker/BackendTest/ServiceTest/ServiceTest.csproj --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage" --results-directory ./coverage --settings .runsettings
       - name: Join Coverage Reports
         uses: danielpalme/ReportGenerator-GitHub-Action@5.3.9
         with:
