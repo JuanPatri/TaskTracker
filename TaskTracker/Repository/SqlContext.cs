@@ -9,7 +9,7 @@ public class SqlContext : DbContext
     public DbSet<User> Users { get; set; }
     //public DbSet<Task> Tasks { get; set; }
     //public DbSet<Resource> Resources { get; set; }
-    //public DbSet<Project> Projects { get; set; }
+    public DbSet<Project> Projects { get; set; }
     //public DbSet<ResourceType> ResourceTypes { get; set; }
     //public DbSet<Notification> Notifications { get; set; }
     
@@ -48,5 +48,30 @@ public class SqlContext : DbContext
                 .IsRequired()
                 .HasDefaultValue(false);
         });
+        
+        modelBuilder.Entity<Project>(entity =>
+        {
+            entity.HasKey(p => p.Id);
+            
+            entity.Property(p => p.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(p => p.Description)
+                .HasMaxLength(400);
+
+            entity.Property(p => p.StartDate)
+                .IsRequired();
+
+            entity.HasOne(p => p.Administrator)
+                .WithMany()
+                .HasForeignKey("AdministratorEmail")
+                .IsRequired();
+        });
+        
+        modelBuilder.Entity<Project>()
+            .HasMany(p => p.Users)
+            .WithMany(u => u.Projects)
+            .UsingEntity(j => j.ToTable("UserProject"));
     }
 }

@@ -1,0 +1,15 @@
+using Domain;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+
+namespace DomainTest;
+
+[TestClass]
+public class TaskResourceTest
+{
+    private TaskResource _taskResource;
+    [TestInitialize]
+    public void OnInitialize()
+    {
+        _taskResource = new TaskResource();
+    }
+}

@@ -9,6 +9,7 @@ public class Project
     private string _description;
     private DateOnly _startDate;
     private User _administrator;
+    
     private List<Task> _tasks = new List<Task>();
     private List<User> _users = new List<User>();
     private List<Resource> _exclusiveResources = new List<Resource>();
