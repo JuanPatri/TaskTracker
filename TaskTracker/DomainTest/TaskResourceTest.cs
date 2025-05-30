@@ -47,4 +47,13 @@ public class TaskResourceTest
     {
         _taskResource.Quantity = 0;
     }
+    
+    [TestMethod]
+    public void AddResourceToTaskResource()
+    {
+        Resource resource = new Resource();
+        _taskResource.Resource = resource;
+        Assert.IsNotNull(_taskResource.Resource);
+        Assert.AreEqual(resource, _taskResource.Resource);
+    }
 }

@@ -6,6 +6,7 @@ public class TaskResource
     private int _resourceId;
     private int _quantity;
     
+    public Resource Resource { get; set; }
     public int TaskId 
     { 
         get => _taskId;
