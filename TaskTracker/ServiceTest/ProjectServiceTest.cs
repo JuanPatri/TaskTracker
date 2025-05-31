@@ -1617,6 +1617,11 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
         Assert.IsTrue(resources.Any(r => r.Name == "Additional Resource"));
     }
 
+    [TestMethod]
+    public void IsExclusiveResourceForProjectTest()
+    {
+        
+    }
     #endregion
 
     #region NotificationTest

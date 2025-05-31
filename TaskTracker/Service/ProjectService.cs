@@ -4,6 +4,7 @@ using DTOs.ProjectDTOs;
 using DTOs.ResourceDTOs;
 using DTOs.ResourceTypeDTOs;
 using DTOs.TaskDTOs;
+using DTOs.TaskResourceDTOs;
 using DTOs.UserDTOs;
 using Enums;
 using Repository;
@@ -323,25 +324,12 @@ public class ProjectService
         return _taskRepository.Add(createdTask);
     }
     
-    private List<TaskResource> GetTaskResourcesWithName(List<(int Quantity, string Name)> resourcesWithQuantities)
+    private List<TaskResource> GetTaskResourcesWithName(List<TaskResourceDataDTO> taskResourceData)
     {
         List<TaskResource> taskResources = new List<TaskResource>();
-
-        foreach (var (quantity, resourceName) in resourcesWithQuantities)
-        {
-            Resource resource = _resourceRepository.Find(r => r.Name == resourceName);
-            if (resource != null)
-            {
-                TaskResource taskResource = new TaskResource()
-                {
-                    ResourceId = resource.Id,
-                    Quantity = quantity,
-                    Resource = resource
-                };
-                taskResources.Add(taskResource);
-            }
-        }
-
+        
+        _taskRepository.FindAll().Where(t=> t.Title == taskResourceData.FirstOrDefault()?.TaskTitle)
+            
         return taskResources;
     }
     
@@ -660,6 +648,7 @@ public class ProjectService
     }
 
 
+    
     #endregion
 
     #region Notification

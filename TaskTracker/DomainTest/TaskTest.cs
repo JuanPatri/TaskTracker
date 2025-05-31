@@ -204,17 +204,5 @@ public class TaskTest
         _task.LateFinish = fecha;
         Assert.AreEqual(fecha, _task.LateFinish);
     }
-
-    [TestMethod]
-    public void SetIdForProjectTest()
-    {
-        _task.Id = 1;
-        Assert.AreEqual(1, _task.Id);
-    }
     
-    [TestMethod]
-    public void SetIdNegativeReturnsExceptionTest()
-    {
-        Assert.ThrowsException<ArgumentException>(() => _task.Id = -1);
-    }
 }

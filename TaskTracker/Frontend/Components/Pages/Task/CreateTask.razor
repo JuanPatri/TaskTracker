@@ -290,8 +290,11 @@
         {
             if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
                 return;
+            
+            bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
 
-            if (ProjectService.IsResourceAvailable(_selectedResourceId))
+
+            if (ProjectService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject))
             {
                 _taskResourceDataDto.TaskId = 1;
                 _taskResourceDataDto.ResourceId = _selectedResourceId;

@@ -6,7 +6,6 @@ namespace Domain;
 
 public class Task
 {
-    private int _id;
     private string _title = String.Empty;
     private string _description = String.Empty;
     private int _duration;
@@ -86,16 +85,6 @@ public class Task
             Resources = resource,
             Dependencies = dependencies,
         };
-    }
-    
-    public int Id
-    {
-        get => _id;
-        set
-        {
-            if (value <= 0) throw new ArgumentException("Id must be greater than 0");
-            _id = value;
-        }
     }
     
 }
