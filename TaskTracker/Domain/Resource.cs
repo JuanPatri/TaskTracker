@@ -47,7 +47,12 @@ public class Resource
     public int Quantity
     {
         get => _quantity;
-        set => _quantity = value;
+        set
+        {
+            if (value < 0) throw new ArgumentException ("Quantity cannot be negative");
+            _quantity = value; 
+            
+        }
     }
     
     public static Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
