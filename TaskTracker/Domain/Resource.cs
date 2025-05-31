@@ -47,10 +47,7 @@ public class Resource
     public int Quantity
     {
         get => _quantity;
-        set
-        {
-            _quantity = value;
-        }
+        set => _quantity = value;
     }
     
     public static Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
