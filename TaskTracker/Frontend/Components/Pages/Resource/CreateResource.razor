@@ -39,13 +39,17 @@
                 <option value="" selected>-- Select a type --</option>
                 @foreach (var type in _resourceTypes)
                 {
-                <option value="@type.Id.ToString()">@type.Name</option>
+                    <option value="@type.Id.ToString()">@type.Name</option>
                 }
             </select>
             <button class="btn btn-outline-primary ms-2" @onclick="GoToCreateResourceType">Create new</button>
         </div>
     </div>
 
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="0" />
+    </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
 </EditForm>
