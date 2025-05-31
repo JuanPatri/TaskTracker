@@ -88,7 +88,7 @@ namespace Repository.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
+            modelBuilder.Entity("UserProject", b =>
                 {
                     b.Property<int>("ProjectsId")
                         .HasColumnType("int");
@@ -108,24 +108,24 @@ namespace Repository.Migrations
                     b.HasOne("Domain.User", "Administrator")
                         .WithMany()
                         .HasForeignKey("AdministratorEmail")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Administrator");
                 });
 
-            modelBuilder.Entity("ProjectUser", b =>
+            modelBuilder.Entity("UserProject", b =>
                 {
                     b.HasOne("Domain.Project", null)
                         .WithMany()
                         .HasForeignKey("ProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.User", null)
                         .WithMany()
                         .HasForeignKey("UsersEmail")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

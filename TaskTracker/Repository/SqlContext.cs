@@ -7,10 +7,12 @@ namespace Repository;
 public class SqlContext : DbContext
 {
     public DbSet<User> Users { get; set; }
+    public DbSet<Project> Projects { get; set; }
+    
     //public DbSet<Task> Tasks { get; set; }
     //public DbSet<Resource> Resources { get; set; }
-    public DbSet<Project> Projects { get; set; }
     //public DbSet<ResourceType> ResourceTypes { get; set; }
+    //public DbSet<TaskResource> TaskResources { get; set; }
     //public DbSet<Notification> Notifications { get; set; }
     
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
@@ -66,10 +68,11 @@ public class SqlContext : DbContext
 
             entity.Property(p => p.StartDate)
                 .IsRequired();
-
+            
             entity.HasOne(p => p.Administrator)
                 .WithMany()
                 .HasForeignKey("AdministratorEmail")
+                .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
             
             entity.Ignore(p => p.Tasks);
@@ -78,6 +81,20 @@ public class SqlContext : DbContext
         modelBuilder.Entity<Project>()
             .HasMany(p => p.Users)
             .WithMany(u => u.Projects)
-            .UsingEntity(j => j.ToTable("UserProject"));
+            .UsingEntity<Dictionary<string, object>>(
+                "UserProject",
+                j => j.HasOne<User>()
+                    .WithMany()
+                    .HasForeignKey("UsersEmail")
+                    .OnDelete(DeleteBehavior.Restrict),
+                j => j.HasOne<Project>()
+                    .WithMany()
+                    .HasForeignKey("ProjectsId")
+                    .OnDelete(DeleteBehavior.Restrict), 
+                j =>
+                {
+                    j.HasKey("ProjectsId", "UsersEmail");
+                    j.ToTable("UserProject");
+                });
     }
 }

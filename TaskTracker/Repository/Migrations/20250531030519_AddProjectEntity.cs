@@ -30,7 +30,7 @@ namespace Repository.Migrations
                         column: x => x.AdministratorEmail,
                         principalTable: "Users",
                         principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -48,13 +48,13 @@ namespace Repository.Migrations
                         column: x => x.ProjectsId,
                         principalTable: "Projects",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_UserProject_Users_UsersEmail",
                         column: x => x.UsersEmail,
                         principalTable: "Users",
                         principalColumn: "Email",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(
