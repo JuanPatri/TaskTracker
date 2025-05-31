@@ -1,4 +1,5 @@
-﻿using Enums;
+﻿using DTOs.TaskResourceDTOs;
+using Enums;
 
 namespace DTOs.TaskDTOs;
 
@@ -9,6 +10,6 @@ public class TaskDataDTO
     public int Duration { get; set; } = 1;
     public Status Status { get; set; } = Status.Pending;
     public List<String> Dependencies { get; set; } = new List<string>();
-    public List<String> Resources { get; set; } = new List<String>();
+    public List<TaskResourceDataDTO> Resources { get; set; } = new List<TaskResourceDataDTO>();
     public DateTime? DateCompleated { get; set; } = null;
 }
