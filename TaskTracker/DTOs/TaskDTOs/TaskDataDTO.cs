@@ -9,6 +9,6 @@ public class TaskDataDTO
     public int Duration { get; set; } = 1;
     public Status Status { get; set; } = Status.Pending;
     public List<String> Dependencies { get; set; } = new List<string>();
-    public List<(int Quantity, string Name)> Resources { get; set; } = new List<(int, string)>();
+    public List<String> Resources { get; set; } = new List<String>();
     public DateTime? DateCompleated { get; set; } = null;
 }
