@@ -59,7 +59,7 @@ public class ResourceTest
     }
     
     [TestMethod]
-    public void SetIdForProjectTest()
+    public void SetIdForResourceTest()
     {
         _resource.Id = 1;
         Assert.AreEqual(1, _resource.Id);
@@ -69,5 +69,13 @@ public class ResourceTest
     public void SetIdNegativeReturnsExceptionTest()
     {
         Assert.ThrowsException<ArgumentException>(() => _resource.Id = -1);
+    }
+    
+    [TestMethod]
+    public void SetQuiantityForResourceTest()
+    {
+        TaskResource _resource = new TaskResource();
+        _resource.Quantity = 5;
+        Assert.AreEqual(5, _resource.Quantity);
     }
 }
