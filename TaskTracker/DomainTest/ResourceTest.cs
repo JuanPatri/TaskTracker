@@ -77,4 +77,10 @@ public class ResourceTest
         _resource.Quantity = 5;
         Assert.AreEqual(5, _resource.Quantity);
     }
+    
+    [TestMethod]
+    public void SetQuantityNegativeReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _resource.Quantity = -1);
+    }
 }
