@@ -1399,7 +1399,8 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
         {
             Name = "name",
             Description = "description",
-            TypeResource = 1
+            TypeResource = 1,
+            Quantity = 5
         };
 
         Resource? createdResource = _projectService.AddResource(resource);

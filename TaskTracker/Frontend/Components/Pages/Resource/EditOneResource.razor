@@ -39,6 +39,11 @@ else
             </select>
         </div>
 
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <InputNumber id="quantity" class="form-control" @bind-Value="_resourceDto.Quantity" min="0" />
+        </div>
+
         <button type="submit" class="btn btn-primary">Save Changes</button>
     </EditForm>
 }
