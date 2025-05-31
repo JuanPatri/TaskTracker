@@ -395,10 +395,20 @@ public class
     public void DecreaseResourceQuantityShouldDecreaseQuantityByOne()
     {
         Resource resource = new Resource { Name = "Printer" };
+ 
+        TaskResource taskResource = new TaskResource()
+        {
+            TaskId = 1,
+            ResourceId = 1,
+            Quantity = 3,
+            Resource = resource
+        };
+    
         Task task = new Task
         {
+            Id = 1,
             Title = "Setup",
-            Resources = new List<(int, Resource)> { (3, resource) }
+            Resources = new List<TaskResource> { taskResource }
         };
 
         Project project = new Project
@@ -417,7 +427,8 @@ public class
         _projectService.DecreaseResourceQuantity(1, "Printer");
 
         Project updatedProject = _projectRepository.Find(p => p.Id == 1);
-        int updatedQty = updatedProject.Tasks[0].Resources.First().Item1;
+        
+        int updatedQty = updatedProject.Tasks[0].Resources.First().Quantity;
 
         Assert.AreEqual(2, updatedQty);
     }
@@ -777,58 +788,58 @@ public class
 
     #region TaskTest
 
-    [TestMethod]
-    public void AddTask_WithExistingDependenciesAndResources_ShouldAddTaskWithCorrectDependenciesAndResources()
+ [TestMethod]
+public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrectDependenciesAndResources()
+{
+    Task dependency1 = new Task { Title = "Dependency1" };
+    Task dependency2 = new Task { Title = "Dependency2" };
+    _taskRepository.Add(dependency1);
+    _taskRepository.Add(dependency2);
+
+    Resource resource1 = new Resource
     {
-        Task dependency1 = new Task { Title = "Dependency1" };
-        Task dependency2 = new Task { Title = "Dependency2" };
-        _taskRepository.Add(dependency1);
-        _taskRepository.Add(dependency2);
+        Name = "TestResource1",
+        Description = "Resource for testing",
+        Type = new ResourceType { Id = 1, Name = "Type1" }
+    };
+    Resource resource2 = new Resource
+    {
+        Name = "TestResource2",
+        Description = "Another resource",
+        Type = new ResourceType { Id = 2, Name = "Type2" }
+    };
+    _resourceRepository.Add(resource1);
+    _resourceRepository.Add(resource2);
 
-        Resource resource1 = new Resource
-        {
-            Name = "TestResource1",
-            Description = "Resource for testing",
-            Type = new ResourceType { Id = 1, Name = "Type1" }
-        };
-        Resource resource2 = new Resource
-        {
-            Name = "TestResource2",
-            Description = "Another resource",
-            Type = new ResourceType { Id = 2, Name = "Type2" }
-        };
-        _resourceRepository.Add(resource1);
-        _resourceRepository.Add(resource2);
+    TaskDataDTO taskDto = new TaskDataDTO
+    {
+        Title = "Task With Real Dependencies And Resources",
+        Description = "Task that has real dependencies and resources",
+        Duration = 3,
+        Status = Status.Pending,
+        Dependencies = new List<string> { "Dependency1", "Dependency2" },
+        Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
+    };
 
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Task With Real Dependencies And Resources",
-            Description = "Task that has real dependencies and resources",
-            Duration = 3,
-            Status = Status.Pending,
-            Dependencies = new List<string> { "Dependency1", "Dependency2" },
-            Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
-        };
+    Task addedTask = _projectService.AddTask(taskDto);
 
-        Task addedTask = _projectService.AddTask(taskDto);
+    Assert.IsNotNull(addedTask);
+    Assert.AreEqual("Task With Real Dependencies And Resources", addedTask.Title);
 
-        Assert.IsNotNull(addedTask);
-        Assert.AreEqual("Task With Real Dependencies And Resources", addedTask.Title);
+    Assert.IsNotNull(addedTask.Dependencies);
+    Assert.AreEqual(2, addedTask.Dependencies.Count);
+    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency1"));
+    Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency2"));
+    
+    Assert.IsNotNull(addedTask.Resources);
+    Assert.AreEqual(2, addedTask.Resources.Count);
+    Assert.IsTrue(addedTask.Resources.Any(tr => tr.Resource.Name == "TestResource1" && tr.Quantity == 2));
+    Assert.IsTrue(addedTask.Resources.Any(tr => tr.Resource.Name == "TestResource2" && tr.Quantity == 3));
 
-        Assert.IsNotNull(addedTask.Dependencies);
-        Assert.AreEqual(2, addedTask.Dependencies.Count);
-        Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency1"));
-        Assert.IsTrue(addedTask.Dependencies.Any(d => d.Title == "Dependency2"));
-
-        Assert.IsNotNull(addedTask.Resources);
-        Assert.AreEqual(2, addedTask.Resources.Count);
-        Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource1" && r.Item1 == 2));
-        Assert.IsTrue(addedTask.Resources.Any(r => r.Item2.Name == "TestResource2" && r.Item1 == 3));
-
-        Task? taskInRepo = _taskRepository.Find(t => t.Title == "Task With Real Dependencies And Resources");
-        Assert.IsNotNull(taskInRepo);
-        Assert.AreEqual(addedTask, taskInRepo);
-    }
+    Task? taskInRepo = _taskRepository.Find(t => t.Title == "Task With Real Dependencies And Resources");
+    Assert.IsNotNull(taskInRepo);
+    Assert.AreEqual(addedTask, taskInRepo);
+}
 
     [TestMethod]
     public void AddTask_WithDuplicateTitle_ShouldThrowException()
@@ -1204,15 +1215,25 @@ public class
         Assert.ThrowsException<ArgumentException>(() =>
             _projectService.DecreaseResourceQuantity(999, "x"));
     }
-
+    
     [TestMethod]
     public void DecreaseResourceQuantityShouldThrowWhenResourceQuantityIsZero()
     {
+        TaskResource taskResource = new TaskResource()
+        {
+            TaskId = 1,
+            ResourceId = 1,
+            Quantity = 0, 
+            Resource = new Resource { Name = "Laptop" }
+        };
+
         Task task = new Task
         {
+            Id = 1,
             Title = "Test Task",
-            Resources = new List<(int, Resource)> { (0, new Resource { Name = "Laptop" }) }
+            Resources = new List<TaskResource> { taskResource } 
         };
+    
         Project project = new Project
         {
             Id = 101,
@@ -1222,6 +1243,7 @@ public class
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Administrator = new User()
         };
+    
         _projectRepository.Add(project);
 
         Assert.ThrowsException<InvalidOperationException>(() =>

@@ -6,11 +6,12 @@ namespace Domain;
 
 public class Task
 {
+    private int _id;
     private string _title = String.Empty;
     private string _description = String.Empty;
     private int _duration;
     private Status _status = Status.Pending;
-    private List<(int, Resource)> _resources = new List<(int, Resource)>();
+    private List<TaskResource> _resources = new List<TaskResource>();
     private List<Task> _dependencies = new List<Task>();
     public DateTime EarlyStart { get; set; }
     public DateTime EarlyFinish { get; set; }
@@ -59,7 +60,7 @@ public class Task
         set => _status = value;
     }
     
-    public List<(int, Resource)> Resources
+    public List<TaskResource> Resources
     {
         get => _resources;
         set
@@ -74,7 +75,7 @@ public class Task
         set => _dependencies = value; 
     }
     
-    public static Task FromDto(TaskDataDTO taskDataDto, List<(int, Resource)> resource, List<Task> dependencies)
+    public static Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resource, List<Task> dependencies)
     {
         return new Task()
         {
@@ -85,6 +86,16 @@ public class Task
             Resources = resource,
             Dependencies = dependencies,
         };
+    }
+    
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("Id must be greater than 0");
+            _id = value;
+        }
     }
     
 }

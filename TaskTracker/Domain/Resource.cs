@@ -3,6 +3,7 @@ using DTOs.ResourceDTOs;
 namespace Domain;
 public class Resource
 {
+    private int _id;
     private string _name;
     private string _description;
     private ResourceType _type;
@@ -41,5 +42,15 @@ public class Resource
             Description = resourceDataDto.Description,
             Type = resourceType
         };
+    }
+    
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("Id must be greater than 0");
+            _id = value;
+        }
     }
 }

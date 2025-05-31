@@ -43,9 +43,9 @@ public class TaskResourceTest
     
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
-    public void PutQuantityZeroReturnsAnException()
+    public void PutQuantityNegativeReturnsAnException()
     {
-        _taskResource.Quantity = 0;
+        _taskResource.Quantity = -1;
     }
     
     [TestMethod]

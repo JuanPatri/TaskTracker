@@ -57,4 +57,17 @@ public class ResourceTest
         ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _resource.Type = null);
         Assert.AreEqual("ResourceDTOs type cannot be null", ex.Message);
     }
+    
+    [TestMethod]
+    public void SetIdForProjectTest()
+    {
+        _resource.Id = 1;
+        Assert.AreEqual(1, _resource.Id);
+    }
+    
+    [TestMethod]
+    public void SetIdNegativeReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _resource.Id = -1);
+    }
 }

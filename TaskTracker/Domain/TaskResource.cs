@@ -1,6 +1,6 @@
 namespace Domain;
 
-public class TaskResource
+public class TaskResource()
 {
     private int _taskId;
     private int _resourceId;
@@ -30,7 +30,7 @@ public class TaskResource
         get => _quantity; 
         set
         {
-            if (value <= 0) throw new ArgumentException("Quantity must be greater than 0");
+            if (value < 0) throw new ArgumentException("Quantity cannot be negative");
             _quantity = value;
         }
     }

@@ -88,16 +88,24 @@ public class TaskTest
     }
 
     [TestMethod]
-    public void SetResourcesTaskTest()
+    public void SetTaskResourcesTaskTest()
     {
         Resource res = new Resource();
-        List<(int, Resource)> resources = new List<(int, Resource)>
+        TaskResource taskResource = new TaskResource()
         {
-            (2, res)
+            TaskId = 1,
+            ResourceId = res.Id,
+            Quantity = 2,
+            Resource = res
+        };
+    
+        List<TaskResource> taskResources = new List<TaskResource>
+        {
+            taskResource
         };
 
-        _task.Resources = resources;
-        Assert.AreEqual(resources, _task.Resources);
+        _task.Resources = taskResources;
+        Assert.AreEqual(taskResources, _task.Resources);
     }
 
     [TestMethod]
@@ -131,22 +139,28 @@ public class TaskTest
             new Task { Title = "Task 3", Description = "Description of Task 3" }
         };
 
-        List<(int, Resource)> resources = new List<(int, Resource)>
+        List<TaskResource> taskResources = new List<TaskResource>
         {
-            (1, new Resource { Name = "Resource 1" })
+            new TaskResource()
+            {
+                TaskId = 1,
+                ResourceId = 1,
+                Quantity = 1,
+                Resource = new Resource { Name = "Resource 1" }
+            }
         };
 
-        Task task = Task.FromDto(taskDto, resources, dependencies);
+        Task task = Task.FromDto(taskDto, taskResources, dependencies);
 
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
         Assert.AreEqual(1, task.Duration);
         Assert.AreEqual(Status.Blocked, task.Status);
-
+        
         Assert.IsNotNull(task.Resources);
         Assert.AreEqual(1, task.Resources.Count);
-        Assert.AreEqual(resources[0].Item1, task.Resources[0].Item1);
-        Assert.AreEqual(resources[0].Item2.Name, task.Resources[0].Item2.Name);
+        Assert.AreEqual(1, task.Resources[0].Quantity);
+        Assert.AreEqual("Resource 1", task.Resources[0].Resource.Name);
 
         Assert.IsNotNull(task.Dependencies);
         Assert.AreEqual("Task 3", task.Dependencies[0].Title);
@@ -189,5 +203,18 @@ public class TaskTest
         DateTime fecha = new DateTime(2025, 10, 18);
         _task.LateFinish = fecha;
         Assert.AreEqual(fecha, _task.LateFinish);
+    }
+
+    [TestMethod]
+    public void SetIdForProjectTest()
+    {
+        _task.Id = 1;
+        Assert.AreEqual(1, _task.Id);
+    }
+    
+    [TestMethod]
+    public void SetIdNegativeReturnsExceptionTest()
+    {
+        Assert.ThrowsException<ArgumentException>(() => _task.Id = -1);
     }
 }

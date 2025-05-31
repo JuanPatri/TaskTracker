@@ -225,12 +225,11 @@ public class ProjectService
 
         foreach (var task in project.Tasks)
         {
-            for (int i = 0; i < task.Resources.Count; i++)
+            foreach (var taskResource in task.Resources)
             {
-                var (qty, resource) = task.Resources[i];
-                if (resource.Name == resourceName && qty > 0)
+                if (taskResource.Resource.Name == resourceName && taskResource.Quantity > 0)
                 {
-                    task.Resources[i] = (qty - 1, resource);
+                    taskResource.Quantity -= 1;
                     updated = true;
                     break;
                 }
@@ -307,6 +306,7 @@ public class ProjectService
 
     #region Task
 
+
     public Task AddTask(TaskDataDTO taskDto)
     {
         if (_taskRepository.Find(t => t.Title == taskDto.Title) != null)
@@ -316,18 +316,35 @@ public class ProjectService
 
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
-        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
+        List<TaskResource> taskResourceList = GetTaskResourcesWithName(taskDto.Resources);
 
-        Task createdTask = Task.FromDto(taskDto, resourceList, dependencies);
-        Console.WriteLine("Dependencies:");
-        foreach (var dep in createdTask.Dependencies)
-        {
-            Console.WriteLine($" - {dep.Title}");
-        }
+        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);
 
         return _taskRepository.Add(createdTask);
     }
+    
+    private List<TaskResource> GetTaskResourcesWithName(List<(int Quantity, string Name)> resourcesWithQuantities)
+    {
+        List<TaskResource> taskResources = new List<TaskResource>();
 
+        foreach (var (quantity, resourceName) in resourcesWithQuantities)
+        {
+            Resource resource = _resourceRepository.Find(r => r.Name == resourceName);
+            if (resource != null)
+            {
+                TaskResource taskResource = new TaskResource()
+                {
+                    ResourceId = resource.Id,
+                    Quantity = quantity,
+                    Resource = resource
+                };
+                taskResources.Add(taskResource);
+            }
+        }
+
+        return taskResources;
+    }
+    
     public Task GetTaskByTitle(string title)
     {
         return _taskRepository.Find(t => t.Title == title);
@@ -342,9 +359,9 @@ public class ProjectService
     {
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
-        List<(int, Resource)> resourceList = GetResourcesWithName(taskDto.Resources);
+        List<TaskResource> taskResourceList = GetTaskResourcesWithName(taskDto.Resources);
 
-        return _taskRepository.Update(Task.FromDto(taskDto, resourceList, dependencies));
+        return _taskRepository.Update(Task.FromDto(taskDto, taskResourceList, dependencies));
     }
 
     public void RemoveTask(GetTaskDTO task)
