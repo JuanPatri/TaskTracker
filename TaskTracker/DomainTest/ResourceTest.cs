@@ -74,7 +74,6 @@ public class ResourceTest
     [TestMethod]
     public void SetQuiantityForResourceTest()
     {
-        TaskResource _resource = new TaskResource();
         _resource.Quantity = 5;
         Assert.AreEqual(5, _resource.Quantity);
     }

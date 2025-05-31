@@ -7,7 +7,7 @@ public class Resource
     private string _name;
     private string _description;
     private ResourceType _type;
-
+    private int _quantity;
     public string Name
     {
         get => _name;
@@ -34,16 +34,6 @@ public class Resource
         }
     }
     
-    public static Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
-    {
-        return new Resource()
-        {
-            Name = resourceDataDto.Name,
-            Description = resourceDataDto.Description,
-            Type = resourceType
-        };
-    }
-    
     public int Id
     {
         get => _id;
@@ -52,5 +42,24 @@ public class Resource
             if (value <= 0) throw new ArgumentException("Id must be greater than 0");
             _id = value;
         }
+    }
+    
+    public int Quantity
+    {
+        get => _quantity;
+        set
+        {
+            _quantity = value;
+        }
+    }
+    
+    public static Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
+    {
+        return new Resource()
+        {
+            Name = resourceDataDto.Name,
+            Description = resourceDataDto.Description,
+            Type = resourceType
+        };
     }
 }
