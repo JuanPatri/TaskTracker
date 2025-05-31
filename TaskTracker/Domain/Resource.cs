@@ -61,7 +61,8 @@ public class Resource
         {
             Name = resourceDataDto.Name,
             Description = resourceDataDto.Description,
-            Type = resourceType
+            Type = resourceType,
+            Quantity = resourceDataDto.Quantity
         };
     }
 }
