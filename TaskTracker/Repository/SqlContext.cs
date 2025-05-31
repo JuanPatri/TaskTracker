@@ -13,14 +13,18 @@ public class SqlContext : DbContext
     //public DbSet<ResourceType> ResourceTypes { get; set; }
     //public DbSet<Notification> Notifications { get; set; }
     
-    
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
-        this.Database.Migrate();
+        //this.Database.Migrate();
     }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Ignore<Task>();
+        modelBuilder.Ignore<TaskResource>();
+        modelBuilder.Ignore<Resource>();
+        modelBuilder.Ignore<ResourceType>();
+        
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(u => u.Email);
@@ -67,6 +71,8 @@ public class SqlContext : DbContext
                 .WithMany()
                 .HasForeignKey("AdministratorEmail")
                 .IsRequired();
+            
+            entity.Ignore(p => p.Tasks);
         });
         
         modelBuilder.Entity<Project>()
