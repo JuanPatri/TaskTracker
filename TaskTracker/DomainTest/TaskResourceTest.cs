@@ -1,5 +1,6 @@
 using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Task = Domain.Task;
 
 namespace DomainTest;
 
@@ -23,8 +24,10 @@ public class TaskResourceTest
     [TestMethod]
     public void CreateTaskIdForTaskResource()
     {
-        _taskResource.TaskId = 1;
-        Assert.AreEqual(1, _taskResource.TaskId);
+        Task task = new Task();
+        
+        _taskResource.Task = task;
+        Assert.AreEqual(task, _taskResource.Task);
     }
     
     [TestMethod]

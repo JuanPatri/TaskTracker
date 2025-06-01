@@ -2,17 +2,17 @@ namespace Domain;
 
 public class TaskResource()
 {
-    private int _taskId;
+    private Task _task;
     private int _resourceId;
     private int _quantity;
     
     public Resource Resource { get; set; }
-    public int TaskId 
+    public Task Task
     { 
-        get => _taskId;
+        get => _task;
         set
         {
-            _taskId = value;
+            _task = value;
         }
     }
     

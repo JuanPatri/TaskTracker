@@ -647,7 +647,15 @@ public class ProjectService
             .ToList();
     }
 
+    public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive)
+    {
+        return false;
+    }
 
+    public bool IsExclusiveResourceForProject(int resourceId, int projectId)
+    {
+        return _projectRepository.FindAll().Where(p => p.Id == projectId).Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
+    }
     
     #endregion
 
