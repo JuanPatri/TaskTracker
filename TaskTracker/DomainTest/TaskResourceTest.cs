@@ -33,8 +33,9 @@ public class TaskResourceTest
     [TestMethod]
     public void CreateResourceIdForTaskResource()
     {
-        _taskResource.ResourceId = 2;
-        Assert.AreEqual(2, _taskResource.ResourceId);
+        Resource resource = new Resource();
+        _taskResource.Resource = resource;
+        Assert.AreEqual(resource, _taskResource.ResourceId);
     }
     
     [TestMethod]
