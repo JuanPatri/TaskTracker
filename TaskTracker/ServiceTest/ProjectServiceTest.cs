@@ -5,6 +5,7 @@ using DTOs.ProjectDTOs;
 using DTOs.ResourceDTOs;
 using DTOs.ResourceTypeDTOs;
 using DTOs.TaskDTOs;
+using DTOs.TaskResourceDTOs;
 using DTOs.UserDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -398,15 +399,13 @@ public class
  
         TaskResource taskResource = new TaskResource()
         {
-            TaskId = 1,
-            ResourceId = 1,
+            Task = new Task(),
+            Resource = new Resource(),
             Quantity = 3,
-            Resource = resource
         };
     
         Task task = new Task
         {
-            Id = 1,
             Title = "Setup",
             Resources = new List<TaskResource> { taskResource }
         };
@@ -459,7 +458,7 @@ public class
             Duration = 1,
             Status = Status.Pending,
             Dependencies = new List<string>(),
-            Resources = new List<(int, string)>()
+            Resources = new List<TaskResourceDataDTO>()
         };
 
         Assert.ThrowsException<ArgumentException>(() =>
@@ -818,7 +817,11 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
         Duration = 3,
         Status = Status.Pending,
         Dependencies = new List<string> { "Dependency1", "Dependency2" },
-        Resources = new List<(int, string)> { (2, "TestResource1"), (3, "TestResource2") }
+        Resources = new List<TaskResourceDataDTO>
+        {
+            new TaskResourceDataDTO {TaskTitle = "TestResource1", ResourceId = resource1.Id, Quantity = 2 },
+            new TaskResourceDataDTO { TaskTitle = "TestResource2", ResourceId = resource2.Id, Quantity = 3 }
+        }
     };
 
     Task addedTask = _projectService.AddTask(taskDto);
@@ -851,7 +854,7 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
             Duration = 2,
             Status = Status.Pending,
             Dependencies = new List<string>(),
-            Resources = new List<(int, string)>()
+            Resources = new List<TaskResourceDataDTO>()
         };
 
         Assert.ThrowsException<Exception>(() => _projectService.AddTask(taskDto));
@@ -867,7 +870,11 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
             Duration = 2,
             Status = Status.Pending,
             Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
-            Resources = new List<(int, string)> { (1, "NonexistentRes1"), (2, "NonexistentRes2") }
+            Resources = new List<TaskResourceDataDTO>
+            {
+                new TaskResourceDataDTO {TaskTitle = "NonexistentDep1", ResourceId = 1, Quantity = 1 },
+                new TaskResourceDataDTO { TaskTitle = "NonexistentDep2", ResourceId = 2, Quantity = 2 }
+            }
         };
 
         Task addedTask = _projectService.AddTask(taskDto);
@@ -1170,7 +1177,7 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
             Duration = 1,
             Status = Status.Pending,
             Dependencies = new List<string>(),
-            Resources = new List<(int, string)>()
+            Resources = new List<TaskResourceDataDTO>()
         };
 
         Project project = new Project
@@ -1221,15 +1228,13 @@ public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrect
     {
         TaskResource taskResource = new TaskResource()
         {
-            TaskId = 1,
-            ResourceId = 1,
+            Task = new Task(),
+            Resource = new Resource(),
             Quantity = 0, 
-            Resource = new Resource { Name = "Laptop" }
         };
 
         Task task = new Task
         {
-            Id = 1,
             Title = "Test Task",
             Resources = new List<TaskResource> { taskResource } 
         };

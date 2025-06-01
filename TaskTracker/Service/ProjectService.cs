@@ -317,22 +317,14 @@ public class ProjectService
 
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
-        List<TaskResource> taskResourceList = GetTaskResourcesWithName(taskDto.Resources);
+        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
         Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);
 
         return _taskRepository.Add(createdTask);
     }
     
-    private List<TaskResource> GetTaskResourcesWithName(List<TaskResourceDataDTO> taskResourceData)
-    {
-        List<TaskResource> taskResources = new List<TaskResource>();
-        
-        _taskRepository.FindAll().Where(t=> t.Title == taskResourceData.FirstOrDefault()?.TaskTitle)
-            
-        return taskResources;
-    }
-    
+
     public Task GetTaskByTitle(string title)
     {
         return _taskRepository.Find(t => t.Title == title);
@@ -347,7 +339,7 @@ public class ProjectService
     {
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
 
-        List<TaskResource> taskResourceList = GetTaskResourcesWithName(taskDto.Resources);
+        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
         return _taskRepository.Update(Task.FromDto(taskDto, taskResourceList, dependencies));
     }

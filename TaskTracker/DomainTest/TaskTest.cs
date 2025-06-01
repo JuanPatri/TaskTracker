@@ -1,6 +1,7 @@
 ﻿using DTOs.TaskDTOs;
 using Domain;
 using Domain.Enums;
+using DTOs.TaskResourceDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Task = Domain.Task;
@@ -93,8 +94,8 @@ public class TaskTest
         Resource res = new Resource();
         TaskResource taskResource = new TaskResource()
         {
-            TaskId = 1,
-            ResourceId = res.Id,
+            Task = _task,
+            ResourceId = res,
             Quantity = 2,
             Resource = res
         };
@@ -131,7 +132,15 @@ public class TaskTest
             Duration = 1,
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
-            Resources = new List<(int, string)> { (1, "Resource 1") },
+            Resources = new List<TaskResourceDataDTO> 
+            { 
+                new TaskResourceDataDTO
+                {
+                    TaskTitle = "Task 1",
+                    ResourceId = 1,
+                    Quantity = 1
+                }
+            }
         };
 
         List<Task> dependencies = new List<Task>
@@ -143,10 +152,9 @@ public class TaskTest
         {
             new TaskResource()
             {
-                TaskId = 1,
-                ResourceId = 1,
+                Task = new Task { Title = "Task 1" },
+                Resource = new Resource { Name = "Resource 1" },
                 Quantity = 1,
-                Resource = new Resource { Name = "Resource 1" }
             }
         };
 
