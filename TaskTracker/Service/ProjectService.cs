@@ -614,6 +614,32 @@ public class ProjectService
         return IsTaskCritical(project, taskTitle);
     }
 
+    public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
+    {
+        var project = _projectRepository.Find(p => p.Id == projectId);
+        if (project == null)
+            throw new ArgumentException($"Project with ID {projectId} not found");
+
+        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies ?? new List<string>());
+        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources ?? new List<TaskResourceDataDTO>());
+        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);    
+    
+        DateTime earlyStart;
+    
+        if (createdTask.Dependencies == null || createdTask.Dependencies.Count == 0)
+        {
+            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        }
+        else
+        {
+            earlyStart = createdTask.Dependencies.Max(dep => dep.EarlyFinish);
+        }
+    
+        DateTime earlyFinish = earlyStart.AddDays(createdTask.Duration);
+    
+        return (earlyStart, earlyFinish);
+    }
+
     
     #endregion
 
