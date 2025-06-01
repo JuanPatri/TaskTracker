@@ -1421,7 +1421,48 @@ public class
     #endregion
 
     #region ResourceTest
-    
+    [TestMethod]
+public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
+{
+    var exclusiveResource = new Resource
+    {
+        Id = 100,
+        Name = "Exclusive Printer",
+        Description = "Project exclusive printer",
+        Type = _resource.Type
+    };
+
+    _project.ExclusiveResources = new List<Resource> { exclusiveResource };
+
+    bool isExclusive1 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
+    Assert.IsTrue(isExclusive1, "Should return true for exclusive resource in the project");
+
+    bool isExclusive2 = _projectService.IsExclusiveResourceForProject(_resource.Id, _project.Id);
+    Assert.IsFalse(isExclusive2, "Should return false for non-exclusive resource");
+
+    bool isExclusive3 = _projectService.IsExclusiveResourceForProject(999, _project.Id);
+    Assert.IsFalse(isExclusive3, "Should return false for non-existent resource");
+
+    bool isExclusive4 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, 999);
+    Assert.IsFalse(isExclusive4, "Should return false for non-existent project");
+
+    var anotherProject = new Project
+    {
+        Id = 50,
+        Name = "Another Project",
+        Description = "Different project",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Administrator = new User(),
+        ExclusiveResources = new List<Resource> { exclusiveResource }
+    };
+    _projectRepository.Add(anotherProject);
+
+    bool isExclusive5 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
+    Assert.IsTrue(isExclusive5, "Should still return true - resource is in the target project");
+
+    bool isExclusive6 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, anotherProject.Id);
+    Assert.IsTrue(isExclusive6, "Should return true for the other project that also has the resource");
+}
     [TestMethod]
 public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
 {
