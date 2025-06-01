@@ -95,9 +95,8 @@ public class TaskTest
         TaskResource taskResource = new TaskResource()
         {
             Task = _task,
-            ResourceId = res,
+            Resource = res,
             Quantity = 2,
-            Resource = res
         };
     
         List<TaskResource> taskResources = new List<TaskResource>

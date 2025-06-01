@@ -5,8 +5,12 @@ public class TaskResource()
     private Task _task;
     private Resource _resource;
     private int _quantity;
-    
-    public Resource Resource { get; set; }
+
+    public Resource Resource
+    {
+        get => _resource;
+        set => _resource = value;
+    }
     public Task Task
     { 
         get => _task;
@@ -15,16 +19,6 @@ public class TaskResource()
             _task = value;
         }
     }
-    
-    public Resource ResourceId 
-    { 
-        get => _resource; 
-        set
-        {
-            _resource = value;
-        }
-    }
-    
     public int Quantity 
     { 
         get => _quantity; 

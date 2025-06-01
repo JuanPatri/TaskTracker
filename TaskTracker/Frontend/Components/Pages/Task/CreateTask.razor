@@ -286,24 +286,25 @@
 
     private void AddResourceToTask()
     {
-        if (_selectedResourceId <= 0 && _selectedQuantity > 0)
+        if (_selectedResourceId > 0 && _selectedQuantity > 0)
         {
             if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
                 return;
-            
+        
             bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
-
 
             if (ProjectService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject))
             {
-                _taskResourceDataDto.TaskId = 1;
-                _taskResourceDataDto.ResourceId = _selectedResourceId;
-                _taskResourceDataDto.Quantity = _selectedQuantity;
+                TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
+                {
+                    TaskTitle = _newTask.Title,
+                    ResourceId = _selectedResourceId,
+                    Quantity = _selectedQuantity
+                };
 
-
-                _taskResourceDataDtos.Add(_taskResourceDataDto);   
+                _taskResourceDataDtos.Add(newTaskResourceDto);   
             }
-            
+        
             _selectedResourceId = 0;
             _selectedQuantity = 1;
         }
@@ -311,10 +312,10 @@
 
     private void RemoveResourceFromTask(int resourceId)
     {
-        var item = _taskResources.FirstOrDefault(r => r.Item2 == resourceName);
-        if (!string.IsNullOrEmpty(item.Item2))
+        TaskResourceDataDTO? item = _taskResourceDataDtos.FirstOrDefault(r => r.ResourceId == resourceId);
+        if (item != null)
         {
-            _taskResources.Remove(item);
+            _taskResourceDataDtos.Remove(item);
         }
     }
 

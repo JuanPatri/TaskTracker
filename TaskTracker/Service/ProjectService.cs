@@ -323,8 +323,32 @@ public class ProjectService
 
         return _taskRepository.Add(createdTask);
     }
-    
+    private List<TaskResource> GetTaskResourcesWithDto(List<TaskResourceDataDTO> taskResourceData)
+    {
+        List<TaskResource> taskResources = new List<TaskResource>();
 
+        if (taskResourceData != null)
+        {
+            foreach (TaskResourceDataDTO resourceData in taskResourceData)
+            {
+                Resource resource = _resourceRepository.Find(r => r.Id == resourceData.ResourceId);
+
+                if (resource != null)
+                {
+                    TaskResource taskResource = new TaskResource()
+                    {
+                        Resource = resource,
+                        Quantity = resourceData.Quantity
+                    };
+            
+                    taskResources.Add(taskResource);
+                }
+            }
+        }
+    
+        return taskResources;
+    }
+    
     public Task GetTaskByTitle(string title)
     {
         return _taskRepository.Find(t => t.Title == title);
