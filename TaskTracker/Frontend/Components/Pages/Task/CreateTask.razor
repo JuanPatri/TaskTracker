@@ -290,10 +290,22 @@
         {
             if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
                 return;
-        
+    
             bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
+        
+            var completeTaskDto = new TaskDataDTO
+            {
+                Title = _newTask.Title,
+                Description = _newTask.Description,
+                Duration = _newTask.Duration,
+                Dependencies = new List<string>(_taskDependencies), 
+                Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos) 
+            };
 
-            if (ProjectService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject))
+            var (taskEarlyStart, taskEarlyFinish) = ProjectService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
+
+            if (ProjectService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject, 
+                    taskEarlyStart, taskEarlyFinish, _selectedQuantity))
             {
                 TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
                 {
@@ -302,20 +314,26 @@
                     Quantity = _selectedQuantity
                 };
 
-                _taskResourceDataDtos.Add(newTaskResourceDto);   
+                _taskResourceDataDtos.Add(newTaskResourceDto);
+                _errorMessage = string.Empty; 
             }
-        
+            else
+            {
+                string scope = exclusiveResourceProject ? "project" : "system";
+                _errorMessage = $"Resource not available in {scope} from {taskEarlyStart:yyyy-MM-dd} to {taskEarlyFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
+            }
+    
             _selectedResourceId = 0;
             _selectedQuantity = 1;
         }
     }
 
-    private void RemoveResourceFromTask(int resourceId)
+    private void RemoveResourceFromTask(int resourceId) 
     {
-        TaskResourceDataDTO? item = _taskResourceDataDtos.FirstOrDefault(r => r.ResourceId == resourceId);
-        if (item != null)
+        TaskResourceDataDTO? taskResource = _taskResourceDataDtos.FirstOrDefault(r => r.ResourceId == resourceId);
+        if (taskResource != null)
         {
-            _taskResourceDataDtos.Remove(item);
+            _taskResourceDataDtos.Remove(taskResource);
         }
     }
 

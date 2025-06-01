@@ -793,6 +793,61 @@ public class
     #region TaskTest
     
     [TestMethod]
+public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
+{
+    _task.EarlyStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+    _task.EarlyFinish = _task.EarlyStart.AddDays(5);
+
+    var taskWithoutDeps = new TaskDataDTO
+    {
+        Title = "No Dependencies Task",
+        Description = "Task without any dependencies",
+        Duration = 3,
+        Dependencies = new List<string>(),
+        Resources = new List<TaskResourceDataDTO>()
+    };
+
+    var (startNoDeps, finishNoDeps) = _projectService.GetTaskDatesFromDto(taskWithoutDeps, _project.Id);
+    
+    var expectedProjectStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+    Assert.AreEqual(expectedProjectStart, startNoDeps, "Task without dependencies should start at project start date");
+    Assert.AreEqual(expectedProjectStart.AddDays(3), finishNoDeps, "Task finish should be start + duration");
+
+    var taskWithDeps = new TaskDataDTO
+    {
+        Title = "With Dependencies Task",
+        Description = "Task with dependencies on existing task",
+        Duration = 2,
+        Dependencies = new List<string> { _task.Title }, 
+        Resources = new List<TaskResourceDataDTO>()
+    };
+
+    var (startWithDeps, finishWithDeps) = _projectService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
+    
+    Assert.AreEqual(_task.EarlyFinish, startWithDeps, "Task with dependencies should start when dependency finishes");
+    Assert.AreEqual(_task.EarlyFinish.AddDays(2), finishWithDeps, "Task finish should be dependency finish + duration");
+
+    var taskWithBadDeps = new TaskDataDTO
+    {
+        Title = "Bad Dependencies Task",
+        Description = "Task with non-existent dependencies",
+        Duration = 1,
+        Dependencies = new List<string> { "NonExistentTask" },
+        Resources = new List<TaskResourceDataDTO>()
+    };
+
+    var (startBadDeps, finishBadDeps) = _projectService.GetTaskDatesFromDto(taskWithBadDeps, _project.Id);
+    
+    Assert.AreEqual(expectedProjectStart, startBadDeps, "Task with invalid dependencies should start at project start");
+    Assert.AreEqual(expectedProjectStart.AddDays(1), finishBadDeps, "Task finish should be project start + duration");
+
+    var exception = Assert.ThrowsException<ArgumentException>(() =>
+        _projectService.GetTaskDatesFromDto(taskWithoutDeps, 999));
+    
+    Assert.AreEqual("Project with ID 999 not found", exception.Message, "Should throw exception with correct message");
+}
+    
+    [TestMethod]
     public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrectDependenciesAndResources()
     {
         Task dependency1 = new Task { Title = "Dependency1" };

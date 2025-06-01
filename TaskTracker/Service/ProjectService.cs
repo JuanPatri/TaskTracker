@@ -306,8 +306,6 @@ public class ProjectService
     #endregion
 
     #region Task
-
-
     public Task AddTask(TaskDataDTO taskDto)
     {
         if (_taskRepository.Find(t => t.Title == taskDto.Title) != null)
@@ -345,7 +343,6 @@ public class ProjectService
                 }
             }
         }
-    
         return taskResources;
     }
     
@@ -617,7 +614,7 @@ public class ProjectService
         return IsTaskCritical(project, taskTitle);
     }
 
-
+    
     #endregion
 
     #region Resource
@@ -663,16 +660,55 @@ public class ProjectService
             .ToList();
     }
 
-    public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive)
+    public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart, DateTime taskEarlyFinish, int requiredQuantity)
     {
-        return false;
+        Resource? resource = _resourceRepository.Find(r => r.Id == resourceId);
+        if (resource == null) return false;
+        
+        List<Task> tasksToCheck;
+
+        if (isExclusive)
+        {
+            Project? currentProject = _projectRepository.Find(p => p.Id == projectId);
+            tasksToCheck = currentProject?.Tasks
+                .Where(task => task.Resources != null && 
+                               task.Resources.Any(tr => tr.Resource.Id == resourceId))
+                .ToList() ?? new List<Task>();
+        }
+        else
+        {
+            tasksToCheck = _projectRepository.FindAll()
+                .SelectMany(p => p.Tasks ?? new List<Task>())
+                .Where(task => task.Resources != null && 
+                               task.Resources.Any(tr => tr.Resource.Id == resourceId))
+                .ToList();
+        }
+        
+        List<Task> overlappingTasks = tasksToCheck
+            .Where(task => 
+                task.Status != Status.Completed &&  
+                TasksOverlapAtLeastOneDay(task, taskEarlyStart, taskEarlyFinish))
+            .ToList();
+        
+        int usedQuantity = overlappingTasks
+            .SelectMany(task => task.Resources)
+            .Where(tr => tr.Resource.Id == resourceId)
+            .Sum(tr => tr.Quantity);
+
+        return (resource.Quantity - usedQuantity) >= requiredQuantity;
     }
 
-    public bool IsExclusiveResourceForProject(int resourceId, int projectId)
-    {
-        return _projectRepository.FindAll().Where(p => p.Id == projectId).Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
-    }
-    
+private bool TasksOverlapAtLeastOneDay(Task existingTask, DateTime newTaskStart, DateTime newTaskEnd)
+{
+    return existingTask.EarlyStart.Date <= newTaskEnd.Date && 
+           newTaskStart.Date <= existingTask.EarlyFinish.Date;
+}
+
+
+public bool IsExclusiveResourceForProject(int resourceId, int projectId)
+{
+    return _projectRepository.FindAll().Where(p => p.Id == projectId).Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
+}
     #endregion
 
     #region Notification
