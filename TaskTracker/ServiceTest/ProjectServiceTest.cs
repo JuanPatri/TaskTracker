@@ -793,59 +793,59 @@ public class
     #region TaskTest
     
     [TestMethod]
-public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
-{
-    _task.EarlyStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-    _task.EarlyFinish = _task.EarlyStart.AddDays(5);
-
-    var taskWithoutDeps = new TaskDataDTO
+    public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
     {
-        Title = "No Dependencies Task",
-        Description = "Task without any dependencies",
-        Duration = 3,
-        Dependencies = new List<string>(),
-        Resources = new List<TaskResourceDataDTO>()
-    };
+        _task.EarlyStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        _task.EarlyFinish = _task.EarlyStart.AddDays(5);
 
-    var (startNoDeps, finishNoDeps) = _projectService.GetTaskDatesFromDto(taskWithoutDeps, _project.Id);
-    
-    var expectedProjectStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-    Assert.AreEqual(expectedProjectStart, startNoDeps, "Task without dependencies should start at project start date");
-    Assert.AreEqual(expectedProjectStart.AddDays(3), finishNoDeps, "Task finish should be start + duration");
+        var taskWithoutDeps = new TaskDataDTO
+        {
+            Title = "No Dependencies Task",
+            Description = "Task without any dependencies",
+            Duration = 3,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO>()
+        };
 
-    var taskWithDeps = new TaskDataDTO
-    {
-        Title = "With Dependencies Task",
-        Description = "Task with dependencies on existing task",
-        Duration = 2,
-        Dependencies = new List<string> { _task.Title }, 
-        Resources = new List<TaskResourceDataDTO>()
-    };
+        var (startNoDeps, finishNoDeps) = _projectService.GetTaskDatesFromDto(taskWithoutDeps, _project.Id);
+        
+        var expectedProjectStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        Assert.AreEqual(expectedProjectStart, startNoDeps, "Task without dependencies should start at project start date");
+        Assert.AreEqual(expectedProjectStart.AddDays(3), finishNoDeps, "Task finish should be start + duration");
 
-    var (startWithDeps, finishWithDeps) = _projectService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
-    
-    Assert.AreEqual(_task.EarlyFinish, startWithDeps, "Task with dependencies should start when dependency finishes");
-    Assert.AreEqual(_task.EarlyFinish.AddDays(2), finishWithDeps, "Task finish should be dependency finish + duration");
+        var taskWithDeps = new TaskDataDTO
+        {
+            Title = "With Dependencies Task",
+            Description = "Task with dependencies on existing task",
+            Duration = 2,
+            Dependencies = new List<string> { _task.Title }, 
+            Resources = new List<TaskResourceDataDTO>()
+        };
 
-    var taskWithBadDeps = new TaskDataDTO
-    {
-        Title = "Bad Dependencies Task",
-        Description = "Task with non-existent dependencies",
-        Duration = 1,
-        Dependencies = new List<string> { "NonExistentTask" },
-        Resources = new List<TaskResourceDataDTO>()
-    };
+        var (startWithDeps, finishWithDeps) = _projectService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
+        
+        Assert.AreEqual(_task.EarlyFinish, startWithDeps, "Task with dependencies should start when dependency finishes");
+        Assert.AreEqual(_task.EarlyFinish.AddDays(2), finishWithDeps, "Task finish should be dependency finish + duration");
 
-    var (startBadDeps, finishBadDeps) = _projectService.GetTaskDatesFromDto(taskWithBadDeps, _project.Id);
-    
-    Assert.AreEqual(expectedProjectStart, startBadDeps, "Task with invalid dependencies should start at project start");
-    Assert.AreEqual(expectedProjectStart.AddDays(1), finishBadDeps, "Task finish should be project start + duration");
+        var taskWithBadDeps = new TaskDataDTO
+        {
+            Title = "Bad Dependencies Task",
+            Description = "Task with non-existent dependencies",
+            Duration = 1,
+            Dependencies = new List<string> { "NonExistentTask" },
+            Resources = new List<TaskResourceDataDTO>()
+        };
 
-    var exception = Assert.ThrowsException<ArgumentException>(() =>
-        _projectService.GetTaskDatesFromDto(taskWithoutDeps, 999));
-    
-    Assert.AreEqual("Project with ID 999 not found", exception.Message, "Should throw exception with correct message");
-}
+        var (startBadDeps, finishBadDeps) = _projectService.GetTaskDatesFromDto(taskWithBadDeps, _project.Id);
+        
+        Assert.AreEqual(expectedProjectStart, startBadDeps, "Task with invalid dependencies should start at project start");
+        Assert.AreEqual(expectedProjectStart.AddDays(1), finishBadDeps, "Task finish should be project start + duration");
+
+        var exception = Assert.ThrowsException<ArgumentException>(() =>
+            _projectService.GetTaskDatesFromDto(taskWithoutDeps, 999));
+        
+        Assert.AreEqual("Project with ID 999 not found", exception.Message, "Should throw exception with correct message");
+    }
     
     [TestMethod]
     public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrectDependenciesAndResources()
@@ -1421,6 +1421,66 @@ public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
     #endregion
 
     #region ResourceTest
+    
+    [TestMethod]
+public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
+{
+    _resource.Quantity = 5; 
+
+    var taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+    var taskEnd = taskStart.AddDays(3);
+    
+    _task.EarlyStart = taskStart;
+    _task.EarlyFinish = taskEnd;
+    _task.Status = Status.Blocked;
+
+    var taskResource = new TaskResource
+    {
+        Task = _task,
+        Resource = _resource,
+        Quantity = 2
+    };
+    _task.Resources = new List<TaskResource> { taskResource };
+    _project.Tasks = new List<Task> { _task };
+
+    var newTaskStart = taskStart.AddDays(1); 
+    var newTaskEnd = newTaskStart.AddDays(2);
+
+    bool isAvailable1 = _projectService.IsResourceAvailable(
+        _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 2);
+    
+    Assert.IsTrue(isAvailable1, "Should be available: 5 total - 2 used = 3 available, requesting 2");
+
+    bool isAvailable2 = _projectService.IsResourceAvailable(
+        _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 4);
+    
+    Assert.IsFalse(isAvailable2, "Should not be available: 5 total - 2 used = 3 available, requesting 4");
+
+    var noOverlapStart = taskEnd.AddDays(1); 
+    var noOverlapEnd = noOverlapStart.AddDays(2);
+    
+    bool isAvailable3 = _projectService.IsResourceAvailable(
+        _resource.Id, _project.Id, true, noOverlapStart, noOverlapEnd, 5);
+    
+    Assert.IsTrue(isAvailable3, "Should be available: no overlap, all 5 units available");
+
+    bool isAvailable4 = _projectService.IsResourceAvailable(
+        _resource.Id, _project.Id, false, newTaskStart, newTaskEnd, 3);
+    
+    Assert.IsTrue(isAvailable4, "Should be available: non-exclusive, same calculation");
+
+    _task.Status = Status.Completed;
+    
+    bool isAvailable5 = _projectService.IsResourceAvailable(
+        _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 5);
+    
+    Assert.IsTrue(isAvailable5, "Should be available: completed task doesn't count");
+
+    bool isAvailable6 = _projectService.IsResourceAvailable(
+        999, _project.Id, true, newTaskStart, newTaskEnd, 1);
+    
+    Assert.IsFalse(isAvailable6, "Should return false for non-existent resource");
+}
 
     [TestMethod]
     public void CreateResourceService()
