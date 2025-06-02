@@ -693,6 +693,7 @@ public class ProjectService
         
         List<Task> tasksToCheck;
 
+        
         if (isExclusive)
         {
             Project? currentProject = _projectRepository.Find(p => p.Id == projectId);
@@ -724,17 +725,17 @@ public class ProjectService
         return (resource.Quantity - usedQuantity) >= requiredQuantity;
     }
 
-private bool TasksOverlapAtLeastOneDay(Task existingTask, DateTime newTaskStart, DateTime newTaskEnd)
-{
-    return existingTask.EarlyStart.Date <= newTaskEnd.Date && 
-           newTaskStart.Date <= existingTask.EarlyFinish.Date;
-}
+    private bool TasksOverlapAtLeastOneDay(Task existingTask, DateTime newTaskStart, DateTime newTaskEnd)
+    {
+        return existingTask.EarlyStart.Date <= newTaskEnd.Date && 
+               newTaskStart.Date <= existingTask.EarlyFinish.Date;
+    }
 
 
-public bool IsExclusiveResourceForProject(int resourceId, int projectId)
-{
-    return _projectRepository.FindAll().Where(p => p.Id == projectId).Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
-}
+    public bool IsExclusiveResourceForProject(int resourceId, int projectId)
+    {
+        return _projectRepository.FindAll().Where(p => p.Id == projectId).Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
+    }
     #endregion
 
     #region Notification

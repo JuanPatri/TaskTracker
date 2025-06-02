@@ -55,6 +55,11 @@
         </select>
     </div>
 
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="0" />
+    </div>
+    
     <button type="submit" class="btn btn-primary">Create Exclusive Resource</button>
 </EditForm>
 
