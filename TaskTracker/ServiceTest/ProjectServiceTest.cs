@@ -16,8 +16,7 @@ using Task = Domain.Task;
 namespace ServiceTest;
 
 [TestClass]
-public class
-    ProjectServiceTest
+public class ProjectServiceTest
 {
     private ProjectService _projectService;
     private ProjectRepository _projectRepository;
@@ -1169,96 +1168,11 @@ public class
      
          Assert.AreEqual(1, resource.Count);
      }
-
-    #region ResourceTest
     
-    #endregion
 
     #region ResourceTypeTest
 
-    [TestMethod]
-    public void CreateResourceTypeService()
-    {
-        Assert.IsNotNull(_projectService);
-    }
-
-    [TestMethod]
-    public void AddResourceTypeShouldReturnResource()
-    {
-        ResourceTypeDto resourceType = new ResourceTypeDto()
-        {
-            Id = 4,
-            Name = "name"
-        };
-
-        ResourceType? createdResourceType = _projectService.AddResourceType(resourceType);
-        Assert.IsNotNull(createdResourceType);
-        Assert.AreEqual(_resourceTypeRepository.FindAll().Last(), createdResourceType);
-    }
-
-    [TestMethod]
-    public void AddResourceTypeShouldThrowExceptionIfResourceAlreadyExists()
-    {
-        ResourceTypeDto resourceType = new ResourceTypeDto()
-        {
-            Id = 4,
-            Name = "Human"
-        };
-
-        Assert.ThrowsException<Exception>(() => _projectService.AddResourceType(resourceType));
-    }
-
-    [TestMethod]
-    public void RemoveResourceTypeShouldRemoveResourceType()
-    {
-        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 4);
-
-        ResourceTypeDto resourceToDelete = new ResourceTypeDto()
-        {
-            Id = 1,
-            Name = "Human",
-        };
-
-        _projectService.RemoveResourceType(resourceToDelete);
-
-        Assert.AreEqual(_resourceTypeRepository.FindAll().Count, 3);
-    }
-
-    [TestMethod]
-    public void GetResourceTypeReturnResourceType()
-    {
-        ResourceTypeDto resourceToFind = new ResourceTypeDto()
-        {
-            Id = 1,
-            Name = "Resource"
-        };
-
-        Assert.AreEqual(_projectService.GetResourceType(resourceToFind).Name, "Human");
-    }
-
-    [TestMethod]
-    public void GetAllResourceTypeReturnAllResourceType()
-    {
-        List<ResourceType> resourcesTypes = _projectService.GetAllResourcesType();
-
-        Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Human"));
-        Assert.IsTrue(resourcesTypes.Any(r => r.Name == "Software"));
-    }
-
-    [TestMethod]
-    public void UpdateResourceTypeShouldModifyResourceTypeData()
-    {
-        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Human");
-
-        ResourceTypeDto resourceTypeDTO = new ResourceTypeDto()
-        {
-            Id = 1,
-            Name = "Resource"
-        };
-
-        _projectService.UpdateResourceType(resourceTypeDTO);
-        Assert.AreEqual(_resourceTypeRepository.Find(r => r.Id == 1).Name, "Resource");
-    }
+    
 
     [TestMethod]
     public void GetTasksForProjectWithIdTest()

@@ -5,7 +5,7 @@
 @using Service
 
 @inject ResourceService ResourceService
-@inject ProjectService ProjectService
+@inject ResourceTypeService ResourceTypeService
 @inject SessionService SessionService
 @inject NavigationManager NavigationManager
 
@@ -64,7 +64,7 @@
 
     protected override void OnInitialized()
     {
-        _resourceTypes = ProjectService.GetAllResourcesType()
+        _resourceTypes = ResourceTypeService.GetAllResourcesType()
                           .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
                           .ToList();
     }

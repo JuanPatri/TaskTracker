@@ -5,10 +5,10 @@ namespace Repository;
 public class ResourceTypeRepository : IRepository<ResourceType>
 {
     private readonly List<ResourceType> _resourceTypes;
-    //private int _idCounter;
+
     public ResourceTypeRepository()
     {
-        //_idCounter = 1;
+
         _resourceTypes = new List<ResourceType>()
         {
             new ResourceType()

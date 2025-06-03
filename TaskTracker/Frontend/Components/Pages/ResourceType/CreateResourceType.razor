@@ -2,7 +2,7 @@
 @using DTOs.ResourceTypeDTOs
 @using Service
 
-@inject ProjectService ProjectService
+@inject ResourceTypeService ResourceTypeService
 @inject NavigationManager NavigationManager
 
 <h3>Create Resource Type</h3>
@@ -37,7 +37,7 @@
     {
         try
         {
-            ProjectService.AddResourceType(_newType);
+            ResourceTypeService.AddResourceType(_newType);
             _successMessage = "Resource type created successfully.";
             _errorMessage = string.Empty;
             _newType = new ResourceTypeDto(); 
