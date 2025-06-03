@@ -32,6 +32,7 @@ builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<TaskService>();
+builder.Services.AddSingleton<ResourceService>();
 
 
 var app = builder.Build();

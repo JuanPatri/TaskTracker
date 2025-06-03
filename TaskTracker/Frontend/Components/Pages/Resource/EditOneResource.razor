@@ -4,6 +4,7 @@
 @using Service
 
 @using Task = System.Threading.Tasks.Task
+@inject ResourceService ResourceService
 @inject ProjectService ProjectService
 @inject NavigationManager NavigationManager
 
@@ -71,7 +72,7 @@ else
         _resourceTypes = ProjectService.GetAllResourcesType();
 
         GetResourceDto dto = new GetResourceDto { Name = name };
-        _resource = ProjectService.GetResource(dto);
+        _resource = ResourceService.GetResource(dto);
 
         if (_resource != null)
         {
@@ -88,7 +89,7 @@ else
     {
         try
         {
-            ProjectService.UpdateResource(_resourceDto);
+            ResourceService.UpdateResource(_resourceDto);
             _successMessage = "Resource updated successfully.";
             _errorMessage = string.Empty;
             await Task.Delay(2000);

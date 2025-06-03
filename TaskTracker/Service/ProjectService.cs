@@ -532,51 +532,12 @@ public class ProjectService
         return projectWithTask?.Administrator.Email;
     }
 
-    #endregion
-
-    #region Resource
-
-    public Resource? AddResource(ResourceDataDto resource)
+    public bool IsExclusiveResourceForProject(int resourceId, int projectId)
     {
-        if (_resourceRepository.Find(r => r.Name == resource.Name) != null)
-        {
-            throw new Exception("Resource already exists");
-        }
-
-        ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
-        Resource? createdResource = _resourceRepository.Add(Resource.FromDto(resource, resourceType));
-        return createdResource;
+        return _projectRepository.FindAll().Where(p => p.Id == projectId)
+            .Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
     }
-
-    public void RemoveResource(GetResourceDto resource)
-    {
-        _resourceRepository.Delete(resource.Name);
-    }
-
-    public Resource? GetResource(GetResourceDto resource)
-    {
-        return _resourceRepository.Find(r => r.Name == resource.Name);
-    }
-
-    public List<Resource> GetAllResources()
-    {
-        return _resourceRepository.FindAll().ToList();
-    }
-
-    public Resource? UpdateResource(ResourceDataDto resourceDto)
-    {
-        ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
-        Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
-        return updatedResource;
-    }
-
-    public List<GetResourceDto> GetResourcesForSystem()
-    {
-        return _resourceRepository.FindAll()
-            .Select(resource => new GetResourceDto { Name = resource.Name })
-            .ToList();
-    }
-
+    
     public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart,
         DateTime taskEarlyFinish, int requiredQuantity)
     {
@@ -616,21 +577,15 @@ public class ProjectService
 
         return (resource.Quantity - usedQuantity) >= requiredQuantity;
     }
-
+    
     private bool TasksOverlapAtLeastOneDay(Task existingTask, DateTime newTaskStart, DateTime newTaskEnd)
     {
         return existingTask.EarlyStart.Date <= newTaskEnd.Date &&
                newTaskStart.Date <= existingTask.EarlyFinish.Date;
     }
-
-
-    public bool IsExclusiveResourceForProject(int resourceId, int projectId)
-    {
-        return _projectRepository.FindAll().Where(p => p.Id == projectId)
-            .Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
-    }
-
+    
     #endregion
+
 
     #region Notification
 

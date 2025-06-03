@@ -955,6 +955,109 @@ public class
 
     #endregion
 
+    [TestMethod]
+    public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
+    {
+        var exclusiveResource = new Resource
+        {
+            Id = 100,
+            Name = "Exclusive Printer",
+            Description = "Project exclusive printer",
+            Type = _resource.Type
+        };
+
+        _project.ExclusiveResources = new List<Resource> { exclusiveResource };
+
+        bool isExclusive1 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
+        Assert.IsTrue(isExclusive1, "Should return true for exclusive resource in the project");
+
+        bool isExclusive2 = _projectService.IsExclusiveResourceForProject(_resource.Id, _project.Id);
+        Assert.IsFalse(isExclusive2, "Should return false for non-exclusive resource");
+
+        bool isExclusive3 = _projectService.IsExclusiveResourceForProject(999, _project.Id);
+        Assert.IsFalse(isExclusive3, "Should return false for non-existent resource");
+
+        bool isExclusive4 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, 999);
+        Assert.IsFalse(isExclusive4, "Should return false for non-existent project");
+
+        var anotherProject = new Project
+        {
+            Id = 50,
+            Name = "Another Project",
+            Description = "Different project",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            ExclusiveResources = new List<Resource> { exclusiveResource }
+        };
+        _projectRepository.Add(anotherProject);
+
+        bool isExclusive5 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
+        Assert.IsTrue(isExclusive5, "Should still return true - resource is in the target project");
+
+        bool isExclusive6 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, anotherProject.Id);
+        Assert.IsTrue(isExclusive6, "Should return true for the other project that also has the resource");
+    }
+    
+    [TestMethod]
+    public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
+    {
+        _resource.Quantity = 5;
+
+        var taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        var taskEnd = taskStart.AddDays(3);
+
+        _task.EarlyStart = taskStart;
+        _task.EarlyFinish = taskEnd;
+        _task.Status = Status.Blocked;
+
+        var taskResource = new TaskResource
+        {
+            Task = _task,
+            Resource = _resource,
+            Quantity = 2
+        };
+        _task.Resources = new List<TaskResource> { taskResource };
+        _project.Tasks = new List<Task> { _task };
+
+        var newTaskStart = taskStart.AddDays(1);
+        var newTaskEnd = newTaskStart.AddDays(2);
+
+        bool isAvailable1 = _projectService.IsResourceAvailable(
+            _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 2);
+
+        Assert.IsTrue(isAvailable1, "Should be available: 5 total - 2 used = 3 available, requesting 2");
+
+        bool isAvailable2 = _projectService.IsResourceAvailable(
+            _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 4);
+
+        Assert.IsFalse(isAvailable2, "Should not be available: 5 total - 2 used = 3 available, requesting 4");
+
+        var noOverlapStart = taskEnd.AddDays(1);
+        var noOverlapEnd = noOverlapStart.AddDays(2);
+
+        bool isAvailable3 = _projectService.IsResourceAvailable(
+            _resource.Id, _project.Id, true, noOverlapStart, noOverlapEnd, 5);
+
+        Assert.IsTrue(isAvailable3, "Should be available: no overlap, all 5 units available");
+
+        bool isAvailable4 = _projectService.IsResourceAvailable(
+            _resource.Id, _project.Id, false, newTaskStart, newTaskEnd, 3);
+
+        Assert.IsTrue(isAvailable4, "Should be available: non-exclusive, same calculation");
+
+        _task.Status = Status.Completed;
+
+        bool isAvailable5 = _projectService.IsResourceAvailable(
+            _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 5);
+
+        Assert.IsTrue(isAvailable5, "Should be available: completed task doesn't count");
+
+        bool isAvailable6 = _projectService.IsResourceAvailable(
+            999, _project.Id, true, newTaskStart, newTaskEnd, 1);
+
+        Assert.IsFalse(isAvailable6, "Should return false for non-existent resource");
+    }
+
     
      [TestMethod]
      public void GetResourcesWithName_ShouldReturnResourceWithCorrectQuantity()
@@ -1068,205 +1171,7 @@ public class
      }
 
     #region ResourceTest
-    [TestMethod]
-public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
-{
-    var exclusiveResource = new Resource
-    {
-        Id = 100,
-        Name = "Exclusive Printer",
-        Description = "Project exclusive printer",
-        Type = _resource.Type
-    };
-
-    _project.ExclusiveResources = new List<Resource> { exclusiveResource };
-
-    bool isExclusive1 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
-    Assert.IsTrue(isExclusive1, "Should return true for exclusive resource in the project");
-
-    bool isExclusive2 = _projectService.IsExclusiveResourceForProject(_resource.Id, _project.Id);
-    Assert.IsFalse(isExclusive2, "Should return false for non-exclusive resource");
-
-    bool isExclusive3 = _projectService.IsExclusiveResourceForProject(999, _project.Id);
-    Assert.IsFalse(isExclusive3, "Should return false for non-existent resource");
-
-    bool isExclusive4 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, 999);
-    Assert.IsFalse(isExclusive4, "Should return false for non-existent project");
-
-    var anotherProject = new Project
-    {
-        Id = 50,
-        Name = "Another Project",
-        Description = "Different project",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-        Administrator = new User(),
-        ExclusiveResources = new List<Resource> { exclusiveResource }
-    };
-    _projectRepository.Add(anotherProject);
-
-    bool isExclusive5 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
-    Assert.IsTrue(isExclusive5, "Should still return true - resource is in the target project");
-
-    bool isExclusive6 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, anotherProject.Id);
-    Assert.IsTrue(isExclusive6, "Should return true for the other project that also has the resource");
-}
-    [TestMethod]
-public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
-{
-    _resource.Quantity = 5; 
-
-    var taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-    var taskEnd = taskStart.AddDays(3);
     
-    _task.EarlyStart = taskStart;
-    _task.EarlyFinish = taskEnd;
-    _task.Status = Status.Blocked;
-
-    var taskResource = new TaskResource
-    {
-        Task = _task,
-        Resource = _resource,
-        Quantity = 2
-    };
-    _task.Resources = new List<TaskResource> { taskResource };
-    _project.Tasks = new List<Task> { _task };
-
-    var newTaskStart = taskStart.AddDays(1); 
-    var newTaskEnd = newTaskStart.AddDays(2);
-
-    bool isAvailable1 = _projectService.IsResourceAvailable(
-        _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 2);
-    
-    Assert.IsTrue(isAvailable1, "Should be available: 5 total - 2 used = 3 available, requesting 2");
-
-    bool isAvailable2 = _projectService.IsResourceAvailable(
-        _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 4);
-    
-    Assert.IsFalse(isAvailable2, "Should not be available: 5 total - 2 used = 3 available, requesting 4");
-
-    var noOverlapStart = taskEnd.AddDays(1); 
-    var noOverlapEnd = noOverlapStart.AddDays(2);
-    
-    bool isAvailable3 = _projectService.IsResourceAvailable(
-        _resource.Id, _project.Id, true, noOverlapStart, noOverlapEnd, 5);
-    
-    Assert.IsTrue(isAvailable3, "Should be available: no overlap, all 5 units available");
-
-    bool isAvailable4 = _projectService.IsResourceAvailable(
-        _resource.Id, _project.Id, false, newTaskStart, newTaskEnd, 3);
-    
-    Assert.IsTrue(isAvailable4, "Should be available: non-exclusive, same calculation");
-
-    _task.Status = Status.Completed;
-    
-    bool isAvailable5 = _projectService.IsResourceAvailable(
-        _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 5);
-    
-    Assert.IsTrue(isAvailable5, "Should be available: completed task doesn't count");
-
-    bool isAvailable6 = _projectService.IsResourceAvailable(
-        999, _project.Id, true, newTaskStart, newTaskEnd, 1);
-    
-    Assert.IsFalse(isAvailable6, "Should return false for non-existent resource");
-}
-
-    [TestMethod]
-    public void CreateResourceService()
-    {
-        Assert.IsNotNull(_projectService);
-    }
-
-    [TestMethod]
-    public void AddResourceShouldReturnResource()
-    {
-        ResourceDataDto resource = new ResourceDataDto()
-        {
-            Name = "name",
-            Description = "description",
-            TypeResource = 1,
-            Quantity = 5
-        };
-
-        Resource? createdResource = _projectService.AddResource(resource);
-        Assert.IsNotNull(createdResource);
-        Assert.AreEqual(_resourceRepository.FindAll().Last(), createdResource);
-    }
-
-    [TestMethod]
-    public void AddResourceShouldThrowExceptionIfResourceAlreadyExists()
-    {
-        ResourceDataDto resource = new ResourceDataDto()
-        {
-            Name = "Resource",
-            Description = "description",
-            TypeResource = 1
-        };
-
-        Assert.ThrowsException<Exception>(() => _projectService.AddResource(resource));
-    }
-
-    [TestMethod]
-    public void RemoveResourceShouldRemoveResource()
-    {
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
-
-        GetResourceDto resourceToDelete = new GetResourceDto()
-        {
-            Name = "Resource"
-        };
-
-        _projectService.RemoveResource(resourceToDelete);
-
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
-    }
-
-    [TestMethod]
-    public void GetResourceReturnResource()
-    {
-        GetResourceDto resourceToFind = new GetResourceDto()
-        {
-            Name = "Resource"
-        };
-
-        Assert.AreEqual(_projectService.GetResource(resourceToFind), _resource);
-    }
-
-    [TestMethod]
-    public void GetAllResourceReturnAllResource()
-    {
-        Resource newResource = new Resource()
-        {
-            Name = "Resource2",
-            Description = "Description",
-            Type = new ResourceType()
-            {
-                Id = 4,
-                Name = "Type"
-            }
-        };
-        _resourceRepository.Add(newResource);
-        List<Resource> resources = _projectService.GetAllResources();
-
-        Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
-        Assert.IsTrue(resources.Any(r => r.Name == "Resource2"));
-    }
-
-    [TestMethod]
-    public void UpdateResourceShouldModifyResourceData()
-    {
-        Assert.AreEqual(_resource.Description, "Description");
-
-        ResourceDataDto resourceDTO = new ResourceDataDto()
-        {
-            Name = "Resource",
-            Description = "new description",
-            TypeResource = 2
-        };
-
-        _projectService.UpdateResource(resourceDTO);
-        Assert.AreEqual(_resource.Description, "new description");
-    }
-
     #endregion
 
     #region ResourceTypeTest
@@ -1376,29 +1281,6 @@ public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUs
         List<GetTaskDTO> tasks = _projectService.GetTasksForProjectWithId(1);
 
         Assert.AreEqual(2, tasks.Count);
-    }
-
-    [TestMethod]
-    public void GetResourcesForSystemShouldReturnAllResourceNames()
-    {
-        Resource additionalResource = new Resource()
-        {
-            Name = "Additional Resource",
-            Description = "Additional description",
-            Type = new ResourceType()
-            {
-                Id = 3,
-                Name = "Additional Type"
-            }
-        };
-        _resourceRepository.Add(additionalResource);
-
-        List<GetResourceDto> resources = _projectService.GetResourcesForSystem();
-
-        Assert.IsNotNull(resources);
-        Assert.AreEqual(2, resources.Count);
-        Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
-        Assert.IsTrue(resources.Any(r => r.Name == "Additional Resource"));
     }
 
     [TestMethod]

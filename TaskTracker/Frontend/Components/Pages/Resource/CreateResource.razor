@@ -1,8 +1,10 @@
 @page "/CreateResource"
+@using Domain
 @using DTOs.ResourceDTOs
 @using DTOs.ResourceTypeDTOs
 @using Service
 
+@inject ResourceService ResourceService
 @inject ProjectService ProjectService
 @inject SessionService SessionService
 @inject NavigationManager NavigationManager
@@ -71,7 +73,7 @@
     {
         try
         { 
-            ProjectService.AddResource(_newResource);
+            ResourceService.AddResource(_newResource);
 
             _successMessage = "Resource created successfully!";
             _errorMessage = string.Empty;
