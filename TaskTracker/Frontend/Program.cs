@@ -31,6 +31,7 @@ builder.Services.AddSingleton<IRepository<Notification>, NotificationRepository>
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<ProjectService>();
+builder.Services.AddSingleton<TaskService>();
 
 
 var app = builder.Build();

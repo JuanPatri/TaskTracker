@@ -6,6 +6,7 @@
 
 @inject NavigationManager NavigationManager
 @inject SessionService SessionService
+@inject TaskService TaskService
 @inject ProjectService ProjectService
 
 <PageTitle>Task Management</PageTitle>
@@ -120,7 +121,7 @@ else
             
             foreach (var taskInfo in projectTasks)
             {
-                var task = ProjectService.GetTaskByTitle(taskInfo.Title);
+                var task = TaskService.GetTaskByTitle(taskInfo.Title);
                 
                 if (task != null)
                 {
@@ -162,7 +163,7 @@ else
     {
         try
         {
-            ProjectService.RemoveTask(deleteTask);
+            TaskService.RemoveTask(deleteTask);
             
             if (SelectedProjectId > 0)
             {

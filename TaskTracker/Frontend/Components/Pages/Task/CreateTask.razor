@@ -1,12 +1,15 @@
 @page "/CreateTask"
+@using Domain
 @using DTOs.TaskDTOs
 @using Service
 @using DTOs.ProjectDTOs
 @using DTOs.ResourceDTOs
 @using DTOs.TaskResourceDTOs
+@using Task = System.Threading.Tasks.Task
 
 @inject NavigationManager NavigationManager
 @inject SessionService Session
+@inject TaskService TaskService
 @inject ProjectService ProjectService
 
 <PageTitle>Create Task - TaskTrackPro</PageTitle>
@@ -222,7 +225,7 @@
             _newTask.Dependencies = _taskDependencies;
             _newTask.Resources = _taskResourceDataDtos;
 
-            ProjectService.AddTask(_newTask);
+            TaskService.AddTask(_newTask);
             ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
 
             _successMessage = "Task created successfully!";
@@ -246,7 +249,7 @@
     {
         if (!string.IsNullOrWhiteSpace(_selectedDependencyTaskTitle) && !string.IsNullOrWhiteSpace(_selectedDependencyType))
         {
-            var selectedTask = ProjectService.GetTaskByTitle(_selectedDependencyTaskTitle);
+            var selectedTask = TaskService.GetTaskByTitle(_selectedDependencyTaskTitle);
 
             if (_selectedDependencyType == "FS")
             {
@@ -302,7 +305,7 @@
                 Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos) 
             };
 
-            var (taskEarlyStart, taskEarlyFinish) = ProjectService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
+            var (taskEarlyStart, taskEarlyFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
 
             if (ProjectService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject, 
                     taskEarlyStart, taskEarlyFinish, _selectedQuantity))

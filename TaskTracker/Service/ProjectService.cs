@@ -274,6 +274,7 @@ public class ProjectService
         CalculateEarlyTimes(project);
         return project.Tasks.Max(t => t.EarlyFinish);
     }
+
     public GetProjectDTO? GetProjectWithCriticalPath(int projectId)
     {
         var project = GetProjectById(projectId);
@@ -297,131 +298,11 @@ public class ProjectService
                 EarlyFinish = t.EarlyFinish,
                 LateStart = t.LateStart,
                 LateFinish = t.LateFinish,
-                DateCompleated = t.DateCompleated 
+                DateCompleated = t.DateCompleated
             }).ToList(),
             StartDate = project.StartDate
         };
     }
-
-    #endregion
-
-    #region Task
-    public Task AddTask(TaskDataDTO taskDto)
-    {
-        if (_taskRepository.Find(t => t.Title == taskDto.Title) != null)
-        {
-            throw new Exception("Task already exists");
-        }
-
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
-
-        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
-
-        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);
-
-        return _taskRepository.Add(createdTask);
-    }
-    private List<TaskResource> GetTaskResourcesWithDto(List<TaskResourceDataDTO> taskResourceData)
-    {
-        List<TaskResource> taskResources = new List<TaskResource>();
-
-        if (taskResourceData != null)
-        {
-            foreach (TaskResourceDataDTO resourceData in taskResourceData)
-            {
-                Resource resource = _resourceRepository.Find(r => r.Id == resourceData.ResourceId);
-
-                if (resource != null)
-                {
-                    TaskResource taskResource = new TaskResource()
-                    {
-                        Resource = resource,
-                        Quantity = resourceData.Quantity
-                    };
-            
-                    taskResources.Add(taskResource);
-                }
-            }
-        }
-        return taskResources;
-    }
-    
-    public Task GetTaskByTitle(string title)
-    {
-        return _taskRepository.Find(t => t.Title == title);
-    }
-
-    public List<Task> GetAllTasks()
-    {
-        return _taskRepository.FindAll().ToList();
-    }
-
-    public Task? UpdateTask(TaskDataDTO taskDto)
-    {
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
-
-        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
-
-        return _taskRepository.Update(Task.FromDto(taskDto, taskResourceList, dependencies));
-    }
-
-    public void RemoveTask(GetTaskDTO task)
-    {
-        _taskRepository.Delete(task.Title);
-
-        foreach (var project in _projectRepository.FindAll())
-        {
-            project.Tasks.RemoveAll(projTask => projTask.Title == task.Title);
-        }
-    }
-
-    public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
-    {
-        Project? project = GetProjectById(projectId);
-        if (project == null) return new List<GetTaskDTO>();
-
-        return project.Tasks
-            .Select(task => new GetTaskDTO { Title = task.Title })
-            .ToList();
-    }
-
-    private Project? GetProjectById(int projectId)
-    {
-        return _projectRepository.Find(project => project.Id == projectId);
-    }
-
-    public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
-    {
-        Project? project = _projectRepository.Find(p => p.Id == projectId);
-
-        if (project == null)
-        {
-            throw new ArgumentException($"No project found with the ID {projectId}.");
-        }
-
-        Task? taskInRepository = _taskRepository.Find(t => t.Title == taskDto.Title);
-
-        if (taskInRepository == null)
-        {
-            throw new InvalidOperationException("Task must be added to repository before linking to project.");
-        }
-
-        if (!project.Tasks.Contains(taskInRepository))
-        {
-            project.Tasks.Add(taskInRepository);
-        }
-
-        _projectRepository.Update(project);
-    }
-
-
-    public bool ValidateTaskStatus(string title, Status status)
-    {
-        List<Task> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
-
-        return taskDependencies.Count < 0 || status == Status.Pending;
-    }
-
 
     public void CalculateEarlyTimes(Project project)
     {
@@ -591,19 +472,9 @@ public class ProjectService
         return false;
     }
 
-
-    public bool CanMarkTaskAsCompleted(TaskDataDTO dto)
+    private Project? GetProjectById(int projectId)
     {
-        var task = _taskRepository.Find(t => t.Title == dto.Title);
-        if (task == null) return false;
-
-        return task.Dependencies.All(d => d.Status == Status.Completed);
-    }
-
-    public string? GetAdminEmailByTaskTitle(string title)
-    {
-        Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
-        return projectWithTask?.Administrator.Email;
+        return _projectRepository.Find(project => project.Id == projectId);
     }
     
     public bool IsTaskCriticalById(int projectId, string taskTitle)
@@ -613,34 +484,54 @@ public class ProjectService
 
         return IsTaskCritical(project, taskTitle);
     }
-
-    public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
+    
+    public bool IsTaskCritical(Project project, string taskTitle)
     {
-        var project = _projectRepository.Find(p => p.Id == projectId);
-        if (project == null)
-            throw new ArgumentException($"Project with ID {projectId} not found");
+        if (project == null || project.Tasks == null)
+        {
+            return false;
+        }
 
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies ?? new List<string>());
-        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources ?? new List<TaskResourceDataDTO>());
-        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);    
-    
-        DateTime earlyStart;
-    
-        if (createdTask.Dependencies == null || createdTask.Dependencies.Count == 0)
+        var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
+        if (task == null)
         {
-            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            return false;
         }
-        else
+
+        var criticalPath = GetCriticalPath(project);
+        return criticalPath.Any(task => task.Title.Equals(taskTitle));
+    }
+    
+    public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
+    {
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+
+        if (project == null)
         {
-            earlyStart = createdTask.Dependencies.Max(dep => dep.EarlyFinish);
+            throw new ArgumentException($"No project found with the ID {projectId}.");
         }
+
+        Task? taskInRepository = _taskRepository.Find(t => t.Title == taskDto.Title);
+
+        if (taskInRepository == null)
+        {
+            throw new InvalidOperationException("Task must be added to repository before linking to project.");
+        }
+
+        if (!project.Tasks.Contains(taskInRepository))
+        {
+            project.Tasks.Add(taskInRepository);
+        }
+
+        _projectRepository.Update(project);
+    }
     
-        DateTime earlyFinish = earlyStart.AddDays(createdTask.Duration);
-    
-        return (earlyStart, earlyFinish);
+    public string? GetAdminEmailByTaskTitle(string title)
+    {
+        Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
+        return projectWithTask?.Administrator.Email;
     }
 
-    
     #endregion
 
     #region Resource
@@ -686,19 +577,20 @@ public class ProjectService
             .ToList();
     }
 
-    public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart, DateTime taskEarlyFinish, int requiredQuantity)
+    public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart,
+        DateTime taskEarlyFinish, int requiredQuantity)
     {
         Resource? resource = _resourceRepository.Find(r => r.Id == resourceId);
         if (resource == null) return false;
-        
+
         List<Task> tasksToCheck;
 
-        
+
         if (isExclusive)
         {
             Project? currentProject = _projectRepository.Find(p => p.Id == projectId);
             tasksToCheck = currentProject?.Tasks
-                .Where(task => task.Resources != null && 
+                .Where(task => task.Resources != null &&
                                task.Resources.Any(tr => tr.Resource.Id == resourceId))
                 .ToList() ?? new List<Task>();
         }
@@ -706,17 +598,17 @@ public class ProjectService
         {
             tasksToCheck = _projectRepository.FindAll()
                 .SelectMany(p => p.Tasks ?? new List<Task>())
-                .Where(task => task.Resources != null && 
+                .Where(task => task.Resources != null &&
                                task.Resources.Any(tr => tr.Resource.Id == resourceId))
                 .ToList();
         }
-        
+
         List<Task> overlappingTasks = tasksToCheck
-            .Where(task => 
-                task.Status != Status.Completed &&  
+            .Where(task =>
+                task.Status != Status.Completed &&
                 TasksOverlapAtLeastOneDay(task, taskEarlyStart, taskEarlyFinish))
             .ToList();
-        
+
         int usedQuantity = overlappingTasks
             .SelectMany(task => task.Resources)
             .Where(tr => tr.Resource.Id == resourceId)
@@ -727,35 +619,20 @@ public class ProjectService
 
     private bool TasksOverlapAtLeastOneDay(Task existingTask, DateTime newTaskStart, DateTime newTaskEnd)
     {
-        return existingTask.EarlyStart.Date <= newTaskEnd.Date && 
+        return existingTask.EarlyStart.Date <= newTaskEnd.Date &&
                newTaskStart.Date <= existingTask.EarlyFinish.Date;
     }
 
 
     public bool IsExclusiveResourceForProject(int resourceId, int projectId)
     {
-        return _projectRepository.FindAll().Where(p => p.Id == projectId).Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
+        return _projectRepository.FindAll().Where(p => p.Id == projectId)
+            .Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
     }
+
     #endregion
 
     #region Notification
-
-    public bool IsTaskCritical(Project project, string taskTitle)
-    {
-        if (project == null || project.Tasks == null)
-        {
-            return false;
-        }
-
-        var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
-        if (task == null)
-        {
-            return false;
-        }
-
-        var criticalPath = GetCriticalPath(project);
-        return criticalPath.Any(task => task.Title.Equals(taskTitle));
-    }
 
     public TypeOfNotification ObtenerTipoDeNotificacionPorImpacto(int impacto)
     {
@@ -856,6 +733,15 @@ public class ProjectService
             .ToList();
     }
 
+    public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
+    {
+        Project? project = GetProjectById(projectId);
+        if (project == null) return new List<GetTaskDTO>();
+
+        return project.Tasks
+            .Select(task => new GetTaskDTO { Title = task.Title })
+            .ToList();
+    }
     #endregion
 
     #region ResourceType

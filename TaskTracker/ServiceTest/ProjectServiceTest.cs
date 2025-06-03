@@ -787,521 +787,7 @@ public class
         _projectService.SelectedProject = null;
         Assert.IsNull(_projectService.SelectedProject);
     }
-
-    #endregion
-
-    #region TaskTest
     
-    [TestMethod]
-    public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
-    {
-        _task.EarlyStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        _task.EarlyFinish = _task.EarlyStart.AddDays(5);
-
-        var taskWithoutDeps = new TaskDataDTO
-        {
-            Title = "No Dependencies Task",
-            Description = "Task without any dependencies",
-            Duration = 3,
-            Dependencies = new List<string>(),
-            Resources = new List<TaskResourceDataDTO>()
-        };
-
-        var (startNoDeps, finishNoDeps) = _projectService.GetTaskDatesFromDto(taskWithoutDeps, _project.Id);
-        
-        var expectedProjectStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        Assert.AreEqual(expectedProjectStart, startNoDeps, "Task without dependencies should start at project start date");
-        Assert.AreEqual(expectedProjectStart.AddDays(3), finishNoDeps, "Task finish should be start + duration");
-
-        var taskWithDeps = new TaskDataDTO
-        {
-            Title = "With Dependencies Task",
-            Description = "Task with dependencies on existing task",
-            Duration = 2,
-            Dependencies = new List<string> { _task.Title }, 
-            Resources = new List<TaskResourceDataDTO>()
-        };
-
-        var (startWithDeps, finishWithDeps) = _projectService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
-        
-        Assert.AreEqual(_task.EarlyFinish, startWithDeps, "Task with dependencies should start when dependency finishes");
-        Assert.AreEqual(_task.EarlyFinish.AddDays(2), finishWithDeps, "Task finish should be dependency finish + duration");
-
-        var taskWithBadDeps = new TaskDataDTO
-        {
-            Title = "Bad Dependencies Task",
-            Description = "Task with non-existent dependencies",
-            Duration = 1,
-            Dependencies = new List<string> { "NonExistentTask" },
-            Resources = new List<TaskResourceDataDTO>()
-        };
-
-        var (startBadDeps, finishBadDeps) = _projectService.GetTaskDatesFromDto(taskWithBadDeps, _project.Id);
-        
-        Assert.AreEqual(expectedProjectStart, startBadDeps, "Task with invalid dependencies should start at project start");
-        Assert.AreEqual(expectedProjectStart.AddDays(1), finishBadDeps, "Task finish should be project start + duration");
-
-        var exception = Assert.ThrowsException<ArgumentException>(() =>
-            _projectService.GetTaskDatesFromDto(taskWithoutDeps, 999));
-        
-        Assert.AreEqual("Project with ID 999 not found", exception.Message, "Should throw exception with correct message");
-    }
-    
-    [TestMethod]
-    public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrectDependenciesAndResources()
-    {
-        Task dependency1 = new Task { Title = "Dependency1" };
-        Task dependency2 = new Task { Title = "Dependency2" };
-        _taskRepository.Add(dependency1);
-        _taskRepository.Add(dependency2);
-
-        Resource existingResource = _resource; 
-
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Task With Real Dependencies And Resources",
-            Description = "Task that has real dependencies and resources",
-            Duration = 3,
-            Status = Status.Pending,
-            Dependencies = new List<string> { "Dependency1", "Dependency2" },
-            Resources = new List<TaskResourceDataDTO>
-            {
-                new TaskResourceDataDTO { TaskTitle = "Task With Real Dependencies And Resources", ResourceId = existingResource.Id, Quantity = 2 }
-            }
-        };
-
-        Task addedTask = _projectService.AddTask(taskDto);
-
-        Assert.IsNotNull(addedTask);
-        Assert.IsNotNull(addedTask.Resources);
-        Assert.AreEqual(1, addedTask.Resources.Count); 
-        Assert.IsTrue(addedTask.Resources.Any(tr => tr.Resource.Name == "Resource" && tr.Quantity == 2));
-    }
-
-    [TestMethod]
-    public void AddTask_WithDuplicateTitle_ShouldThrowException()
-    {
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Test Task",
-            Description = "This is a duplicate task",
-            Duration = 2,
-            Status = Status.Pending,
-            Dependencies = new List<string>(),
-            Resources = new List<TaskResourceDataDTO>()
-        };
-
-        Assert.ThrowsException<Exception>(() => _projectService.AddTask(taskDto));
-    }
-
-    [TestMethod]
-    public void AddTask_WithNonExistentDependenciesAndResources_ShouldAddTaskWithEmptyCollections()
-    {
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Task With Nonexistent Dependencies",
-            Description = "This task refers to non-existent dependencies and resources",
-            Duration = 2,
-            Status = Status.Pending,
-            Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
-            Resources = new List<TaskResourceDataDTO>
-            {
-                new TaskResourceDataDTO {TaskTitle = "NonexistentDep1", ResourceId = 99999, Quantity = 1 },
-                new TaskResourceDataDTO { TaskTitle = "NonexistentDep2", ResourceId = 99998, Quantity = 2 }
-            }
-        };
-
-        Task addedTask = _projectService.AddTask(taskDto);
-    
-        Assert.IsNotNull(addedTask);
-        Assert.AreEqual(0, addedTask.Dependencies.Count);
-        Assert.AreEqual(0, addedTask.Resources.Count);
-    }
-    
-    [TestMethod]
-    public void FindTaskByTitleReturnTask()
-    {
-        TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Test Task";
-        Assert.AreEqual(_projectService.GetTaskByTitle(taskDto.Title), _task);
-    }
-
-    [TestMethod]
-    public void FindAllTasksReturnsAllTasks()
-    {
-        List<Task> tasks = _projectService.GetAllTasks();
-        Assert.AreEqual(1, tasks.Count);
-
-        TaskDataDTO task2 = new TaskDataDTO();
-        task2.Title = "Test Task 2";
-        task2.Description = "This is a test task.";
-        task2.Duration = 1;
-        task2.Status = Status.Pending;
-        _projectService.AddTask(task2);
-        tasks = _projectService.GetAllTasks();
-
-        Assert.AreEqual(2, tasks.Count);
-    }
-
-    [TestMethod]
-    public void UpdateTaskShouldUpdateTask()
-    {
-        Project project = new Project() { Id = 45, Name = "Updated Test Project" };
-        _projectRepository.Add(project);
-
-        TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Test Task";
-        taskDto.Description = "New Description";
-        taskDto.Duration = 1;
-        taskDto.Status = Status.Blocked;
-        taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
-
-        _taskRepository.Add(new Task()
-        {
-            Title = "Task1"
-        });
-
-        _taskRepository.Add(new Task()
-        {
-            Title = "Task2"
-        });
-
-        _task.Description = "Description";
-        Assert.AreEqual(_task.Description, "Description");
-
-        _projectService.UpdateTask(taskDto);
-
-        Assert.AreEqual("New Description", _task.Description);
-    }
-
-    [TestMethod]
-    public void CanMarkTaskAsCompleted_ReturnsFalse_WhenTaskDoesNotExist()
-    {
-        TaskDataDTO nonExistentTaskDto = new TaskDataDTO
-        {
-            Title = "Non-Existent Task",
-            Description = "This task does not exist in the repository"
-        };
-
-        bool result = _projectService.CanMarkTaskAsCompleted(nonExistentTaskDto);
-
-        Assert.IsFalse(result);
-    }
-
-    [TestMethod]
-    public void CanMarkTaskAsCompleted_ReturnsTrue_WhenAllDependenciesAreCompleted()
-    {
-        Task dependency1 = new Task
-        {
-            Title = "Dependency 1",
-            Status = Status.Completed
-        };
-        Task dependency2 = new Task
-        {
-            Title = "Dependency 2",
-            Status = Status.Completed
-        };
-        _taskRepository.Add(dependency1);
-        _taskRepository.Add(dependency2);
-
-        Task taskWithCompletedDependencies = new Task
-        {
-            Title = "Task With Completed Dependencies",
-            Dependencies = new List<Task> { dependency1, dependency2 }
-        };
-        _taskRepository.Add(taskWithCompletedDependencies);
-
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Task With Completed Dependencies"
-        };
-
-        bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
-
-        Assert.IsTrue(result);
-    }
-
-    [TestMethod]
-    public void CanMarkTaskAsCompleted_ReturnsFalse_WhenAnyDependencyIsNotCompleted()
-    {
-        Task completedDependency = new Task
-        {
-            Title = "Completed Dependency",
-            Status = Status.Completed
-        };
-        Task pendingDependency = new Task
-        {
-            Title = "Pending Dependency",
-            Status = Status.Pending
-        };
-        _taskRepository.Add(completedDependency);
-        _taskRepository.Add(pendingDependency);
-
-        Task taskWithMixedDependencies = new Task
-        {
-            Title = "Task With Mixed Dependencies",
-            Dependencies = new List<Task> { completedDependency, pendingDependency }
-        };
-        _taskRepository.Add(taskWithMixedDependencies);
-
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Task With Mixed Dependencies"
-        };
-
-        bool result = _projectService.CanMarkTaskAsCompleted(taskDto);
-
-
-        Assert.IsFalse(result);
-    }
-
-    [TestMethod]
-    public void RemoveTaskShouldDeleteTask()
-    {
-        Assert.AreEqual(1, _taskRepository.FindAll().Count());
-
-        GetTaskDTO taskDto = new GetTaskDTO();
-        taskDto.Title = "Test Task";
-        _projectService.RemoveTask(taskDto);
-
-        Assert.AreEqual(0, _taskRepository.FindAll().Count());
-    }
-
-    [TestMethod]
-    public void GetResourcesWhitNameShouldReturnResources()
-    {
-        Resource newResource = new Resource();
-        newResource.Name = "Resource1";
-        _resourceRepository.Add(newResource);
-
-        Resource newResource2 = new Resource();
-        newResource2.Name = "Resource2";
-        _resourceRepository.Add(newResource2);
-
-
-        List<(int, string)> searchList = new List<(int, string)>()
-        {
-            (2, "Resource1")
-        };
-
-        List<(int, Resource)> resource = _projectService.GetResourcesWithName(searchList);
-
-        Assert.AreEqual(1, resource.Count);
-    }
-
-    [TestMethod]
-    public void GetTaskDependenciesWithTitleShouldReturnTask()
-    {
-        Task dependencyTask1 = new Task { Title = "Task1" };
-        Task dependencyTask2 = new Task { Title = "Task2" };
-        _taskRepository.Add(dependencyTask1);
-        _taskRepository.Add(dependencyTask2);
-
-        Task taskWithDependency = new Task
-        {
-            Title = "MainTask",
-            Dependencies = new List<Task> { dependencyTask1 }
-        };
-        _taskRepository.Add(taskWithDependency);
-
-        Task taskWithoutSearchedDependency = new Task
-        {
-            Title = "AnotherTask",
-            Dependencies = new List<Task> { dependencyTask2 }
-        };
-        _taskRepository.Add(taskWithoutSearchedDependency);
-
-        List<string> searchList = new List<string> { "Task1" };
-
-        List<Task> tasks = _projectService.GetTaskDependenciesWithTitleTask(searchList);
-
-        Assert.AreEqual(1, tasks.Count);
-        Assert.AreEqual("Task1", tasks[0].Title);
-    }
-
-    [TestMethod]
-    public void GetTaskDependenciesWithTitleTask_ShouldReturnMatchingTasks()
-    {
-        Task dependencyTask1 = new Task { Title = "Task1" };
-        Task dependencyTask2 = new Task { Title = "Task2" };
-        _taskRepository.Add(dependencyTask1);
-        _taskRepository.Add(dependencyTask2);
-
-        Task taskWithDependency = new Task
-        {
-            Title = "MainTask",
-            Dependencies = new List<Task> { dependencyTask1 }
-        };
-        _taskRepository.Add(taskWithDependency);
-
-        Task taskWithoutSearchedDependency = new Task
-        {
-            Title = "AnotherTask",
-            Dependencies = new List<Task> { dependencyTask2 }
-        };
-        _taskRepository.Add(taskWithoutSearchedDependency);
-
-        List<string> searchList = new List<string> { "Task1" };
-
-        List<Task> tasks = _projectService.GetTaskDependenciesWithTitleTask(searchList);
-
-        Assert.AreEqual(1, tasks.Count);
-        Assert.AreEqual("Task1", tasks[0].Title);
-    }
-
-
-    [TestMethod]
-    public void GetResourcesWithName_ShouldReturnResourceWithCorrectQuantity()
-    {
-        Resource resource = new Resource { Name = "Laptop" };
-        _resourceRepository.Add(resource);
-
-        List<(int, string)> resourceList = new List<(int, string)> { (5, "Laptop") };
-
-        List<(int, Resource)> result = _projectService.GetResourcesWithName(resourceList);
-
-        Assert.AreEqual(1, result.Count);
-        Assert.AreEqual(5, result[0].Item1);
-        Assert.AreEqual("Laptop", result[0].Item2.Name);
-    }
-
-    [TestMethod]
-    public void GetResourcesWithName_ShouldIgnoreNonexistentResources()
-    {
-        var resourceList = new List<(int, string)>
-        {
-            (2, "NonExistingResource")
-        };
-
-        var result = _projectService.GetResourcesWithName(resourceList);
-
-        Assert.AreEqual(0, result.Count);
-    }
-
-    [TestMethod]
-    public void GetResourcesWithNameShouldMapMultipleResources()
-    {
-        Resource res1 = new Resource { Name = "Mouse" };
-        Resource res2 = new Resource { Name = "Keyboard" };
-        _resourceRepository.Add(res1);
-        _resourceRepository.Add(res2);
-
-        List<(int, string)> resourceList = new List<(int, string)>
-        {
-            (1, "Mouse"),
-            (3, "Keyboard")
-        };
-
-        List<(int, Resource)> result = _projectService.GetResourcesWithName(resourceList);
-
-        Assert.AreEqual(2, result.Count);
-        Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
-        Assert.IsTrue(result.Any(r => r.Item2.Name == "Keyboard" && r.Item1 == 3));
-    }
-
-    [TestMethod]
-    public void AddTaskToProjectShouldAddTaskToProjectTasksList()
-    {
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Project Task",
-            Description = "Description of the project task",
-            Duration = 1,
-            Status = Status.Pending,
-            Dependencies = new List<string>(),
-            Resources = new List<TaskResourceDataDTO>()
-        };
-
-        Project project = new Project
-        {
-            Id = 99,
-            Name = "Task Project",
-            Description = "Description of the project",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User
-            {
-                Name = "Administrator User",
-                Email = "admin@example.com"
-            },
-            Tasks = new List<Task>(),
-            Users = new List<User>()
-        };
-
-        _projectRepository.Add(project);
-
-        var initialProject = _projectRepository.Find(p => p.Id == 99);
-        Assert.AreEqual(0, initialProject.Tasks.Count);
-
-        _projectService.AddTask(taskDto);
-        _projectService.AddTaskToProject(taskDto, project.Id);
-
-        var updatedProject = _projectRepository.Find(p => p.Id == 99);
-
-        Assert.AreEqual(1, updatedProject.Tasks.Count);
-
-        var addedTask = updatedProject.Tasks[0];
-        Assert.IsNotNull(addedTask);
-        Assert.AreEqual(taskDto.Title, addedTask.Title);
-        Assert.AreEqual(taskDto.Description, addedTask.Description);
-        Assert.AreEqual(taskDto.Duration, addedTask.Duration);
-        Assert.AreEqual(taskDto.Status, addedTask.Status);
-    }
-    
-    [TestMethod]
-    public void DecreaseResourceQuantityShouldThrowWhenProjectNotFound()
-    {
-        Assert.ThrowsException<ArgumentException>(() =>
-            _projectService.DecreaseResourceQuantity(999, "x"));
-    }
-    
-    [TestMethod]
-    public void DecreaseResourceQuantityShouldThrowWhenResourceQuantityIsZero()
-    {
-        TaskResource taskResource = new TaskResource()
-        {
-            Task = new Task(),
-            Resource = new Resource(),
-            Quantity = 0, 
-        };
-
-        Task task = new Task
-        {
-            Title = "Test Task",
-            Resources = new List<TaskResource> { taskResource } 
-        };
-    
-        Project project = new Project
-        {
-            Id = 101,
-            Name = "Test Project",
-            Tasks = new List<Task> { task },
-            Description = "desc",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User()
-        };
-    
-        _projectRepository.Add(project);
-
-        Assert.ThrowsException<InvalidOperationException>(() =>
-            _projectService.DecreaseResourceQuantity(101, "Laptop"));
-    }
-
-    [TestMethod]
-    public void ValidateTaskStatusTest()
-    {
-        TaskDataDTO taskDto = new TaskDataDTO
-        {
-            Title = "Test Task",
-            Description = "This is a test task.",
-            Dependencies = new List<string>() { "Task1", "Task2" }
-        };
-
-        Status status = Status.Completed;
-
-        bool isValid = _projectService.ValidateTaskStatus("Test Task", status);
-        Assert.IsFalse(isValid);
-    }
-
     [TestMethod]
     public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
     {
@@ -1382,6 +868,7 @@ public class
         CollectionAssert.AreEquivalent(new List<string> { "A", "B", "D" }, titles);
     }
 
+    
     [TestMethod]
     public void IsTaskCriticalByProjectIdShouldReturnTrueIfTaskIsCritical()
     {
@@ -1418,7 +905,167 @@ public class
         Assert.IsFalse(resultMissingProject);
     }
 
+    [TestMethod]
+    public void AddTaskToProjectShouldAddTaskToProjectTasksList()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Project Task",
+            Description = "Description of the project task",
+            Duration = 1,
+            Status = Status.Pending,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO>()
+        };
+
+        Project project = new Project
+        {
+            Id = 99,
+            Name = "Task Project",
+            Description = "Description of the project",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User
+            {
+                Name = "Administrator User",
+                Email = "admin@example.com"
+            },
+            Tasks = new List<Task>(),
+            Users = new List<User>()
+        };
+
+        _projectRepository.Add(project);
+
+        var initialProject = _projectRepository.Find(p => p.Id == 99);
+        Assert.AreEqual(0, initialProject.Tasks.Count);
+
+        _taskRepository.Add(Task.FromDto(taskDto, new List<TaskResource>(), new List<Task>()));
+        _projectService.AddTaskToProject(taskDto, project.Id);
+
+        var updatedProject = _projectRepository.Find(p => p.Id == 99);
+
+        Assert.AreEqual(1, updatedProject.Tasks.Count);
+
+        var addedTask = updatedProject.Tasks[0];
+        Assert.IsNotNull(addedTask);
+        Assert.AreEqual(taskDto.Title, addedTask.Title);
+        Assert.AreEqual(taskDto.Description, addedTask.Description);
+        Assert.AreEqual(taskDto.Duration, addedTask.Duration);
+        Assert.AreEqual(taskDto.Status, addedTask.Status);
+    }
+
     #endregion
+
+    
+     [TestMethod]
+     public void GetResourcesWithName_ShouldReturnResourceWithCorrectQuantity()
+     {
+         Resource resource = new Resource { Name = "Laptop" };
+         _resourceRepository.Add(resource);
+    
+         List<(int, string)> resourceList = new List<(int, string)> { (5, "Laptop") };
+    
+         List<(int, Resource)> result = _projectService.GetResourcesWithName(resourceList);
+    
+         Assert.AreEqual(1, result.Count);
+         Assert.AreEqual(5, result[0].Item1);
+         Assert.AreEqual("Laptop", result[0].Item2.Name);
+     }
+
+     [TestMethod]
+     public void GetResourcesWithName_ShouldIgnoreNonexistentResources()
+     {
+         var resourceList = new List<(int, string)>
+         {
+             (2, "NonExistingResource")
+         };
+    
+         var result = _projectService.GetResourcesWithName(resourceList);
+    
+         Assert.AreEqual(0, result.Count);
+     }
+
+    
+     [TestMethod]
+     public void GetResourcesWithNameShouldMapMultipleResources()
+     {
+         Resource res1 = new Resource { Name = "Mouse" };
+         Resource res2 = new Resource { Name = "Keyboard" };
+         _resourceRepository.Add(res1);
+         _resourceRepository.Add(res2);
+    
+         List<(int, string)> resourceList = new List<(int, string)>
+         {
+             (1, "Mouse"),
+             (3, "Keyboard")
+         };
+    
+         List<(int, Resource)> result = _projectService.GetResourcesWithName(resourceList);
+    
+         Assert.AreEqual(2, result.Count);
+         Assert.IsTrue(result.Any(r => r.Item2.Name == "Mouse" && r.Item1 == 1));
+         Assert.IsTrue(result.Any(r => r.Item2.Name == "Keyboard" && r.Item1 == 3));
+     }
+     
+     [TestMethod]
+     public void DecreaseResourceQuantityShouldThrowWhenProjectNotFound()
+     {
+         Assert.ThrowsException<ArgumentException>(() =>
+             _projectService.DecreaseResourceQuantity(999, "x"));
+     }
+    
+     [TestMethod]
+     public void DecreaseResourceQuantityShouldThrowWhenResourceQuantityIsZero()
+     {
+         TaskResource taskResource = new TaskResource()
+         {
+             Task = new Task(),
+             Resource = new Resource(),
+             Quantity = 0, 
+         };
+    
+         Task task = new Task
+         {
+             Title = "Test Task",
+             Resources = new List<TaskResource> { taskResource } 
+         };
+    
+         Project project = new Project
+         {
+             Id = 101,
+             Name = "Test Project",
+             Tasks = new List<Task> { task },
+             Description = "desc",
+             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+             Administrator = new User()
+         };
+    
+         _projectRepository.Add(project);
+    
+         Assert.ThrowsException<InvalidOperationException>(() =>
+             _projectService.DecreaseResourceQuantity(101, "Laptop"));
+     }
+
+     [TestMethod]
+     public void GetResourcesWhitNameShouldReturnResources()
+     {
+         Resource newResource = new Resource();
+         newResource.Name = "Resource1";
+         _resourceRepository.Add(newResource);
+     
+         Resource newResource2 = new Resource();
+         newResource2.Name = "Resource2";
+         _resourceRepository.Add(newResource2);
+     
+     
+         List<(int, string)> searchList = new List<(int, string)>()
+         {
+             (2, "Resource1")
+         };
+     
+         List<(int, Resource)> resource = _projectService.GetResourcesWithName(searchList);
+     
+         Assert.AreEqual(1, resource.Count);
+     }
 
     #region ResourceTest
     [TestMethod]

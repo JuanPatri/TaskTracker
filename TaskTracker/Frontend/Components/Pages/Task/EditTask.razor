@@ -1,10 +1,13 @@
 @page "/EditTask"
+@using Domain
 @using DTOs.ProjectDTOs
 @using DTOs.TaskDTOs
 @using Domain.Enums
 @using Enums
 @using Service
+@using Task = System.Threading.Tasks.Task
 
+@inject TaskService TaskService
 @inject ProjectService ProjectService
 @inject NavigationManager NavigationManager
 @inject SessionService Session
@@ -126,7 +129,7 @@ else
     private void OnTaskSelected(ChangeEventArgs e)
     {
         _selectedTaskTitle = e.Value?.ToString() ?? "";
-        var task = ProjectService.GetTaskByTitle(_selectedTaskTitle);
+        var task = TaskService.GetTaskByTitle(_selectedTaskTitle);
 
         if (task != null)
         {
@@ -150,7 +153,7 @@ else
         {
             if (newStatus == Status.Completed)
             {
-                if (!ProjectService.CanMarkTaskAsCompleted(_editingTask))
+                if (!TaskService.CanMarkTaskAsCompleted(_editingTask))
                 {
                     _errorMessage = "Cannot mark this task as completed because not all its dependencies are completed.";
                     return;
@@ -181,7 +184,7 @@ else
             }
 
             if (_editingTask.Status == Status.Completed &&
-                !ProjectService.CanMarkTaskAsCompleted(_editingTask))
+                !TaskService.CanMarkTaskAsCompleted(_editingTask))
             {
                 _errorMessage = "Cannot mark this task as completed because not all dependencies are completed.";
                 return;
@@ -189,7 +192,7 @@ else
 
             bool wasCritical = ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
 
-            var result = ProjectService.UpdateTask(_editingTask);
+            var result = TaskService.UpdateTask(_editingTask);
 
             bool isStillCritical = ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
 
