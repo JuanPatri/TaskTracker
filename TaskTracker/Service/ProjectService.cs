@@ -258,4 +258,12 @@ public class ProjectService
         return _projectRepository.FindAll().Where(p => p.Id == projectId)
             .Any(p => p.ExclusiveResources.Any(r => r.Id == resourceId));
     }
+    
+    public List<User> GetUsersFromProject(int projectId)
+    {
+        var project = GetProjectById(projectId);
+        if (project == null || project.Users == null)
+            return new List<User>();
+        return project.Users;
+    }
 }

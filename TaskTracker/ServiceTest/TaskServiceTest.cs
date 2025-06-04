@@ -19,6 +19,11 @@ public class TaskServiceTest
     private Project _project;
     private Task _task;
     private Resource _resource;
+    private ProjectService _projectService;
+    private UserRepository _userRepository;
+    private UserService _userService;
+    private CriticalPathService _criticalPathService;
+    private ResourceTypeRepository _resourceTypeRepository;
     
     [TestInitialize]
     public void OnInitialize()
@@ -26,7 +31,11 @@ public class TaskServiceTest
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
         _projectRepository = new ProjectRepository();
-        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository);
+        _userRepository = new UserRepository();
+        _userService = new UserService(_userRepository);
+        _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
+        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService, _criticalPathService);
 
         _project = new Project()
         {
@@ -52,7 +61,7 @@ public class TaskServiceTest
             }
         };
         _resourceRepository.Add(_resource);
-        //_resourceTypeRepository.Add(_resource.Type);
+        _resourceTypeRepository.Add(_resource.Type);
     }
     
     [TestMethod]
@@ -404,5 +413,72 @@ public class TaskServiceTest
 
         bool isValid = _taskService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
+    }
+    
+    [TestMethod]
+    public void GetTasksForProjectWithIdTest()
+    {
+        Task task1 = new Task() { Title = "Task 1" };
+        Task task2 = new Task() { Title = "Task 2" };
+
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Test Project",
+            Tasks = new List<Task> { task1, task2 }
+        };
+
+        _projectRepository.Add(project);
+
+        List<GetTaskDTO> tasks = _taskService.GetTasksForProjectWithId(1);
+
+        Assert.AreEqual(2, tasks.Count);
+    }
+    
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
+    {
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
+        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
+        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task> { taskA, taskB, taskC, taskD }
+        };
+
+        _criticalPathService.CalculateEarlyTimes(project);
+        _criticalPathService.CalculateLateTimes(project);
+
+        Assert.IsTrue(_taskService.IsTaskCritical(project, taskA.Title));
+        Assert.IsTrue(_taskService.IsTaskCritical(project, taskB.Title));
+        Assert.IsTrue(_taskService.IsTaskCritical(project, taskD.Title));
+        Assert.IsFalse(_taskService.IsTaskCritical(project, taskC.Title));
+    }
+    
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnFalse_WhenTaskDoesNotExist()
+    {
+        Project project = new Project
+        {
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Tasks = new List<Task>()
+        };
+
+        bool result = _taskService.IsTaskCritical(project, "TareaInexistente");
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCritical_ShouldReturnFalse_WhenProjectIsNull()
+    {
+        bool result = _taskService.IsTaskCritical(null, "AnyTask");
+        Assert.IsFalse(result);
     }
 }

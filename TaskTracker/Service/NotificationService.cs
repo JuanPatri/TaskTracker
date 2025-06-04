@@ -38,15 +38,7 @@ public class NotificationService
 
         return _projectService.GetEstimatedProjectFinishDate(proyecto);
     }
-
-    public List<User> GetUsersFromProject(int projectId)
-    {
-        var project = _projectService.GetProjectById(projectId);
-        if (project == null || project.Users == null)
-            return new List<User>();
-        return project.Users;
-    }
-
+    
     public string GenerateNotificationMessage(TypeOfNotification type, string taskTitle, DateTime newEstimatedEndDate)
     {
         switch (type)
@@ -68,7 +60,7 @@ public class NotificationService
         int impacto = CalcularImpacto(duracionVieja, duracionNueva);
         TypeOfNotification tipo = ObtenerTipoDeNotificacionPorImpacto(impacto);
         DateTime nuevaFechaFin = GetNewEstimatedEndDate(projectId);
-        List<User> users = GetUsersFromProject(projectId);
+        List<User> users = _projectService.GetUsersFromProject(projectId);
         string message = GenerateNotificationMessage(tipo, taskTitle, nuevaFechaFin);
 
         var notificacion = new Notification
