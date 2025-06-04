@@ -3,5 +3,6 @@
 public enum RoleType
 {
     ProjectAdmin,
-    ProjectMember
+    ProjectMember,
+    ProjectLead,
 }
