@@ -63,4 +63,10 @@ namespace DomainTest;
             Assert.AreEqual("User cannot be null", ex.Message);
         }
 
+        [TestMethod]
+        public void SetRoleTypeNullReturnsAnException()
+        {
+            ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.RoleType = (RoleType)999);
+            Assert.AreEqual("Invalid value for RoleType", ex.Message);
+        }
     }
