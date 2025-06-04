@@ -12,13 +12,16 @@ public class TaskService
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<Project> _projectRepository;
-    
+    private readonly ProjectService _projectService;
+    private readonly CriticalPathService _criticalPathService;
     public TaskService(IRepository<Task> taskRepository,
-        IRepository<Resource> resourceRepository, IRepository<Project> projectRepository)
+        IRepository<Resource> resourceRepository, IRepository<Project> projectRepository, ProjectService projectService, CriticalPathService criticalPathService)
     {
         _taskRepository = taskRepository;
         _resourceRepository = resourceRepository;
         _projectRepository = projectRepository;
+        _projectService = projectService;
+        _criticalPathService = criticalPathService;
     }
     
     public Task AddTask(TaskDataDTO taskDto)
@@ -139,5 +142,45 @@ public class TaskService
             .ToList();
     }
 
+    public bool IsTaskCriticalById(int projectId, string taskTitle)
+    {
+        var project = _projectService.GetProjectById(projectId);
+        if (project == null) return false;
+
+        return IsTaskCritical(project, taskTitle);
+    }
+    
+    public bool IsTaskCritical(Project project, string taskTitle)
+    {
+        if (project == null || project.Tasks == null)
+        {
+            return false;
+        }
+
+        var task = project.Tasks?.FirstOrDefault(t => t.Title == taskTitle);
+        if (task == null)
+        {
+            return false;
+        }
+
+        var criticalPath = _criticalPathService.GetCriticalPath(project);
+        return criticalPath.Any(task => task.Title.Equals(taskTitle));
+    }
+
+    internal bool TasksOverlapAtLeastOneDay(Task existingTask, DateTime newTaskStart, DateTime newTaskEnd)
+    {
+        return existingTask.EarlyStart.Date <= newTaskEnd.Date &&
+               newTaskStart.Date <= existingTask.EarlyFinish.Date;
+    }
+    
+    public List<GetTaskDTO> GetTasksForProjectWithId(int projectId)
+    {
+        Project? project = _projectService.GetProjectById(projectId);
+        if (project == null) return new List<GetTaskDTO>();
+
+        return project.Tasks
+            .Select(task => new GetTaskDTO { Title = task.Title })
+            .ToList();
+    }
 
 }

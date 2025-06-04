@@ -34,6 +34,7 @@ builder.Services.AddSingleton<ProjectService>();
 builder.Services.AddSingleton<TaskService>();
 builder.Services.AddSingleton<ResourceService>();
 builder.Services.AddSingleton<ResourceTypeService>();
+builder.Services.AddSingleton<CriticalPathService>();
 
 
 var app = builder.Build();

@@ -4,6 +4,7 @@
 @using Service
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
+@inject UserService UserService
 @implements IDisposable
 
 <PageTitle>Create Project</PageTitle>
@@ -79,7 +80,7 @@ else
     {
         try
         {
-            _availableUsers = ProjectService.GetAllUsers();
+            _availableUsers = UserService.GetAllUsersDto();
         }
         catch (Exception ex)
         {

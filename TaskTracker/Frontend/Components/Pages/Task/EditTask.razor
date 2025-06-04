@@ -9,6 +9,7 @@
 
 @inject TaskService TaskService
 @inject ProjectService ProjectService
+@inject NotificationService NotificationService
 @inject NavigationManager NavigationManager
 @inject SessionService Session
 
@@ -120,7 +121,7 @@ else
         if (int.TryParse(e.Value?.ToString(), out int id))
         {
             _selectedProjectId = id;
-            _tasks = ProjectService.GetTasksForProjectWithId(id);
+            _tasks = TaskService.GetTasksForProjectWithId(id);
             _selectedTaskTitle = string.Empty;
             _editingTask = null;
         }
@@ -190,15 +191,15 @@ else
                 return;
             }
 
-            bool wasCritical = ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
+            bool wasCritical = TaskService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
 
             var result = TaskService.UpdateTask(_editingTask);
 
-            bool isStillCritical = ProjectService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
+            bool isStillCritical = TaskService.IsTaskCriticalById(_selectedProjectId, _editingTask.Title);
 
             if ((wasCritical || isStillCritical) && _oldDuration != _editingTask.Duration)
             {
-                ProjectService.CreateNotification(_oldDuration, _editingTask.Duration, _selectedProjectId, _editingTask.Title);
+                NotificationService.CreateNotification(_oldDuration, _editingTask.Duration, _selectedProjectId, _editingTask.Title);
             }
 
             if (result != null)

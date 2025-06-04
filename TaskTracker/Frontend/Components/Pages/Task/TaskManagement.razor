@@ -115,7 +115,7 @@ else
         
         try
         {
-            List<GetTaskDTO> projectTasks = ProjectService.GetTasksForProjectWithId(projectId);
+            List<GetTaskDTO> projectTasks = TaskService.GetTasksForProjectWithId(projectId);
             
             _tasks = new List<TaskDataDTO>();
             

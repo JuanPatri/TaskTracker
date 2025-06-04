@@ -38,4 +38,28 @@ public class UserService
         User updatedUser = User.FromDto(userDto);
         return _userRepository.Update(updatedUser);
     }
+    
+    public List<UserDataDTO> GetAllUsersDto()
+    {
+        return _userRepository.FindAll()
+            .Select(user => new UserDataDTO
+            {
+                Name = user.Name,
+                LastName = user.LastName,
+                Email = user.Email,
+                Password = user.Password,
+                BirthDate = user.BirthDate,
+                Admin = user.Admin
+            })
+            .ToList();
+    }
+
+    public List<User> GetUsersFromEmails(IEnumerable<string> userEmails)
+    {
+        return _userRepository
+            .FindAll()
+            .Where(user => userEmails.Contains(user.Email))
+            .ToList();
+    }
+
 }

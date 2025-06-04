@@ -5,6 +5,7 @@
 @using Domain
 @inject SessionService Session
 @inject ProjectService ProjectService
+@inject NotificationService NotificationService
 
 @inject NavigationManager NavigationManager
 
@@ -71,15 +72,15 @@ else
         if (Session.IsLoggedIn())
         {
             var user = Session.CurrentUser;
-            notifications = ProjectService.GetNotificationsForUser(user.Email);
+            notifications = NotificationService.GetNotificationsForUser(user.Email);
         }
     }
     
     private void MarkAsViewed(int notificationId)
     {
         var user = Session.CurrentUser;
-        ProjectService.MarkNotificationAsViewed(notificationId, user.Email);
-        notifications = ProjectService.GetUnviewedNotificationsForUser(user.Email);
+        NotificationService.MarkNotificationAsViewed(notificationId, user.Email);
+        notifications = NotificationService.GetUnviewedNotificationsForUser(user.Email);
         StateHasChanged();
     }
     

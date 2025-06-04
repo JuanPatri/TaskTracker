@@ -189,7 +189,7 @@
     {
         if (selectedProjectId > 0)
         {
-            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
+            _taskTitleDtos = TaskService.GetTasksForProjectWithId(selectedProjectId);
 
             var systemResources = ResourceService.GetResourcesForSystem();
             var exclusiveResources = ProjectService.GetExclusiveResourcesForProject(selectedProjectId);
@@ -308,7 +308,8 @@
 
             var (taskEarlyStart, taskEarlyFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
 
-            if (ProjectService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject,
+            if (ResourceService
+                .IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject,
                     taskEarlyStart, taskEarlyFinish, _selectedQuantity))
             {
                 TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO

@@ -6,6 +6,7 @@
 @inject ProjectService ProjectService
 @inject SessionService Session
 @inject NavigationManager Navigation
+@inject ResourceService ResourceService
 
 <h3>Project Resources</h3>
 
@@ -61,7 +62,7 @@ else
             {
                 taskResource.Quantity -= 1;
             
-                ProjectService.DecreaseResourceQuantity(projectId, resourceName);
+                ResourceService.DecreaseResourceQuantity(projectId, resourceName);
             
                 _project = ProjectService.GetProject(new GetProjectDTO { Id = projectId });
             }
