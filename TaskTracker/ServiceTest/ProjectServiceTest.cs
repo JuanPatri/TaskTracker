@@ -34,13 +34,16 @@ public class ProjectServiceTest
         _projectRepository = new ProjectRepository();
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
-        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService, _criticalPathService);
         _resourceTypeRepository = new ResourceTypeRepository();
         _userRepository = new UserRepository();
+
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+
         _projectService = new ProjectService(_taskRepository, _projectRepository,
             _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
+
+        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService, _criticalPathService);
 
         _project = new Project()
         {
@@ -378,7 +381,8 @@ public class ProjectServiceTest
         Assert.AreEqual(project.Name, result[0].Name);
         Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
     }
-    
+
+    [TestMethod]
     public void GetAllUsers_ReturnsAllUsersAsUserDataDTOs()
     {
         int initialUserCount = _userRepository.FindAll().Count();
