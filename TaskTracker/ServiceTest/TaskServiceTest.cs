@@ -32,9 +32,12 @@ public class TaskServiceTest
         _resourceRepository = new ResourceRepository();
         _projectRepository = new ProjectRepository();
         _userRepository = new UserRepository();
+        _resourceTypeRepository = new ResourceTypeRepository(); 
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
+
         _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService, _criticalPathService);
 
         _project = new Project()
@@ -61,7 +64,7 @@ public class TaskServiceTest
             }
         };
         _resourceRepository.Add(_resource);
-        _resourceTypeRepository.Add(_resource.Type);
+        _resourceTypeRepository.Add(_resource.Type); 
     }
     
     [TestMethod]
