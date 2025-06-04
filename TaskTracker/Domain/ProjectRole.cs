@@ -25,7 +25,11 @@ public class ProjectRole
     public User User
     {
         get => _user;
-        set => _user = value;
+        set
+        {
+            if(value == null) throw new ArgumentException("User cannot be null");
+            _user = value;
+        }
         
     }
     

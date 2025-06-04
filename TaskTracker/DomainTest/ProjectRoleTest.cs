@@ -62,4 +62,5 @@ namespace DomainTest;
             ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.User = user);
             Assert.AreEqual("User cannot be null", ex.Message);
         }
+
     }
