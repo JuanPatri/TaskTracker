@@ -53,4 +53,13 @@ namespace DomainTest;
             _projectRole.User = user;
             Assert.AreEqual(user, _projectRole.User);
         }
+        
+        [TestMethod]
+        public void SetUserNullReturnsAnException()
+        {
+            User user = null;
+    
+            ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.User = user);
+            Assert.AreEqual("User cannot be null", ex.Message);
+        }
     }
