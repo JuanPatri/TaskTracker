@@ -1,8 +1,10 @@
 @page "/CreateExclusiveResource"
-@using Backend.DTOs.ProjectDTOs
-@using Backend.DTOs.ResourceDTOs
-@using Backend.DTOs.ResourceTypeDTOs
-@using Backend.Service
+@using DTOs.ProjectDTOs
+@using DTOs.ResourceDTOs
+@using DTOs.ResourceTypeDTOs
+@using Service
+
+@inject ResourceTypeService ResourceTypeService
 @inject ProjectService ProjectService
 @inject SessionService SessionService
 @inject NavigationManager NavigationManager
@@ -54,6 +56,11 @@
         </select>
     </div>
 
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="0" />
+    </div>
+    
     <button type="submit" class="btn btn-primary">Create Exclusive Resource</button>
 </EditForm>
 
@@ -67,7 +74,7 @@
 
     protected override void OnInitialized()
     {
-        _resourceTypes = ProjectService.GetAllResourcesType()
+        _resourceTypes = ResourceTypeService.GetAllResourcesType()
             .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
             .ToList();
 

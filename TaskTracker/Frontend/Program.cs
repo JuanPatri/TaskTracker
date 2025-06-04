@@ -1,13 +1,23 @@
-using Backend.Service;
-using Backend.Repository;
-using Backend.Domain;
+using Repository;
+using Domain;
 using Frontend.Components;
-using Task = Backend.Domain.Task;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
+using Service;
+using Task = Domain.Task;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+//builder.Services.AddSingleton<InMemoryDatabase>();
+builder.Services.AddDbContext<SqlContext>(
+    options => options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        providerOptions => providerOptions.EnableRetryOnFailure()
+        )
+    );
 
 //repositories
 builder.Services.AddSingleton<IRepository<User>, UserRepository>(); 
@@ -21,6 +31,10 @@ builder.Services.AddSingleton<IRepository<Notification>, NotificationRepository>
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<SessionService>();
 builder.Services.AddSingleton<ProjectService>();
+builder.Services.AddSingleton<TaskService>();
+builder.Services.AddSingleton<ResourceService>();
+builder.Services.AddSingleton<ResourceTypeService>();
+builder.Services.AddSingleton<CriticalPathService>();
 
 
 var app = builder.Build();

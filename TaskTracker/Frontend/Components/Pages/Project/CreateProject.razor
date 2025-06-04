@@ -1,9 +1,10 @@
 @page "/CreateProject"
-@using Backend.DTOs.ProjectDTOs
-@using Backend.DTOs.UserDTOs
-@using Backend.Service
+@using DTOs.ProjectDTOs
+@using DTOs.UserDTOs
+@using Service
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
+@inject UserService UserService
 @implements IDisposable
 
 <PageTitle>Create Project</PageTitle>
@@ -79,7 +80,7 @@ else
     {
         try
         {
-            _availableUsers = ProjectService.GetAllUsers();
+            _availableUsers = UserService.GetAllUsersDto();
         }
         catch (Exception ex)
         {

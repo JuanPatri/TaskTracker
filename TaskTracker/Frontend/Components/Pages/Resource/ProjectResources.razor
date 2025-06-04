@@ -1,10 +1,12 @@
 @page "/ProjectResources/{projectId:int}"
-@using Backend.Domain
-@using Backend.DTOs.ProjectDTOs
-@using Backend.Service
+@using Domain
+@using DTOs.ProjectDTOs
+@using Service
+
 @inject ProjectService ProjectService
 @inject SessionService Session
 @inject NavigationManager Navigation
+@inject ResourceService ResourceService
 
 <h3>Project Resources</h3>
 
@@ -18,15 +20,15 @@ else
     {
         <h5>Task: @task.Title</h5>
         <ul>
-            @foreach (var (quantity, resource) in task.Resources)
+            @foreach (var taskResource in task.Resources)
             {
                 <li>
-                    <b>@resource.Name</b> - @resource.Description <br />
-                    Needed: @quantity
+                    <b>@taskResource.Resource.Name</b> - @taskResource.Resource.Description <br />
+                    Needed: @taskResource.Quantity
 
-                    @if (quantity > 0)
+                    @if (taskResource.Quantity > 0)
                     {
-                        <button class="btn btn-sm btn-success mt-1" @onclick="() => AssignResource(task.Title, resource.Name)">
+                        <button class="btn btn-sm btn-success mt-1" @onclick="() => AssignResource(task.Title, taskResource.Resource.Name)">
                             Assign to me
                         </button>
                     }
@@ -55,15 +57,13 @@ else
         var task = _project?.Tasks.FirstOrDefault(t => t.Title == taskTitle);
         if (task != null)
         {
-            (int, Resource) resource = task.Resources.FirstOrDefault(r => r.Item2.Name == resourceName);
-            if (resource != default && resource.Item1 > 0)
+            TaskResource taskResource = task.Resources.FirstOrDefault(tr => tr.Resource.Name == resourceName);
+            if (taskResource != null && taskResource.Quantity > 0)
             {
-                int index = task.Resources.IndexOf(resource);
-                
-                task.Resources[index] = (resource.Item1 - 1, resource.Item2);
-                
-                ProjectService.DecreaseResourceQuantity(projectId, resourceName);
-                
+                taskResource.Quantity -= 1;
+            
+                ResourceService.DecreaseResourceQuantity(projectId, resourceName);
+            
                 _project = ProjectService.GetProject(new GetProjectDTO { Id = projectId });
             }
         }

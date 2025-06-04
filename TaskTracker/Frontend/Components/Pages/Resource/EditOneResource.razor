@@ -1,9 +1,11 @@
 @page "/EditOneResource/{name}"
-@using Backend.Domain
-@using Backend.Service
-@using Backend.DTOs.ResourceDTOs
+@using Domain
+@using DTOs.ResourceDTOs
+@using Service
+
 @using Task = System.Threading.Tasks.Task
-@inject ProjectService ProjectService
+@inject ResourceService ResourceService
+@inject ResourceTypeService ResourceTypeService
 @inject NavigationManager NavigationManager
 
 <h3>Edit Resource</h3>
@@ -38,6 +40,11 @@ else
             </select>
         </div>
 
+        <div class="mb-3">
+            <label for="quantity" class="form-label">Quantity</label>
+            <InputNumber id="quantity" class="form-control" @bind-Value="_resourceDto.Quantity" min="0" />
+        </div>
+
         <button type="submit" class="btn btn-primary">Save Changes</button>
     </EditForm>
 }
@@ -62,10 +69,10 @@ else
 
     protected override void OnInitialized()
     {
-        _resourceTypes = ProjectService.GetAllResourcesType();
+        _resourceTypes = ResourceTypeService.GetAllResourcesType();
 
         GetResourceDto dto = new GetResourceDto { Name = name };
-        _resource = ProjectService.GetResource(dto);
+        _resource = ResourceService.GetResource(dto);
 
         if (_resource != null)
         {
@@ -82,7 +89,7 @@ else
     {
         try
         {
-            ProjectService.UpdateResource(_resourceDto);
+            ResourceService.UpdateResource(_resourceDto);
             _successMessage = "Resource updated successfully.";
             _errorMessage = string.Empty;
             await Task.Delay(2000);

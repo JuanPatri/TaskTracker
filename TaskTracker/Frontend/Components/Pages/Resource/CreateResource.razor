@@ -1,9 +1,11 @@
 @page "/CreateResource"
-@using Backend.DTOs.ProjectDTOs
-@using Backend.DTOs.ResourceDTOs
-@using Backend.DTOs.ResourceTypeDTOs
-@using Backend.Service
-@inject ProjectService ProjectService
+@using Domain
+@using DTOs.ResourceDTOs
+@using DTOs.ResourceTypeDTOs
+@using Service
+
+@inject ResourceService ResourceService
+@inject ResourceTypeService ResourceTypeService
 @inject SessionService SessionService
 @inject NavigationManager NavigationManager
 
@@ -39,13 +41,17 @@
                 <option value="" selected>-- Select a type --</option>
                 @foreach (var type in _resourceTypes)
                 {
-                <option value="@type.Id.ToString()">@type.Name</option>
+                    <option value="@type.Id.ToString()">@type.Name</option>
                 }
             </select>
             <button class="btn btn-outline-primary ms-2" @onclick="GoToCreateResourceType">Create new</button>
         </div>
     </div>
 
+    <div class="mb-3">
+        <label for="quantity" class="form-label">Quantity</label>
+        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="0" />
+    </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
 </EditForm>
@@ -58,7 +64,7 @@
 
     protected override void OnInitialized()
     {
-        _resourceTypes = ProjectService.GetAllResourcesType()
+        _resourceTypes = ResourceTypeService.GetAllResourcesType()
                           .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
                           .ToList();
     }
@@ -67,7 +73,7 @@
     {
         try
         { 
-            ProjectService.AddResource(_newResource);
+            ResourceService.AddResource(_newResource);
 
             _successMessage = "Resource created successfully!";
             _errorMessage = string.Empty;

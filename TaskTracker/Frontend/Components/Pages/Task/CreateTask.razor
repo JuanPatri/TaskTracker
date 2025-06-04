@@ -1,11 +1,18 @@
 @page "/CreateTask"
-@using Backend.DTOs.TaskDTOs
-@using Backend.Service
-@using Backend.DTOs.ProjectDTOs
-@using Backend.DTOs.ResourceDTOs
+@using Domain
+@using DTOs.TaskDTOs
+@using Service
+@using DTOs.ProjectDTOs
+@using DTOs.ResourceDTOs
+@using DTOs.TaskResourceDTOs
+@using Task = System.Threading.Tasks.Task
+
 @inject NavigationManager NavigationManager
 @inject SessionService Session
+@inject TaskService TaskService
+@inject ResourceService ResourceService
 @inject ProjectService ProjectService
+
 
 <PageTitle>Create Task - TaskTrackPro</PageTitle>
 
@@ -68,10 +75,9 @@
     </div>
 
     <div class="mb-3">
-        <button type="button" class="btn btn-outline-primary" @onclick="AddDependencyToTask" disabled="@(
-        string.IsNullOrWhiteSpace(_selectedDependencyTaskTitle) ||
-        string.IsNullOrWhiteSpace(_selectedDependencyType)
-        )">Add Dependency</button>
+        <button type="button" class="btn btn-outline-primary" @onclick="AddDependencyToTask" disabled="@(string.IsNullOrWhiteSpace(_selectedDependencyTaskTitle) || string.IsNullOrWhiteSpace(_selectedDependencyType))">
+            Add Dependency
+        </button>
     </div>
 
     @if (_taskDependencies.Any())
@@ -90,13 +96,13 @@
 
     <div class="form-group mb-3">
         <label>Select a Resource (optional)</label>
-        <select class="form-control" @bind="_selectedResourceName">
+        <select class="form-control" @bind="_selectedResourceId">
             <option value="">-- Select a resource --</option>
             @foreach (var resource in _resourcesDtos)
             {
-                if (!_taskResources.Any(r => r.Item2 == resource.Name))
+                if (!_taskResourceDataDtos.Any(r => r.ResourceId == resource.ResourceId))
                 {
-                    <option value="@resource.Name">@resource.Name</option>
+                    <option value="@resource.ResourceId">@resource.Name</option>
                 }
             }
         </select>
@@ -108,18 +114,18 @@
     </div>
 
     <div class="mb-3">
-        <button type="button" class="btn btn-outline-primary" @onclick="AddResourceToTask" disabled="@string.IsNullOrWhiteSpace(_selectedResourceName)">Add Resource</button>
+        <button type="button" class="btn btn-outline-primary" @onclick="AddResourceToTask" disabled="@(_selectedResourceId <= 0)">Add Resource</button>
     </div>
 
-    @if (_taskResources.Any())
+    @if (_taskResourceDataDtos.Any())
     {
         <h5>Added Resources</h5>
         <ul class="list-group">
-            @foreach (var (qty, name) in _taskResources)
+            @foreach (var taskResource in _taskResourceDataDtos)
             {
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                    @name - Quantity: @qty
-                    <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveResourceFromTask(name)">Remove</button>
+                    Resource ID: @taskResource.ResourceId - Quantity: @taskResource.Quantity
+                    <button type="button" class="btn btn-danger btn-sm" @onclick="() => RemoveResourceFromTask(taskResource.ResourceId)">Remove</button>
                 </li>
             }
         </ul>
@@ -147,9 +153,11 @@
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isSubmitting = false;
-    private string _selectedResourceName = string.Empty;
+    private int _selectedResourceId;
     private int _selectedQuantity = 1;
-    private List<(int, string)> _taskResources = new();
+    private List<TaskResourceDataDTO> _taskResourceDataDtos = new();
+    private TaskResourceDataDTO _taskResourceDataDto = new();
+
 
     private string? _selectedDependencyTaskTitle;
     private string? _selectedDependencyType;
@@ -173,7 +181,7 @@
         if (Session.IsLoggedIn())
         {
             _projectDtos = ProjectService.GetProjectsByUserEmail(Session.CurrentUser.Email);
-            _resourcesDtos = ProjectService.GetResourcesForSystem();
+            _resourcesDtos = ResourceService.GetResourcesForSystem();
         }
     }
 
@@ -181,9 +189,9 @@
     {
         if (selectedProjectId > 0)
         {
-            _taskTitleDtos = ProjectService.GetTasksForProjectWithId(selectedProjectId);
+            _taskTitleDtos = TaskService.GetTasksForProjectWithId(selectedProjectId);
 
-            var systemResources = ProjectService.GetResourcesForSystem();
+            var systemResources = ResourceService.GetResourcesForSystem();
             var exclusiveResources = ProjectService.GetExclusiveResourcesForProject(selectedProjectId);
 
             _resourcesDtos = systemResources.Concat(exclusiveResources)
@@ -192,7 +200,7 @@
                 .ToList();
 
             _taskDependencies.Clear();
-            _taskResources.Clear();
+            _taskResourceDataDtos.Clear();
         }
         else
         {
@@ -216,9 +224,9 @@
             }
 
             _newTask.Dependencies = _taskDependencies;
-            _newTask.Resources = _taskResources;
+            _newTask.Resources = _taskResourceDataDtos;
 
-            ProjectService.AddTask(_newTask);
+            TaskService.AddTask(_newTask);
             ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
 
             _successMessage = "Task created successfully!";
@@ -242,7 +250,7 @@
     {
         if (!string.IsNullOrWhiteSpace(_selectedDependencyTaskTitle) && !string.IsNullOrWhiteSpace(_selectedDependencyType))
         {
-            var selectedTask = ProjectService.GetTaskByTitle(_selectedDependencyTaskTitle);
+            var selectedTask = TaskService.GetTaskByTitle(_selectedDependencyTaskTitle);
 
             if (_selectedDependencyType == "FS")
             {
@@ -282,23 +290,55 @@
 
     private void AddResourceToTask()
     {
-        if (!string.IsNullOrWhiteSpace(_selectedResourceName) && _selectedQuantity > 0)
+        if (_selectedResourceId > 0 && _selectedQuantity > 0)
         {
-            if (_taskResources.Any(r => r.Item2 == _selectedResourceName))
+            if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
                 return;
 
-            _taskResources.Add((_selectedQuantity, _selectedResourceName));
-            _selectedResourceName = string.Empty;
+            bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
+
+            var completeTaskDto = new TaskDataDTO
+            {
+                Title = _newTask.Title,
+                Description = _newTask.Description,
+                Duration = _newTask.Duration,
+                Dependencies = new List<string>(_taskDependencies),
+                Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos)
+            };
+
+            var (taskEarlyStart, taskEarlyFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
+
+            if (ResourceService
+                .IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject,
+                    taskEarlyStart, taskEarlyFinish, _selectedQuantity))
+            {
+                TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
+                {
+                    TaskTitle = _newTask.Title,
+                    ResourceId = _selectedResourceId,
+                    Quantity = _selectedQuantity
+                };
+
+                _taskResourceDataDtos.Add(newTaskResourceDto);
+                _errorMessage = string.Empty;
+            }
+            else
+            {
+                string scope = exclusiveResourceProject ? "project" : "system";
+                _errorMessage = $"Resource not available in {scope} from {taskEarlyStart:yyyy-MM-dd} to {taskEarlyFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
+            }
+
+            _selectedResourceId = 0;
             _selectedQuantity = 1;
         }
     }
 
-    private void RemoveResourceFromTask(string resourceName)
+    private void RemoveResourceFromTask(int resourceId)
     {
-        var item = _taskResources.FirstOrDefault(r => r.Item2 == resourceName);
-        if (!string.IsNullOrEmpty(item.Item2))
+        TaskResourceDataDTO? taskResource = _taskResourceDataDtos.FirstOrDefault(r => r.ResourceId == resourceId);
+        if (taskResource != null)
         {
-            _taskResources.Remove(item);
+            _taskResourceDataDtos.Remove(taskResource);
         }
     }
 
