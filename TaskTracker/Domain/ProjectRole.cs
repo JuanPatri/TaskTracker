@@ -5,6 +5,7 @@ public class ProjectRole
 {
     private RoleType _roleType;
     private Project _project;
+    private User _user;
     public RoleType RoleType
     {
         get => _roleType;
@@ -20,7 +21,14 @@ public class ProjectRole
             
             _project = value;
     } 
-        
+    }
+    public User User
+    {
+        get => _user;
+        set
+        {
+            _user = value;
+        }
     }
     
 }
