@@ -109,31 +109,44 @@ public class TaskService
     }
     
 
-    public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
-    {
-        var project = _projectRepository.Find(p => p.Id == projectId);
-        if (project == null)
-            throw new ArgumentException($"Project with ID {projectId} not found");
+public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
+{
+    var project = _projectRepository.Find(p => p.Id == projectId);
+    if (project == null)
+        throw new ArgumentException($"Project with ID {projectId} not found");
 
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies ?? new List<string>());
-        List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources ?? new List<TaskResourceDataDTO>());
-        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);    
-    
-        DateTime earlyStart;
-    
-        if (createdTask.Dependencies == null || createdTask.Dependencies.Count == 0)
-        {
-            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        }
-        else
-        {
-            earlyStart = createdTask.Dependencies.Max(dep => dep.EarlyFinish);
-        }
-    
-        DateTime earlyFinish = earlyStart.AddDays(createdTask.Duration);
-    
-        return (earlyStart, earlyFinish);
+    DateTime earlyStart;
+
+    if (taskDto.Dependencies == null || taskDto.Dependencies.Count == 0)
+    {
+        earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
     }
+    else
+    {
+        DateTime latestDependencyFinish = DateTime.MinValue;
+        
+        foreach (string dependencyTitle in taskDto.Dependencies)
+        {
+            var dependencyTask = project.Tasks?.FirstOrDefault(t => t.Title == dependencyTitle);
+            if (dependencyTask != null)
+            {
+                if (dependencyTask.EarlyFinish > latestDependencyFinish)
+                {
+                    latestDependencyFinish = dependencyTask.EarlyFinish;
+                }
+            }
+        }
+        
+        earlyStart = latestDependencyFinish != DateTime.MinValue 
+            ? latestDependencyFinish.AddDays(1) 
+            : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        
+    }
+
+    DateTime earlyFinish = earlyStart.AddDays(taskDto.Duration - 1);
+
+    return (earlyStart, earlyFinish);
+}
     
     public List<Task> GetTaskDependenciesWithTitleTask(List<string> titlesTask)
     {
