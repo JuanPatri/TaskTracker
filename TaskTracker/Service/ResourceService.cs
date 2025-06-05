@@ -11,7 +11,6 @@ public class ResourceService
     private readonly IRepository<Resource> _resourceRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     private readonly IRepository<Project> _projectRepository;
-    private int _idResourceType;
     private readonly TaskService _taskService;
     
     public ResourceService(IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<Project> projectRepository, TaskService taskService)
@@ -19,7 +18,6 @@ public class ResourceService
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _projectRepository = projectRepository;
-        _idResourceType = 4;
         _taskService = taskService;
     }
     
@@ -29,12 +27,41 @@ public class ResourceService
         {
             throw new Exception("Resource already exists");
         }
+        if (resource.Quantity <= 0)
+        {
+            throw new ArgumentException("Resource quantity must be greater than zero");
+        }
 
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
-        Resource? createdResource = _resourceRepository.Add(Resource.FromDto(resource, resourceType));
+
+        Resource newResource = Resource.FromDto(resource, resourceType);
+    
+        int maxId = GetMaxResourceIdFromAllSources();
+        newResource.Id = GetNextResourceId();
+
+        Resource? createdResource = _resourceRepository.Add(newResource);
         return createdResource;
     }
+    
+    private int GetNextResourceId()
+    {
+        var allResources = _resourceRepository.FindAll();
+        int maxId = allResources.Any() ? allResources.Max(r => r.Id) : 0;
+    
+        int nextId = maxId + 1;
+        if (nextId >= 1000)
+        {
+            throw new InvalidOperationException("Too many system resources. Max 999 allowed.");
+        }
+    
+        return nextId;
+    }
 
+    private int GetMaxResourceIdFromAllSources()
+    {
+        var allResources = _resourceRepository.FindAll();
+        return allResources.Any() ? allResources.Max(r => r.Id) : 0;
+    }
     public void RemoveResource(GetResourceDto resource)
     {
         _resourceRepository.Delete(resource.Name);
@@ -60,7 +87,11 @@ public class ResourceService
     public List<GetResourceDto> GetResourcesForSystem()
     {
         return _resourceRepository.FindAll()
-            .Select(resource => new GetResourceDto { Name = resource.Name })
+            .Select(resource => new GetResourceDto 
+            { 
+                ResourceId = resource.Id, 
+                Name = resource.Name 
+            })
             .ToList();
     }
     

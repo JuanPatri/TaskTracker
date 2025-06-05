@@ -1,5 +1,4 @@
 @page "/CreateResource"
-@using Domain
 @using DTOs.ResourceDTOs
 @using DTOs.ResourceTypeDTOs
 @using Service
@@ -50,7 +49,7 @@
 
     <div class="mb-3">
         <label for="quantity" class="form-label">Quantity</label>
-        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="0" />
+        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="1" />
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>

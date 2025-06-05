@@ -108,6 +108,14 @@
         </select>
     </div>
 
+    <!-- AGREGAR ESTO PARA DEBUG -->
+    <div class="alert alert-info">
+        <strong>Debug Info:</strong><br/>
+        Selected Resource ID: @_selectedResourceId<br/>
+        Button Disabled: @(_selectedResourceId <= 0)<br/>
+        Resources Count: @_resourcesDtos.Count
+    </div>
+
     <div class="form-group mb-3">
         <label>Quantity</label>
         <InputNumber class="form-control" @bind-Value="_selectedQuantity"/>

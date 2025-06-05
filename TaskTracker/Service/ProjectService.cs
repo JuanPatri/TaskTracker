@@ -19,12 +19,14 @@ public class ProjectService
     public ProjectDataDTO? SelectedProject;
     private readonly UserService _userService;
     private readonly CriticalPathService _criticalPathService;
+    private int _idResource;
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
         IRepository<ResourceType> resourceTypeRepository,  IRepository<User> userRepository, UserService userService,
         CriticalPathService criticalPathService)
     {
         _projectRepository = projectRepository;
         _idProject = 2;
+        _idResource = 1;
         _taskRepository = taskRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _userRepository = userRepository;
@@ -123,6 +125,8 @@ public class ProjectService
         {
             Name = resourceDto.Name,
             Description = resourceDto.Description,
+            Quantity = resourceDto.Quantity,
+            Id = _idResource++,
             Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
         };
 
@@ -157,7 +161,11 @@ public class ProjectService
             return new List<GetResourceDto>();
 
         return project.ExclusiveResources
-            .Select(r => new GetResourceDto { Name = r.Name })
+            .Select(r => new GetResourceDto 
+            { 
+                ResourceId = r.Id,  
+                Name = r.Name 
+            })
             .ToList();
     }
 
