@@ -126,7 +126,7 @@ public class ProjectService
             Name = resourceDto.Name,
             Description = resourceDto.Description,
             Quantity = resourceDto.Quantity,
-            Id = _idResource++,
+            Id = GetNextExclusiveResourceId(project.ExclusiveResources),
             Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
         };
 

@@ -1,5 +1,6 @@
 using Domain;
 using DTOs.ProjectDTOs;
+using DTOs.ResourceDTOs;
 using DTOs.TaskDTOs;
 using DTOs.TaskResourceDTOs;
 using DTOs.UserDTOs;
@@ -72,7 +73,6 @@ public class ProjectServiceTest
         _resourceTypeRepository.Add(_resource.Type);
     }
 
-    #region ProjectTest
 
     [TestMethod]
     public void CreateProjectService()
@@ -706,5 +706,96 @@ public class ProjectServiceTest
         Assert.AreEqual(taskDto.Status, addedTask.Status);
     }
 
-    #endregion
+
+    [TestMethod]
+    public void GetNextExclusiveResourceId_NoExclusiveResources_ShouldReturnId1000()
+    {
+        var project = new Project
+        {
+            Id = 100,
+            Name = "Project Without Exclusive Resources",
+            Description = "Valid description", 
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            ExclusiveResources = new List<Resource>()
+        };
+        _projectRepository.Add(project);
+
+        var resourceDto = new ResourceDataDto
+        {
+            Name = "First Exclusive Resource",
+            Description = "Description",
+            Quantity = 1,
+            TypeResource = 4 
+        };
+
+        _projectService.AddExclusiveResourceToProject(100, resourceDto);
+
+        var updatedProject = _projectRepository.Find(p => p.Id == 100);
+        Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
+        Assert.AreEqual(1000, updatedProject.ExclusiveResources[0].Id);
+    }
+
+    [TestMethod]
+    public void GetNextExclusiveResourceId_WithExistingResources_ShouldReturnMaxIdPlusOne()
+    {
+        var existingResource1 = new Resource { Id = 1003, Name = "Resource1" };
+        var existingResource2 = new Resource { Id = 1001, Name = "Resource2" };
+        
+        var project = new Project
+        {
+            Id = 101,
+            Name = "Project With Exclusive Resources",
+            Description = "Valid description", 
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            ExclusiveResources = new List<Resource> { existingResource1, existingResource2 }
+        };
+        _projectRepository.Add(project);
+
+        var resourceDto = new ResourceDataDto
+        {
+            Name = "New Exclusive Resource",
+            Description = "Description",
+            Quantity = 1,
+            TypeResource = 4
+        };
+
+        _projectService.AddExclusiveResourceToProject(101, resourceDto);
+
+        var updatedProject = _projectRepository.Find(p => p.Id == 101);
+        Assert.AreEqual(3, updatedProject.ExclusiveResources.Count);
+        var newResource = updatedProject.ExclusiveResources.FirstOrDefault(r => r.Name == "New Exclusive Resource");
+        Assert.IsNotNull(newResource);
+        Assert.AreEqual(1004, newResource.Id); 
+    }
+
+    [TestMethod]
+    public void GetNextExclusiveResourceId_AtLimit1999_ShouldThrowException()
+    {
+        var limitResource = new Resource { Id = 1999, Name = "Limit Resource" };
+        
+        var project = new Project
+        {
+            Id = 102,
+            Name = "Project At Limit",
+            Description = "Valid description",
+            ExclusiveResources = new List<Resource> { limitResource }
+        };
+        _projectRepository.Add(project);
+
+        var resourceDto = new ResourceDataDto
+        {
+            Name = "Resource Beyond Limit",
+            Description = "Description",
+            Quantity = 1,
+            TypeResource = 4
+        };
+
+        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+            _projectService.AddExclusiveResourceToProject(102, resourceDto)
+        );
+        
+        Assert.AreEqual("Too many exclusive resources. Max 999 exclusive resources allowed.", exception.Message);
+    }
 }

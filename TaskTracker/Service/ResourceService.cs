@@ -36,7 +36,7 @@ public class ResourceService
 
         Resource newResource = Resource.FromDto(resource, resourceType);
     
-        int maxId = GetMaxResourceIdFromAllSources();
+        int maxId = GetNextResourceId();
         newResource.Id = GetNextResourceId();
 
         Resource? createdResource = _resourceRepository.Add(newResource);
@@ -55,12 +55,6 @@ public class ResourceService
         }
     
         return nextId;
-    }
-
-    private int GetMaxResourceIdFromAllSources()
-    {
-        var allResources = _resourceRepository.FindAll();
-        return allResources.Any() ? allResources.Max(r => r.Id) : 0;
     }
     public void RemoveResource(GetResourceDto resource)
     {
