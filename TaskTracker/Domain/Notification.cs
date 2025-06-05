@@ -1,4 +1,4 @@
-using Domain.Enums;
+using Enums;
 using DTOs.NotificationDTOs;
 using Enums;
 

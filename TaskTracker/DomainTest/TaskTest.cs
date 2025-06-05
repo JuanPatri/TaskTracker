@@ -1,6 +1,6 @@
 ﻿using DTOs.TaskDTOs;
 using Domain;
-using Domain.Enums;
+using Enums;
 using DTOs.TaskResourceDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

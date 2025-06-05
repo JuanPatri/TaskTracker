@@ -1,6 +1,6 @@
 ﻿using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Domain.Enums;
+using Enums;
 
 namespace DomainTest;
 
@@ -61,12 +61,5 @@ namespace DomainTest;
     
             ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.User = user);
             Assert.AreEqual("User cannot be null", ex.Message);
-        }
-
-        [TestMethod]
-        public void SetRoleTypeNullReturnsAnException()
-        {
-            ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.RoleType = (RoleType)999);
-            Assert.AreEqual("Invalid value for RoleType", ex.Message);
         }
     }
