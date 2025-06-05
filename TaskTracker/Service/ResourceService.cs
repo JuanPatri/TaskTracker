@@ -36,7 +36,6 @@ public class ResourceService
 
         Resource newResource = Resource.FromDto(resource, resourceType);
     
-        int maxId = GetNextResourceId();
         newResource.Id = GetNextResourceId();
 
         Resource? createdResource = _resourceRepository.Add(newResource);
