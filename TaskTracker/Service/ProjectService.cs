@@ -134,6 +134,31 @@ public class ProjectService
 
         _projectRepository.Update(project);
     }
+    
+    private int GetNextExclusiveResourceId(List<Resource> resources)
+    {
+        int minExclusiveId = 1000;
+    
+        if (!resources.Any())
+        {
+            return minExclusiveId;
+        }
+    
+        int maxId = resources.Max(r => r.Id);
+        int nextId = maxId + 1;
+    
+        if (nextId < minExclusiveId)
+        {
+            nextId = minExclusiveId;
+        }
+    
+        if (nextId >= 2000)
+        {
+            throw new InvalidOperationException("Too many exclusive resources. Max 999 exclusive resources allowed.");
+        }
+    
+        return nextId;
+    }
 
     public List<ProjectDataDTO> GetAllProjectsDTOs()
     {
