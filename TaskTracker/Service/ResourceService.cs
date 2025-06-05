@@ -57,7 +57,25 @@ public class ResourceService
         return nextId;
     }
 
-   
+    private int GetMaxResourceIdFromAllSources()
+    {
+        var allResources = _resourceRepository.FindAll();
+        return allResources.Any() ? allResources.Max(r => r.Id) : 0;
+    }
+    public void RemoveResource(GetResourceDto resource)
+    {
+        _resourceRepository.Delete(resource.Name);
+    }
+
+    public Resource? GetResource(GetResourceDto resource)
+    {
+        return _resourceRepository.Find(r => r.Name == resource.Name);
+    }
+
+    public List<Resource> GetAllResources()
+    {
+        return _resourceRepository.FindAll().ToList();
+    }
 
     public Resource? UpdateResource(ResourceDataDto resourceDto)
     {
