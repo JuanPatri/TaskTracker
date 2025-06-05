@@ -521,4 +521,30 @@ public class ResourceServiceTest
          );
      }
  
+     [TestMethod]
+     public void GetNextResourceId_NoResources_ReturnsId1()
+     {
+         var result = _resourceService.AddResource(new ResourceDataDto { Name = "Test", Quantity = 1, TypeResource = 1 });
+         Assert.AreEqual(1, result.Id);
+     }
+
+     [TestMethod]
+     public void GetNextResourceId_WithResources_ReturnsMaxIdPlusOne()
+     {
+         _resourceRepository.Add(new Resource { Id = 5, Name = "Resource5" });
+         _resourceRepository.Add(new Resource { Id = 2, Name = "Resource2" });
+
+         var result = _resourceService.AddResource(new ResourceDataDto { Name = "Test", Quantity = 1, TypeResource = 1 });
+         Assert.AreEqual(6, result.Id);
+     }
+
+     [TestMethod]
+     public void GetNextResourceId_AtLimit999_ThrowsException()
+     {
+         _resourceRepository.Add(new Resource { Id = 999, Name = "MaxResource" });
+
+         var ex = Assert.ThrowsException<InvalidOperationException>(() => 
+             _resourceService.AddResource(new ResourceDataDto { Name = "Test", Quantity = 1, TypeResource = 1 }));
+         Assert.AreEqual("Too many system resources. Max 999 allowed.", ex.Message);
+     }
 }
