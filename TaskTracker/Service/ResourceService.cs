@@ -254,4 +254,5 @@ public class ResourceService
     {
         return _resourceRepository.Find(resource => resource.Name == resourceName);
     }
+    
 }

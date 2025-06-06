@@ -1,6 +1,9 @@
 using Domain;
+using DTOs.ProjectDTOs;
 using DTOs.ResourceDTOs;
+using DTOs.TaskDTOs;
 using DTOs.TaskResourceDTOs;
+using DTOs.UserDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
@@ -69,7 +72,6 @@ public class ResourceServiceTest
         _task = new Task() { Title = "Test Task", };
         _taskRepository.Add(_task);
     }
-
 
     [TestMethod]
     public void CreateResourceService()
@@ -202,7 +204,6 @@ public class ResourceServiceTest
         newResource2.Name = "Resource2";
         _resourceRepository.Add(newResource2);
 
-
         List<(int, string)> searchList = new List<(int, string)>()
         {
             (2, "Resource1")
@@ -248,7 +249,7 @@ public class ResourceServiceTest
     [TestMethod]
     public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
     {
-        var exclusiveResource = new Resource
+        Resource exclusiveResource = new Resource
         {
             Id = 100,
             Name = "Exclusive Printer",
@@ -270,7 +271,7 @@ public class ResourceServiceTest
         bool isExclusive4 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, 999);
         Assert.IsFalse(isExclusive4, "Should return false for non-existent project");
 
-        var anotherProject = new Project
+        Project anotherProject = new Project
         {
             Id = 50,
             Name = "Another Project",
@@ -292,15 +293,18 @@ public class ResourceServiceTest
     public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
     {
         _resource.Quantity = 5;
+        _resource.Id = 1000; 
 
-        var taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        var taskEnd = taskStart.AddDays(3);
+        _project.ExclusiveResources = new List<Resource> { _resource };
+
+        DateTime taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        DateTime taskEnd = taskStart.AddDays(3);
 
         _task.EarlyStart = taskStart;
         _task.EarlyFinish = taskEnd;
         _task.Status = Status.Blocked;
 
-        var taskResource = new TaskResource
+        TaskResource taskResource = new TaskResource
         {
             Task = _task,
             Resource = _resource,
@@ -309,8 +313,8 @@ public class ResourceServiceTest
         _task.Resources = new List<TaskResource> { taskResource };
         _project.Tasks = new List<Task> { _task };
 
-        var newTaskStart = taskStart.AddDays(1);
-        var newTaskEnd = newTaskStart.AddDays(2);
+        DateTime newTaskStart = taskStart.AddDays(1);
+        DateTime newTaskEnd = newTaskStart.AddDays(2);
 
         bool isAvailable1 = _resourceService.IsResourceAvailableForNewTask(
             _resource.Id, _project.Id, true, newTaskStart, newTaskEnd, 2);
@@ -322,8 +326,8 @@ public class ResourceServiceTest
 
         Assert.IsFalse(isAvailable2, "Should not be available: 5 total - 2 used = 3 available, requesting 4");
 
-        var noOverlapStart = taskEnd.AddDays(1);
-        var noOverlapEnd = noOverlapStart.AddDays(2);
+        DateTime noOverlapStart = taskEnd.AddDays(1);
+        DateTime noOverlapEnd = noOverlapStart.AddDays(2);
 
         bool isAvailable3 = _resourceService.IsResourceAvailableForNewTask(
             _resource.Id, _project.Id, true, noOverlapStart, noOverlapEnd, 5);
@@ -352,15 +356,18 @@ public class ResourceServiceTest
     public void IsResourceAvailable_WithPendingResources_ShouldReturnCorrectAvailability()
     {
         _resource.Quantity = 5;
+        _resource.Id = 1000; 
 
-        var taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        var taskEnd = taskStart.AddDays(3);
+        _project.ExclusiveResources = new List<Resource> { _resource };
+
+        DateTime taskStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        DateTime taskEnd = taskStart.AddDays(3);
 
         _task.EarlyStart = taskStart;
         _task.EarlyFinish = taskEnd;
         _task.Status = Status.Blocked;
 
-        var taskResource = new TaskResource
+        TaskResource taskResource = new TaskResource
         {
             Task = _task,
             Resource = _resource,
@@ -369,10 +376,10 @@ public class ResourceServiceTest
         _task.Resources = new List<TaskResource> { taskResource };
         _project.Tasks = new List<Task> { _task };
 
-        var newTaskStart = taskStart.AddDays(1);
-        var newTaskEnd = newTaskStart.AddDays(2);
+        DateTime newTaskStart = taskStart.AddDays(1);
+        DateTime newTaskEnd = newTaskStart.AddDays(2);
 
-        var pendingResources = new List<TaskResourceDataDTO>
+        List<TaskResourceDataDTO> pendingResources = new List<TaskResourceDataDTO>
         {
             new TaskResourceDataDTO
             {
@@ -411,16 +418,15 @@ public class ResourceServiceTest
     [TestMethod]
     public void GetResourcesWithName_ShouldIgnoreNonexistentResources()
     {
-        var resourceList = new List<(int, string)>
+        List<(int, string)> resourceList = new List<(int, string)>
         {
             (2, "NonExistingResource")
         };
 
-        var result = _resourceService.GetResourcesWithName(resourceList);
+        List<(int, Resource)> result = _resourceService.GetResourcesWithName(resourceList);
 
         Assert.AreEqual(0, result.Count);
     }
-
 
     [TestMethod]
     public void GetResourcesWithNameShouldMapMultipleResources()
@@ -450,7 +456,6 @@ public class ResourceServiceTest
             _resourceService.DecreaseResourceQuantity(999, "x"));
     }
 
-
     [TestMethod]
     public void DecreaseResourceQuantity_ResourceNotFound_ThrowsException()
     {
@@ -461,7 +466,7 @@ public class ResourceServiceTest
         };
         _projectRepository.Add(project);
 
-        var exception = Assert.ThrowsException<InvalidOperationException>(() =>
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(() =>
             _resourceService.DecreaseResourceQuantity(1, "NonExistent"));
 
         Assert.AreEqual("Resource not found or quantity is already 0", exception.Message);
@@ -571,7 +576,7 @@ public class ResourceServiceTest
     [TestMethod]
     public void GetNextResourceId_NoResources_ReturnsId1()
     {
-        var result = _resourceService.AddResource(new ResourceDataDto
+        Resource? result = _resourceService.AddResource(new ResourceDataDto
             { Name = "Test", Quantity = 1, TypeResource = 1 });
         Assert.AreEqual(1, result.Id);
     }
@@ -582,7 +587,7 @@ public class ResourceServiceTest
         _resourceRepository.Add(new Resource { Id = 5, Name = "Resource5" });
         _resourceRepository.Add(new Resource { Id = 2, Name = "Resource2" });
 
-        var result = _resourceService.AddResource(new ResourceDataDto
+        Resource? result = _resourceService.AddResource(new ResourceDataDto
             { Name = "Test", Quantity = 1, TypeResource = 1 });
         Assert.AreEqual(6, result.Id);
     }
@@ -592,8 +597,110 @@ public class ResourceServiceTest
     {
         _resourceRepository.Add(new Resource { Id = 999, Name = "MaxResource" });
 
-        var ex = Assert.ThrowsException<InvalidOperationException>(() =>
+        InvalidOperationException ex = Assert.ThrowsException<InvalidOperationException>(() =>
             _resourceService.AddResource(new ResourceDataDto { Name = "Test", Quantity = 1, TypeResource = 1 }));
         Assert.AreEqual("Too many system resources. Max 999 allowed.", ex.Message);
+    }
+    
+    [TestMethod]
+    public void AddResource_ValidationTests()
+    {
+        ResourceDataDto zeroQuantityResource = new ResourceDataDto()
+        {
+            Name = "ZeroResource",
+            Description = "description",
+            TypeResource = 1,
+            Quantity = 0
+        };
+        ArgumentException exception1 = Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(zeroQuantityResource));
+        Assert.AreEqual("Resource quantity must be greater than zero", exception1.Message);
+
+        ResourceDataDto negativeResource = new ResourceDataDto()
+        {
+            Name = "NegativeResource",
+            Description = "description", 
+            TypeResource = 1,
+            Quantity = -5
+        };
+        ArgumentException exception2 = Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(negativeResource));
+        Assert.AreEqual("Resource quantity must be greater than zero", exception2.Message);
+    }
+
+    [TestMethod]
+    public void ResourceNotFound_Tests()
+    {
+        ResourceDataDto nonExistentDto = new ResourceDataDto()
+        {
+            Name = "NonExistent",
+            Description = "desc",
+            TypeResource = 1,
+            Quantity = 5
+        };
+        Resource? updateResult = _resourceService.UpdateResource(nonExistentDto);
+        Assert.IsNull(updateResult);
+
+        GetResourceDto getDto = new GetResourceDto() { Name = "NonExistent" };
+        Resource? getResult = _resourceService.GetResource(getDto);
+        Assert.IsNull(getResult);
+    }
+
+    [TestMethod]
+    public void IsResourceAvailable_ErrorCases()
+    {
+        List<TaskResourceDataDTO> pendingResources = new List<TaskResourceDataDTO>();
+        DateTime today = DateTime.Now;
+        DateTime tomorrow = today.AddDays(1);
+
+        bool result1 = _resourceService.IsResourceAvailable(_resource.Id, 999, true, today, tomorrow, 1, pendingResources);
+        Assert.IsFalse(result1);
+
+        bool result2 = _resourceService.IsResourceAvailable(999, _project.Id, true, today, tomorrow, 1, pendingResources);
+        Assert.IsFalse(result2);
+
+        bool result3 = _resourceService.IsResourceAvailableForNewTask(_resource.Id, 999, true, today, tomorrow, 1);
+        Assert.IsFalse(result3);
+
+        bool result4 = _resourceService.IsResourceAvailableForNewTask(999, _project.Id, true, today, tomorrow, 1);
+        Assert.IsFalse(result4);
+    }
+
+    [TestMethod]
+    public void DecreaseResourceQuantity_AndEdgeCases()
+    {
+        Resource resource = new Resource { Name = "TestResource", Quantity = 5 };
+        TaskResource taskResource = new TaskResource
+        {
+            Task = new Task(),
+            Resource = resource,
+            Quantity = 3
+        };
+        Task task = new Task
+        {
+            Title = "Test Task",
+            Resources = new List<TaskResource> { taskResource }
+        };
+        Project project = new Project
+        {
+            Id = 200,
+            Name = "Test Project",
+            Tasks = new List<Task> { task },
+            Description = "desc",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User()
+        };
+        _projectRepository.Add(project);
+
+        _resourceService.DecreaseResourceQuantity(200, "TestResource");
+        Assert.AreEqual(2, taskResource.Quantity);
+
+        List<(int, Resource)> emptyResult = _resourceService.GetResourcesWithName(new List<(int, string)>());
+        Assert.AreEqual(0, emptyResult.Count);
+
+        Resource newRes = new Resource { Name = "MixedTest" };
+        _resourceRepository.Add(newRes);
+        List<(int, string)> mixedList = new List<(int, string)> { (1, "MixedTest"), (2, "NonExistent") };
+        List<(int, Resource)> mixedResult = _resourceService.GetResourcesWithName(mixedList);
+        Assert.AreEqual(1, mixedResult.Count);
+        Assert.AreEqual("MixedTest", mixedResult[0].Item2.Name);
     }
 }

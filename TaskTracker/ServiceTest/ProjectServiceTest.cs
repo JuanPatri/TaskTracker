@@ -12,7 +12,6 @@ using Task = Domain.Task;
 
 namespace ServiceTest;
 
-
 [TestClass]
 public class ProjectServiceTest
 {
@@ -44,7 +43,8 @@ public class ProjectServiceTest
         _projectService = new ProjectService(_taskRepository, _projectRepository,
             _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
 
-        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService, _criticalPathService);
+        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
+            _criticalPathService);
 
         _project = new Project()
         {
@@ -263,6 +263,7 @@ public class ProjectServiceTest
         Assert.IsNotNull(projectDto);
         Assert.AreEqual(1, projectDto.Count);
     }
+
     [TestMethod]
     public void GetAllProjectsDTOs_ShouldReturnProjectsWithCorrectMapping()
     {
@@ -621,7 +622,7 @@ public class ProjectServiceTest
         _projectService.SelectedProject = null;
         Assert.IsNull(_projectService.SelectedProject);
     }
-    
+
     [TestMethod]
     public void IsTaskCriticalByProjectIdShouldReturnTrueIfTaskIsCritical()
     {
@@ -714,7 +715,7 @@ public class ProjectServiceTest
         {
             Id = 100,
             Name = "Project Without Exclusive Resources",
-            Description = "Valid description", 
+            Description = "Valid description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Administrator = new User(),
             ExclusiveResources = new List<Resource>()
@@ -726,7 +727,7 @@ public class ProjectServiceTest
             Name = "First Exclusive Resource",
             Description = "Description",
             Quantity = 1,
-            TypeResource = 4 
+            TypeResource = 4
         };
 
         _projectService.AddExclusiveResourceToProject(100, resourceDto);
@@ -741,12 +742,12 @@ public class ProjectServiceTest
     {
         var existingResource1 = new Resource { Id = 1003, Name = "Resource1" };
         var existingResource2 = new Resource { Id = 1001, Name = "Resource2" };
-        
+
         var project = new Project
         {
             Id = 101,
             Name = "Project With Exclusive Resources",
-            Description = "Valid description", 
+            Description = "Valid description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
             Administrator = new User(),
             ExclusiveResources = new List<Resource> { existingResource1, existingResource2 }
@@ -767,14 +768,14 @@ public class ProjectServiceTest
         Assert.AreEqual(3, updatedProject.ExclusiveResources.Count);
         var newResource = updatedProject.ExclusiveResources.FirstOrDefault(r => r.Name == "New Exclusive Resource");
         Assert.IsNotNull(newResource);
-        Assert.AreEqual(1004, newResource.Id); 
+        Assert.AreEqual(1004, newResource.Id);
     }
 
     [TestMethod]
     public void GetNextExclusiveResourceId_AtLimit1999_ShouldThrowException()
     {
         var limitResource = new Resource { Id = 1999, Name = "Limit Resource" };
-        
+
         var project = new Project
         {
             Id = 102,
@@ -795,7 +796,204 @@ public class ProjectServiceTest
         var exception = Assert.ThrowsException<InvalidOperationException>(() =>
             _projectService.AddExclusiveResourceToProject(102, resourceDto)
         );
-        
+
         Assert.AreEqual("Too many exclusive resources. Max 999 exclusive resources allowed.", exception.Message);
+    }
+
+    [TestMethod]
+    public void CalculateTaskDates_ShouldCalculateCorrectDates()
+    {
+        User admin = new User
+        {
+            Name = "Admin",
+            LastName = "User",
+            Email = "admin@test.com",
+            Password = "Test123!",
+            BirthDate = DateTime.Now.AddYears(-30)
+        };
+
+        Project project = new Project
+        {
+            Id = 150,
+            Name = "Date Test Project",
+            Description = "Test description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = admin,
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(project);
+
+        Task dependencyTask = new Task
+        {
+            Title = "Dependency Task",
+            Description = "Dependency",
+            Duration = 3,
+            EarlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0)),
+            EarlyFinish = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3)
+        };
+
+        Task newTask = new Task
+        {
+            Title = "New Task",
+            Description = "Test task",
+            Duration = 2,
+            Dependencies = new List<Task> { dependencyTask }
+        };
+
+        project.Tasks.Add(dependencyTask);
+        _taskRepository.Add(dependencyTask);
+        _taskRepository.Add(newTask);
+
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "New Task",
+            Description = "Test task",
+            Duration = 2,
+            Dependencies = new List<string> { "Dependency Task" },
+            Resources = new List<TaskResourceDataDTO>()
+        };
+
+        _projectService.AddTaskToProject(taskDto, 150);
+
+        Task addedTask = project.Tasks.FirstOrDefault(t => t.Title == "New Task");
+        Assert.IsNotNull(addedTask);
+        Assert.AreEqual(dependencyTask.EarlyFinish.AddDays(1), addedTask.EarlyStart);
+        Assert.AreEqual(dependencyTask.EarlyFinish.AddDays(3), addedTask.EarlyFinish);
+    }
+
+    [TestMethod]
+    public void GetProjectWithCriticalPath_ShouldReturnProjectWithCriticalPathData()
+    {
+        Task taskA = new Task
+        {
+            Title = "Task A",
+            Duration = 2,
+            EarlyStart = DateTime.Now.AddDays(1),
+            EarlyFinish = DateTime.Now.AddDays(3)
+        };
+
+        Task taskB = new Task
+        {
+            Title = "Task B",
+            Duration = 3,
+            Dependencies = new List<Task> { taskA },
+            EarlyStart = DateTime.Now.AddDays(4),
+            EarlyFinish = DateTime.Now.AddDays(7)
+        };
+
+        Project project = new Project
+        {
+            Id = 200,
+            Name = "Critical Path Project",
+            Description = "Test critical path",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            Tasks = new List<Task> { taskA, taskB }
+        };
+        _projectRepository.Add(project);
+
+        GetProjectDTO result = _projectService.GetProjectWithCriticalPath(200);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Critical Path Project", result.Name);
+        Assert.IsNotNull(result.CriticalPathTitles);
+        Assert.IsNotNull(result.Tasks);
+        Assert.AreEqual(2, result.Tasks.Count);
+    }
+
+    [TestMethod]
+    public void GetProjectWithCriticalPath_ShouldReturnNull_WhenProjectNotFound()
+    {
+        GetProjectDTO result = _projectService.GetProjectWithCriticalPath(999);
+        Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public void GetEstimatedProjectFinishDate_ShouldReturnMaxTaskFinishDate()
+    {
+        Task task1 = new Task
+        {
+            Title = "Task 1",
+            Duration = 2,
+            EarlyStart = DateTime.Now.AddDays(1),
+            EarlyFinish = DateTime.Now.AddDays(3)
+        };
+
+        Task task2 = new Task
+        {
+            Title = "Task 2",
+            Duration = 5,
+            EarlyStart = DateTime.Now.AddDays(1),
+            EarlyFinish = DateTime.Now.AddDays(6)
+        };
+
+        Project project = new Project
+        {
+            Id = 250,
+            Name = "Finish Date Project",
+            Description = "Test finish date",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            Tasks = new List<Task> { task1, task2 }
+        };
+        _projectRepository.Add(project);
+
+        DateTime finishDate = _projectService.GetEstimatedProjectFinishDate(project);
+        Assert.AreEqual(task2.EarlyFinish, finishDate);
+    }
+
+    
+    [TestMethod]
+    public void GetUsersFromProject_ShouldReturnProjectUsers()
+    {
+        User user1 = new User { Name = "UserOne", Email = "user1@test.com" };
+        User user2 = new User { Name = "UserTwo", Email = "user2@test.com" };
+    
+        Project project = new Project
+        {
+            Id = 300,
+            Name = "Users Project",
+            Description = "Test users",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            Users = new List<User> { user1, user2 }
+        };
+        _projectRepository.Add(project);
+
+        List<User> users = _projectService.GetUsersFromProject(300);
+    
+        Assert.AreEqual(2, users.Count);
+        Assert.IsTrue(users.Any(u => u.Name == "UserOne"));
+        Assert.IsTrue(users.Any(u => u.Name == "UserTwo"));
+    }
+
+    [TestMethod]
+    public void GetUsersFromProject_ShouldReturnEmpty_WhenProjectNotFound()
+    {
+        List<User> users = _projectService.GetUsersFromProject(999);
+        Assert.AreEqual(0, users.Count);
+    }
+
+    [TestMethod]
+    public void AddTaskToProject_ShouldThrowException_WhenTaskNotInRepository()
+    {
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "Non Existent Task",
+            Description = "Test",
+            Duration = 1
+        };
+
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(() =>
+            _projectService.AddTaskToProject(taskDto, _project.Id));
+
+        Assert.AreEqual("Task must be added to repository before linking to project.", exception.Message);
+    }
+
+    [TestMethod]
+    public void GetAdminEmailByTaskTitle_ShouldReturnNull_WhenTaskNotFound()
+    {
+        string result = _projectService.GetAdminEmailByTaskTitle("Non Existent Task");
+        Assert.IsNull(result);
     }
 }
