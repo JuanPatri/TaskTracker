@@ -290,7 +290,7 @@
         _taskDependencies.Remove(taskTitle);
     }
 
-    private void AddResourceToTask()
+private void AddResourceToTask()
 {
     if (_selectedResourceId > 0 && _selectedQuantity > 0)
     {
@@ -334,9 +334,12 @@
 
         try
         {
-            var (taskEarlyStart, taskEarlyFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
+            var (calculatedStart, calculatedFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
 
-            if (ResourceService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject, taskEarlyStart, taskEarlyFinish, _selectedQuantity))
+            bool resourceAvailability = ResourceService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject, calculatedStart, calculatedFinish, _selectedQuantity);
+            
+
+            if (resourceAvailability)
             {
                 TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
                 {
@@ -351,7 +354,7 @@
             else
             {
                 string scope = exclusiveResourceProject ? "project" : "system";
-                _errorMessage = $"Resource not available in {scope} from {taskEarlyStart:yyyy-MM-dd} to {taskEarlyFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
+                _errorMessage = $"Resource not available in {scope} from {calculatedStart:yyyy-MM-dd} to {calculatedFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
             }
         }
         catch (Exception ex)

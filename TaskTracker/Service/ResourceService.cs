@@ -91,15 +91,14 @@ public class ResourceService
     public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart,
         DateTime taskEarlyFinish, int requiredQuantity)
     {
-        Resource? resource = _resourceRepository.Find(r => r.Id == resourceId);
-        if (resource == null) return false;
-
+        Resource? resource = null;
         List<Task> tasksToCheck;
-
 
         if (isExclusive)
         {
             Project? currentProject = _projectRepository.Find(p => p.Id == projectId);
+    
+            resource = currentProject?.ExclusiveResources?.FirstOrDefault(r => r.Id == resourceId);
             tasksToCheck = currentProject?.Tasks
                 .Where(task => task.Resources != null &&
                                task.Resources.Any(tr => tr.Resource.Id == resourceId))
@@ -107,12 +106,15 @@ public class ResourceService
         }
         else
         {
+            resource = _resourceRepository.Find(r => r.Id == resourceId);
+        
             tasksToCheck = _projectRepository.FindAll()
                 .SelectMany(p => p.Tasks ?? new List<Task>())
-                .Where(task => task.Resources != null &&
-                               task.Resources.Any(tr => tr.Resource.Id == resourceId))
+                .Where(task => task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId))
                 .ToList();
         }
+
+        if (resource == null) return false;
 
         List<Task> overlappingTasks = tasksToCheck
             .Where(task =>
