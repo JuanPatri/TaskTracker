@@ -158,7 +158,6 @@
     private List<TaskResourceDataDTO> _taskResourceDataDtos = new();
     private TaskResourceDataDTO _taskResourceDataDto = new();
 
-
     private string? _selectedDependencyTaskTitle;
     private string? _selectedDependencyType;
     private List<(string Title, string Type)> _dependencyDisplayList = new();
@@ -207,8 +206,6 @@
             _taskTitleDtos.Clear();
             _resourcesDtos.Clear();
         }
-        
-        
     }
     
     private async Task HandleSubmit()
@@ -284,63 +281,97 @@
         }
     }
 
-
     private void RemoveDependencyFromTask(string taskTitle)
     {
         _taskDependencies.Remove(taskTitle);
     }
 
-private void AddResourceToTask()
-{
-    if (_selectedResourceId > 0 && _selectedQuantity > 0)
+    private void AddResourceToTask()
     {
-        if (string.IsNullOrWhiteSpace(_newTask.Title))
+        if (_selectedResourceId > 0 && _selectedQuantity > 0)
         {
-            _errorMessage = "Please enter a task title before adding resources.";
-            return;
-        }
-
-        if (string.IsNullOrWhiteSpace(_newTask.Description))
-        {
-            _errorMessage = "Please enter a task description before adding resources.";
-            return;
-        }
-
-        if (_newTask.Duration <= 0)
-        {
-            _errorMessage = "Please enter a valid task duration before adding resources.";
-            return;
-        }
-
-        if (_selectedProjectId <= 0)
-        {
-            _errorMessage = "Please select a project before adding resources.";
-            return;
-        }
-
-        if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
-            return;
-
-        bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
-
-        var completeTaskDto = new TaskDataDTO
-        {
-            Title = _newTask.Title,        
-            Description = _newTask.Description,
-            Duration = _newTask.Duration,     
-            Dependencies = new List<string>(_taskDependencies),
-            Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos)
-        };
-
-        try
-        {
-            var (calculatedStart, calculatedFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
-
-            bool resourceAvailability = ResourceService.IsResourceAvailable(_selectedResourceId, _selectedProjectId, exclusiveResourceProject, calculatedStart, calculatedFinish, _selectedQuantity);
-            
-
-            if (resourceAvailability)
+            if (string.IsNullOrWhiteSpace(_newTask.Title))
             {
+                _errorMessage = "Please enter a task title before adding resources.";
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(_newTask.Description))
+            {
+                _errorMessage = "Please enter a task description before adding resources.";
+                return;
+            }
+
+            if (_newTask.Duration <= 0)
+            {
+                _errorMessage = "Please enter a valid task duration before adding resources.";
+                return;
+            }
+
+            if (_selectedProjectId <= 0)
+            {
+                _errorMessage = "Please select a project before adding resources.";
+                return;
+            }
+
+            if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
+            {
+                _errorMessage = "This resource is already added to the task.";
+                return;
+            }
+
+            bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
+
+            var completeTaskDto = new TaskDataDTO
+            {
+                Title = _newTask.Title,        
+                Description = _newTask.Description,
+                Duration = _newTask.Duration,     
+                Dependencies = new List<string>(_taskDependencies),
+                Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos)
+            };
+
+            try
+            {
+                var (calculatedStart, calculatedFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
+
+                bool resourceAvailability = ResourceService.IsResourceAvailableForNewTask(
+                    _selectedResourceId, 
+                    _selectedProjectId, 
+                    exclusiveResourceProject, 
+                    calculatedStart, 
+                    calculatedFinish, 
+                    _selectedQuantity);
+
+                if (!resourceAvailability)
+                {
+                    string scope = exclusiveResourceProject ? "project" : "system";
+                    _errorMessage = $"Resource not available in {scope} from {calculatedStart:yyyy-MM-dd} to {calculatedFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
+                    return;
+                }
+
+                if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
+                {
+                    int totalResourcesForThisTask = _taskResourceDataDtos
+                        .Where(r => r.ResourceId == _selectedResourceId)
+                        .Sum(r => r.Quantity) + _selectedQuantity;
+
+                    bool resourceAvailability2 = ResourceService.IsResourceAvailableForNewTask(
+                        _selectedResourceId, 
+                        _selectedProjectId, 
+                        exclusiveResourceProject, 
+                        calculatedStart, 
+                        calculatedFinish, 
+                        totalResourcesForThisTask);
+
+                    if (!resourceAvailability2)
+                    {
+                        string scope = exclusiveResourceProject ? "project" : "system";
+                        _errorMessage = $"Adding {_selectedQuantity} more units would exceed available capacity in {scope}. Total required would be: {totalResourcesForThisTask}";
+                        return;
+                    }
+                }
+
                 TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
                 {
                     TaskTitle = _newTask.Title,
@@ -351,21 +382,15 @@ private void AddResourceToTask()
                 _taskResourceDataDtos.Add(newTaskResourceDto);
                 _errorMessage = string.Empty;
             }
-            else
+            catch (Exception ex)
             {
-                string scope = exclusiveResourceProject ? "project" : "system";
-                _errorMessage = $"Resource not available in {scope} from {calculatedStart:yyyy-MM-dd} to {calculatedFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
+                _errorMessage = $"Error validating resource availability: {ex.Message}";
             }
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Error validating resource availability: {ex.Message}";
-        }
 
-        _selectedResourceId = 0;
-        _selectedQuantity = 1;
+            _selectedResourceId = 0;
+            _selectedQuantity = 1;
+        }
     }
-}
 
     private void RemoveResourceFromTask(int resourceId)
     {
@@ -380,5 +405,4 @@ private void AddResourceToTask()
     {
         NavigationManager.NavigateTo("/CreateExclusiveResource");
     }
-
 }

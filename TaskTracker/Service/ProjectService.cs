@@ -20,6 +20,7 @@ public class ProjectService
     private readonly UserService _userService;
     private readonly CriticalPathService _criticalPathService;
     private int _idResource;
+    
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
         IRepository<ResourceType> resourceTypeRepository,  IRepository<User> userRepository, UserService userService,
         CriticalPathService criticalPathService)
@@ -33,6 +34,7 @@ public class ProjectService
         _userService = userService;
         _criticalPathService = criticalPathService;
     }
+    
     public Project AddProject(ProjectDataDTO project)
     {
         ValidateProjectName(project.Name);
@@ -256,6 +258,7 @@ public class ProjectService
     {
         return _projectRepository.Find(project => project.Id == projectId);
     }
+    
     public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
     {
         Project? project = _projectRepository.Find(p => p.Id == projectId);
@@ -277,7 +280,39 @@ public class ProjectService
             project.Tasks.Add(taskInRepository);
         }
 
+        CalculateTaskDates(taskInRepository, project);
+
         _projectRepository.Update(project);
+        _taskRepository.Update(taskInRepository);
+    }
+    
+    private void CalculateTaskDates(Task task, Project project)
+    {
+        DateTime earlyStart;
+
+        if (task.Dependencies == null || task.Dependencies.Count == 0)
+        {
+            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        }
+        else
+        {
+            DateTime latestDependencyFinish = DateTime.MinValue;
+        
+            foreach (var dependency in task.Dependencies)
+            {
+                if (dependency.EarlyFinish > latestDependencyFinish)
+                {
+                    latestDependencyFinish = dependency.EarlyFinish;
+                }
+            }
+        
+            earlyStart = latestDependencyFinish != DateTime.MinValue 
+                ? latestDependencyFinish.AddDays(1) 
+                : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        }
+
+        task.EarlyStart = earlyStart;
+        task.EarlyFinish = earlyStart.AddDays(task.Duration);
     }
     
     public string? GetAdminEmailByTaskTitle(string title)

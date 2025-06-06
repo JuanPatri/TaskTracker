@@ -1,5 +1,6 @@
 using Domain;
 using DTOs.ResourceDTOs;
+using DTOs.TaskResourceDTOs;
 using Enums;
 using Repository;
 using Task = Domain.Task;
@@ -55,6 +56,7 @@ public class ResourceService
     
         return nextId;
     }
+    
     public void RemoveResource(GetResourceDto resource)
     {
         _resourceRepository.Delete(resource.Name);
@@ -89,7 +91,7 @@ public class ResourceService
     }
     
     public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart,
-        DateTime taskEarlyFinish, int requiredQuantity)
+        DateTime taskEarlyFinish, int requiredQuantity, List<TaskResourceDataDTO> pendingTaskResources)
     {
         Resource? resource = null;
         List<Task> tasksToCheck;
@@ -97,7 +99,7 @@ public class ResourceService
         if (isExclusive)
         {
             Project? currentProject = _projectRepository.Find(p => p.Id == projectId);
-    
+
             resource = currentProject?.ExclusiveResources?.FirstOrDefault(r => r.Id == resourceId);
             tasksToCheck = currentProject?.Tasks
                 .Where(task => task.Resources != null &&
@@ -107,7 +109,7 @@ public class ResourceService
         else
         {
             resource = _resourceRepository.Find(r => r.Id == resourceId);
-        
+
             tasksToCheck = _projectRepository.FindAll()
                 .SelectMany(p => p.Tasks ?? new List<Task>())
                 .Where(task => task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId))
@@ -127,9 +129,87 @@ public class ResourceService
             .Where(tr => tr.Resource.Id == resourceId)
             .Sum(tr => tr.Quantity);
 
-        return (resource.Quantity - usedQuantity) >= requiredQuantity;
+        int pendingUsage = pendingTaskResources
+            .Where(ptr => ptr.ResourceId == resourceId)
+            .Sum(ptr => ptr.Quantity);
+
+        return (resource.Quantity - usedQuantity - pendingUsage) >= requiredQuantity;
     }
     
+    public bool IsResourceAvailableForNewTask(int resourceId, int projectId, bool isExclusive, 
+        DateTime taskEarlyStart, DateTime taskEarlyFinish, int requiredQuantity)
+    {
+        Resource? resource = null;
+        List<Task> tasksToCheck = new List<Task>();
+
+        if (isExclusive)
+        {
+            Project? currentProject = _projectRepository.Find(p => p.Id == projectId);
+            if (currentProject == null)
+            {
+                return false;
+            }
+
+            resource = currentProject.ExclusiveResources?.FirstOrDefault(r => r.Id == resourceId);
+
+            tasksToCheck = currentProject.Tasks?.ToList() ?? new List<Task>();
+
+            var tasksUsingResource = tasksToCheck.Where(task => 
+                task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId)).ToList();
+
+            tasksToCheck = tasksUsingResource;
+        }
+        else
+        {
+            resource = _resourceRepository.Find(r => r.Id == resourceId);
+
+            tasksToCheck = _projectRepository.FindAll()
+                .SelectMany(p => p.Tasks ?? new List<Task>())
+                .Where(task => task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId))
+                .ToList();
+        }
+
+        if (resource == null)
+        {
+            return false;
+        }
+
+        var overlappingTasks = new List<Task>();
+        
+        foreach (var task in tasksToCheck)
+        {
+            if (task.Status == Status.Completed)
+            {
+                continue;
+            }
+
+            DateTime taskStart = task.EarlyStart.Date;
+            DateTime taskEnd = task.EarlyFinish.Date;
+            DateTime newTaskStart = taskEarlyStart.Date;
+            DateTime newTaskEnd = taskEarlyFinish.Date;
+
+            bool overlaps = taskStart <= newTaskEnd && newTaskStart <= taskEnd;
+            
+            if (overlaps)
+            {
+                overlappingTasks.Add(task);
+            }
+        }
+
+        int totalUsedQuantity = 0;
+        foreach (var task in overlappingTasks)
+        {
+            var resourcesUsed = task.Resources.Where(tr => tr.Resource.Id == resourceId).ToList();
+            foreach (var tr in resourcesUsed)
+            {
+                totalUsedQuantity += tr.Quantity;
+            }
+        }
+
+        int availableQuantity = resource.Quantity - totalUsedQuantity;
+        
+        return availableQuantity >= requiredQuantity;
+    }
     
     public void DecreaseResourceQuantity(int projectId, string resourceName)
     {
@@ -174,5 +254,4 @@ public class ResourceService
     {
         return _resourceRepository.Find(resource => resource.Name == resourceName);
     }
-
 }
