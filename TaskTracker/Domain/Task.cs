@@ -76,7 +76,6 @@ public class Task
     
     public static Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
     {
-        Console.WriteLine($"DEBUG: Task.FromDto called with {resources?.Count ?? 0} resources");
     
         var task = new Task()
         {
@@ -87,9 +86,7 @@ public class Task
             Resources = resources ?? new List<TaskResource>(),
             Dependencies = dependencies ?? new List<Task>(),
         };
-    
-        Console.WriteLine($"DEBUG: Task.FromDto created task with {task.Resources.Count} resources");
-    
+        
         return task;
     }
     
