@@ -2,6 +2,7 @@ using Domain;
 using DTOs.ProjectDTOs;
 using DTOs.UserDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Enums;
 
 namespace DTOsTest.ProjectDTOsTest;
 
@@ -42,25 +43,18 @@ public class ProjectDataDtoTest
     }
     
     [TestMethod]
-    public void AddAdministratorToProjectTest()
+    public void AddUsersToProjectTest()
     {
         ProjectDataDTO projectDto = new ProjectDataDTO();
-        projectDto.Administrator = new UserDataDTO
+        projectDto.Users = new List<string>
         {
-            Name = "John",
-            LastName = "Doe",
-            Email = "john@example.com",
-            BirthDate = new DateTime(1990, 01, 01),
-            Password = "Pass123@",
-            Admin = true
+            "john@example.com",
+            "jane@example.com"
         };
-        Assert.IsNotNull(projectDto.Administrator);
-        Assert.AreEqual("John", projectDto.Administrator.Name);
-        Assert.AreEqual("Doe", projectDto.Administrator.LastName);
-        Assert.AreEqual("john@example.com", projectDto.Administrator.Email);
-        Assert.AreEqual(new DateTime(1990, 01, 01), projectDto.Administrator.BirthDate);
-        Assert.AreEqual("Pass123@", projectDto.Administrator.Password);
-        Assert.IsTrue(projectDto.Administrator.Admin);
+        Assert.IsNotNull(projectDto.Users);
+        Assert.AreEqual(2, projectDto.Users.Count);
+        Assert.AreEqual("john@example.com", projectDto.Users[0]);
+        Assert.AreEqual("jane@example.com", projectDto.Users[1]);
     }
 
     [TestMethod]
@@ -72,30 +66,62 @@ public class ProjectDataDtoTest
             Name = "Project A",
             Description = "This is a test project.",
             StartDate = new DateOnly(2025, 10, 01),
-            Administrator = new UserDataDTO
+            Users = new List<string>
             {
-                Name = "John",
-                LastName = "Doe",
-                Email = "john@example.com",
-                BirthDate = new DateTime(1990, 01, 01),
-                Password = "Pass123@",
-                Admin = true
-            },
-            Users = new List<string>(){
-                "test@gmail.com"
+                "admin@example.com",
+                "user@example.com"
             }
         };
 
-        List<User> users = new List<User>()
+        User adminUser = new User()
         {
-            new User()
-            {
-                Email = "test@gmail.com"
-            }
+            Name = "John",
+            LastName = "Doe",
+            Email = "admin@example.com",
+            BirthDate = new DateTime(1990, 01, 01),
+            Password = "Pass123@",
+            Admin = true
         };
-        
-        Project project = Project.FromDto(dto, users);
-        Assert.IsNotNull(project);
-    }
 
+        User regularUser = new User()
+        {
+            Name = "Jane",
+            LastName = "Smith",
+            Email = "user@example.com",
+            BirthDate = new DateTime(1985, 05, 15),
+            Password = "Pass456@",
+            Admin = false
+        };
+
+        ProjectRole adminRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectAdmin,
+            User = adminUser
+        };
+
+        ProjectRole memberRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectMember,
+            User = regularUser
+        };
+
+        List<ProjectRole> projectRoles = new List<ProjectRole> { adminRole, memberRole };
+        
+        Project project = Project.FromDto(dto, projectRoles);
+        
+        Assert.IsNotNull(project);
+        Assert.AreEqual(dto.Id, project.Id);
+        Assert.AreEqual(dto.Name, project.Name);
+        Assert.AreEqual(dto.Description, project.Description);
+        Assert.AreEqual(dto.StartDate, project.StartDate);
+        Assert.AreEqual(2, project.ProjectRoles.Count);
+        
+        ProjectRole adminRoleInProject = project.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin);
+        Assert.IsNotNull(adminRoleInProject);
+        Assert.AreEqual("admin@example.com", adminRoleInProject.User.Email);
+        
+        ProjectRole memberRoleInProject = project.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectMember);
+        Assert.IsNotNull(memberRoleInProject);
+        Assert.AreEqual("user@example.com", memberRoleInProject.User.Email);
+    }
 }
