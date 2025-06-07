@@ -8,9 +8,7 @@ public class Project
     private string _name;
     private string _description;
     private DateOnly _startDate;
-    
     private List<Task> _tasks = new List<Task>();
-    private List<User> _users = new List<User>();
     private List<Resource> _exclusiveResources = new List<Resource>();
     private List<Task> _criticalPath = new List<Task>();
 
@@ -60,13 +58,6 @@ public class Project
         set => _tasks = value;
         
     }
-    
-    public List<User> Users
-    {
-        get => _users;
-        set => _users = value; 
-    }
-    
     public List<Resource> ExclusiveResources
     {
         get => _exclusiveResources;
