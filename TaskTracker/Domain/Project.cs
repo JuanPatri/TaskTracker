@@ -8,7 +8,6 @@ public class Project
     private string _name;
     private string _description;
     private DateOnly _startDate;
-    private User _administrator;
     
     private List<Task> _tasks = new List<Task>();
     private List<User> _users = new List<User>();
@@ -43,15 +42,6 @@ public class Project
         {
             if (value < DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("The project start date cannot be in the past");
             _startDate = value;
-        }
-    }
-    public User Administrator
-    {
-        get => _administrator;
-        set
-        {
-            if (value == null) throw new ArgumentException("The project administrator cannot be null");
-            _administrator = value;
         }
     }
     public int Id
