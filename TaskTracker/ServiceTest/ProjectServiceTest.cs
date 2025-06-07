@@ -996,4 +996,56 @@ public class ProjectServiceTest
         string result = _projectService.GetAdminEmailByTaskTitle("Non Existent Task");
         Assert.IsNull(result);
     }
+    
+    [TestMethod]
+    public void GetAdministratorByProjectId_ShouldReturnCorrectResults()
+    {
+        User adminUser = new User
+        {
+            Name = "Admin",
+            LastName = "User",
+            Email = "admin@test.com",
+            Password = "Admin123!",
+            BirthDate = DateTime.Now.AddYears(-30),
+            Admin = true
+        };
+
+        Project project = new Project
+        {
+            Id = 500,
+            Name = "Test Project",
+            Description = "Test description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+        };
+
+        ProjectRole adminRole = new ProjectRole
+        {
+            RoleType = RoleType.ProjectAdmin,
+            User = adminUser,
+            Project = project
+        };
+
+        project.ProjectRoles = new List<ProjectRole> { adminRole };
+        _projectRepository.Add(project);
+
+        User? result = _projectService.GetAdministratorByProjectId(500);
+        Assert.IsNotNull(result);
+        Assert.AreEqual("admin@test.com", result.Email);
+
+        User? resultNotFound = _projectService.GetAdministratorByProjectId(999);
+        Assert.IsNull(resultNotFound);
+
+        Project projectNoAdmin = new Project
+        {
+            Id = 600,
+            Name = "No Admin Project",
+            Description = "Project without admin",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            ProjectRoles = new List<ProjectRole>()
+        };
+        _projectRepository.Add(projectNoAdmin);
+
+        User? resultNoAdmin = _projectService.GetAdministratorByProjectId(600);
+        Assert.IsNull(resultNoAdmin);
+    }
 }

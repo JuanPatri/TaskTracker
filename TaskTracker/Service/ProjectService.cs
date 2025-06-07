@@ -334,4 +334,10 @@ public class ProjectService
             return new List<User>();
         return project.Users;
     }
+
+    public User? GetAdministratorByProjectId(int projectId)
+    {
+        Project? project = _projectRepository.Find(p => p.Id == projectId); 
+        return project?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin)?.User;
+    }
 }
