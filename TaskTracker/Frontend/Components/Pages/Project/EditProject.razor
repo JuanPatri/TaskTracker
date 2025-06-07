@@ -68,7 +68,7 @@
             }
 
             var currentUser = SessionService.CurrentUser;
-            if (!currentUser.Admin && _project.Administrator.Email != currentUser.Email)
+            if (!currentUser.Admin && (_project.Users.Count == 0 || _project.Users[0] != currentUser.Email))
             {
                 NavigationManager.NavigateTo("/unauthorized");
             }
