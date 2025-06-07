@@ -111,9 +111,11 @@ else
                 _errorMessage = "Please select an administrator.";
                 return;
             }
-
-            _projectData.Administrator = _availableUsers!.First(u => u.Email == _selectedAdmin);
-            _projectData.Users = _selectedMembers;
+            
+            List<string> allUsers = new List<string> { _selectedAdmin };
+            allUsers.AddRange(_selectedMembers.Where(m => m != _selectedAdmin)); 
+            
+            _projectData.Users = allUsers; 
 
             ProjectService.AddProject(_projectData);
             _successMessage = "Project created successfully";

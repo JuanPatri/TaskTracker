@@ -40,14 +40,32 @@ public class ProjectService
         ValidateProjectName(project.Name);
 
         List<User> associatedUsers = _userService.GetUsersFromEmails(project.Users);
-
-        if (!project.Users.Contains(project.Administrator.Email))
+        
+        List<ProjectRole> projectRoles = new List<ProjectRole>();
+    
+        for (int i = 0; i < associatedUsers.Count; i++)
         {
-            associatedUsers.Add(_userRepository.Find(u => u.Email == project.Administrator.Email));
+            User user = associatedUsers[i];
+            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : RoleType.ProjectMember;
+        
+            ProjectRole role = new ProjectRole
+            {
+                RoleType = roleType,
+                User = user
+            };
+            projectRoles.Add(role);
         }
-
+    
         project.Id = _idProject++;
-        return _projectRepository.Add(Project.FromDto(project, associatedUsers));
+        
+        Project newProject = Project.FromDto(project, projectRoles);
+        
+        foreach (var role in projectRoles)
+        {
+            role.Project = newProject;
+        }
+    
+        return _projectRepository.Add(newProject);
     }
 
     private void ValidateProjectName(string projectName)
