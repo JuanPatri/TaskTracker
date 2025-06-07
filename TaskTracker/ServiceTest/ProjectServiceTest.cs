@@ -462,8 +462,9 @@ public class ProjectServiceTest
 
         Assert.AreEqual(project.Id, result[0].Id);
         Assert.AreEqual(project.Name, result[0].Name);
-        Assert.AreEqual("ana@example.com", result[0].Users?.FirstOrDefault());
+        Assert.IsTrue(result[0].Users?.Contains("ana@example.com"));
     }
+    
     [TestMethod]
     public void GetAllUsers_ReturnsAllUsersAsUserDataDTOs()
     {

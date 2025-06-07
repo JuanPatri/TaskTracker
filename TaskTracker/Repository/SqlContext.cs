@@ -8,6 +8,7 @@ public class SqlContext : DbContext
 {
     public DbSet<User> Users { get; set; }
     public DbSet<Project> Projects { get; set; }
+    public DbSet<ProjectRole> ProjectRoles { get; set; }
     
     //public DbSet<Task> Tasks { get; set; }
     //public DbSet<Resource> Resources { get; set; }
@@ -69,32 +70,33 @@ public class SqlContext : DbContext
             entity.Property(p => p.StartDate)
                 .IsRequired();
             
-            entity.HasOne(p => p.Administrator)
+            entity.Ignore(p => p.Tasks);
+            entity.Ignore(p => p.ExclusiveResources);
+            entity.Ignore(p => p.CriticalPath);
+        });
+
+        modelBuilder.Entity<ProjectRole>(entity =>
+        {
+            entity.HasKey("ProjectId", "UserEmail");
+            
+            entity.Property(pr => pr.RoleType)
+                .IsRequired()
+                .HasConversion<string>();
+
+            entity.HasOne(pr => pr.Project)
+                .WithMany(p => p.ProjectRoles)
+                .HasForeignKey("ProjectId")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+
+            entity.HasOne(pr => pr.User)
                 .WithMany()
-                .HasForeignKey("AdministratorEmail")
+                .HasForeignKey("UserEmail")
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
-            
-            entity.Ignore(p => p.Tasks);
+
+            entity.Property<int>("ProjectId");
+            entity.Property<string>("UserEmail");
         });
-        
-        modelBuilder.Entity<Project>()
-            .HasMany(p => p.Users)
-            .WithMany(u => u.Projects)
-            .UsingEntity<Dictionary<string, object>>(
-                "UserProject",
-                j => j.HasOne<User>()
-                    .WithMany()
-                    .HasForeignKey("UsersEmail")
-                    .OnDelete(DeleteBehavior.Restrict),
-                j => j.HasOne<Project>()
-                    .WithMany()
-                    .HasForeignKey("ProjectsId")
-                    .OnDelete(DeleteBehavior.Restrict), 
-                j =>
-                {
-                    j.HasKey("ProjectsId", "UsersEmail");
-                    j.ToTable("UserProject");
-                });
     }
 }
