@@ -74,10 +74,7 @@ public class Project
     public List<ProjectRole> ProjectRoles
     {
         get => _projectRoles;
-        set
-        {
-            _projectRoles = value;
-        }
+        set => _projectRoles = value;
     }
     
     public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
