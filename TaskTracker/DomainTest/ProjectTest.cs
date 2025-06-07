@@ -153,4 +153,11 @@ public class ProjectTest
         Assert.AreEqual(criticalPath, _project.CriticalPath);
     }
 
+    [TestMethod]
+    public void SetProjectRoleListTest()
+    {
+        List<ProjectRole> projectRoles = new List<ProjectRole>();
+        _project.ProjectRoles = projectRoles;
+        Assert.AreEqual(projectRoles, _project.ProjectRoles);
+    }
 }
