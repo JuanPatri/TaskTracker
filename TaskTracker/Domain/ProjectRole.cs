@@ -1,14 +1,19 @@
-﻿using Domain.Enums;
+﻿using Enums;
 
 namespace Domain;
 public class ProjectRole
 {
     private RoleType _roleType;
     private Project _project;
+    private User _user;
     public RoleType RoleType
     {
         get => _roleType;
-        set =>  _roleType = value;
+        set
+        {
+            if (value == null) throw new ArgumentException("RoleType cannot be null");
+            _roleType = value;
+        } 
     }
 
     public Project Project
@@ -20,6 +25,15 @@ public class ProjectRole
             
             _project = value;
     } 
+    }
+    public User User
+    {
+        get => _user;
+        set
+        {
+            if(value == null) throw new ArgumentException("User cannot be null");
+            _user = value;
+        }
         
     }
     

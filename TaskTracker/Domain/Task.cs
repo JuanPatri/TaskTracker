@@ -1,4 +1,4 @@
-﻿using Domain.Enums;
+﻿using Enums;
 using DTOs.TaskDTOs;
 using Enums;
 
@@ -74,17 +74,20 @@ public class Task
         set => _dependencies = value; 
     }
     
-    public static Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resource, List<Task> dependencies)
+    public static Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
     {
-        return new Task()
+    
+        var task = new Task()
         {
             Title = taskDataDto.Title,
             Description = taskDataDto.Description,
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
-            Resources = resource,
-            Dependencies = dependencies,
+            Resources = resources ?? new List<TaskResource>(),
+            Dependencies = dependencies ?? new List<Task>(),
         };
+        
+        return task;
     }
     
 }

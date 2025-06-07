@@ -19,18 +19,22 @@ public class ProjectService
     public ProjectDataDTO? SelectedProject;
     private readonly UserService _userService;
     private readonly CriticalPathService _criticalPathService;
+    private int _idResource;
+    
     public ProjectService(IRepository<Task> taskRepository, IRepository<Project> projectRepository,
         IRepository<ResourceType> resourceTypeRepository,  IRepository<User> userRepository, UserService userService,
         CriticalPathService criticalPathService)
     {
         _projectRepository = projectRepository;
         _idProject = 2;
+        _idResource = 1;
         _taskRepository = taskRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _userRepository = userRepository;
         _userService = userService;
         _criticalPathService = criticalPathService;
     }
+    
     public Project AddProject(ProjectDataDTO project)
     {
         ValidateProjectName(project.Name);
@@ -123,12 +127,39 @@ public class ProjectService
         {
             Name = resourceDto.Name,
             Description = resourceDto.Description,
+            Quantity = resourceDto.Quantity,
+            Id = GetNextExclusiveResourceId(project.ExclusiveResources),
             Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
         };
 
         project.ExclusiveResources.Add(newResource);
 
         _projectRepository.Update(project);
+    }
+    
+    private int GetNextExclusiveResourceId(List<Resource> resources)
+    {
+        int minExclusiveId = 1000;
+    
+        if (!resources.Any())
+        {
+            return minExclusiveId;
+        }
+    
+        int maxId = resources.Max(r => r.Id);
+        int nextId = maxId + 1;
+    
+        if (nextId < minExclusiveId)
+        {
+            nextId = minExclusiveId;
+        }
+    
+        if (nextId >= 2000)
+        {
+            throw new InvalidOperationException("Too many exclusive resources. Max 999 exclusive resources allowed.");
+        }
+    
+        return nextId;
     }
 
     public List<ProjectDataDTO> GetAllProjectsDTOs()
@@ -157,7 +188,11 @@ public class ProjectService
             return new List<GetResourceDto>();
 
         return project.ExclusiveResources
-            .Select(r => new GetResourceDto { Name = r.Name })
+            .Select(r => new GetResourceDto 
+            { 
+                ResourceId = r.Id,  
+                Name = r.Name 
+            })
             .ToList();
     }
 
@@ -223,6 +258,7 @@ public class ProjectService
     {
         return _projectRepository.Find(project => project.Id == projectId);
     }
+    
     public void AddTaskToProject(TaskDataDTO taskDto, int projectId)
     {
         Project? project = _projectRepository.Find(p => p.Id == projectId);
@@ -244,7 +280,39 @@ public class ProjectService
             project.Tasks.Add(taskInRepository);
         }
 
+        CalculateTaskDates(taskInRepository, project);
+
         _projectRepository.Update(project);
+        _taskRepository.Update(taskInRepository);
+    }
+    
+    private void CalculateTaskDates(Task task, Project project)
+    {
+        DateTime earlyStart;
+
+        if (task.Dependencies == null || task.Dependencies.Count == 0)
+        {
+            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        }
+        else
+        {
+            DateTime latestDependencyFinish = DateTime.MinValue;
+        
+            foreach (var dependency in task.Dependencies)
+            {
+                if (dependency.EarlyFinish > latestDependencyFinish)
+                {
+                    latestDependencyFinish = dependency.EarlyFinish;
+                }
+            }
+        
+            earlyStart = latestDependencyFinish != DateTime.MinValue 
+                ? latestDependencyFinish.AddDays(1) 
+                : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        }
+
+        task.EarlyStart = earlyStart;
+        task.EarlyFinish = earlyStart.AddDays(task.Duration);
     }
     
     public string? GetAdminEmailByTaskTitle(string title)

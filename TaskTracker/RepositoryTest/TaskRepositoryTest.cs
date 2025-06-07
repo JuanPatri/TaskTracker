@@ -1,5 +1,5 @@
 ﻿using Task = Domain.Task;
-using Domain.Enums;
+using Enums;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;

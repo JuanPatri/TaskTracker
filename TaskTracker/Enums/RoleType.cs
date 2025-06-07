@@ -1,7 +1,8 @@
-﻿namespace Domain.Enums;
+﻿namespace Enums;
 
 public enum RoleType
 {
     ProjectAdmin,
-    ProjectMember
+    ProjectMember,
+    ProjectLead,
 }

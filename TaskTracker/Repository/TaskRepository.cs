@@ -1,5 +1,4 @@
-﻿using Domain.Enums;
-using Enums;
+﻿using Enums;
 using Task = Domain.Task;
 
 namespace Repository;

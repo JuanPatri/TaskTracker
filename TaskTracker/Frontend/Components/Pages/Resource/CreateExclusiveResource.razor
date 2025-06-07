@@ -13,96 +13,175 @@
 
 @if (!string.IsNullOrEmpty(_errorMessage))
 {
-    <div class="alert alert-danger">@_errorMessage</div>
+    <div class="alert alert-danger">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        @_errorMessage
+    </div>
 }
 @if (!string.IsNullOrEmpty(_successMessage))
 {
-    <div class="alert alert-success">@_successMessage</div>
+    <div class="alert alert-success">
+        <i class="bi bi-check-circle-fill me-2"></i>
+        @_successMessage
+    </div>
 }
 
 <EditForm Model="_newResource" OnValidSubmit="HandleSubmit">
     <DataAnnotationsValidator/>
-    <ValidationSummary/>
+    <ValidationSummary class="alert alert-warning" />
 
     <div class="mb-3">
-        <label for="project" class="form-label">Select Project</label>
-        <select id="project" class="form-select" @bind="_selectedProjectId" required>
-            <option value="">-- Select a project --</option>
+        <label for="project" class="form-label">Select Project <span class="text-danger">*</span></label>
+        <InputSelect id="project" class="form-select" @bind-Value="_selectedProjectId">
+            <option value="0">-- Select a project --</option>
             @foreach (var project in _adminProjects)
             {
                 <option value="@project.Id">@project.Name</option>
             }
-        </select>
+        </InputSelect>
+        @if (_selectedProjectId == 0)
+        {
+            <div class="form-text text-warning">Please select a project to create an exclusive resource</div>
+        }
     </div>
 
     <div class="mb-3">
-        <label for="name" class="form-label">Name</label>
-        <InputText id="name" class="form-control" @bind-Value="_newResource.Name"/>
+        <label for="name" class="form-label">Name <span class="text-danger">*</span></label>
+        <InputText id="name" class="form-control" @bind-Value="_newResource.Name" 
+                   placeholder="Enter exclusive resource name" />
+        <ValidationMessage For="@(() => _newResource.Name)" class="text-danger" />
     </div>
 
     <div class="mb-3">
         <label for="description" class="form-label">Description</label>
-        <InputTextArea id="description" class="form-control" @bind-Value="_newResource.Description"/>
+        <InputTextArea id="description" class="form-control" @bind-Value="_newResource.Description" 
+                       rows="3" placeholder="Enter resource description (optional)" />
+        <ValidationMessage For="@(() => _newResource.Description)" class="text-danger" />
     </div>
 
     <div class="mb-3">
-        <label for="type" class="form-label">Resource Type</label>
-        <select id="type" class="form-select" @bind="_newResource.TypeResource">
-            <option value="">-- Select a type --</option>
+        <label for="type" class="form-label">Resource Type <span class="text-danger">*</span></label>
+        <InputSelect id="type" class="form-select" @bind-Value="_newResource.TypeResource">
+            <option value="0">-- Select a type --</option>
             @foreach (var type in _resourceTypes)
             {
                 <option value="@type.Id">@type.Name</option>
             }
-        </select>
+        </InputSelect>
+        <ValidationMessage For="@(() => _newResource.TypeResource)" class="text-danger" />
+        @if (_newResource.TypeResource == 0)
+        {
+            <div class="form-text text-warning">Please select a resource type</div>
+        }
     </div>
 
     <div class="mb-3">
-        <label for="quantity" class="form-label">Quantity</label>
-        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" min="0" />
+        <label for="quantity" class="form-label">Quantity <span class="text-danger">*</span></label>
+        <InputNumber id="quantity" class="form-control" @bind-Value="_newResource.Quantity" 
+                     min="1" placeholder="Enter quantity (minimum 1)" />
+        <div class="form-text">Quantity must be greater than zero. This resource will be exclusive to the selected project.</div>
+        <ValidationMessage For="@(() => _newResource.Quantity)" class="text-danger" />
     </div>
-    
-    <button type="submit" class="btn btn-primary">Create Exclusive Resource</button>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary" disabled="@_isSubmitting">
+            @if (_isSubmitting)
+            {
+                <span class="bi bi-shield-plus me-1" role="status" aria-hidden="true">Creating...</span>
+            }
+            else
+            {
+                <i class="bi bi-shield-plus me-1">Create Exclusive Resource</i>
+            }
+        </button>
+        <button type="button" class="btn btn-secondary" @onclick="CancelAndGoBack">
+            <i class="bi bi-arrow-left me-1"></i>Cancel
+        </button>
+    </div>
 </EditForm>
 
 @code {
     private ResourceDataDto _newResource = new();
     private List<ResourceTypeDto> _resourceTypes = new();
     private List<GetProjectDTO> _adminProjects = new();
-    private int _selectedProjectId;
+    private int _selectedProjectId = 0;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
+    private bool _isSubmitting = false;
 
-    protected override void OnInitialized()
-    {
-        _resourceTypes = ResourceTypeService.GetAllResourcesType()
-            .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
-            .ToList();
-
-        _adminProjects = ProjectService.GetProjectsByUserEmail(SessionService.CurrentUser.Email);
-    }
-
-    private void HandleSubmit()
+    protected override async Task OnInitializedAsync()
     {
         try
         {
-            if (_selectedProjectId == 0)
+            _resourceTypes = ResourceTypeService.GetAllResourcesType()
+                .Select(rt => new ResourceTypeDto { Id = rt.Id, Name = rt.Name })
+                .ToList();
+
+            _adminProjects = ProjectService.GetProjectsByUserEmail(SessionService.CurrentUser.Email);
+            
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = "Error loading data: " + ex.Message;
+        }
+    }
+
+    private async Task HandleSubmit()
+    {
+        if (_isSubmitting) return;
+        
+        _isSubmitting = true;
+        _errorMessage = string.Empty;
+        _successMessage = string.Empty;
+
+        try
+        {
+            if (string.IsNullOrWhiteSpace(_newResource.Name))
             {
-                _errorMessage = "Please select a project.";
+                _errorMessage = "Resource name is required.";
+                return;
+            }
+
+            if (_newResource.TypeResource <= 0)
+            {
+                _errorMessage = "Please select a valid resource type.";
+                return;
+            }
+
+            if (_newResource.Quantity <= 0)
+            {
+                _errorMessage = "Quantity must be greater than zero.";
                 return;
             }
 
             ProjectService.AddExclusiveResourceToProject(_selectedProjectId, _newResource);
-            _successMessage = "Exclusive resource created successfully!";
-            _errorMessage = string.Empty;
-
+            
+            var selectedProject = _adminProjects.FirstOrDefault(p => p.Id == _selectedProjectId);
+            _successMessage = $"Exclusive resource '{_newResource.Name}' created successfully for project '{selectedProject?.Name}'!";
+            
             _newResource = new ResourceDataDto();
+            _selectedProjectId = 0;
+            
+            await Task.Delay(1500);
+            
             NavigationManager.NavigateTo("/CreateTask", true);
+        }
+        catch (ArgumentException ex)
+        {
+            _errorMessage = ex.Message;
         }
         catch (Exception ex)
         {
-            _errorMessage = ex.Message;
-            _successMessage = string.Empty;
+            _errorMessage = "An unexpected error occurred: " + ex.Message;
+        }
+        finally
+        {
+            _isSubmitting = false;
         }
     }
-
+    
+    private void CancelAndGoBack()
+    {
+        NavigationManager.NavigateTo("/CreateTask", true); 
+    }
 }

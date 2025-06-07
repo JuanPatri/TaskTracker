@@ -1,6 +1,6 @@
 ﻿using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Domain.Enums;
+using Enums;
 
 namespace DomainTest;
 
@@ -44,5 +44,22 @@ namespace DomainTest;
     
             ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.Project = project);
             Assert.AreEqual("Project cannot be null", ex.Message);
+        }
+
+        [TestMethod]
+        public void SetUserForProjectRoleTest()
+        {
+            User user = new User();
+            _projectRole.User = user;
+            Assert.AreEqual(user, _projectRole.User);
+        }
+        
+        [TestMethod]
+        public void SetUserNullReturnsAnException()
+        {
+            User user = null;
+    
+            ArgumentException ex = Assert.ThrowsException<ArgumentException>(() => _projectRole.User = user);
+            Assert.AreEqual("User cannot be null", ex.Message);
         }
     }

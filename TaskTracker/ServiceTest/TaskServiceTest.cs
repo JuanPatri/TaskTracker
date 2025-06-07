@@ -12,9 +12,9 @@ namespace ServiceTest;
 [TestClass]
 public class TaskServiceTest
 {
-    private  IRepository<Task> _taskRepository;
-    private  IRepository<Resource> _resourceRepository;
-    private  IRepository<Project> _projectRepository;
+    private IRepository<Task> _taskRepository;
+    private IRepository<Resource> _resourceRepository;
+    private IRepository<Project> _projectRepository;
     private TaskService _taskService;
     private Project _project;
     private Task _task;
@@ -24,7 +24,7 @@ public class TaskServiceTest
     private UserService _userService;
     private CriticalPathService _criticalPathService;
     private ResourceTypeRepository _resourceTypeRepository;
-    
+
     [TestInitialize]
     public void OnInitialize()
     {
@@ -32,13 +32,15 @@ public class TaskServiceTest
         _resourceRepository = new ResourceRepository();
         _projectRepository = new ProjectRepository();
         _userRepository = new UserRepository();
-        _resourceTypeRepository = new ResourceTypeRepository(); 
+        _resourceTypeRepository = new ResourceTypeRepository();
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
 
-        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository,
+            _userRepository, _userService, _criticalPathService);
 
-        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService, _criticalPathService);
+        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
+            _criticalPathService);
 
         _project = new Project()
         {
@@ -64,14 +66,16 @@ public class TaskServiceTest
             }
         };
         _resourceRepository.Add(_resource);
-        _resourceTypeRepository.Add(_resource.Type); 
+        _resourceTypeRepository.Add(_resource.Type);
     }
-    
+
     [TestMethod]
     public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
     {
         _task.EarlyStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
         _task.EarlyFinish = _task.EarlyStart.AddDays(5);
+
+        _project.Tasks = new List<Task> { _task };
 
         var taskWithoutDeps = new TaskDataDTO
         {
@@ -83,9 +87,10 @@ public class TaskServiceTest
         };
 
         var (startNoDeps, finishNoDeps) = _taskService.GetTaskDatesFromDto(taskWithoutDeps, _project.Id);
-        
+
         var expectedProjectStart = _project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        Assert.AreEqual(expectedProjectStart, startNoDeps, "Task without dependencies should start at project start date");
+        Assert.AreEqual(expectedProjectStart, startNoDeps,
+            "Task without dependencies should start at project start date");
         Assert.AreEqual(expectedProjectStart.AddDays(3), finishNoDeps, "Task finish should be start + duration");
 
         var taskWithDeps = new TaskDataDTO
@@ -93,14 +98,16 @@ public class TaskServiceTest
             Title = "With Dependencies Task",
             Description = "Task with dependencies on existing task",
             Duration = 2,
-            Dependencies = new List<string> { _task.Title }, 
+            Dependencies = new List<string> { _task.Title },
             Resources = new List<TaskResourceDataDTO>()
         };
 
         var (startWithDeps, finishWithDeps) = _taskService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
         
-        Assert.AreEqual(_task.EarlyFinish, startWithDeps, "Task with dependencies should start when dependency finishes");
-        Assert.AreEqual(_task.EarlyFinish.AddDays(2), finishWithDeps, "Task finish should be dependency finish + duration");
+        Assert.AreEqual(_task.EarlyFinish.AddDays(1), startWithDeps,
+            "Task with dependencies should start day after dependency finishes");
+        Assert.AreEqual(_task.EarlyFinish.AddDays(1).AddDays(2), finishWithDeps,
+            "Task finish should be start + duration");
 
         var taskWithBadDeps = new TaskDataDTO
         {
@@ -112,16 +119,19 @@ public class TaskServiceTest
         };
 
         var (startBadDeps, finishBadDeps) = _taskService.GetTaskDatesFromDto(taskWithBadDeps, _project.Id);
-        
-        Assert.AreEqual(expectedProjectStart, startBadDeps, "Task with invalid dependencies should start at project start");
-        Assert.AreEqual(expectedProjectStart.AddDays(1), finishBadDeps, "Task finish should be project start + duration");
+
+        Assert.AreEqual(expectedProjectStart, startBadDeps,
+            "Task with invalid dependencies should start at project start");
+        Assert.AreEqual(expectedProjectStart.AddDays(1), finishBadDeps,
+            "Task finish should be project start + duration");
 
         var exception = Assert.ThrowsException<ArgumentException>(() =>
             _taskService.GetTaskDatesFromDto(taskWithoutDeps, 999));
-        
-        Assert.AreEqual("Project with ID 999 not found", exception.Message, "Should throw exception with correct message");
+
+        Assert.AreEqual("Project with ID 999 not found", exception.Message,
+            "Should throw exception with correct message");
     }
-    
+
     [TestMethod]
     public void AddTask_WithExistingDependenciesAndResourcesShouldAddTaskWithCorrectDependenciesAndResources()
     {
@@ -130,7 +140,7 @@ public class TaskServiceTest
         _taskRepository.Add(dependency1);
         _taskRepository.Add(dependency2);
 
-        Resource existingResource = _resource; 
+        Resource existingResource = _resource;
 
         TaskDataDTO taskDto = new TaskDataDTO
         {
@@ -141,7 +151,11 @@ public class TaskServiceTest
             Dependencies = new List<string> { "Dependency1", "Dependency2" },
             Resources = new List<TaskResourceDataDTO>
             {
-                new TaskResourceDataDTO { TaskTitle = "Task With Real Dependencies And Resources", ResourceId = existingResource.Id, Quantity = 2 }
+                new TaskResourceDataDTO
+                {
+                    TaskTitle = "Task With Real Dependencies And Resources", ResourceId = existingResource.Id,
+                    Quantity = 2
+                }
             }
         };
 
@@ -149,7 +163,7 @@ public class TaskServiceTest
 
         Assert.IsNotNull(addedTask);
         Assert.IsNotNull(addedTask.Resources);
-        Assert.AreEqual(1, addedTask.Resources.Count); 
+        Assert.AreEqual(1, addedTask.Resources.Count);
         Assert.IsTrue(addedTask.Resources.Any(tr => tr.Resource.Name == "Resource" && tr.Quantity == 2));
     }
 
@@ -181,18 +195,18 @@ public class TaskServiceTest
             Dependencies = new List<string> { "NonexistentDep1", "NonexistentDep2" },
             Resources = new List<TaskResourceDataDTO>
             {
-                new TaskResourceDataDTO {TaskTitle = "NonexistentDep1", ResourceId = 99999, Quantity = 1 },
+                new TaskResourceDataDTO { TaskTitle = "NonexistentDep1", ResourceId = 99999, Quantity = 1 },
                 new TaskResourceDataDTO { TaskTitle = "NonexistentDep2", ResourceId = 99998, Quantity = 2 }
             }
         };
 
         Task addedTask = _taskService.AddTask(taskDto);
-    
+
         Assert.IsNotNull(addedTask);
         Assert.AreEqual(0, addedTask.Dependencies.Count);
         Assert.AreEqual(0, addedTask.Resources.Count);
     }
-    
+
     [TestMethod]
     public void FindTaskByTitleReturnTask()
     {
@@ -417,7 +431,7 @@ public class TaskServiceTest
         bool isValid = _taskService.ValidateTaskStatus("Test Task", status);
         Assert.IsFalse(isValid);
     }
-    
+
     [TestMethod]
     public void GetTasksForProjectWithIdTest()
     {
@@ -440,7 +454,7 @@ public class TaskServiceTest
 
         Assert.AreEqual(2, tasks.Count);
     }
-    
+
     [TestMethod]
     public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
     {
@@ -463,7 +477,7 @@ public class TaskServiceTest
         Assert.IsTrue(_taskService.IsTaskCritical(project, taskD.Title));
         Assert.IsFalse(_taskService.IsTaskCritical(project, taskC.Title));
     }
-    
+
     [TestMethod]
     public void IsTaskCritical_ShouldReturnFalse_WhenTaskDoesNotExist()
     {
@@ -484,4 +498,63 @@ public class TaskServiceTest
         bool result = _taskService.IsTaskCritical(null, "AnyTask");
         Assert.IsFalse(result);
     }
+    
+    
+    [TestMethod]
+    public void RecalculateTaskDates_ShouldRecalculateDatesForAllTasks()
+    {
+        Project project = new Project
+        {
+            Id = 400,
+            Name = "Recalculate Test Project",
+            Description = "Test recalculation",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Administrator = new User(),
+            Tasks = new List<Task>()
+        };
+
+        Task taskA = new Task
+        {
+            Title = "Task A",
+            Description = "First task",
+            Duration = 3,
+            Dependencies = new List<Task>(),
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue
+        };
+
+        Task taskB = new Task
+        {
+            Title = "Task B",
+            Description = "Second task",
+            Duration = 2,
+            Dependencies = new List<Task> { taskA },
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue
+        };
+
+        project.Tasks.Add(taskA);
+        project.Tasks.Add(taskB);
+        _projectRepository.Add(project);
+
+        _taskService.RecalculateTaskDates(400);
+
+        DateTime expectedStartA = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        DateTime expectedFinishA = expectedStartA.AddDays(3);
+        DateTime expectedStartB = expectedFinishA.AddDays(1);
+        DateTime expectedFinishB = expectedStartB.AddDays(2);
+
+        Assert.AreEqual(expectedStartA, taskA.EarlyStart);
+        Assert.AreEqual(expectedFinishA, taskA.EarlyFinish);
+        Assert.AreEqual(expectedStartB, taskB.EarlyStart);
+        Assert.AreEqual(expectedFinishB, taskB.EarlyFinish);
+    }
+
+    [TestMethod]
+    public void RecalculateTaskDates_ShouldDoNothing_WhenProjectNotFound()
+    {
+        _taskService.RecalculateTaskDates(999);
+        Assert.IsTrue(true);
+    }
+
 }

@@ -7,7 +7,7 @@ namespace DomainTest;
 public class ResourceTest
 {
     private Resource _resource;
-    
+
     [TestInitialize]
     public void OnInitialize()
     {

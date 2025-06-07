@@ -48,5 +48,6 @@ public class ResourceTypeService
         ResourceType? updatedResourceType = _resourceTypeRepository.Update(ResourceType.Fromdto(resourceTypeDto));
         return updatedResourceType;
     }
+    
 
 }
