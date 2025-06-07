@@ -93,17 +93,35 @@ public class ProjectService
 
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        if (string.IsNullOrWhiteSpace(projectDto.Administrator.Password))
-        {
-            User? fullAdmin = _userRepository.Find(u => u.Email == projectDto.Administrator.Email);
-            projectDto.Administrator.Password = fullAdmin?.Password ?? "";
-        }
-
-        List<User> users = _userRepository.FindAll()
+        List<User> associatedUsers = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
 
-        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, users));
+        List<ProjectRole> projectRoles = new List<ProjectRole>();
+    
+        for (int i = 0; i < associatedUsers.Count; i++)
+        {
+            User user = associatedUsers[i];
+            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : RoleType.ProjectMember;
+        
+            ProjectRole role = new ProjectRole
+            {
+                RoleType = roleType,
+                User = user
+            };
+            projectRoles.Add(role);
+        }
+
+        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, projectRoles));
+        
+        if (updatedProject != null)
+        {
+            foreach (var role in updatedProject.ProjectRoles)
+            {
+                role.Project = updatedProject;
+            }
+        }
+    
         return updatedProject;
     }
 
