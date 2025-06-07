@@ -77,7 +77,7 @@ public class Project
         set => _projectRoles = value;
     }
     
-    public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
+    public static Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
     {
         return new Project()
         {
@@ -85,8 +85,7 @@ public class Project
             Name = projectDataDto.Name,
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,
-            Administrator = User.FromDto(projectDataDto.Administrator),
-            Users = users
+            ProjectRoles = users
         };
     }
     
