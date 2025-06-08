@@ -46,7 +46,7 @@ public class ProjectService
         for (int i = 0; i < associatedUsers.Count; i++)
         {
             User user = associatedUsers[i];
-            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : RoleType.ProjectMember;
+            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : (i == 1) ? RoleType.ProjectLead : RoleType.ProjectMember;
 
             ProjectRole role = new ProjectRole
             {

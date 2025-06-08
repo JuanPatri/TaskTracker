@@ -64,6 +64,17 @@ else
             </select>
         </div>
 
+        <div class="mb-3">
+            <label class="form-label">Project Leader</label>
+            <select class="form-select" @onchange="OnLeaderSelected">
+                <option value="">Select Leader</option>
+                @foreach (var user in _availableUsers)
+                {
+                    <option value="@user.Email">@user.Name @user.LastName</option>
+                }
+            </select>
+        </div>
+
         <button type="submit" class="btn btn-primary">Create Project</button>
     </form>
 }
@@ -75,6 +86,7 @@ else
     private List<UserDataDTO>? _availableUsers;
     private string _selectedAdmin = string.Empty;
     private List<string> _selectedMembers = new();
+    private string _selectedLeader = string.Empty;
 
     protected override void OnInitialized()
     {
@@ -101,6 +113,11 @@ else
     {
         _selectedAdmin = e.Value?.ToString() ?? string.Empty;
     }
+    
+    private void OnLeaderSelected(ChangeEventArgs e)
+    {
+        _selectedLeader = e.Value?.ToString() ?? string.Empty;
+    }
 
     private async Task HandleSubmit()
     {
@@ -112,7 +129,14 @@ else
                 return;
             }
             
+            if (string.IsNullOrEmpty(_selectedLeader))
+            {
+                _errorMessage = "Please select an Leader.";
+                return;
+            }
+            
             List<string> allUsers = new List<string> { _selectedAdmin };
+            allUsers.Add(_selectedLeader);
             allUsers.AddRange(_selectedMembers.Where(m => m != _selectedAdmin)); 
             
             _projectData.Users = allUsers; 
