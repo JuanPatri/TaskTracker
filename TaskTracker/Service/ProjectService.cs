@@ -388,21 +388,27 @@ public class ProjectService
         return false;
     }
     
-    public List<ProjectExporterDataDto> GetProjectsLedByUser(string email){
+    public List<Project> GetProjectsLedByUser(string email)
+    {
         return _projectRepository.FindAll()
             .Where(p => p.ProjectRoles != null && p.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == email))
-            .Select(p => new ProjectExporterDataDto
+            .ToList();
+    }
+
+    public List<ProjectExporterDataDto> MapProjectsToExporterDataDto(List<Project> projects)
+    {
+        return projects.Select(p => new ProjectExporterDataDto
+        {
+            Name = p.Name,
+            StartDate = p.StartDate,
+            Tasks = p.Tasks.Select(t => new TaskExporterDataDto
             {
-                Name = p.Name,
-                StartDate = p.StartDate,
-                Tasks = p.Tasks.Select(t => new TaskExporterDataDto
-                {
-                    Title = t.Title,
-                    StartDate = t.EarlyStart,
-                    Duration = t.Duration,
-                    IsCritical = p.CriticalPath != null && p.CriticalPath.Contains(t) ? "S" : "N",
-                    Resources = t.Resources?.Select(r => r.Resource.Name).ToList() ?? new List<string>()
-                }).ToList()
-            }).ToList();
+                Title = t.Title,
+                StartDate = t.EarlyStart,
+                Duration = t.Duration,
+                IsCritical = p.CriticalPath != null && p.CriticalPath.Contains(t) ? "S" : "N",
+                Resources = t.Resources?.Select(r => r.Resource.Name).ToList() ?? new List<string>()
+            }).ToList()
+        }).ToList();
     }
 }

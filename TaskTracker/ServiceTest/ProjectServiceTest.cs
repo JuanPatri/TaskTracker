@@ -1152,18 +1152,21 @@ public void GetProjectsLedByUser_ReturnsCorrectData()
     _taskRepository.Add(task);
 
     
-    var result = _projectService.GetProjectsLedByUser("juan.lider@test.com");
+    var projects = _projectService.GetProjectsLedByUser("juan.lider@test.com");
+    var result = _projectService.MapProjectsToExporterDataDto(projects);
 
     Assert.AreEqual(1, result.Count);
+
     var exportedProject = result.First();
     Assert.AreEqual("Proyecto de Prueba", exportedProject.Name);
     Assert.AreEqual(DateOnly.FromDateTime(DateTime.Today.AddDays(1)), exportedProject.StartDate);
 
     Assert.AreEqual(1, exportedProject.Tasks.Count);
+
     var exportedTask = exportedProject.Tasks.First();
     Assert.AreEqual("Tarea A", exportedTask.Title);
     Assert.AreEqual(new DateTime(2024, 3, 3), exportedTask.StartDate);
-    Assert.AreEqual("N", exportedTask.IsCritical); 
+    Assert.AreEqual("N", exportedTask.IsCritical);
     Assert.AreEqual(1, exportedTask.Resources.Count);
     Assert.AreEqual("Resource", exportedTask.Resources.First());
 }
