@@ -46,7 +46,8 @@ public class ProjectService
         for (int i = 0; i < associatedUsers.Count; i++)
         {
             User user = associatedUsers[i];
-            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : (i == 1) ? RoleType.ProjectLead : RoleType.ProjectMember;
+            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin :
+                (i == 1) ? RoleType.ProjectLead : RoleType.ProjectMember;
 
             ProjectRole role = new ProjectRole
             {
@@ -349,7 +350,7 @@ public class ProjectService
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
         return projectWithTask?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin)?.User?.Email;
     }
-    
+
     public string? GetLeadEmailByTaskTitle(string title)
     {
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
@@ -375,4 +376,5 @@ public class ProjectService
         Project? project = _projectRepository.Find(p => p.Id == projectId);
         return project?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin)?.User;
     }
+
 }

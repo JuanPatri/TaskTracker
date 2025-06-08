@@ -1058,4 +1058,46 @@ public void GetAdministratorByProjectId_ShouldReturnCorrectResults()
     User? resultNoAdmin = _projectService.GetAdministratorByProjectId(600);
     Assert.IsNull(resultNoAdmin);
 }
+
+public void isLeadProjectTest()
+{
+    User leadUser = new User
+    {
+        Name = "Lead",
+        LastName = "User",
+        Email = "lead@admin,com",
+    };
+    _userRepository.Add(leadUser);
+    
+    Project project = new Project
+    {
+        Id = 700,
+        Name = "Lead Project",
+        Description = "Project with lead",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        ProjectRoles = new List<ProjectRole>()
+    };
+    
+    ProjectRole leadRole = new ProjectRole
+    {
+        RoleType = RoleType.ProjectLead,
+        User = leadUser,
+        Project = project
+    };
+
+    ProjectDataDTO projectDataDto = new ProjectDataDTO()
+    {
+        Id = 700,
+        Name = "Lead Project",
+        Description = "Project with lead",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Users = new List<string> { "lead@admin,com" }
+    };
+    
+    project.ProjectRoles.Add(leadRole);
+    
+    _projectRepository.Add(project);
+    
+    bool isLead = _projectService.IsLeadProject(projectDataDto, "lead@admin,com");
+}
 }

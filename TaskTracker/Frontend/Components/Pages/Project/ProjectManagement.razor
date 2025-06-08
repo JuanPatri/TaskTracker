@@ -44,6 +44,13 @@
                                 Edit
                             </button>
                         }
+                        
+                        @if (CanExportProject(project))
+                        {
+                            <button class="btn btn-info" @onclick="() => ProjectService.ExportProject(project.Id)">
+                                Export
+                            </button>
+                        }
                     </div>
                 </td>
             </tr>
@@ -123,6 +130,12 @@ else
         }
 
         return "No administrator";
+    }
+    
+    private bool CanExportProject(ProjectDataDTO project)
+    {
+        return ProjectService.IsLeadProject(project, SessionService.CurrentUser.Email);
+
     }
 
 }
