@@ -347,6 +347,12 @@ public class ProjectService
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
         return projectWithTask?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin)?.User?.Email;
     }
+    
+    public string? GetLeadEmailByTaskTitle(string title)
+    {
+        Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
+        return projectWithTask?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectLead)?.User?.Email;
+    }
 
     public bool IsExclusiveResourceForProject(int resourceId, int projectId)
     {
