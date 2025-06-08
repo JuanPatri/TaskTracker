@@ -2,7 +2,10 @@
 @using Domain
 @using DTOs.ProjectDTOs
 @using DTOs.UserDTOs
+@using Task = System.Threading.Tasks.Task
 @using Service
+
+@inject ProjectExportService ProjectExportService
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
 @inject UserService UserService
@@ -44,20 +47,15 @@
                                 Edit
                             </button>
                         }
-                        
-                        @if (CanExportProject(project))
-                        {
-                            <button class="btn btn-info" @onclick="() => ProjectService.ExportProject(project.Id)">
-                                Export
-                            </button>
-                        }
                     </div>
                 </td>
             </tr>
         }
         </tbody>
     </table>
-
+    
+    <button @onclick="() => ExportProject('csv', project)">Export CSV</button>
+    <button @onclick="() => ExportProject('json', project)">Export JSON</button>
     <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
 }
 else
@@ -137,5 +135,24 @@ else
         return ProjectService.IsLeadProject(project, SessionService.CurrentUser.Email);
 
     }
+    
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+
+    private async Task ExportProject(string format)
+    {
+
+        string content = format == "csv"
+            ? ProjectExportService.ExportProjectsToCsv(SessionService.CurrentUser.Email)
+            : ProjectExportService.ExportProjectsToJson(SessionService.CurrentUser.Email);
+        
+        string base64Content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(content));
+        string mimeType = format == "csv" ? "text/csv" : "application/json";
+        string fileName = $"{SessionService.CurrentUser.Email}_Projects.{format}";
+
+        await JSRuntime.InvokeVoidAsync("downloadFile", fileName, base64Content, mimeType);
+    }
+
+
+
 
 }

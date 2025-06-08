@@ -230,7 +230,7 @@ public class ProjectService
             .ToList();
     }
 
-    public List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
+    public  List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
             .Where(project => project.ProjectRoles != null &&
