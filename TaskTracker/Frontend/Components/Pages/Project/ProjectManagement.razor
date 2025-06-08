@@ -57,8 +57,8 @@
         </tbody>
     </table>
     
-    <button @onclick="() => ExportProject('csv', project)">Export CSV</button>
-    <button @onclick="() => ExportProject('json', project)">Export JSON</button>
+    <button @onclick="() => ExportProject('csv')">Export CSV</button>
+    <button @onclick="() => ExportProject('json')">Export JSON</button>
     <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
 }
 else
@@ -133,17 +133,14 @@ else
         return "No administrator";
     }
     
-    private bool CanExportProject(ProjectDataDTO project)
-    {
-        return ProjectService.IsLeadProject(project, SessionService.CurrentUser.Email);
-
-    }
     
     [Inject] private IJSRuntime JSRuntime { get; set; }
     
     private async Task ExportProject(string format)
     {
-        var projects = ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email);
+        var projects = ProjectService.MapProjectsToExporterDataDto(
+            ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email)
+        );
 
         string content = format == "csv"
             ? ProjectCsvExporter.Export(projects)
@@ -155,6 +152,5 @@ else
 
         await JSRuntime.InvokeVoidAsync("downloadFile", fileName, base64Content, mimeType);
     }
-
-
+    
 }
