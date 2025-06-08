@@ -56,10 +56,20 @@
         }
         </tbody>
     </table>
-    
-    <button @onclick="() => ExportProject('csv')">Export CSV</button>
-    <button @onclick="() => ExportProject('json')">Export JSON</button>
+
+    <button @onclick="@(async () => await ExportProject("csv"))">Export CSV</button>
+    <button @onclick="@(async () => await ExportProject("json"))">Export JSON</button>
     <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
+    
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger mt-2">@_errorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="alert alert-success mt-2">@_successMessage</div>
+    }
 }
 else
 {
@@ -69,6 +79,8 @@ else
 @code {
     private List<ProjectDataDTO> _projects = new();
     private User? _currentUser;
+    private string? _errorMessage;
+    private string? _successMessage;
 
     protected override void OnInitialized()
     {
@@ -138,6 +150,17 @@ else
     
     private async Task ExportProject(string format)
     {
+        _errorMessage = null;
+        _successMessage = null;
+        
+        var projectsLeaders = ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email);
+
+        if (projectsLeaders == null || projectsLeaders.Count == 0)
+        {
+            _errorMessage = "You don't have permission to export. Only project leaders can export data.";
+            StateHasChanged();
+            return;
+        }
         var projects = ProjectService.MapProjectsToExporterDataDto(
             ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email)
         );
@@ -151,6 +174,9 @@ else
         string fileName = $"{SessionService.CurrentUser.Email}_Projects.{format}";
 
         await JSRuntime.InvokeVoidAsync("downloadFile", fileName, base64Content, mimeType);
+        
+        _successMessage = $"Archivo {format.ToUpper()} exportado exitosamente.";
+        StateHasChanged();
     }
     
 }
