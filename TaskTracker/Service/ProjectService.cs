@@ -128,14 +128,16 @@ public class ProjectService
     public List<GetProjectDTO> GetProjectsByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
-            .Where(ProjectHasUserAdmin(userEmail));
+            .Where(ProjectHasUserEditRights(userEmail));
 
         return filteredProjects.Select(ToGetProjectDTO).ToList();
     }
 
-    private Func<Project, bool> ProjectHasUserAdmin(string userEmail) =>
+    private Func<Project, bool> ProjectHasUserEditRights(string userEmail) =>
         project =>
-            project.ProjectRoles?.Any(pr => pr.RoleType == RoleType.ProjectAdmin && pr.User.Email == userEmail) == true;
+            project.ProjectRoles?.Any(pr =>
+                (pr.RoleType == RoleType.ProjectAdmin || pr.RoleType == RoleType.ProjectLead)
+                && pr.User.Email == userEmail) == true;
 
     public List<GetProjectDTO> GetAllProjectsByUserEmail(string userEmail)
     {
