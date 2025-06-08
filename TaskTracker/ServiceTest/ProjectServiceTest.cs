@@ -1100,4 +1100,72 @@ public void isLeadProjectTest()
     
     bool isLead = _projectService.IsLeadProject(projectDataDto, "lead@admin,com");
 }
+
+[TestMethod]
+public void GetProjectsLedByUser_ReturnsCorrectData()
+{
+    var leaderUser = new User
+    {
+        Name = "Juan",
+        LastName = "Líder",
+        Email = "juan.lider@test.com",
+        Password = "Seguro123!",
+        BirthDate = DateTime.Now.AddYears(-25),
+        Admin = false
+    };
+    _userRepository.Add(leaderUser);
+
+    var project = new Project
+    {
+        Id = 100,
+        Name = "Proyecto de Prueba",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)), 
+        Description = "Un proyecto de prueba"
+    };
+
+    var task = new Task
+    {
+        Title = "Tarea A",
+        EarlyStart = new DateTime(2024, 3, 3),
+        Duration = 5,
+        Resources = new List<TaskResource>
+        {
+            new TaskResource
+            {
+                Resource = _resource
+            }
+        }
+    };
+
+    project.Tasks = new List<Task> { task };
+
+    var role = new ProjectRole
+    {
+        RoleType = RoleType.ProjectLead,
+        User = leaderUser,
+        Project = project
+    };
+
+    project.ProjectRoles = new List<ProjectRole> { role };
+
+    _projectRepository.Add(project);
+    _taskRepository.Add(task);
+
+    
+    var result = _projectService.GetProjectsLedByUser("juan.lider@test.com");
+
+    Assert.AreEqual(1, result.Count);
+    var exportedProject = result.First();
+    Assert.AreEqual("Proyecto de Prueba", exportedProject.Name);
+    Assert.AreEqual(DateOnly.FromDateTime(DateTime.Today.AddDays(1)), exportedProject.StartDate);
+
+    Assert.AreEqual(1, exportedProject.Tasks.Count);
+    var exportedTask = exportedProject.Tasks.First();
+    Assert.AreEqual("Tarea A", exportedTask.Title);
+    Assert.AreEqual(new DateTime(2024, 3, 3), exportedTask.StartDate);
+    Assert.AreEqual("N", exportedTask.IsCritical); 
+    Assert.AreEqual(1, exportedTask.Resources.Count);
+    Assert.AreEqual("Resource", exportedTask.Resources.First());
+}
+
 }

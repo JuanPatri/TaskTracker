@@ -1,15 +1,18 @@
 @page "/ProjectManagement"
 @using Domain
+@using DTOs.ExporterDTOs
 @using DTOs.ProjectDTOs
 @using DTOs.UserDTOs
 @using Task = System.Threading.Tasks.Task
+@using Service.ExportService
 @using Service
 
-@inject ProjectExportService ProjectExportService
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
 @inject UserService UserService
 @inject SessionService SessionService
+@inject ProjectCsvExporter ProjectCsvExporter
+@inject ProjectJsonExporter ProjectJsonExporter
 
 <PageTitle>Project Management</PageTitle>
 <h1>Project Management</h1>
@@ -137,22 +140,21 @@ else
     }
     
     [Inject] private IJSRuntime JSRuntime { get; set; }
-
+    
     private async Task ExportProject(string format)
     {
+        var projects = ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email);
 
         string content = format == "csv"
-            ? ProjectExportService.ExportProjectsToCsv(SessionService.CurrentUser.Email)
-            : ProjectExportService.ExportProjectsToJson(SessionService.CurrentUser.Email);
-        
+            ? ProjectCsvExporter.Export(projects)
+            : ProjectJsonExporter.Export(projects);
+
         string base64Content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(content));
         string mimeType = format == "csv" ? "text/csv" : "application/json";
         string fileName = $"{SessionService.CurrentUser.Email}_Projects.{format}";
 
         await JSRuntime.InvokeVoidAsync("downloadFile", fileName, base64Content, mimeType);
     }
-
-
 
 
 }

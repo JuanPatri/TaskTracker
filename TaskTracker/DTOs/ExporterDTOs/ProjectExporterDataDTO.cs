@@ -3,6 +3,6 @@
 public class ProjectExporterDataDto
 {
     public string Name { get; set; } = String.Empty;
-    public DateTime StartDate { get; set; } = DateTime.Today;
+    public DateOnly StartDate { get; set; } = DateOnly.FromDateTime(DateTime.Now);
     public List<TaskExporterDataDto> Tasks { get; set; } = new List<TaskExporterDataDto>();
 }
