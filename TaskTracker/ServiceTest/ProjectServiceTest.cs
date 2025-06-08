@@ -576,6 +576,36 @@ public class ProjectServiceTest
         Assert.AreEqual("admin@example.com", email);
     }
 
+    [TestMethod]
+    public void GetLeadEmailByTaskTitleTest()
+    {
+        User leadUser = new User 
+        { 
+            Name = "Lead",
+            LastName = "User",
+            Email = "lead@example.com",
+            Password = "Lead123!",
+            BirthDate = DateTime.Now.AddYears(-30)
+        };
+
+        ProjectRole leadRole = new ProjectRole
+        {
+            RoleType = RoleType.ProjectLead,
+            User = leadUser,
+            Project = _project
+        };
+
+        _project.ProjectRoles = new List<ProjectRole> { leadRole };
+
+        Task task = new Task { Title = "Test Task" };
+        _project.Tasks.Add(task);
+
+        string? email = _projectService.GetLeadEmailByTaskTitle("Test Task");
+
+        Assert.IsNotNull(email);
+        Assert.AreEqual("lead@example.com", email);
+    }
+    
 [TestMethod]
 public void UpdateProject_ShouldUseExistingAdminPassword_WhenPasswordIsEmpty()
 {
