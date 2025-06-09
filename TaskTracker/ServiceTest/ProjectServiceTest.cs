@@ -118,11 +118,11 @@ public class ProjectServiceTest
             Name = "Project 2",
             Description = "Description of project 2",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Users = new List<string> { "john@example.com" } 
+            Users = new List<string> { "john@example.com", "john@example.com" } 
         };
-    
+
         Project? createdProject = _projectService.AddProject(project);
-    
+
         Assert.IsNotNull(createdProject);
         Assert.AreEqual(_projectRepository.FindAll().Last(), createdProject);
 
