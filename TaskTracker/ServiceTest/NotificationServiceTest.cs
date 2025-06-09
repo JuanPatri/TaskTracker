@@ -65,7 +65,7 @@ public class NotificationServiceTest
         var projects = _projectRepository.FindAll().Where(p => notificationDto.Projects.Contains(p.Name)).ToList();
 
         var notification =
-            _notificationRepository.Add(Notification.FromDto(notificationDto, users, projects, new List<string>()));
+            _notificationRepository.Add(_notificationService.FromDto(notificationDto, users, projects, new List<string>()));
 
         Assert.IsNotNull(notification);
         Assert.AreEqual(notificationDto.Message, notification.Message);
