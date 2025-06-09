@@ -128,17 +128,21 @@ else
                 _errorMessage = "Please select an administrator.";
                 return;
             }
-            
+    
             if (string.IsNullOrEmpty(_selectedLeader))
             {
                 _errorMessage = "Please select an Leader.";
                 return;
             }
+
+            List<string> allUsers = new List<string>();
+
+            allUsers.Add(_selectedAdmin);
             
-            List<string> allUsers = new List<string> { _selectedAdmin };
             allUsers.Add(_selectedLeader);
-            allUsers.AddRange(_selectedMembers.Where(m => m != _selectedAdmin)); 
-            
+
+            allUsers.AddRange(_selectedMembers.Where(m => m != _selectedAdmin && m != _selectedLeader));
+    
             _projectData.Users = allUsers; 
 
             ProjectService.AddProject(_projectData);

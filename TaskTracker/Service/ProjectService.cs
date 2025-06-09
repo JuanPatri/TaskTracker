@@ -42,19 +42,42 @@ public class ProjectService
 
         List<User> associatedUsers = _userService.GetUsersFromEmails(project.Users);
 
+        string adminEmail = project.Users[0];
+        string leaderEmail = project.Users[1];
+
         List<ProjectRole> projectRoles = new List<ProjectRole>();
 
-        for (int i = 0; i < associatedUsers.Count; i++)
+        foreach (User user in associatedUsers)
         {
-            User user = associatedUsers[i];
-            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : (i == 1) ? RoleType.ProjectLead : RoleType.ProjectMember;
-
-            ProjectRole role = new ProjectRole
+            if (user.Email == adminEmail)
             {
-                RoleType = roleType,
-                User = user
-            };
-            projectRoles.Add(role);
+                ProjectRole adminRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectAdmin,
+                    User = user
+                };
+                projectRoles.Add(adminRole);
+            }
+        
+            if (user.Email == leaderEmail)
+            {
+                ProjectRole leaderRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectLead,
+                    User = user
+                };
+                projectRoles.Add(leaderRole);
+            }
+            
+            if (user.Email != adminEmail && user.Email != leaderEmail)
+            {
+                ProjectRole memberRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectMember,
+                    User = user
+                };
+                projectRoles.Add(memberRole);
+            }
         }
 
         project.Id = _idProject++;
