@@ -131,15 +131,9 @@ else
     {
         if (project.Users.Count > 0)
         {
-            string adminEmail = project.Users[0];
-            GetUserDTO getUserDto = new GetUserDTO { Email = adminEmail };
-            User adminUser = UserService.GetUser(getUserDto);
-            if (adminUser != null)
-            {
-                return $"{adminUser.Name} {adminUser.LastName}";
-            }
+            User? adminUser = ProjectService.GetAdministratorByProjectId(project.Id);
 
-            return adminEmail;
+            return $"{adminUser.Name} {adminUser.LastName}";
         }
 
         return "No administrator";
