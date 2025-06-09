@@ -4,6 +4,7 @@ using Frontend.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Service;
+using Service.ExportService;
 using Task = Domain.Task;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +37,8 @@ builder.Services.AddSingleton<ResourceService>();
 builder.Services.AddSingleton<ResourceTypeService>();
 builder.Services.AddSingleton<CriticalPathService>();
 builder.Services.AddSingleton<NotificationService>();
+builder.Services.AddSingleton<ProjectCsvExporter>();
+builder.Services.AddSingleton<ProjectJsonExporter>();
 
 var app = builder.Build();
 

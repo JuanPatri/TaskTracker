@@ -1,11 +1,18 @@
 @page "/ProjectManagement"
 @using Domain
+@using DTOs.ExporterDTOs
 @using DTOs.ProjectDTOs
+@using DTOs.UserDTOs
+@using Task = System.Threading.Tasks.Task
+@using Service.ExportService
 @using Service
+
 @inject NavigationManager NavigationManager
 @inject ProjectService ProjectService
 @inject UserService UserService
 @inject SessionService SessionService
+@inject ProjectCsvExporter ProjectCsvExporter
+@inject ProjectJsonExporter ProjectJsonExporter
 
 <PageTitle>Project Management</PageTitle>
 <h1>Project Management</h1>
@@ -28,7 +35,7 @@
             <tr>
                 <td>@project.Name</td>
                 <td>@project.StartDate.ToShortDateString()</td>
-                <td>@($"{project.Administrator.Name} {project.Administrator.LastName}")</td>
+                <td>@GetAdministratorDisplay(project)</td>
                 <td>
                     <div class="btn-group">
                         <button class="btn btn-sm btn-success me-2" @onclick="() => ViewTasks(new GetProjectDTO() { Id = project.Id, Name = project.Name })">
@@ -49,8 +56,20 @@
         }
         </tbody>
     </table>
-    
+
+    <button @onclick="@(async () => await ExportProject("csv"))">Export CSV</button>
+    <button @onclick="@(async () => await ExportProject("json"))">Export JSON</button>
     <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
+    
+    @if (!string.IsNullOrEmpty(_errorMessage))
+    {
+        <div class="alert alert-danger mt-2">@_errorMessage</div>
+    }
+
+    @if (!string.IsNullOrEmpty(_successMessage))
+    {
+        <div class="alert alert-success mt-2">@_successMessage</div>
+    }
 }
 else
 {
@@ -60,6 +79,8 @@ else
 @code {
     private List<ProjectDataDTO> _projects = new();
     private User? _currentUser;
+    private string? _errorMessage;
+    private string? _successMessage;
 
     protected override void OnInitialized()
     {
@@ -76,7 +97,7 @@ else
 
     private bool CanEditProject(ProjectDataDTO project)
     {
-        return _currentUser.Admin || project.Administrator.Email == _currentUser.Email;
+        return _currentUser.Admin || (project.Users.Count > 0 && project.Users[0] == _currentUser.Email);
     }
 
     public void GoToCreateProject()
@@ -106,4 +127,56 @@ else
         NavigationManager.NavigateTo("/Diagram", true);
     }
 
+    private string GetAdministratorDisplay(ProjectDataDTO project)
+    {
+        if (project.Users.Count > 0)
+        {
+            string adminEmail = project.Users[0];
+            GetUserDTO getUserDto = new GetUserDTO { Email = adminEmail };
+            User adminUser = UserService.GetUser(getUserDto);
+            if (adminUser != null)
+            {
+                return $"{adminUser.Name} {adminUser.LastName}";
+            }
+
+            return adminEmail;
+        }
+
+        return "No administrator";
+    }
+    
+    
+    [Inject] private IJSRuntime JSRuntime { get; set; }
+    
+    private async Task ExportProject(string format)
+    {
+        _errorMessage = null;
+        _successMessage = null;
+        
+        var projectsLeaders = ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email);
+
+        if (projectsLeaders == null || projectsLeaders.Count == 0)
+        {
+            _errorMessage = "You don't have permission to export. Only project leaders can export data.";
+            StateHasChanged();
+            return;
+        }
+        var projects = ProjectService.MapProjectsToExporterDataDto(
+            ProjectService.GetProjectsLedByUser(SessionService.CurrentUser.Email)
+        );
+
+        string content = format == "csv"
+            ? ProjectCsvExporter.Export(projects)
+            : ProjectJsonExporter.Export(projects);
+
+        string base64Content = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(content));
+        string mimeType = format == "csv" ? "text/csv" : "application/json";
+        string fileName = $"{SessionService.CurrentUser.Email}_Projects.{format}";
+
+        await JSRuntime.InvokeVoidAsync("downloadFile", fileName, base64Content, mimeType);
+        
+        _successMessage = $"Archivo {format.ToUpper()} exportado exitosamente.";
+        StateHasChanged();
+    }
+    
 }

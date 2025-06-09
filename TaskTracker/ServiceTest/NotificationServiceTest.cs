@@ -123,20 +123,37 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetUsersFromProject_ShouldReturnProjectUsers()
     {
-        var user1 = new User { Name = "John", Email = "john@mail.com" };
-        var user2 = new User { Name = "Anna", Email = "anna@mail.com" };
+        User user1 = new User { Name = "John", Email = "john@mail.com" };
+        User user2 = new User { Name = "Anna", Email = "anna@mail.com" };
         _userRepository.Add(user1);
         _userRepository.Add(user2);
 
-        var project = new Project
+        Project project = new Project
         {
             Id = 10,
             Name = "Project X",
-            Users = new List<User> { user1, user2 }
+            Description = "Test description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
         };
+
+        ProjectRole role1 = new ProjectRole
+        {
+            RoleType = RoleType.ProjectMember,
+            User = user1,
+            Project = project
+        };
+
+        ProjectRole role2 = new ProjectRole
+        {
+            RoleType = RoleType.ProjectMember,
+            User = user2,
+            Project = project
+        };
+
+        project.ProjectRoles = new List<ProjectRole> { role1, role2 };
         _projectRepository.Add(project);
 
-        var users = _projectService.GetUsersFromProject(10);
+        List<User> users = _projectService.GetUsersFromProject(10);
 
         Assert.AreEqual(2, users.Count);
         Assert.IsTrue(users.Any(u => u.Email == "john@mail.com"));
@@ -177,15 +194,26 @@ public class NotificationServiceTest
     [TestMethod]
     public void CreateNotification_ShouldCreateAndReturnNotificationWithCorrectData()
     {
-        var user = new User { Name = "John", Email = "john@mail.com" };
-        var project = new Project
+        User user = new User { Name = "John", Email = "john@mail.com" };
+    
+        Project project = new Project
         {
             Id = 1,
             Name = "Project Test",
+            Description = "Test description",
             StartDate = DateOnly.FromDateTime(DateTime.Today),
-            Users = new List<User> { user },
             Tasks = new List<Task> { new Task { Title = "Task1", Duration = 5 } }
         };
+
+        ProjectRole userRole = new ProjectRole
+        {
+            RoleType = RoleType.ProjectMember,
+            User = user,
+            Project = project
+        };
+
+        project.ProjectRoles = new List<ProjectRole> { userRole };
+    
         _userRepository.Add(user);
         _projectRepository.Add(project);
 

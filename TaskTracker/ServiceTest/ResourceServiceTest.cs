@@ -52,7 +52,7 @@ public class ResourceServiceTest
             Name = "Test Project",
             Description = "Description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User()
+            ProjectRoles = new List<ProjectRole>()
         };
         _projectRepository.Add(_project);
 
@@ -72,6 +72,7 @@ public class ResourceServiceTest
         _task = new Task() { Title = "Test Task", };
         _taskRepository.Add(_task);
     }
+
 
     [TestMethod]
     public void CreateResourceService()
@@ -237,7 +238,7 @@ public class ResourceServiceTest
             Tasks = new List<Task> { task },
             Description = "desc",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User()
+            ProjectRoles = new List<ProjectRole>()
         };
 
         _projectRepository.Add(project);
@@ -245,7 +246,7 @@ public class ResourceServiceTest
         Assert.ThrowsException<InvalidOperationException>(() =>
             _resourceService.DecreaseResourceQuantity(101, "Laptop"));
     }
-
+    
     [TestMethod]
     public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
     {
@@ -277,7 +278,7 @@ public class ResourceServiceTest
             Name = "Another Project",
             Description = "Different project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User(),
+            ProjectRoles = new List<ProjectRole>(),
             ExclusiveResources = new List<Resource> { exclusiveResource }
         };
         _projectRepository.Add(anotherProject);
@@ -288,7 +289,7 @@ public class ResourceServiceTest
         bool isExclusive6 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, anotherProject.Id);
         Assert.IsTrue(isExclusive6, "Should return true for the other project that also has the resource");
     }
-
+    
     [TestMethod]
     public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
     {
@@ -534,7 +535,7 @@ public class ResourceServiceTest
             Name = "Exclusive Project",
             Description = "Description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User { Name = "Admin", Email = "admin@example.com" },
+            ProjectRoles = new List<ProjectRole>(),
             ExclusiveResources = new List<Resource> { exclusiveResource1, exclusiveResource2 }
         };
 
@@ -664,7 +665,6 @@ public class ResourceServiceTest
         Assert.IsFalse(result4);
     }
 
-    [TestMethod]
     public void DecreaseResourceQuantity_AndEdgeCases()
     {
         Resource resource = new Resource { Name = "TestResource", Quantity = 5 };
@@ -686,7 +686,7 @@ public class ResourceServiceTest
             Tasks = new List<Task> { task },
             Description = "desc",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User()
+            ProjectRoles = new List<ProjectRole>()
         };
         _projectRepository.Add(project);
 

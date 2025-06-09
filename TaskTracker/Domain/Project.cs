@@ -8,13 +8,11 @@ public class Project
     private string _name;
     private string _description;
     private DateOnly _startDate;
-    private User _administrator;
-    
     private List<Task> _tasks = new List<Task>();
-    private List<User> _users = new List<User>();
     private List<Resource> _exclusiveResources = new List<Resource>();
     private List<Task> _criticalPath = new List<Task>();
-
+    private List<ProjectRole> _projectRoles = new List<ProjectRole>();
+    
     private const int MaxDescriptionLength = 400;
     public string Name
     {
@@ -45,15 +43,6 @@ public class Project
             _startDate = value;
         }
     }
-    public User Administrator
-    {
-        get => _administrator;
-        set
-        {
-            if (value == null) throw new ArgumentException("The project administrator cannot be null");
-            _administrator = value;
-        }
-    }
     public int Id
     {
         get => _id;
@@ -70,13 +59,6 @@ public class Project
         set => _tasks = value;
         
     }
-    
-    public List<User> Users
-    {
-        get => _users;
-        set => _users = value; 
-    }
-    
     public List<Resource> ExclusiveResources
     {
         get => _exclusiveResources;
@@ -89,7 +71,13 @@ public class Project
         set => _criticalPath = value;
     }
     
-    public static Project FromDto(ProjectDataDTO projectDataDto, List<User> users)
+    public List<ProjectRole> ProjectRoles
+    {
+        get => _projectRoles;
+        set => _projectRoles = value;
+    }
+    
+    public static Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
     {
         return new Project()
         {
@@ -97,8 +85,7 @@ public class Project
             Name = projectDataDto.Name,
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,
-            Administrator = User.FromDto(projectDataDto.Administrator),
-            Users = users
+            ProjectRoles = users
         };
     }
     

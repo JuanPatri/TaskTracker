@@ -34,9 +34,8 @@ public class ProjectRepository : IRepository<Project>
             existingProject.Name = updatedProject.Name;
             existingProject.Description = updatedProject.Description;
             existingProject.StartDate = updatedProject.StartDate;
-            existingProject.Administrator = updatedProject.Administrator;
+            existingProject.ProjectRoles = updatedProject.ProjectRoles;
             existingProject.Tasks = updatedProject.Tasks;
-            existingProject.Users = updatedProject.Users;
             existingProject.ExclusiveResources = updatedProject.ExclusiveResources;
             return existingProject;
         }

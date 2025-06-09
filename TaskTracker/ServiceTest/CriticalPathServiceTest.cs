@@ -1,6 +1,7 @@
 ﻿using Domain;
 using DTOs.ProjectDTOs;
 using DTOs.TaskDTOs;
+using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
 using Service;
@@ -32,15 +33,33 @@ public class CriticalPathServiceTest
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
         
-        _project = new Project()
-        {
-            Id = 35,
-            Name = "Test Project",
-            Description = "Description",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User()
-        };
-        _projectRepository.Add(_project);
+            User adminUser = new User()
+            {
+                Name = "Admin",
+                LastName = "User",
+                Email = "admin@test.com",
+                Password = "Admin123!",
+                BirthDate = DateTime.Now.AddYears(-30),
+                Admin = true
+            };
+
+            _project = new Project()
+            {
+                Id = 35,
+                Name = "Test Project",
+                Description = "Description",
+                StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+            };
+
+            ProjectRole adminRole = new ProjectRole
+            {
+                RoleType = RoleType.ProjectAdmin,
+                User = adminUser,
+                Project = _project
+            };
+
+            _project.ProjectRoles = new List<ProjectRole> { adminRole };
+            _projectRepository.Add(_project);
     }
     
     [TestMethod]

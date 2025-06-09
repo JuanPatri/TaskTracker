@@ -3,6 +3,7 @@ using Domain;
 using DTOs.ProjectDTOs;
 using DTOs.UserDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Enums;
 
 namespace BackendTest.DomainTest;
 
@@ -14,7 +15,33 @@ public class ProjectTest
     [TestInitialize]
     public void OnInitialize()
     {
-        _project = new Project();
+        User adminUser = new User()
+        {
+            Name = "Admin",
+            LastName = "User",
+            Email = "admin@test.com",
+            Password = "Admin123@",
+            Admin = true,
+            BirthDate = new DateTime(1990, 1, 1)
+        };
+
+        ProjectRole adminRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectAdmin,
+            User = adminUser
+        };
+
+        ProjectDataDTO projectDto = new ProjectDataDTO()
+        {
+            Id = 1,
+            Name = "Test Project",
+            Description = "Test Description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            Users = new List<string> { "admin@test.com" }
+        };
+
+        _project = Project.FromDto(projectDto, new List<ProjectRole> { adminRole });
+        adminRole.Project = _project;
     }
     
     [TestMethod]
@@ -72,20 +99,6 @@ public class ProjectTest
     }
     
     [TestMethod]
-    public void AddAdministratorForProjectTest()
-    {
-        var admin = new User();
-        _project.Administrator = admin;
-        Assert.AreEqual(admin, _project.Administrator);
-    }
-    
-    [TestMethod]
-    public void PutAdministratorNullReturnsExceptionTest()
-    {
-        Assert.ThrowsException<ArgumentException>(() => _project.Administrator = null);
-    }
-    
-    [TestMethod]
     public void SetIdForProjectTest()
     {
         _project.Id = 1;
@@ -116,47 +129,60 @@ public class ProjectTest
             Name = "Test Project",
             Description = "This is a test project",
             StartDate = new DateOnly (2026, 1, 1),
-            Administrator = new UserDataDTO
-            {
-                Name = "Pedro",
-                LastName = "Rodriguez",
-                Email = "prodriguez@gmail.com",
-                BirthDate = new DateTime(2003, 03, 14),
-                Password = "Pedro1234@",
-            },
             Users = new List<string>
             {
+                "prodriguez@gmail.com",
                 "test@gmail.com"
             }
-                
         };
 
-        List<User> users = new List<User>()
+        User adminUser = new User()
         {
-            new User()
-            {
-                Email = "test@gmail.com"
-            }
+            Name = "Pedro",
+            LastName = "Rodriguez",
+            Email = "prodriguez@gmail.com",
+            BirthDate = new DateTime(2003, 03, 14),
+            Password = "Pedro1234@",
+            Admin = true
         };
 
-        Project result = Project.FromDto(dto, users);
+        User regularUser = new User()
+        {
+            Name = "Test",
+            LastName = "User", 
+            Email = "test@gmail.com",
+            BirthDate = new DateTime(1995, 05, 20),
+            Password = "Test123@",
+            Admin = false
+        };
+
+        ProjectRole adminRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectAdmin,
+            User = adminUser
+        };
+
+        ProjectRole memberRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectMember,
+            User = regularUser
+        };
+
+        List<ProjectRole> projectRoles = new List<ProjectRole> { adminRole, memberRole };
+
+        Project result = Project.FromDto(dto, projectRoles);
         
         Assert.AreEqual(dto.Id, result.Id);
         Assert.AreEqual(dto.Name, result.Name);
         Assert.AreEqual(dto.Description, result.Description);
         Assert.AreEqual(dto.StartDate, result.StartDate);
-        Assert.IsNotNull(result.Administrator);
-        Assert.AreEqual(dto.Administrator.Name, result.Administrator.Name);
-        Assert.AreEqual(dto.Administrator.LastName, result.Administrator.LastName);
-        Assert.AreEqual(dto.Administrator.Email, result.Administrator.Email);
-    }
-
-    [TestMethod]
-    public void SetUserListForProjectTest()
-    {
-        List<User> users = new List<User>();
-        _project.Users = users;
-        Assert.AreEqual(users, _project.Users);
+        Assert.AreEqual(2, result.ProjectRoles.Count);
+        
+        ProjectRole admin = result.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin);
+        Assert.IsNotNull(admin);
+        Assert.AreEqual("Pedro", admin.User.Name);
+        Assert.AreEqual("Rodriguez", admin.User.LastName);
+        Assert.AreEqual("prodriguez@gmail.com", admin.User.Email);
     }
     
     [TestMethod]
@@ -175,4 +201,11 @@ public class ProjectTest
         Assert.AreEqual(criticalPath, _project.CriticalPath);
     }
 
+    [TestMethod]
+    public void SetProjectRoleListTest()
+    {
+        List<ProjectRole> projectRoles = new List<ProjectRole>();
+        _project.ProjectRoles = projectRoles;
+        Assert.AreEqual(projectRoles, _project.ProjectRoles);
+    }
 }

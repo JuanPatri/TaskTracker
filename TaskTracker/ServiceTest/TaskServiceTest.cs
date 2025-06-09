@@ -48,7 +48,7 @@ public class TaskServiceTest
             Name = "Test Project",
             Description = "Description",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User()
+            ProjectRoles = new List<ProjectRole>()
         };
         _projectRepository.Add(_project);
 
@@ -68,7 +68,7 @@ public class TaskServiceTest
         _resourceRepository.Add(_resource);
         _resourceTypeRepository.Add(_resource.Type);
     }
-
+    
     [TestMethod]
     public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
     {
@@ -509,7 +509,7 @@ public class TaskServiceTest
             Name = "Recalculate Test Project",
             Description = "Test recalculation",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Administrator = new User(),
+            ProjectRoles = new List<ProjectRole>(),
             Tasks = new List<Task>()
         };
 
