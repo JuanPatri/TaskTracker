@@ -114,7 +114,7 @@
             }
         </select>
     </div>
-    
+
     <div class="form-group mb-3">
         <label>Quantity</label>
         <InputNumber class="form-control" @bind-Value="_selectedQuantity"/>
@@ -267,56 +267,75 @@
     }
 
     private void AddResourceToTask()
+{
+    if (_selectedResourceId > 0 && _selectedQuantity > 0)
     {
-        if (_selectedResourceId > 0 && _selectedQuantity > 0)
+        if (string.IsNullOrWhiteSpace(_newTask.Title))
         {
-            if (string.IsNullOrWhiteSpace(_newTask.Title))
-            {
-                _errorMessage = "Please enter a task title before adding resources.";
-                return;
-            }
-
-            if (string.IsNullOrWhiteSpace(_newTask.Description))
-            {
-                _errorMessage = "Please enter a task description before adding resources.";
-                return;
-            }
-
-            if (_newTask.Duration <= 0)
-            {
-                _errorMessage = "Please enter a valid task duration before adding resources.";
-                return;
-            }
-
-            if (_selectedProjectId <= 0)
-            {
-                _errorMessage = "Please select a project before adding resources.";
-                return;
-            }
-
-            if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
-            {
-                _errorMessage = "This resource is already added to the task.";
-                return;
-            }
-
-            
-
-            TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
-            {
-                TaskTitle = _newTask.Title,
-                ResourceId = _selectedResourceId,
-                Quantity = _selectedQuantity
-            };
-
-            _taskResourceDataDtos.Add(newTaskResourceDto);
-            CheckConflicts();
-            
-            _selectedResourceId = 0;
-            _selectedQuantity = 1;
-            _errorMessage = string.Empty;
+            _errorMessage = "Please enter a task title before adding resources.";
+            return;
         }
+
+        if (string.IsNullOrWhiteSpace(_newTask.Description))
+        {
+            _errorMessage = "Please enter a task description before adding resources.";
+            return;
+        }
+
+        if (_newTask.Duration <= 0)
+        {
+            _errorMessage = "Please enter a valid task duration before adding resources.";
+            return;
+        }
+
+        if (_selectedProjectId <= 0)
+        {
+            _errorMessage = "Please select a project before adding resources.";
+            return;
+        }
+
+        if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
+        {
+            _errorMessage = "This resource is already added to the task.";
+            return;
+        }
+        
+        bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
+        Resource resourceInfo = null;
+        
+        if (exclusiveResourceProject)
+        {
+            GetProjectDTO projectDto = new GetProjectDTO { Id = _selectedProjectId };
+            Project project = ProjectService.GetProject(projectDto);
+            resourceInfo = project?.ExclusiveResources?.FirstOrDefault(r => r.Id == _selectedResourceId);
+        }
+        else
+        {
+            resourceInfo = ResourceService.GetAllResources().FirstOrDefault(r => r.Id == _selectedResourceId);
+        }
+
+        if (resourceInfo != null && _selectedQuantity > resourceInfo.Quantity)
+        {
+            string scope = exclusiveResourceProject ? "project" : "system";
+            _errorMessage = $"Cannot add resource '{resourceInfo.Name}': Maximum capacity is {resourceInfo.Quantity}, but you requested {_selectedQuantity} in {scope}.";
+            return;
+        }
+
+        TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
+        {
+            TaskTitle = _newTask.Title,
+            ResourceId = _selectedResourceId,
+            Quantity = _selectedQuantity
+        };
+
+        _taskResourceDataDtos.Add(newTaskResourceDto);
+        CheckConflicts(); 
+        
+        _selectedResourceId = 0;
+        _selectedQuantity = 1;
+        _errorMessage = string.Empty;
     }
+}
 
     private void CheckConflicts()
     {
@@ -404,7 +423,7 @@
 
             int dependenciesAdded = _conflictResult?.ConflictingTasks?.Count ?? 0;
             _successMessage = $"Task created! Added {dependenciesAdded} dependencies to resolve conflicts.";
-            
+
             await Task.Delay(2000);
             NavigationManager.NavigateTo("/TaskManagement");
         }
@@ -422,4 +441,5 @@
     {
         NavigationManager.NavigateTo("/CreateExclusiveResource");
     }
+
 }
