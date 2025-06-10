@@ -101,4 +101,31 @@ public class  UserServiceTest
         _userService.UpdateUser(userDTO);
         Assert.AreEqual(_user.Name, "Pedro");
     }
+    
+    [TestMethod]
+    public void AddUserShouldThrowExceptionWhenEmailAlreadyExists()
+    {
+        User existingUser = new User
+        {
+            Name = "Existing",
+            LastName = "User",
+            Email = "existing@example.com",
+            Password = "Password123!",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
+        _userRepository.Add(existingUser);
+    
+        UserDataDTO newUserDto = new UserDataDTO
+        {
+            Name = "New",
+            LastName = "User",
+            Email = "existing@example.com",
+            Password = "NewPassword123!",
+            BirthDate = new DateTime(2000, 1, 1),
+            Admin = false
+        };
+        
+        Assert.ThrowsException<ArgumentException>(() => _userService.AddUser(newUserDto));
+    }
 }
