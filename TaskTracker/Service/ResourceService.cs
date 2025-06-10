@@ -35,7 +35,7 @@ public class ResourceService
 
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
 
-        Resource newResource = Resource.FromDto(resource, resourceType);
+        Resource newResource = FromDto(resource, resourceType);
     
         newResource.Id = GetNextResourceId();
 
@@ -75,7 +75,7 @@ public class ResourceService
     public Resource? UpdateResource(ResourceDataDto resourceDto)
     {
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
-        Resource? updatedResource = _resourceRepository.Update(Resource.FromDto(resourceDto, resourceType));
+        Resource? updatedResource = _resourceRepository.Update(FromDto(resourceDto, resourceType));
         return updatedResource;
     }
 
@@ -253,6 +253,17 @@ public class ResourceService
     private Resource? FindResourceByName(string resourceName)
     {
         return _resourceRepository.Find(resource => resource.Name == resourceName);
+    }
+    
+    public Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
+    {
+        return new Resource()
+        {
+            Name = resourceDataDto.Name,
+            Description = resourceDataDto.Description,
+            Type = resourceType,
+            Quantity = resourceDataDto.Quantity
+        };
     }
     
 }

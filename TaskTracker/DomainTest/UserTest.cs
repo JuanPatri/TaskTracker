@@ -1,6 +1,8 @@
 using Domain;
 using DTOs.UserDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
+using Service;
 
 namespace DomainTest;
 
@@ -8,11 +10,15 @@ namespace DomainTest;
 public class UserTest
 {
     private User _user;
+    private UserService _userService;
+    private UserRepository _userRepository;
     
     [TestInitialize]
     public void OnInitialize()
     {
         _user = new User();
+        _userRepository = new UserRepository();
+        _userService = new UserService(_userRepository);
     }
     
     [TestMethod]
@@ -201,7 +207,7 @@ public class UserTest
             Admin = false
         };
         
-        User user = User.FromDto(userDataDto);
+        User user = _userService.FromDto(userDataDto);
         
         Assert.AreEqual(userDataDto.Name, user.Name);
     }

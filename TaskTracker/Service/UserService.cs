@@ -14,7 +14,7 @@ public class UserService
     
     public User AddUser(UserDataDTO user)
     {
-        User newUser = User.FromDto(user);
+        User newUser = FromDto(user);
         return _userRepository.Add(newUser);
     }
     
@@ -35,7 +35,7 @@ public class UserService
 
     public User? UpdateUser(UserDataDTO userDto)
     {
-        User updatedUser = User.FromDto(userDto);
+        User updatedUser = FromDto(userDto);
         return _userRepository.Update(updatedUser);
     }
     
@@ -62,4 +62,16 @@ public class UserService
             .ToList();
     }
 
+    public User FromDto(UserDataDTO userDataDto)
+    {
+        return new User()
+        {
+            Name = userDataDto.Name,
+            LastName = userDataDto.LastName,
+            Email = userDataDto.Email,
+            BirthDate = userDataDto.BirthDate,
+            Password = userDataDto.Password,
+            Admin = userDataDto.Admin
+        };
+    }
 }

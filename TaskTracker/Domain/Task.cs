@@ -73,21 +73,4 @@ public class Task
         get => _dependencies;
         set => _dependencies = value; 
     }
-    
-    public static Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
-    {
-    
-        var task = new Task()
-        {
-            Title = taskDataDto.Title,
-            Description = taskDataDto.Description,
-            Duration = taskDataDto.Duration,
-            Status = taskDataDto.Status,
-            Resources = resources ?? new List<TaskResource>(),
-            Dependencies = dependencies ?? new List<Task>(),
-        };
-        
-        return task;
-    }
-    
 }

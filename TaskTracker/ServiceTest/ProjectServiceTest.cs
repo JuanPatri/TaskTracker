@@ -756,7 +756,7 @@ public void AddTaskToProjectShouldAddTaskToProjectTasksList()
     Project initialProject = _projectRepository.Find(p => p.Id == 99);
     Assert.AreEqual(0, initialProject.Tasks.Count);
 
-    _taskRepository.Add(Task.FromDto(taskDto, new List<TaskResource>(), new List<Task>()));
+    _taskRepository.Add(_taskService.FromDto(taskDto, new List<TaskResource>(), new List<Task>()));
     _projectService.AddTaskToProject(taskDto, project.Id);
 
     Project updatedProject = _projectRepository.Find(p => p.Id == 99);
