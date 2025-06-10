@@ -1,9 +1,12 @@
 using Domain;
 using DTOs.ResourceDTOs;
+using DTOs.TaskDTOs;
 using DTOs.TaskResourceDTOs;
 using Enums;
 using Repository;
+using Service;
 using Task = Domain.Task;
+
 
 namespace Service;
 
@@ -13,21 +16,25 @@ public class ResourceService
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     private readonly IRepository<Project> _projectRepository;
     private readonly TaskService _taskService;
-    
-    public ResourceService(IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<Project> projectRepository, TaskService taskService)
+    private readonly ProjectService _projectService;
+
+    public ResourceService(IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository,
+        IRepository<Project> projectRepository, TaskService taskService, ProjectService projectService)
     {
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _projectRepository = projectRepository;
         _taskService = taskService;
+        _projectService = projectService;
     }
-    
+
     public Resource? AddResource(ResourceDataDto resource)
     {
         if (_resourceRepository.Find(r => r.Name == resource.Name) != null)
         {
             throw new Exception("Resource already exists");
         }
+
         if (resource.Quantity <= 0)
         {
             throw new ArgumentException("Resource quantity must be greater than zero");
@@ -36,27 +43,27 @@ public class ResourceService
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
 
         Resource newResource = Resource.FromDto(resource, resourceType);
-    
+
         newResource.Id = GetNextResourceId();
 
         Resource? createdResource = _resourceRepository.Add(newResource);
         return createdResource;
     }
-    
+
     private int GetNextResourceId()
     {
         var allResources = _resourceRepository.FindAll();
         int maxId = allResources.Any() ? allResources.Max(r => r.Id) : 0;
-    
+
         int nextId = maxId + 1;
         if (nextId >= 1000)
         {
             throw new InvalidOperationException("Too many system resources. Max 999 allowed.");
         }
-    
+
         return nextId;
     }
-    
+
     public void RemoveResource(GetResourceDto resource)
     {
         _resourceRepository.Delete(resource.Name);
@@ -82,14 +89,14 @@ public class ResourceService
     public List<GetResourceDto> GetResourcesForSystem()
     {
         return _resourceRepository.FindAll()
-            .Select(resource => new GetResourceDto 
-            { 
-                ResourceId = resource.Id, 
-                Name = resource.Name 
+            .Select(resource => new GetResourceDto
+            {
+                ResourceId = resource.Id,
+                Name = resource.Name
             })
             .ToList();
     }
-    
+
     public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart,
         DateTime taskEarlyFinish, int requiredQuantity, List<TaskResourceDataDTO> pendingTaskResources)
     {
@@ -135,8 +142,8 @@ public class ResourceService
 
         return (resource.Quantity - usedQuantity - pendingUsage) >= requiredQuantity;
     }
-    
-    public bool IsResourceAvailableForNewTask(int resourceId, int projectId, bool isExclusive, 
+
+    public bool IsResourceAvailableForNewTask(int resourceId, int projectId, bool isExclusive,
         DateTime taskEarlyStart, DateTime taskEarlyFinish, int requiredQuantity)
     {
         Resource? resource = null;
@@ -154,7 +161,7 @@ public class ResourceService
 
             tasksToCheck = currentProject.Tasks?.ToList() ?? new List<Task>();
 
-            var tasksUsingResource = tasksToCheck.Where(task => 
+            var tasksUsingResource = tasksToCheck.Where(task =>
                 task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId)).ToList();
 
             tasksToCheck = tasksUsingResource;
@@ -175,7 +182,7 @@ public class ResourceService
         }
 
         var overlappingTasks = new List<Task>();
-        
+
         foreach (var task in tasksToCheck)
         {
             if (task.Status == Status.Completed)
@@ -189,7 +196,7 @@ public class ResourceService
             DateTime newTaskEnd = taskEarlyFinish.Date;
 
             bool overlaps = taskStart <= newTaskEnd && newTaskStart <= taskEnd;
-            
+
             if (overlaps)
             {
                 overlappingTasks.Add(task);
@@ -207,10 +214,10 @@ public class ResourceService
         }
 
         int availableQuantity = resource.Quantity - totalUsedQuantity;
-        
+
         return availableQuantity >= requiredQuantity;
     }
-    
+
     public void DecreaseResourceQuantity(int projectId, string resourceName)
     {
         Project project = _projectRepository.Find(p => p.Id == projectId);
@@ -240,7 +247,7 @@ public class ResourceService
 
         _projectRepository.Update(project);
     }
-    
+
     public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
         return resourceName
@@ -254,5 +261,94 @@ public class ResourceService
     {
         return _resourceRepository.Find(resource => resource.Name == resourceName);
     }
+
+    public ResourceConflictDto CheckAndResolveConflicts(TaskDataDTO taskDto, int projectId, bool autoResolve = false)
+    {
+        ResourceConflictDto result = new ResourceConflictDto();
+
+        if (taskDto.Resources?.Any() != true)
+            return result;
+
+        (DateTime taskStart, DateTime taskEnd) dates = _taskService.GetTaskDatesFromDto(taskDto, projectId);
+        List<string> allConflictingTasks = new List<string>();
+        List<string> conflictMessages = new List<string>();
+
+        foreach (TaskResourceDataDTO resource in taskDto.Resources)
+        {
+            List<string> conflictingTasks =
+                FindConflictingTasksForResource(resource.ResourceId, projectId, dates.taskStart, dates.taskEnd);
+
+            if (conflictingTasks.Any())
+            {
+                allConflictingTasks.AddRange(conflictingTasks);
+
+                Resource resourceInfo = GetResourceInfo(resource.ResourceId, projectId);
+                string resourceName = resourceInfo?.Name ?? "Unknown Resource";
+                conflictMessages.Add($"{resourceName} conflicts with: {string.Join(", ", conflictingTasks)}");
+            }
+        }
+
+        if (allConflictingTasks.Any())
+        {
+            result.HasConflicts = true;
+            result.ConflictingTasks = allConflictingTasks.Distinct().ToList();
+            result.Message = string.Join("; ", conflictMessages);
+
+            if (autoResolve)
+            {
+                foreach (string conflictingTask in result.ConflictingTasks)
+                {
+                    if (!taskDto.Dependencies.Contains(conflictingTask))
+                    {
+                        taskDto.Dependencies.Add(conflictingTask);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
     
+    private List<string> FindConflictingTasksForResource(int resourceId, int projectId, DateTime taskStart,
+        DateTime taskEnd)
+    {
+        bool isExclusive = _projectService.IsExclusiveResourceForProject(resourceId, projectId);
+        List<Task> allTasks;
+
+        if (isExclusive)
+        {
+            Project project = _projectService.GetProjectById(projectId);
+            allTasks = project?.Tasks?.ToList() ?? new List<Task>();
+        }
+        else
+        {
+            allTasks = _projectRepository.FindAll().SelectMany(p => p.Tasks ?? new List<Task>()).ToList();
+        }
+
+        List<string> conflictingTaskTitles = allTasks
+            .Where(task =>
+                task.Resources?.Any(tr => tr.Resource.Id == resourceId) == true &&
+                task.Status != Status.Completed &&
+                task.EarlyStart.Date <= taskEnd.Date &&
+                taskStart.Date <= task.EarlyFinish.Date)
+            .Select(task => task.Title)
+            .ToList();
+
+        return conflictingTaskTitles;
+    }
+
+    private Resource GetResourceInfo(int resourceId, int projectId)
+    {
+        bool isExclusive = _projectService.IsExclusiveResourceForProject(resourceId, projectId);
+
+        if (isExclusive)
+        {
+            Project project = _projectService.GetProjectById(projectId);
+            return project?.ExclusiveResources?.FirstOrDefault(r => r.Id == resourceId);
+        }
+        else
+        {
+            return GetAllResources().FirstOrDefault(r => r.Id == resourceId);
+        }
+    }
 }
