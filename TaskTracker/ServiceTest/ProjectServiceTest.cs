@@ -1171,4 +1171,68 @@ public void GetProjectsLedByUser_ReturnsCorrectData()
     Assert.AreEqual("Resource", exportedTask.Resources.First());
 }
 
+    [TestMethod]
+    public void FromDtoShouldMapAllPropertiesCorrectly()
+    {
+        ProjectDataDTO dto = new ProjectDataDTO()
+        {
+            Id = 5,
+            Name = "Test Project",
+            Description = "This is a test project",
+            StartDate = new DateOnly (2026, 1, 1),
+            Users = new List<string>
+            {
+                "prodriguez@gmail.com",
+                "test@gmail.com"
+            }
+        };
+
+        User adminUser = new User()
+        {
+            Name = "Pedro",
+            LastName = "Rodriguez",
+            Email = "prodriguez@gmail.com",
+            BirthDate = new DateTime(2003, 03, 14),
+            Password = "Pedro1234@",
+            Admin = true
+        };
+
+        User regularUser = new User()
+        {
+            Name = "Test",
+            LastName = "User", 
+            Email = "test@gmail.com",
+            BirthDate = new DateTime(1995, 05, 20),
+            Password = "Test123@",
+            Admin = false
+        };
+
+        ProjectRole adminRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectAdmin,
+            User = adminUser
+        };
+
+        ProjectRole memberRole = new ProjectRole()
+        {
+            RoleType = RoleType.ProjectMember,
+            User = regularUser
+        };
+
+        List<ProjectRole> projectRoles = new List<ProjectRole> { adminRole, memberRole };
+
+        Project result = _projectService.FromDto(dto, projectRoles);
+        
+        Assert.AreEqual(dto.Id, result.Id);
+        Assert.AreEqual(dto.Name, result.Name);
+        Assert.AreEqual(dto.Description, result.Description);
+        Assert.AreEqual(dto.StartDate, result.StartDate);
+        Assert.AreEqual(2, result.ProjectRoles.Count);
+        
+        ProjectRole admin = result.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin);
+        Assert.IsNotNull(admin);
+        Assert.AreEqual("Pedro", admin.User.Name);
+        Assert.AreEqual("Rodriguez", admin.User.LastName);
+        Assert.AreEqual("prodriguez@gmail.com", admin.User.Email);
+    }
 }

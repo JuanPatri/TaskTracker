@@ -82,7 +82,7 @@ public class ProjectService
 
         project.Id = _idProject++;
 
-        Project newProject = Project.FromDto(project, projectRoles);
+        Project newProject = FromDto(project, projectRoles);
 
         foreach (var role in projectRoles)
         {
@@ -136,7 +136,7 @@ public class ProjectService
             projectRoles.Add(role);
         }
 
-        Project? updatedProject = _projectRepository.Update(Project.FromDto(projectDto, projectRoles));
+        Project? updatedProject = _projectRepository.Update(FromDto(projectDto, projectRoles));
 
         if (updatedProject != null)
         {
@@ -433,5 +433,17 @@ public class ProjectService
                 Resources = t.Resources?.Select(r => r.Resource.Name).ToList() ?? new List<string>()
             }).ToList()
         }).ToList();
+    }
+    
+    public Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
+    {
+        return new Project()
+        {
+            Id = projectDataDto.Id,
+            Name = projectDataDto.Name,
+            Description = projectDataDto.Description,
+            StartDate = projectDataDto.StartDate,
+            ProjectRoles = users
+        };
     }
 }
