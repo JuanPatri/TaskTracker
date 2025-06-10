@@ -1,0 +1,84 @@
+﻿@using DTOs.ProjectDTOs
+@using Service
+@inject SessionService Session
+@inject ProjectService ProjectService
+
+
+<h3>ResourceStats</h3>
+
+@if (_userProjects.Any())
+{
+    <select id="project" class="form-control" @bind="SelectedProjectId" required>
+        @foreach (var project in _userProjects)
+        {
+            <option value="@project.Id">@project.Name</option>
+        }
+    </select>
+}
+else
+{
+    <p class="text-muted">No projects found for the current user.</p>
+}
+
+@if (_selectedProjectId > 0)
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Task</th>
+            <th>Date</th>
+            <th>Usage Level</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var resource in _resourceStatsDto)
+        {
+            <tr>
+                <td>@resource.Name</td>
+                <td>@resource.Description</td>
+                <td>@resource.Type</td>
+                <td>@resource.Quantity</td>
+                <td>@resource.TaskName</td>
+                <td>@resource.Date.ToString("yyyy-MM-dd")</td>
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar" 
+                             style="width: @resource.UsageLevel%" 
+                             aria-valuenow="@resource.UsageLevel" 
+                             aria-valuemin="0" aria-valuemax="100">
+                            @resource.UsageLevel%
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<GetProjectDTO> _userProjects = new();
+    private int _selectedProjectId;
+
+    private int SelectedProjectId
+    {
+        get => _selectedProjectId;
+        set
+        {
+            _selectedProjectId = value;
+            OnProjectChanged(value);
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        if (Session.IsLoggedIn())
+        {
+            _userProjects = ProjectService.GetAllProjectsByUserEmail(Session.CurrentUser.Email);
+        }
+    }
+}

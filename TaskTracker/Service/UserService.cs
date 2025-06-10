@@ -36,7 +36,7 @@ public class UserService
 
     public User? UpdateUser(UserDataDTO userDto)
     {
-        User updatedUser = User.FromDto(userDto);
+        User updatedUser = FromDto(userDto);
         return _userRepository.Update(updatedUser);
     }
     
