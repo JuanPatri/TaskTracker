@@ -324,8 +324,8 @@
         {
             TaskDataDTO tempTask = new TaskDataDTO
             {
-                Title = _newTask.Title ?? "Temp",
-                Description = _newTask.Description ?? "Temp",
+                Title = _newTask.Title,
+                Description = _newTask.Description,
                 Duration = _newTask.Duration > 0 ? _newTask.Duration : 1,
                 Dependencies = new List<string>(_taskDependencies),
                 Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos)
