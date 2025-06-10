@@ -24,7 +24,7 @@ public class ResourceTypeService
         }
 
         resourceType.Id = _idResourceType++;
-        ResourceType? createdResourceType = _resourceTypeRepository.Add(ResourceType.Fromdto(resourceType));
+        ResourceType? createdResourceType = _resourceTypeRepository.Add(Fromdto(resourceType));
         return createdResourceType;
     }
 
@@ -45,9 +45,17 @@ public class ResourceTypeService
 
     public ResourceType? UpdateResourceType(ResourceTypeDto resourceTypeDto)
     {
-        ResourceType? updatedResourceType = _resourceTypeRepository.Update(ResourceType.Fromdto(resourceTypeDto));
+        ResourceType? updatedResourceType = _resourceTypeRepository.Update(Fromdto(resourceTypeDto));
         return updatedResourceType;
     }
     
+    public  ResourceType Fromdto(ResourceTypeDto resourceTypeDto)
+    {
+        return new ResourceType()
+        {
+            Id = resourceTypeDto.Id,
+            Name = resourceTypeDto.Name
+        };
+    }
 
 }

@@ -34,7 +34,7 @@ public class TaskService
 
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
-        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);
+        Task createdTask = FromDto(taskDto, taskResourceList, dependencies);
         Task savedTask = _taskRepository.Add(createdTask);
         
         return savedTask;
@@ -93,7 +93,7 @@ public class TaskService
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
-        return _taskRepository.Update(Task.FromDto(taskDto, taskResourceList, dependencies));
+        return _taskRepository.Update(FromDto(taskDto, taskResourceList, dependencies));
     }
 
     public void RemoveTask(GetTaskDTO task)
@@ -242,5 +242,21 @@ public class TaskService
         }
     
         _projectRepository.Update(project);
+    }
+    
+    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
+    {
+    
+        var task = new Task()
+        {
+            Title = taskDataDto.Title,
+            Description = taskDataDto.Description,
+            Duration = taskDataDto.Duration,
+            Status = taskDataDto.Status,
+            Resources = resources ?? new List<TaskResource>(),
+            Dependencies = dependencies ?? new List<Task>(),
+        };
+        
+        return task;
     }
 }
