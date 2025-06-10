@@ -33,6 +33,10 @@ else
             <InputDate class="form-control" @bind-Value="_userData.BirthDate"/>
         </div>
         <div class="mb-2">
+            <label>Password</label>
+            <InputText class="form-control" @bind-Value="_userData.Password" type="password"/>
+        </div>
+        <div class="mb-2">
             <label>Is Admin</label>
             <InputCheckbox class="form-check-input" @bind-Value="_userData.Admin"/>
         </div>
