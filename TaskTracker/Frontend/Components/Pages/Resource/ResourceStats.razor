@@ -1,4 +1,5 @@
 ﻿@using DTOs.ProjectDTOs
+@using DTOs.ResourceDTOs
 @using Service
 @inject SessionService Session
 @inject ProjectService ProjectService
@@ -43,17 +44,8 @@ else
                 <td>@resource.Type</td>
                 <td>@resource.Quantity</td>
                 <td>@resource.TaskName</td>
-                <td>@resource.Date.ToString("yyyy-MM-dd")</td>
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar" 
-                             style="width: @resource.UsageLevel%" 
-                             aria-valuenow="@resource.UsageLevel" 
-                             aria-valuemin="0" aria-valuemax="100">
-                            @resource.UsageLevel%
-                        </div>
-                    </div>
-                </td>
+                <td>@resource.UsageLevel.ToString("yyyy-MM-dd")</td>
+                <td>@resource.UsagePeriod</td>
             </tr>
         }
         </tbody>
@@ -63,6 +55,7 @@ else
 @code {
     private List<GetProjectDTO> _userProjects = new();
     private int _selectedProjectId;
+    private List<ResourceStatsDto> _resourceStatsDto = new();
 
     private int SelectedProjectId
     {
