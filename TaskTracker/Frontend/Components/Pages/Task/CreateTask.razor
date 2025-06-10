@@ -13,7 +13,6 @@
 @inject ResourceService ResourceService
 @inject ProjectService ProjectService
 
-
 <PageTitle>Create Task - TaskTrackPro</PageTitle>
 
 <h3 class="mb-3">Create Task</h3>
@@ -21,6 +20,14 @@
 @if (!string.IsNullOrEmpty(_successMessage))
 {
     <div class="alert alert-success">@_successMessage</div>
+}
+
+@if (_conflictResult?.HasConflicts == true)
+{
+    <div class="alert alert-warning">
+        <h6><i class="fas fa-exclamation-triangle"></i> Resource Conflicts</h6>
+        <p>@_conflictResult.Message</p>
+    </div>
 }
 
 <form>
@@ -141,7 +148,18 @@
     }
 
     <div class="d-grid gap-2 mt-3">
-        <button type="button" class="btn btn-primary btn-lg mb-3" @onclick="HandleSubmit" disabled="@(_isSubmitting)">Create Task</button>
+        @if (_conflictResult?.HasConflicts == true)
+        {
+            <button type="button" class="btn btn-warning btn-lg" @onclick="CreateTaskWithAutoResolve" disabled="@(_isSubmitting)">
+                <i class="fas fa-calendar-check"></i> Create Task - Execute When Available
+            </button>
+        }
+        else
+        {
+            <button type="button" class="btn btn-primary btn-lg" @onclick="CreateTaskNormal" disabled="@(_isSubmitting)">
+                Create Task
+            </button>
+        }
     </div>
 </form>
 
@@ -150,6 +168,7 @@
     private List<GetProjectDTO> _projectDtos = new();
     private List<GetTaskDTO> _taskTitleDtos = new();
     private List<GetResourceDto> _resourcesDtos = new();
+    private ResourceConflictDto _conflictResult;
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
     private bool _isSubmitting = false;
@@ -160,7 +179,6 @@
 
     private string? _selectedDependencyTaskTitle;
     private string? _selectedDependencyType;
-    private List<(string Title, string Type)> _dependencyDisplayList = new();
     private List<string> _taskDependencies = new();
 
     private int _selectedProjectId;
@@ -200,48 +218,12 @@
 
             _taskDependencies.Clear();
             _taskResourceDataDtos.Clear();
+            _conflictResult = null;
         }
         else
         {
             _taskTitleDtos.Clear();
             _resourcesDtos.Clear();
-        }
-    }
-    
-    private async Task HandleSubmit()
-    {
-        try
-        {
-            _isSubmitting = true;
-            _errorMessage = string.Empty;
-
-            if (_selectedProjectId <= 0)
-            {
-                _errorMessage = "Please select a project.";
-                _isSubmitting = false;
-                return;
-            }
-
-            _newTask.Dependencies = _taskDependencies;
-            _newTask.Resources = _taskResourceDataDtos;
-
-            TaskService.AddTask(_newTask);
-            ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
-
-            _successMessage = "Task created successfully!";
-            _errorMessage = string.Empty;
-
-            await Task.Delay(2000);
-            NavigationManager.NavigateTo("/TaskManagement");
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = $"Error: {ex.Message}";
-            _successMessage = string.Empty;
-        }
-        finally
-        {
-            _isSubmitting = false;
         }
     }
 
@@ -256,14 +238,13 @@
                 if (!_taskDependencies.Contains(selectedTask.Title))
                 {
                     _taskDependencies.Add(selectedTask.Title);
-                    _dependencyDisplayList.Add((selectedTask.Title, "FS"));
                 }
             }
             else if (_selectedDependencyType == "SS")
             {
                 if (!_taskDependencies.Contains(selectedTask.Title))
                 {
-                    _dependencyDisplayList.Add((selectedTask.Title, "SS"));
+                    _taskDependencies.Add(selectedTask.Title);
                 }
 
                 foreach (var dep in selectedTask.Dependencies)
@@ -271,7 +252,6 @@
                     if (!_taskDependencies.Contains(dep.Title))
                     {
                         _taskDependencies.Add(dep.Title);
-                        _dependencyDisplayList.Add((dep.Title, "SS"));
                     }
                 }
             }
@@ -320,75 +300,42 @@
                 return;
             }
 
-            bool exclusiveResourceProject = ProjectService.IsExclusiveResourceForProject(_selectedResourceId, _selectedProjectId);
+            
 
-            var completeTaskDto = new TaskDataDTO
+            TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
             {
-                Title = _newTask.Title,        
-                Description = _newTask.Description,
-                Duration = _newTask.Duration,     
+                TaskTitle = _newTask.Title,
+                ResourceId = _selectedResourceId,
+                Quantity = _selectedQuantity
+            };
+
+            _taskResourceDataDtos.Add(newTaskResourceDto);
+            CheckConflicts();
+            
+            _selectedResourceId = 0;
+            _selectedQuantity = 1;
+            _errorMessage = string.Empty;
+        }
+    }
+
+    private void CheckConflicts()
+    {
+        if (_taskResourceDataDtos.Any() && _selectedProjectId > 0)
+        {
+            TaskDataDTO tempTask = new TaskDataDTO
+            {
+                Title = _newTask.Title ?? "Temp",
+                Description = _newTask.Description ?? "Temp",
+                Duration = _newTask.Duration > 0 ? _newTask.Duration : 1,
                 Dependencies = new List<string>(_taskDependencies),
                 Resources = new List<TaskResourceDataDTO>(_taskResourceDataDtos)
             };
 
-            try
-            {
-                var (calculatedStart, calculatedFinish) = TaskService.GetTaskDatesFromDto(completeTaskDto, _selectedProjectId);
-
-                bool resourceAvailability = ResourceService.IsResourceAvailableForNewTask(
-                    _selectedResourceId, 
-                    _selectedProjectId, 
-                    exclusiveResourceProject, 
-                    calculatedStart, 
-                    calculatedFinish, 
-                    _selectedQuantity);
-
-                if (!resourceAvailability)
-                {
-                    string scope = exclusiveResourceProject ? "project" : "system";
-                    _errorMessage = $"Resource not available in {scope} from {calculatedStart:yyyy-MM-dd} to {calculatedFinish:yyyy-MM-dd}. Required: {_selectedQuantity}";
-                    return;
-                }
-
-                if (_taskResourceDataDtos.Any(r => r.ResourceId == _selectedResourceId))
-                {
-                    int totalResourcesForThisTask = _taskResourceDataDtos
-                        .Where(r => r.ResourceId == _selectedResourceId)
-                        .Sum(r => r.Quantity) + _selectedQuantity;
-
-                    bool resourceAvailability2 = ResourceService.IsResourceAvailableForNewTask(
-                        _selectedResourceId, 
-                        _selectedProjectId, 
-                        exclusiveResourceProject, 
-                        calculatedStart, 
-                        calculatedFinish, 
-                        totalResourcesForThisTask);
-
-                    if (!resourceAvailability2)
-                    {
-                        string scope = exclusiveResourceProject ? "project" : "system";
-                        _errorMessage = $"Adding {_selectedQuantity} more units would exceed available capacity in {scope}. Total required would be: {totalResourcesForThisTask}";
-                        return;
-                    }
-                }
-
-                TaskResourceDataDTO newTaskResourceDto = new TaskResourceDataDTO
-                {
-                    TaskTitle = _newTask.Title,
-                    ResourceId = _selectedResourceId,
-                    Quantity = _selectedQuantity
-                };
-
-                _taskResourceDataDtos.Add(newTaskResourceDto);
-                _errorMessage = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                _errorMessage = $"Error validating resource availability: {ex.Message}";
-            }
-
-            _selectedResourceId = 0;
-            _selectedQuantity = 1;
+            _conflictResult = ResourceService.CheckAndResolveConflicts(tempTask, _selectedProjectId, autoResolve: false);
+        }
+        else
+        {
+            _conflictResult = null;
         }
     }
 
@@ -398,6 +345,76 @@
         if (taskResource != null)
         {
             _taskResourceDataDtos.Remove(taskResource);
+            CheckConflicts();
+        }
+    }
+
+    private async Task CreateTaskNormal()
+    {
+        try
+        {
+            _isSubmitting = true;
+            _errorMessage = string.Empty;
+
+            if (_selectedProjectId <= 0)
+            {
+                _errorMessage = "Please select a project.";
+                return;
+            }
+
+            _newTask.Dependencies = _taskDependencies;
+            _newTask.Resources = _taskResourceDataDtos;
+
+            TaskService.AddTask(_newTask);
+            ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
+
+            _successMessage = "Task created successfully!";
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/TaskManagement");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
+        }
+    }
+
+    private async Task CreateTaskWithAutoResolve()
+    {
+        try
+        {
+            _isSubmitting = true;
+            _errorMessage = string.Empty;
+
+            if (_selectedProjectId <= 0)
+            {
+                _errorMessage = "Please select a project.";
+                return;
+            }
+
+            _newTask.Dependencies = _taskDependencies;
+            _newTask.Resources = _taskResourceDataDtos;
+
+            ResourceService.CheckAndResolveConflicts(_newTask, _selectedProjectId, autoResolve: true);
+            TaskService.AddTask(_newTask);
+            ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
+
+            int dependenciesAdded = _conflictResult?.ConflictingTasks?.Count ?? 0;
+            _successMessage = $"Task created! Added {dependenciesAdded} dependencies to resolve conflicts.";
+            
+            await Task.Delay(2000);
+            NavigationManager.NavigateTo("/TaskManagement");
+        }
+        catch (Exception ex)
+        {
+            _errorMessage = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _isSubmitting = false;
         }
     }
 

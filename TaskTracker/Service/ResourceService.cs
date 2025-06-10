@@ -275,11 +275,23 @@ public class ResourceService
 
         foreach (TaskResourceDataDTO resource in taskDto.Resources)
         {
-            List<string> conflictingTasks =
-                FindConflictingTasksForResource(resource.ResourceId, projectId, dates.taskStart, dates.taskEnd);
+            bool isExclusive = _projectService.IsExclusiveResourceForProject(resource.ResourceId, projectId);
 
-            if (conflictingTasks.Any())
+            bool isAvailable = IsResourceAvailable(
+                resource.ResourceId,
+                projectId,
+                isExclusive,
+                dates.taskStart,
+                dates.taskEnd,
+                resource.Quantity,
+                new List<TaskResourceDataDTO>()
+            );
+
+            if (!isAvailable)
             {
+                List<string> conflictingTasks = FindConflictingTasksForResource(
+                    resource.ResourceId, projectId, dates.taskStart, dates.taskEnd);
+
                 allConflictingTasks.AddRange(conflictingTasks);
 
                 Resource resourceInfo = GetResourceInfo(resource.ResourceId, projectId);
@@ -308,7 +320,8 @@ public class ResourceService
 
         return result;
     }
-    
+
+
     private List<string> FindConflictingTasksForResource(int resourceId, int projectId, DateTime taskStart,
         DateTime taskEnd)
     {
