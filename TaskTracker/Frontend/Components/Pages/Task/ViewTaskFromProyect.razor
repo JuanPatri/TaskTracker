@@ -3,7 +3,7 @@
 @using Service
 
 @inject ProjectService ProjectService
-
+@inject TaskService TaskService
 <h3>View Tasks from project: @project?.Name</h3>
 
 @if (!string.IsNullOrEmpty(_errorMessage))
@@ -63,8 +63,13 @@ else
         @foreach (var task in project.Tasks)
         {
             <tr>
-                
-                <td>@task.Title</td>
+                @if (TaskService.DependsOnTasksFromAnotherProject(task.Title, projectId))
+                {
+                    <td class="text-danger">@task.Title</td>
+                }else
+                {
+                    <td>@task.Title</td>
+                }
                 <td>@task.Duration</td>
                 <td>@task.Status</td>
                 <td>@task.EarlyStart.ToShortDateString()</td>
