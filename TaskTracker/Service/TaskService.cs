@@ -66,6 +66,7 @@ public class TaskService
                 {
                     TaskResource taskResource = new TaskResource()
                     {
+                        Task = GetTaskByTitle(resourceData.TaskTitle),
                         Resource = resource,
                         Quantity = resourceData.Quantity
                     };
