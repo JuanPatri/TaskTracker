@@ -150,6 +150,7 @@
     <div class="d-grid gap-2 mt-3">
         @if (_conflictResult?.HasConflicts == true)
         {
+            <div class="alert alert-danger">@_conflictResult.Message</div>
             <button type="button" class="btn btn-warning btn-lg" @onclick="CreateTaskWithAutoResolve" disabled="@(_isSubmitting)">
                 <i class="fas fa-calendar-check"></i> Create Task - Execute When Available
             </button>
