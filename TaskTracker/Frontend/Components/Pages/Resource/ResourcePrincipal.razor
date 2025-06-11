@@ -12,6 +12,7 @@
 {
     <button class="btn btn-primary" @onclick="GoToCreateResource">Create Resource</button>
     <button class="btn btn-secondary" @onclick="GoToEditResource">Edit Resources</button>
+    <button class="btn btn-primary mb-3" @onclick="GoToResourceStats">Resource Stats</button>
 }
 else
 {
@@ -59,5 +60,10 @@ else
     private void ViewProjectResources(int projectId)
     {
         Navigation.NavigateTo($"/ProjectResources/{projectId}");
+    }
+    
+    private void GoToResourceStats()
+    {
+        Navigation.NavigateTo("/ResourceStats");
     }
 }

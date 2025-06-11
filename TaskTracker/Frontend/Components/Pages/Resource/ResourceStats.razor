@@ -1,15 +1,18 @@
-﻿@using DTOs.ProjectDTOs
+﻿@page "/ResourceStats"
+
+@using DTOs.ProjectDTOs
 @using DTOs.ResourceDTOs
 @using Service
 @inject SessionService Session
 @inject ProjectService ProjectService
+@inject ResourceService ResourceService
 
-
-<h3>ResourceStats</h3>
+<h3>Resource Stats</h3>
 
 @if (_userProjects.Any())
 {
-    <select id="project" class="form-control" @bind="SelectedProjectId" required>
+    <select id="project" class="form-control mb-3" @bind="SelectedProjectId" required>
+        <option value="0" disabled selected>-- Select a project --</option>
         @foreach (var project in _userProjects)
         {
             <option value="@project.Id">@project.Name</option>
@@ -21,7 +24,7 @@ else
     <p class="text-muted">No projects found for the current user.</p>
 }
 
-@if (_selectedProjectId > 0)
+@if (_resourceStatsDto.Any())
 {
     <table class="table table-striped">
         <thead>
@@ -31,7 +34,7 @@ else
             <th>Type</th>
             <th>Quantity</th>
             <th>Task</th>
-            <th>Date</th>
+            <th>Usage Period</th>
             <th>Usage Level</th>
         </tr>
         </thead>
@@ -44,12 +47,24 @@ else
                 <td>@resource.Type</td>
                 <td>@resource.Quantity</td>
                 <td>@resource.TaskName</td>
-                <td>@resource.UsageLevel.ToString("yyyy-MM-dd")</td>
-                <td>@resource.UsagePeriod</td>
+                <td>@resource.UsagePeriod</td> 
+                <td>
+                    <div class="progress">
+                        <div class="progress-bar" role="progressbar"
+                             style="width:@resource.UsageLevel%"
+                             aria-valuenow="@resource.UsageLevel" aria-valuemin="0" aria-valuemax="100">
+                            @resource.UsageLevel%
+                        </div>
+                    </div>
+                </td>
             </tr>
         }
         </tbody>
     </table>
+}
+else
+{
+    <p>No resource data found for this project.</p>
 }
 
 @code {
@@ -73,5 +88,24 @@ else
         {
             _userProjects = ProjectService.GetAllProjectsByUserEmail(Session.CurrentUser.Email);
         }
+    }
+
+    private void OnProjectChanged(int projectId)
+    {
+            try
+            {
+                _resourceStatsDto = ResourceService.GetResourceStatsByProject(projectId);
+                Console.WriteLine($"Stats para project {projectId}: {_resourceStatsDto.Count} recursos encontrados");
+                foreach (var r in _resourceStatsDto)
+                {
+                    Console.WriteLine($" - {r.Name}, {r.Quantity}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error al cargar recursos: {ex.Message}");
+                _resourceStatsDto = new(); 
+            }
+        
     }
 }

@@ -265,5 +265,5 @@ public class ResourceService
             Quantity = resourceDataDto.Quantity
         };
     }
-    
+
 }
