@@ -66,6 +66,7 @@ public class TaskService
                 {
                     TaskResource taskResource = new TaskResource()
                     {
+                        Task = GetTaskByTitle(resourceData.TaskTitle),
                         Resource = resource,
                         Quantity = resourceData.Quantity
                     };
@@ -242,6 +243,22 @@ public class TaskService
         }
     
         _projectRepository.Update(project);
+    }
+
+    public bool DependsOnTasksFromAnotherProject(string titulo, int projectId)
+    {
+        Task task = _taskRepository.Find(t => t.Title == titulo);
+
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+        foreach (var dependencies in task.Dependencies)
+        {
+            if (!project.Tasks.Contains(dependencies))
+            {
+                return true;
+            }
+        }
+        
+        return false;
     }
     
     public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)

@@ -1,9 +1,12 @@
 using Domain;
 using DTOs.ResourceDTOs;
+using DTOs.TaskDTOs;
 using DTOs.TaskResourceDTOs;
 using Enums;
 using Repository;
+using Service;
 using Task = Domain.Task;
+
 
 namespace Service;
 
@@ -13,28 +16,32 @@ public class ResourceService
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     private readonly IRepository<Project> _projectRepository;
     private readonly TaskService _taskService;
-    
-    public ResourceService(IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository, IRepository<Project> projectRepository, TaskService taskService)
+    private readonly ProjectService _projectService;
+
+    public ResourceService(IRepository<Resource> resourceRepository, IRepository<ResourceType> resourceTypeRepository,
+        IRepository<Project> projectRepository, TaskService taskService, ProjectService projectService)
     {
         _resourceRepository = resourceRepository;
         _resourceTypeRepository = resourceTypeRepository;
         _projectRepository = projectRepository;
         _taskService = taskService;
+        _projectService = projectService;
     }
-    
+
     public Resource? AddResource(ResourceDataDto resource)
     {
         if (_resourceRepository.Find(r => r.Name == resource.Name) != null)
         {
             throw new Exception("Resource already exists");
         }
+
         if (resource.Quantity <= 0)
         {
             throw new ArgumentException("Resource quantity must be greater than zero");
         }
 
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
-
+        
         Resource newResource = FromDto(resource, resourceType);
     
         newResource.Id = GetNextResourceId();
@@ -82,14 +89,14 @@ public class ResourceService
     public List<GetResourceDto> GetResourcesForSystem()
     {
         return _resourceRepository.FindAll()
-            .Select(resource => new GetResourceDto 
-            { 
-                ResourceId = resource.Id, 
-                Name = resource.Name 
+            .Select(resource => new GetResourceDto
+            {
+                ResourceId = resource.Id,
+                Name = resource.Name
             })
             .ToList();
     }
-    
+
     public bool IsResourceAvailable(int resourceId, int projectId, bool isExclusive, DateTime taskEarlyStart,
         DateTime taskEarlyFinish, int requiredQuantity, List<TaskResourceDataDTO> pendingTaskResources)
     {
@@ -135,8 +142,8 @@ public class ResourceService
 
         return (resource.Quantity - usedQuantity - pendingUsage) >= requiredQuantity;
     }
-    
-    public bool IsResourceAvailableForNewTask(int resourceId, int projectId, bool isExclusive, 
+
+    public bool IsResourceAvailableForNewTask(int resourceId, int projectId, bool isExclusive,
         DateTime taskEarlyStart, DateTime taskEarlyFinish, int requiredQuantity)
     {
         Resource? resource = null;
@@ -154,7 +161,7 @@ public class ResourceService
 
             tasksToCheck = currentProject.Tasks?.ToList() ?? new List<Task>();
 
-            var tasksUsingResource = tasksToCheck.Where(task => 
+            var tasksUsingResource = tasksToCheck.Where(task =>
                 task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId)).ToList();
 
             tasksToCheck = tasksUsingResource;
@@ -266,4 +273,139 @@ public class ResourceService
         };
     }
 
+
+    public ResourceConflictDto CheckAndResolveConflicts(TaskDataDTO taskDto, int projectId, bool autoResolve = false)
+    {
+        ResourceConflictDto result = new ResourceConflictDto();
+
+        if (taskDto.Resources?.Any() != true)
+            return result;
+
+        (DateTime taskStart, DateTime taskEnd) dates = _taskService.GetTaskDatesFromDto(taskDto, projectId);
+        List<string> allConflictingTasks = new List<string>();
+        List<string> conflictMessages = new List<string>();
+
+        foreach (TaskResourceDataDTO resource in taskDto.Resources)
+        {
+            bool isExclusive = _projectService.IsExclusiveResourceForProject(resource.ResourceId, projectId);
+
+            bool isAvailable = IsResourceAvailable(
+                resource.ResourceId,
+                projectId,
+                isExclusive,
+                dates.taskStart,
+                dates.taskEnd,
+                resource.Quantity,
+                new List<TaskResourceDataDTO>()
+            );
+
+            if (!isAvailable)
+            {
+                List<string> conflictingTasks = FindConflictingTasksForResource(
+                    resource.ResourceId, projectId, dates.taskStart, dates.taskEnd);
+
+                allConflictingTasks.AddRange(conflictingTasks);
+
+                Resource resourceInfo = GetResourceInfo(resource.ResourceId, projectId);
+                string resourceName = resourceInfo?.Name ?? "Unknown Resource";
+                conflictMessages.Add($"{resourceName} conflicts with: {string.Join(", ", conflictingTasks)}");
+            }
+        }
+
+        if (allConflictingTasks.Any())
+        {
+            result.HasConflicts = true;
+            result.ConflictingTasks = allConflictingTasks.Distinct().ToList();
+            result.Message = string.Join("; ", conflictMessages);
+
+            if (autoResolve)
+            {
+                foreach (string conflictingTask in result.ConflictingTasks)
+                {
+                    if (!taskDto.Dependencies.Contains(conflictingTask))
+                    {
+                        taskDto.Dependencies.Add(conflictingTask);
+                    }
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+    private List<string> FindConflictingTasksForResource(int resourceId, int projectId, DateTime taskStart,
+        DateTime taskEnd)
+    {
+        bool isExclusive = _projectService.IsExclusiveResourceForProject(resourceId, projectId);
+        List<Task> allTasks;
+
+        if (isExclusive)
+        {
+            Project project = _projectService.GetProjectById(projectId);
+            allTasks = project?.Tasks?.ToList() ?? new List<Task>();
+        }
+        else
+        {
+            allTasks = _projectRepository.FindAll().SelectMany(p => p.Tasks ?? new List<Task>()).ToList();
+        }
+
+        List<string> conflictingTaskTitles = allTasks
+            .Where(task =>
+                task.Resources?.Any(tr => tr.Resource.Id == resourceId) == true &&
+                task.Status != Status.Completed &&
+                task.EarlyStart.Date <= taskEnd.Date &&
+                taskStart.Date <= task.EarlyFinish.Date)
+            .Select(task => task.Title)
+            .ToList();
+
+        return conflictingTaskTitles;
+    }
+
+    private Resource GetResourceInfo(int resourceId, int projectId)
+    {
+        bool isExclusive = _projectService.IsExclusiveResourceForProject(resourceId, projectId);
+
+        if (isExclusive)
+        {
+            Project project = _projectService.GetProjectById(projectId);
+            return project?.ExclusiveResources?.FirstOrDefault(r => r.Id == resourceId);
+        }
+        else
+        {
+            return GetAllResources().FirstOrDefault(r => r.Id == resourceId);
+        }
+    }
+
+    public List<ResourceStatsDto> GetResourceStatsByProject(int idProject)
+    {
+        Project? project = _projectRepository.FindAll()
+            .FirstOrDefault(p => p.Id == idProject);
+
+        List<ResourceStatsDto> resourceStats = new List<ResourceStatsDto>();
+
+        foreach (var task in project.Tasks)
+        {
+
+            foreach (var resource in task.Resources)
+            {
+                ResourceStatsDto resourceStat = new ResourceStatsDto
+                {
+                    Name = resource.Resource.Name,
+                    Description = resource.Resource.Description,
+                    Type = resource.Resource.Type.Name,
+                    Quantity = resource.Resource.Quantity,
+                    TaskName = resource.Task?.Title ?? "Tarea sin título",
+                    UsageLevel = task.Resources.Count,
+                    UsagePeriod = $"{task.EarlyStart:yyyy-MM-dd} - {task.EarlyFinish:yyyy-MM-dd}"
+                };
+
+                resourceStats.Add(resourceStat);
+            }
+        }
+
+        Console.WriteLine($"✅ Total de recursos agregados: {resourceStats.Count}");
+
+        return resourceStats;
+    }
 }
