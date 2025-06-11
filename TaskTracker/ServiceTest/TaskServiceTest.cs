@@ -593,4 +593,35 @@ public class TaskServiceTest
 
         Assert.IsTrue(result, "Task should depend on tasks from another project");
     }
+    
+    
+    [TestMethod]
+    public void DependsOnTasksFromAnotherProject_ShouldReturnFalse_WhenTaskDependsOnSameProjectTasks()
+    {
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Project",
+            Tasks = new List<Task>()
+        };
+
+        Task dependencyTask = new Task { Title = "Dependency Task" };
+        Task task = new Task
+        {
+            Title = "Task",
+            Dependencies = new List<Task> { dependencyTask }
+        };
+
+        project.Tasks.Add(task);
+        project.Tasks.Add(dependencyTask);
+
+        _projectRepository.Add(project);
+        _taskRepository.Add(task);
+        _taskRepository.Add(dependencyTask);
+        
+        bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
+        
+        Assert.IsFalse(result, "Task should not depend on tasks from another project");
+    }
+
 }
