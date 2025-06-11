@@ -54,7 +54,9 @@ public class CriticalPathService
         var startTasks = new List<Task>();
         foreach (var t in project.Tasks)
         {
-            if ((t.Dependencies == null || t.Dependencies.Count == 0) && criticalTasks.Contains(t))
+            var internalDependencies = t.Dependencies?.Where(dep => project.Tasks.Contains(dep)).ToList() ?? new List<Task>();
+
+            if (!internalDependencies.Any() && criticalTasks.Contains(t))
             {
                 startTasks.Add(t);
             }
