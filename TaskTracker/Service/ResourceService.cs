@@ -395,7 +395,7 @@ public class ResourceService
                     Description = resource.Resource.Description,
                     Type = resource.Resource.Type.Name,
                     Quantity = resource.Resource.Quantity,
-                    TaskName = resource.Task?.Title ?? "Tarea sin título",
+                    TaskName = task.Title,
                     UsageLevel = task.Resources.Count,
                     UsagePeriod = $"{task.EarlyStart:yyyy-MM-dd} - {task.EarlyFinish:yyyy-MM-dd}"
                 };
