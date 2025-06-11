@@ -36,7 +36,10 @@ public class TaskService
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
         Task createdTask = FromDto(taskDto, taskResourceList, dependencies);
         Task savedTask = _taskRepository.Add(createdTask);
-        
+        foreach (var taskResource in savedTask.Resources)
+        {
+            taskResource.Task = savedTask;
+        }
         return savedTask;
     }
     
@@ -66,7 +69,6 @@ public class TaskService
                 {
                     TaskResource taskResource = new TaskResource()
                     {
-                        Task = GetTaskByTitle(resourceData.TaskTitle),
                         Resource = resource,
                         Quantity = resourceData.Quantity
                     };
