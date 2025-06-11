@@ -243,4 +243,20 @@ public class TaskService
     
         _projectRepository.Update(project);
     }
+
+    public bool DependsOnTasksFromAnotherProject(string titulo, int projectId)
+    {
+        Task task = _taskRepository.Find(t => t.Title == titulo);
+
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+        foreach (var dependencies in task.Dependencies)
+        {
+            if (!project.Tasks.Contains(dependencies))
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 }
