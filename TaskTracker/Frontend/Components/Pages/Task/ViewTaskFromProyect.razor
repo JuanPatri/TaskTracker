@@ -66,6 +66,7 @@ else
                 @if (TaskService.DependsOnTasksFromAnotherProject(task.Title, projectId))
                 {
                     <td class="text-danger">@task.Title</td>
+                    _taskdelayed = "Tasks with a red title were delayed because tasks from other projects were using the same resource"; 
                 }else
                 {
                     <td>@task.Title</td>
@@ -91,6 +92,12 @@ else
         }
         </tbody>
     </table>
+    @if(_taskdelayed != string.Empty)
+    {
+        <div class="alert alert-danger">
+            <strong></strong> @_taskdelayed
+        </div>
+    }
 }
 
 @code {
@@ -98,6 +105,7 @@ else
 
     private GetProjectDTO? project;
     private string _errorMessage = string.Empty;
+    private string _taskdelayed = string.Empty;
 
     protected override void OnParametersSet()
     {
