@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Domain;
 using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -10,12 +11,13 @@ public class UserRepositoryTest
 {
     private UserRepository _userRepository;
     private User _user;
-
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
         _user = new User();
         _user.Email = "usuario@nuevo.com";
     }

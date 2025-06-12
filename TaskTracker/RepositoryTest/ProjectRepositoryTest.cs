@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
@@ -18,14 +19,16 @@ public class ProjectRepositoryTest
     private UserRepository _userRepository;
     private UserService _userService;
     private CriticalPathService _criticalPathService;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _projectRepository = new ProjectRepository(); // inicializar antes que otros lo usen
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _projectRepository = new ProjectRepository(); 
         _taskRepository = new TaskRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
-        _userRepository = new UserRepository();
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
