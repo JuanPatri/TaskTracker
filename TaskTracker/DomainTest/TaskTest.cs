@@ -1,4 +1,5 @@
-﻿using DTOs.TaskDTOs;
+﻿using BusinessLogicTest.Context;
+using DTOs.TaskDTOs;
 using Domain;
 using Enums;
 using DTOs.TaskResourceDTOs;
@@ -24,14 +25,16 @@ public class TaskTest
     private UserRepository _userRepository;
     private UserService _userService;
     private ResourceRepository _resourceRespository;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
         _taskRepository = new TaskRepository();
         _resourceRespository = new ResourceRepository();
         _projectRepository = new ProjectRepository();
-        _userRepository = new UserRepository();
+        _userRepository = new UserRepository(_sqlContext);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _userService = new UserService(_userRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRespository, _userRepository, _userService, _criticalPathService);
