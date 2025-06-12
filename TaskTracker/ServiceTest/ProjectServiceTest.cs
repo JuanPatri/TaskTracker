@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Domain;
 using DTOs.ProjectDTOs;
 using DTOs.ResourceDTOs;
@@ -27,15 +28,17 @@ public class ProjectServiceTest
     private Resource _resource;
     private UserService _userService;
     private CriticalPathService _criticalPathService;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
         _projectRepository = new ProjectRepository();
         _taskRepository = new TaskRepository();
         _resourceRepository = new ResourceRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
-        _userRepository = new UserRepository();
+        _userRepository = new UserRepository(_sqlContext);
 
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);

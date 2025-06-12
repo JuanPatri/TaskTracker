@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using BusinessLogicTest.Context;
+using Domain;
 using DTOs.ProjectDTOs;
 using DTOs.TaskDTOs;
 using Enums;
@@ -21,14 +22,16 @@ public class CriticalPathServiceTest
     private UserRepository _userRepository;
     private UserService _userService;
     private Project _project;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitializated()
     {
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
         _projectRepository = new ProjectRepository();
         _taskRepository = new TaskRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
-        _userRepository = new UserRepository();
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);

@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Domain;
 using DTOs.UserDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,11 +13,13 @@ public class  UserServiceTest
     private UserService _userService;
     private UserRepository _userRepository;
     private User _user;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         
         _user = new User()

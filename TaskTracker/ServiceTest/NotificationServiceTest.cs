@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using BusinessLogicTest.Context;
+using Domain;
 using DTOs.NotificationDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -20,12 +21,13 @@ public class NotificationServiceTest
     private UserService _userService;
     private CriticalPathService _criticalPathService;
     private TaskRepository _taskRepository;
-    
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitializated()
     {
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
         _projectRepository = new ProjectRepository();
         _notificationRepository = new NotificationRepository();
         _resourceTypeRepository = new ResourceTypeRepository();

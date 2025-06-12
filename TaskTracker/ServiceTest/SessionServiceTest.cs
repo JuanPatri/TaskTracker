@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Repository;
 using Domain;
 using DTOs.SessionDTOs;
@@ -13,11 +14,13 @@ public class SessionServiceTest
     private UserService _userService;
     private UserRepository _userRepository;
     private User _user;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _sessionService = new SessionService(_userService);
         _user = new User()
