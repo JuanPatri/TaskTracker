@@ -33,6 +33,14 @@ else
             <InputDate class="form-control" @bind-Value="_userData.BirthDate"/>
         </div>
         <div class="mb-2">
+            <label>Password</label>
+            <InputText class="form-control" @bind-Value="_userData.Password" type="@passwordInputType" />
+            <div>
+                <InputCheckbox @bind-Value="showPassword" />
+                <label>Show Password</label>
+            </div>
+        </div>
+        <div class="mb-2">
             <label>Is Admin</label>
             <InputCheckbox class="form-check-input" @bind-Value="_userData.Admin"/>
         </div>
@@ -45,6 +53,10 @@ else
     [Parameter] public string Email { get; set; } = string.Empty;
 
     private UserDataDTO? _userData;
+    
+    private bool showPassword = false;
+
+    private string passwordInputType => showPassword ? "text" : "password";
 
     protected override void OnInitialized()
     {

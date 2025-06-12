@@ -44,7 +44,8 @@ public class ResourceServiceTest
         _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
             _criticalPathService);
         _resourceService =
-            new ResourceService(_resourceRepository, _resourceTypeRepository, _projectRepository, _taskService);
+            new ResourceService(_resourceRepository, _resourceTypeRepository, _projectRepository, _taskService,
+                _projectService);
 
         _project = new Project()
         {
@@ -246,7 +247,7 @@ public class ResourceServiceTest
         Assert.ThrowsException<InvalidOperationException>(() =>
             _resourceService.DecreaseResourceQuantity(101, "Laptop"));
     }
-    
+
     [TestMethod]
     public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
     {
@@ -289,12 +290,12 @@ public class ResourceServiceTest
         bool isExclusive6 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, anotherProject.Id);
         Assert.IsTrue(isExclusive6, "Should return true for the other project that also has the resource");
     }
-    
+
     [TestMethod]
     public void IsResourceAvailable_ShouldReturnCorrectAvailabilityBasedOnResourceUsage()
     {
         _resource.Quantity = 5;
-        _resource.Id = 1000; 
+        _resource.Id = 1000;
 
         _project.ExclusiveResources = new List<Resource> { _resource };
 
@@ -357,7 +358,7 @@ public class ResourceServiceTest
     public void IsResourceAvailable_WithPendingResources_ShouldReturnCorrectAvailability()
     {
         _resource.Quantity = 5;
-        _resource.Id = 1000; 
+        _resource.Id = 1000;
 
         _project.ExclusiveResources = new List<Resource> { _resource };
 
@@ -602,7 +603,7 @@ public class ResourceServiceTest
             _resourceService.AddResource(new ResourceDataDto { Name = "Test", Quantity = 1, TypeResource = 1 }));
         Assert.AreEqual("Too many system resources. Max 999 allowed.", ex.Message);
     }
-    
+
     [TestMethod]
     public void AddResource_ValidationTests()
     {
@@ -613,17 +614,19 @@ public class ResourceServiceTest
             TypeResource = 1,
             Quantity = 0
         };
-        ArgumentException exception1 = Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(zeroQuantityResource));
+        ArgumentException exception1 =
+            Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(zeroQuantityResource));
         Assert.AreEqual("Resource quantity must be greater than zero", exception1.Message);
 
         ResourceDataDto negativeResource = new ResourceDataDto()
         {
             Name = "NegativeResource",
-            Description = "description", 
+            Description = "description",
             TypeResource = 1,
             Quantity = -5
         };
-        ArgumentException exception2 = Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(negativeResource));
+        ArgumentException exception2 =
+            Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(negativeResource));
         Assert.AreEqual("Resource quantity must be greater than zero", exception2.Message);
     }
 
@@ -652,10 +655,12 @@ public class ResourceServiceTest
         DateTime today = DateTime.Now;
         DateTime tomorrow = today.AddDays(1);
 
-        bool result1 = _resourceService.IsResourceAvailable(_resource.Id, 999, true, today, tomorrow, 1, pendingResources);
+        bool result1 =
+            _resourceService.IsResourceAvailable(_resource.Id, 999, true, today, tomorrow, 1, pendingResources);
         Assert.IsFalse(result1);
 
-        bool result2 = _resourceService.IsResourceAvailable(999, _project.Id, true, today, tomorrow, 1, pendingResources);
+        bool result2 =
+            _resourceService.IsResourceAvailable(999, _project.Id, true, today, tomorrow, 1, pendingResources);
         Assert.IsFalse(result2);
 
         bool result3 = _resourceService.IsResourceAvailableForNewTask(_resource.Id, 999, true, today, tomorrow, 1);
@@ -702,5 +707,183 @@ public class ResourceServiceTest
         List<(int, Resource)> mixedResult = _resourceService.GetResourcesWithName(mixedList);
         Assert.AreEqual(1, mixedResult.Count);
         Assert.AreEqual("MixedTest", mixedResult[0].Item2.Name);
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_NoResourcesOrNoConflicts_ReturnsNoConflicts()
+    {
+        TaskDataDTO taskWithoutResources = new TaskDataDTO
+        {
+            Title = "No Resources Task",
+            Description = "Task without resources",
+            Duration = 3,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO>()
+        };
+
+        ResourceConflictDto result1 =
+            _resourceService.CheckAndResolveConflicts(taskWithoutResources, _project.Id, false);
+        Assert.IsFalse(result1.HasConflicts);
+        Assert.AreEqual(0, result1.ConflictingTasks.Count);
+
+        TaskResourceDataDTO taskResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "No Conflict Task",
+            ResourceId = _resource.Id,
+            Quantity = 1
+        };
+
+        TaskDataDTO taskWithResources = new TaskDataDTO
+        {
+            Title = "No Conflict Task",
+            Description = "Task with sufficient resources",
+            Duration = 3,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { taskResource }
+        };
+
+        ResourceConflictDto result2 = _resourceService.CheckAndResolveConflicts(taskWithResources, _project.Id, false);
+        Assert.IsFalse(result2.HasConflicts);
+
+        TaskResourceDataDTO nonExistentResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "Non Existent Resource Task",
+            ResourceId = 999,
+            Quantity = 1
+        };
+
+        TaskDataDTO taskWithNonExistentResource = new TaskDataDTO
+        {
+            Title = "Non Existent Resource Task",
+            Description = "Task with non-existent resource",
+            Duration = 3,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { nonExistentResource }
+        };
+
+        ResourceConflictDto result3 =
+            _resourceService.CheckAndResolveConflicts(taskWithNonExistentResource, _project.Id, false);
+        Assert.IsFalse(result3.HasConflicts);
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_HasConflicts_DetectsAndOptionallyResolves()
+    {
+        TaskResource taskResource = new TaskResource
+        {
+            Resource = _resource,
+            Quantity = 1
+        };
+        _task.Resources = new List<TaskResource> { taskResource };
+        _task.EarlyStart = DateTime.Now.AddDays(1);
+        _task.EarlyFinish = DateTime.Now.AddDays(5);
+        _task.Status = Status.Pending;
+        _project.Tasks.Add(_task);
+
+        TaskResourceDataDTO conflictingResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "Conflicting Task",
+            ResourceId = _resource.Id,
+            Quantity = 2
+        };
+
+        TaskDataDTO conflictingTask = new TaskDataDTO
+        {
+            Title = "Conflicting Task",
+            Description = "Task that conflicts with existing task",
+            Duration = 3,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { conflictingResource }
+        };
+
+        ResourceConflictDto result1 =
+            _resourceService.CheckAndResolveConflicts(conflictingTask, _project.Id, autoResolve: false);
+        Assert.IsTrue(result1.HasConflicts);
+        Assert.AreEqual(1, result1.ConflictingTasks.Count);
+        Assert.AreEqual(_task.Title, result1.ConflictingTasks[0]);
+        Assert.IsTrue(result1.Message.Contains(_resource.Name));
+        Assert.IsTrue(result1.Message.Contains(_task.Title));
+        Assert.AreEqual(0, conflictingTask.Dependencies.Count);
+
+        ResourceConflictDto result2 =
+            _resourceService.CheckAndResolveConflicts(conflictingTask, _project.Id, autoResolve: true);
+        Assert.IsTrue(result2.HasConflicts);
+        Assert.AreEqual(1, result2.ConflictingTasks.Count);
+        Assert.AreEqual(_task.Title, result2.ConflictingTasks[0]);
+        Assert.IsTrue(conflictingTask.Dependencies.Contains(_task.Title));
+
+        conflictingTask.Dependencies.Clear();
+        conflictingTask.Dependencies.Add(_task.Title);
+        _resourceService.CheckAndResolveConflicts(conflictingTask, _project.Id, autoResolve: true);
+        Assert.AreEqual(1, conflictingTask.Dependencies.Where(d => d == _task.Title).Count());
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_EdgeCases_HandlesCorrectly()
+    {
+        TaskResource taskResource = new TaskResource
+        {
+            Resource = _resource,
+            Quantity = 1
+        };
+        _task.Resources = new List<TaskResource> { taskResource };
+        _task.EarlyStart = DateTime.Now.AddDays(1);
+        _task.EarlyFinish = DateTime.Now.AddDays(5);
+        _task.Status = Status.Pending;
+        _project.Tasks.Clear();
+        _project.Tasks.Add(_task);
+
+        TaskResourceDataDTO taskResourceDto = new TaskResourceDataDTO
+        {
+            TaskTitle = "Edge Case Task",
+            ResourceId = _resource.Id,
+            Quantity = 2
+        };
+
+        TaskDataDTO edgeCaseTask = new TaskDataDTO
+        {
+            Title = "Edge Case Task",
+            Description = "Task for testing edge cases",
+            Duration = 3,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { taskResourceDto }
+        };
+
+        _task.Status = Status.Completed;
+        ResourceConflictDto result1 = _resourceService.CheckAndResolveConflicts(edgeCaseTask, _project.Id, false);
+        Assert.IsFalse(result1.HasConflicts);
+
+        _task.Status = Status.Pending;
+        _task.EarlyStart = DateTime.Now.AddDays(-10);
+        _task.EarlyFinish = DateTime.Now.AddDays(-5);
+        ResourceConflictDto result2 = _resourceService.CheckAndResolveConflicts(edgeCaseTask, _project.Id, false);
+        Assert.IsFalse(result2.HasConflicts);
+
+        _task.EarlyStart = DateTime.Now.AddDays(1);
+        _task.EarlyFinish = DateTime.Now.AddDays(5);
+
+        Task secondTask = new Task()
+        {
+            Title = "Second Conflicting Task",
+            Description = "Another conflicting task",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now.AddDays(2),
+            EarlyFinish = DateTime.Now.AddDays(6),
+            Resources = new List<TaskResource>
+            {
+                new TaskResource { Resource = _resource, Quantity = 1 }
+            }
+        };
+        _taskRepository.Add(secondTask);
+        _project.Tasks.Add(secondTask);
+
+        ResourceConflictDto result3 =
+            _resourceService.CheckAndResolveConflicts(edgeCaseTask, _project.Id, autoResolve: true);
+        Assert.IsTrue(result3.HasConflicts);
+        Assert.IsTrue(result3.ConflictingTasks.Count >= 1);
+        Assert.IsTrue(result3.ConflictingTasks.Contains(_task.Title) ||
+                      result3.ConflictingTasks.Contains(secondTask.Title));
+        Assert.IsTrue(edgeCaseTask.Dependencies.Count >= 1);
     }
 }

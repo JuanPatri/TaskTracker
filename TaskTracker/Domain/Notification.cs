@@ -84,19 +84,4 @@ public class Notification
             _id = value;
         }
     }
-
-    public static Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects, List<string> viewedBy)
-    {
-        return new Notification()
-        {
-            Id = notificationDataDto.Id,
-            Message = notificationDataDto.Message,
-            Date = notificationDataDto.Date,
-            TypeOfNotification = notificationDataDto.TypeOfNotification,
-            Impact = notificationDataDto.Impact,
-            Users = users,
-            Projects = projects,
-            ViewedBy = viewedBy
-        };
-    }
 }

@@ -77,17 +77,4 @@ public class Project
         set => _projectRoles = value;
     }
     
-    public static Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
-    {
-        return new Project()
-        {
-            Id = projectDataDto.Id,
-            Name = projectDataDto.Name,
-            Description = projectDataDto.Description,
-            StartDate = projectDataDto.StartDate,
-            ProjectRoles = users
-        };
-    }
-    
-    
 }

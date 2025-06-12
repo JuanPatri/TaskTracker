@@ -54,15 +54,4 @@ public class Resource
             
         }
     }
-    
-    public static Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
-    {
-        return new Resource()
-        {
-            Name = resourceDataDto.Name,
-            Description = resourceDataDto.Description,
-            Type = resourceType,
-            Quantity = resourceDataDto.Quantity
-        };
-    }
 }

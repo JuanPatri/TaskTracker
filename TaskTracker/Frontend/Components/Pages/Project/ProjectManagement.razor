@@ -57,8 +57,8 @@
         </tbody>
     </table>
 
-    <button @onclick="@(async () => await ExportProject("csv"))">Export CSV</button>
-    <button @onclick="@(async () => await ExportProject("json"))">Export JSON</button>
+    <button class="btn btn-primary mb-3" @onclick="@(async () => await ExportProject("csv"))">Export CSV</button>
+    <button class="btn btn-primary mb-3" @onclick="@(async () => await ExportProject("json"))">Export JSON</button>
     <button class="btn btn-primary mb-3" @onclick="GoToDiagram">Diagram</button>
     
     @if (!string.IsNullOrEmpty(_errorMessage))

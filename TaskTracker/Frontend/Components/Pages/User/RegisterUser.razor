@@ -31,8 +31,12 @@
 
     <div class="form-group">
         <label for="password">Password</label>
-        <input id="password" type="password" class="form-control" @bind="_newUser.Password" />
+        <InputText id="password" type="@passwordInputType" class="form-control" @bind-Value="_newUser.Password" placeholder="Password123$" />
         <div class="form-text">
+            <div>
+                <InputCheckbox @bind-Value="showPassword" />
+                <label>Show Password</label>
+            </div>
             Your password must:
             <ul class="mb-0 ps-3 mt-1">
                 <li>Be at least 8 characters long</li>
@@ -74,6 +78,8 @@
     private UserDataDTO _newUser = new UserDataDTO();
     private string _errorMessage = string.Empty;
     private string _successMessage = string.Empty;
+    private bool showPassword = false;
+    private string passwordInputType => showPassword ? "text" : "password";
 
     private async Task HandleSubmit()
     {

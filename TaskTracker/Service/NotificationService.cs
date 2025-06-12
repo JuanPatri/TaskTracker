@@ -1,4 +1,5 @@
 ﻿using Domain;
+using DTOs.NotificationDTOs;
 using DTOs.TaskDTOs;
 using Enums;
 using Repository;
@@ -106,5 +107,20 @@ public class NotificationService
             .FindAll()
             .Where(n => n.Users != null && n.Users.Any(u => u.Email == email) && !n.ViewedBy.Contains(email))
             .ToList();
+    }
+    
+    public Notification FromDto(NotificationDataDTO notificationDataDto, List<User> users, List<Project> projects, List<string> viewedBy)
+    {
+        return new Notification()
+        {
+            Id = notificationDataDto.Id,
+            Message = notificationDataDto.Message,
+            Date = notificationDataDto.Date,
+            TypeOfNotification = notificationDataDto.TypeOfNotification,
+            Impact = notificationDataDto.Impact,
+            Users = users,
+            Projects = projects,
+            ViewedBy = viewedBy
+        };
     }
 }

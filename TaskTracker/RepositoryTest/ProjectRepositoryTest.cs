@@ -1,9 +1,9 @@
 using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
-using Task = Domain.Task;
 using DTOs.ProjectDTOs;
 using Enums;
+using Service;
 
 namespace RepositoryTest;
 
@@ -12,13 +12,25 @@ public class ProjectRepositoryTest
 {
     private ProjectRepository _projectRepository;
     private Project _project;
-    
+    private ProjectService _projectService; 
+    private TaskRepository _taskRepository;
+    private ResourceTypeRepository _resourceTypeRepository;
+    private UserRepository _userRepository;
+    private UserService _userService;
+    private CriticalPathService _criticalPathService;
+
     [TestInitialize]
     public void OnInitialize()
     {
-        _projectRepository = new ProjectRepository();
+        _projectRepository = new ProjectRepository(); // inicializar antes que otros lo usen
+        _taskRepository = new TaskRepository();
+        _resourceTypeRepository = new ResourceTypeRepository();
+        _userRepository = new UserRepository();
+        _userService = new UserService(_userRepository);
+        _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
         
-        User adminUser = new User()
+        var adminUser = new User()
         {
             Name = "Admin",
             LastName = "Admin", 
@@ -28,55 +40,57 @@ public class ProjectRepositoryTest
             BirthDate = new DateTime(1990, 1, 1)
         };
         
-        ProjectRole adminRole = new ProjectRole()
+        var adminRole = new ProjectRole()
         {
             RoleType = RoleType.ProjectAdmin,
             User = adminUser
         };
         
-        ProjectDataDTO projectDto = new ProjectDataDTO()
+        _project = new Project()
         {
             Id = 1,
             Name = "Project1",
             Description = "Description1",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Users = new List<string> { "admin@test.com" }
+            ProjectRoles = new List<ProjectRole>()
+            {
+                adminRole
+            }
         };
-        
-        _project = Project.FromDto(projectDto, new List<ProjectRole> { adminRole });
         
         adminRole.Project = _project;
     }
-    
+
     [TestMethod]
     public void CreateProjectRepositoryTest()
     {
         Assert.IsNotNull(_projectRepository);
     }
-    
+
     [TestMethod]
     public void AddProjectToListTest()
     {
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.Find(p => p.Id == 1), _project);
+        var result = _projectRepository.Find(p => p.Id == _project.Id);
+        Assert.AreEqual(_project, result);
     }
-    
+
     [TestMethod]
     public void SearchForAllProjectInTheListTest()
     {
-        Assert.AreEqual(_projectRepository.FindAll().Count, 0);
+        Assert.AreEqual(0, _projectRepository.FindAll().Count);
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
+        Assert.AreEqual(1, _projectRepository.FindAll().Count);
     }
-    
+
     [TestMethod]
     public void UpdateExistingProjectUpdatesFieldsCorrectlyTest()
     {
         _project.Id = 2;
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
-        
-        User updatedAdmin = new User()
+        Assert.AreEqual(1, _projectRepository.FindAll().Count);
+
+        var updatedAdmin = new User()
         {
             Name = "UpdatedAdmin",
             LastName = "UpdatedAdmin",
@@ -85,14 +99,14 @@ public class ProjectRepositoryTest
             Admin = true,
             BirthDate = new DateTime(1990, 1, 1)
         };
-        
-        ProjectRole updatedRole = new ProjectRole()
+
+        var updatedRole = new ProjectRole()
         {
             RoleType = RoleType.ProjectAdmin,
             User = updatedAdmin
         };
-        
-        ProjectDataDTO updatedProjectDto = new ProjectDataDTO()
+
+        var updatedProjectDto = new ProjectDataDTO()
         {
             Id = 2,
             Name = "Updated Project",
@@ -100,29 +114,29 @@ public class ProjectRepositoryTest
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
             Users = new List<string> { "updatedadmin@test.com" }
         };
-        
-        Project updateProject = Project.FromDto(updatedProjectDto, new List<ProjectRole> { updatedRole });
-        updatedRole.Project = updateProject;
-        
-        _projectRepository.Update(updateProject);
-        Project updatedProjectFromRepo = _projectRepository.Find(p => p.Id == 2);
-        
+
+        var updatedProject = _projectService.FromDto(updatedProjectDto, new List<ProjectRole> { updatedRole });
+        updatedRole.Project = updatedProject;
+
+        _projectRepository.Update(updatedProject);
+        var updatedProjectFromRepo = _projectRepository.Find(p => p.Id == 2);
+
         Assert.IsNotNull(updatedProjectFromRepo);
-        Assert.AreEqual(updateProject.Name, updatedProjectFromRepo.Name);
-        Assert.AreEqual(updateProject.Description, updatedProjectFromRepo.Description);
-        Assert.AreEqual(updateProject.StartDate, updatedProjectFromRepo.StartDate);
-        
-        ProjectRole adminRole = updatedProjectFromRepo.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin);
+        Assert.AreEqual(updatedProject.Name, updatedProjectFromRepo.Name);
+        Assert.AreEqual(updatedProject.Description, updatedProjectFromRepo.Description);
+        Assert.AreEqual(updatedProject.StartDate, updatedProjectFromRepo.StartDate);
+
+        var adminRole = updatedProjectFromRepo.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin);
         Assert.IsNotNull(adminRole);
         Assert.AreEqual("updatedadmin@test.com", adminRole.User.Email);
     }
-    
+
     [TestMethod]
     public void UpdatingAProjectThatIsNotInTheListReturnsNullTest()
     {
         _projectRepository.Add(_project);
-        
-        User nonExistentAdmin = new User()
+
+        var nonExistentAdmin = new User()
         {
             Name = "NonExistent",
             LastName = "Admin",
@@ -131,14 +145,14 @@ public class ProjectRepositoryTest
             Admin = true,
             BirthDate = new DateTime(1990, 1, 1)
         };
-        
-        ProjectRole nonExistentRole = new ProjectRole()
+
+        var nonExistentRole = new ProjectRole()
         {
             RoleType = RoleType.ProjectAdmin,
             User = nonExistentAdmin
         };
-        
-        ProjectDataDTO nonExistentProjectDto = new ProjectDataDTO()
+
+        var nonExistentProjectDto = new ProjectDataDTO()
         {
             Id = 99,
             Name = "NonExistentProject",
@@ -146,20 +160,20 @@ public class ProjectRepositoryTest
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
             Users = new List<string> { "nonexistent@test.com" }
         };
-        
-        Project updateProject = Project.FromDto(nonExistentProjectDto, new List<ProjectRole> { nonExistentRole });
+
+        var updateProject = _projectService.FromDto(nonExistentProjectDto, new List<ProjectRole> { nonExistentRole });
         nonExistentRole.Project = updateProject;
-        
-        Project result = _projectRepository.Update(updateProject);
+
+        var result = _projectRepository.Update(updateProject);
         Assert.IsNull(result);
     }
-    
+
     [TestMethod]
     public void DeleteProjectFromListTest()
     {
         _projectRepository.Add(_project);
-        Assert.AreEqual(_projectRepository.FindAll().Count, 1);
+        Assert.AreEqual(1, _projectRepository.FindAll().Count);
         _projectRepository.Delete(_project.Id.ToString());
-        Assert.AreEqual(_projectRepository.FindAll().Count, 0);
+        Assert.AreEqual(0, _projectRepository.FindAll().Count);
     }
 }

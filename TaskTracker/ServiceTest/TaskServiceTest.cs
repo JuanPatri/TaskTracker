@@ -557,4 +557,71 @@ public class TaskServiceTest
         Assert.IsTrue(true);
     }
 
+    [TestMethod]
+    public void DependsOnTasksFromAnotherProject_ShouldReturnTrue_WhenTaskDependsOnExternalProjectTask()
+    {
+        Project project1 = new Project
+        {
+            Id = 1,
+            Name = "Project 1",
+            Tasks = new List<Task>()
+        };
+
+        Project project2 = new Project
+        {
+            Id = 2,
+            Name = "Project 2",
+            Tasks = new List<Task>()
+        };
+
+        Task externalTask = new Task { Title = "External Task" };
+        Task task = new Task
+        {
+            Title = "Task",
+            Dependencies = new List<Task> { externalTask }
+        };
+
+        project1.Tasks.Add(task);
+        project2.Tasks.Add(externalTask);
+
+        _projectRepository.Add(project1);
+        _projectRepository.Add(project2);
+        _taskRepository.Add(task);
+        _taskRepository.Add(externalTask);
+        
+        bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
+
+        Assert.IsTrue(result, "Task should depend on tasks from another project");
+    }
+    
+    
+    [TestMethod]
+    public void DependsOnTasksFromAnotherProject_ShouldReturnFalse_WhenTaskDependsOnSameProjectTasks()
+    {
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Project",
+            Tasks = new List<Task>()
+        };
+
+        Task dependencyTask = new Task { Title = "Dependency Task" };
+        Task task = new Task
+        {
+            Title = "Task",
+            Dependencies = new List<Task> { dependencyTask }
+        };
+
+        project.Tasks.Add(task);
+        project.Tasks.Add(dependencyTask);
+
+        _projectRepository.Add(project);
+        _taskRepository.Add(task);
+        _taskRepository.Add(dependencyTask);
+        
+        bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
+        
+        Assert.IsFalse(result, "Task should not depend on tasks from another project");
+    }
+
 }

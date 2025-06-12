@@ -34,9 +34,12 @@ public class TaskService
 
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
-        Task createdTask = Task.FromDto(taskDto, taskResourceList, dependencies);
+        Task createdTask = FromDto(taskDto, taskResourceList, dependencies);
         Task savedTask = _taskRepository.Add(createdTask);
-        
+        foreach (var taskResource in savedTask.Resources)
+        {
+            taskResource.Task = savedTask;
+        }
         return savedTask;
     }
     
@@ -93,7 +96,7 @@ public class TaskService
         List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
-        return _taskRepository.Update(Task.FromDto(taskDto, taskResourceList, dependencies));
+        return _taskRepository.Update(FromDto(taskDto, taskResourceList, dependencies));
     }
 
     public void RemoveTask(GetTaskDTO task)
@@ -242,5 +245,37 @@ public class TaskService
         }
     
         _projectRepository.Update(project);
+    }
+
+    public bool DependsOnTasksFromAnotherProject(string titulo, int projectId)
+    {
+        Task task = _taskRepository.Find(t => t.Title == titulo);
+
+        Project? project = _projectRepository.Find(p => p.Id == projectId);
+        foreach (var dependencies in task.Dependencies)
+        {
+            if (!project.Tasks.Contains(dependencies))
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
+    {
+    
+        var task = new Task()
+        {
+            Title = taskDataDto.Title,
+            Description = taskDataDto.Description,
+            Duration = taskDataDto.Duration,
+            Status = taskDataDto.Status,
+            Resources = resources ?? new List<TaskResource>(),
+            Dependencies = dependencies ?? new List<Task>(),
+        };
+        
+        return task;
     }
 }

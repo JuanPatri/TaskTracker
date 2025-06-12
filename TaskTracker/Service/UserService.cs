@@ -14,7 +14,8 @@ public class UserService
     
     public User AddUser(UserDataDTO user)
     {
-        User newUser = User.FromDto(user);
+        ValidateUserEmail(user.Email);
+        User newUser = FromDto(user);
         return _userRepository.Add(newUser);
     }
     
@@ -35,7 +36,7 @@ public class UserService
 
     public User? UpdateUser(UserDataDTO userDto)
     {
-        User updatedUser = User.FromDto(userDto);
+        User updatedUser = FromDto(userDto);
         return _userRepository.Update(updatedUser);
     }
     
@@ -61,5 +62,25 @@ public class UserService
             .Where(user => userEmails.Contains(user.Email))
             .ToList();
     }
+    
+    public void ValidateUserEmail(string email)
+    {
+        if (_userRepository.Find(u => u.Email == email) != null)
+        {
+            throw new ArgumentException("A user with this email already exists");
+        }
+    }
 
+    public User FromDto(UserDataDTO userDataDto)
+    {
+        return new User()
+        {
+            Name = userDataDto.Name,
+            LastName = userDataDto.LastName,
+            Email = userDataDto.Email,
+            BirthDate = userDataDto.BirthDate,
+            Password = userDataDto.Password,
+            Admin = userDataDto.Admin
+        };
+    }
 }

@@ -26,13 +26,4 @@ public class ResourceType
             _id = value;
         }
     }
-    
-    public static ResourceType Fromdto(ResourceTypeDto resourceTypeDto)
-    {
-        return new ResourceType()
-        {
-            Id = resourceTypeDto.Id,
-            Name = resourceTypeDto.Name
-        };
-    }
 }

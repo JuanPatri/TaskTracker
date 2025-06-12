@@ -4,6 +4,8 @@ using Enums;
 using DTOs.TaskResourceDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Repository;
+using Service;
 using Task = Domain.Task;
 
 namespace DomainTest;
@@ -13,11 +15,43 @@ namespace DomainTest;
 public class TaskTest
 {
     private Task _task;
-
+    private TaskService _taskService;
+    private TaskRepository _taskRepository;
+    private ResourceTypeRepository _resourceTypeRespository;
+    private ProjectRepository _projectRepository;
+    private ProjectService _projectService;
+    private CriticalPathService _criticalPathService;
+    private UserRepository _userRepository;
+    private UserService _userService;
+    private ResourceRepository _resourceRespository;
+    
     [TestInitialize]
     public void OnInitialize()
     {
+        _taskRepository = new TaskRepository();
+        _resourceRespository = new ResourceRepository();
+        _projectRepository = new ProjectRepository();
+        _userRepository = new UserRepository();
+        _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+        _userService = new UserService(_userRepository);
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRespository, _userRepository, _userService, _criticalPathService);
         _task = new Task();
+        _taskService = new TaskService(_taskRepository, _resourceRespository, _projectRepository, _projectService, _criticalPathService);
+
+        _task = new Task
+        {
+            Title = "Test Task",
+            Description = "This is a test task",
+            Duration = 5,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(5),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(5),
+            DateCompleated = null,
+            Resources = new List<TaskResource>(),
+            Dependencies = new List<Task>()
+        };
     }
 
     [TestMethod]
@@ -157,7 +191,7 @@ public class TaskTest
             }
         };
 
-        Task task = Task.FromDto(taskDto, taskResources, dependencies);
+        Task task = _taskService.FromDto(taskDto, taskResources, dependencies);
 
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);

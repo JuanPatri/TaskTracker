@@ -89,17 +89,4 @@ public class User
             _password = value;
         }
     }
-    
-    public static User FromDto(UserDataDTO userDataDto)
-    {
-        return new User()
-        {
-            Name = userDataDto.Name,
-            LastName = userDataDto.LastName,
-            Email = userDataDto.Email,
-            BirthDate = userDataDto.BirthDate,
-            Password = userDataDto.Password,
-            Admin = userDataDto.Admin
-        };
-    }
 }
