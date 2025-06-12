@@ -1,4 +1,5 @@
 using Domain;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
 
@@ -9,7 +10,7 @@ public class UserRepositoryTest
 {
     private UserRepository _userRepository;
     private User _user;
-    //private User _updatedUser;
+
     
     [TestInitialize]
     public void OnInitialize()
