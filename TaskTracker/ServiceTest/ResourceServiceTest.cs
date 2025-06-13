@@ -36,7 +36,7 @@ public class ResourceServiceTest
     {
         _sqlContext = SqlContextFactory.CreateMemoryContext();
         _resourceRepository = new ResourceRepository(_sqlContext);
-        _resourceTypeRepository = new ResourceTypeRepository();
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
         _projectRepository = new ProjectRepository(_sqlContext);
         _taskRepository = new TaskRepository(_sqlContext);
         _userRepository = new UserRepository(_sqlContext);

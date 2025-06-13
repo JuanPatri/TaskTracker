@@ -37,7 +37,7 @@ public class ProjectServiceTest
         _projectRepository = new ProjectRepository(_sqlContext);
         _taskRepository = new TaskRepository(_sqlContext);
         _resourceRepository = new ResourceRepository(_sqlContext);
-        _resourceTypeRepository = new ResourceTypeRepository();
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
         _userRepository = new UserRepository(_sqlContext);
 
         _userService = new UserService(_userRepository);

@@ -30,7 +30,7 @@ public class NotificationServiceTest
         _userRepository = new UserRepository(_sqlContext);
         _projectRepository = new ProjectRepository(_sqlContext);
         _notificationRepository = new NotificationRepository();
-        _resourceTypeRepository = new ResourceTypeRepository();
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
         _taskRepository = new TaskRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
