@@ -140,6 +140,9 @@ public class SqlContext : DbContext
         modelBuilder.Entity<TaskResource>(entity =>
         {
             entity.HasKey(tr => tr.Id);
+            
+            entity.Property(tr => tr.Id)
+                .ValueGeneratedOnAdd();
         
             entity.Property(tr => tr.Quantity)
                 .IsRequired();
@@ -162,6 +165,25 @@ public class SqlContext : DbContext
             entity.HasIndex("TaskTitle", "ResourceId").IsUnique();
         });
         
+        modelBuilder.Entity<Resource>(entity =>
+        {
+            entity.HasKey(r => r.Id);
         
+            entity.Property(r => r.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+            
+            entity.Property(r => r.Description)
+                .HasMaxLength(500);
+            
+            entity.Property(r => r.Quantity)
+                .IsRequired();
+            
+            entity.HasOne(r => r.Type)
+                .WithMany()
+                .HasForeignKey("ResourceTypeId")
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+        });
     }
 }

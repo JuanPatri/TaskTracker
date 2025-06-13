@@ -35,7 +35,6 @@ public class TaskResource()
         get => _id;
         set
         {
-            if (value <= 0) throw new ArgumentException("Id must be greater than 0");
             _id = value;
         }
     }
