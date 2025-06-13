@@ -2,6 +2,7 @@ using Repository;
 using Domain;
 using Frontend.Components;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Service;
 using Service.ExportService;
 using Task = Domain.Task;
@@ -18,6 +19,8 @@ builder.Services.AddDbContext<SqlContext>(
         providerOptions => providerOptions.EnableRetryOnFailure()
     )
 );
+
+
 
 // Repositories 
 builder.Services.AddScoped<IRepository<User>, UserRepository>();

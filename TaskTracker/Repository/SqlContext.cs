@@ -10,10 +10,11 @@ public class SqlContext : DbContext
     public DbSet<Project> Projects { get; set; }
     public DbSet<ProjectRole> ProjectRoles { get; set; }
     
-    //public DbSet<Task> Tasks { get; set; }
-    //public DbSet<Resource> Resources { get; set; }
-    //public DbSet<ResourceType> ResourceTypes { get; set; }
-    //public DbSet<TaskResource> TaskResources { get; set; }
+    public DbSet<Task> Tasks { get; set; }
+    public DbSet<Resource> Resources { get; set; }
+    public DbSet<ResourceType> ResourceTypes { get; set; }
+    public DbSet<TaskResource> TaskResources { get; set; }
+    
     //public DbSet<Notification> Notifications { get; set; }
     
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
@@ -23,10 +24,6 @@ public class SqlContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Ignore<Task>();
-        modelBuilder.Ignore<TaskResource>();
-        modelBuilder.Ignore<Resource>();
-        modelBuilder.Ignore<ResourceType>();
         
         modelBuilder.Entity<User>(entity =>
         {
@@ -97,6 +94,47 @@ public class SqlContext : DbContext
 
             entity.Property<int>("ProjectId");
             entity.Property<string>("UserEmail");
+        });
+        
+        modelBuilder.Entity<Task>(entity =>
+        {
+            entity.HasKey(t => t.Title); 
+        
+            entity.Property(t => t.Title)
+                .IsRequired()
+                .HasMaxLength(200);
+            
+            entity.Property(t => t.Description)
+                .IsRequired()
+                .HasMaxLength(1000);
+            
+            entity.Property(t => t.Duration)
+                .IsRequired();
+            
+            entity.Property(t => t.Status)
+                .IsRequired()
+                .HasConversion<string>();
+            
+            entity.Property(t => t.EarlyStart)
+                .IsRequired();
+            
+            entity.Property(t => t.EarlyFinish)
+                .IsRequired();
+            
+            entity.Property(t => t.LateStart)
+                .IsRequired();
+            
+            entity.Property(t => t.LateFinish)
+                .IsRequired();
+            
+            entity.Property(t => t.DateCompleated);
+            
+            entity.HasMany(t => t.Resources)
+                .WithOne(tr => tr.Task)
+                .HasForeignKey("TaskTitle")
+                .OnDelete(DeleteBehavior.Cascade);
+            
+            entity.Ignore(t => t.Dependencies);
         });
     }
 }
