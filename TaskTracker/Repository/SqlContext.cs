@@ -185,5 +185,20 @@ public class SqlContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict)
                 .IsRequired();
         });
+        
+        modelBuilder.Entity<ResourceType>(entity =>
+        {
+            entity.HasKey(rt => rt.Id);
+
+            entity.Property(rt => rt.Id)
+                .ValueGeneratedOnAdd();
+        
+            entity.Property(rt => rt.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.HasIndex(rt => rt.Name)
+                .IsUnique();
+        });
     }
 }
