@@ -1,4 +1,5 @@
-﻿using Task = Domain.Task;
+﻿using BusinessLogicTest.Context;
+using Task = Domain.Task;
 using Enums;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,11 +12,13 @@ public class TaskRepositoryTest
 {
     private IRepository<Task> _taskRepository;
     private Task _task;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _taskRepository = new TaskRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _taskRepository = new TaskRepository(_sqlContext);
         _task = new Task(); 
         _task.Title = "Task 1";
     }

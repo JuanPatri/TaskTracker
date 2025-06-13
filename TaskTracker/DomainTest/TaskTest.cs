@@ -31,7 +31,7 @@ public class TaskTest
     public void OnInitialize()
     {
         _sqlContext = SqlContextFactory.CreateMemoryContext();
-        _taskRepository = new TaskRepository();
+        _taskRepository = new TaskRepository(_sqlContext);
         _resourceRespository = new ResourceRepository();
         _projectRepository = new ProjectRepository(_sqlContext);
         _userRepository = new UserRepository(_sqlContext);

@@ -26,7 +26,7 @@ public class ProjectRepositoryTest
     {
         _sqlContext = SqlContextFactory.CreateMemoryContext();
         _projectRepository = new ProjectRepository(_sqlContext); 
-        _taskRepository = new TaskRepository();
+        _taskRepository = new TaskRepository(_sqlContext);
         _resourceTypeRepository = new ResourceTypeRepository();
         _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);

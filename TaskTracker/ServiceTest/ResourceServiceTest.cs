@@ -38,7 +38,7 @@ public class ResourceServiceTest
         _resourceRepository = new ResourceRepository();
         _resourceTypeRepository = new ResourceTypeRepository();
         _projectRepository = new ProjectRepository(_sqlContext);
-        _taskRepository = new TaskRepository();
+        _taskRepository = new TaskRepository(_sqlContext);
         _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
