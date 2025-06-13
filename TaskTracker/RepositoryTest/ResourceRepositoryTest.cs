@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
@@ -9,10 +10,13 @@ public class ResourceRepositoryTest
 {
     private ResourceRepository _resourceRepository;
     private Resource _resource;
+    private SqlContext _sqlContext;
+    
     [TestInitialize]
     public void OnInitialize()
     {
-        _resourceRepository = new ResourceRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _resourceRepository = new ResourceRepository(_sqlContext);
         _resource = new Resource();
         _resource.Name = "new resource";
     }
