@@ -2,6 +2,7 @@ namespace Domain;
 
 public class TaskResource()
 {
+    private int _id;
     private Task _task;
     private Resource _resource;
     private int _quantity;
@@ -26,6 +27,16 @@ public class TaskResource()
         {
             if (value < 0) throw new ArgumentException("Quantity cannot be negative");
             _quantity = value;
+        }
+    }
+    
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            if (value <= 0) throw new ArgumentException("Id must be greater than 0");
+            _id = value;
         }
     }
 }

@@ -136,5 +136,32 @@ public class SqlContext : DbContext
             
             entity.Ignore(t => t.Dependencies);
         });
+        
+        modelBuilder.Entity<TaskResource>(entity =>
+        {
+            entity.HasKey(tr => tr.Id);
+        
+            entity.Property(tr => tr.Quantity)
+                .IsRequired();
+            
+            entity.HasOne(tr => tr.Task)
+                .WithMany(t => t.Resources)
+                .HasForeignKey("TaskTitle")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+            
+            entity.HasOne(tr => tr.Resource)
+                .WithMany()
+                .HasForeignKey("ResourceId")
+                .OnDelete(DeleteBehavior.Restrict)
+                .IsRequired();
+            
+            entity.Property<string>("TaskTitle").HasMaxLength(200);
+            entity.Property<int>("ResourceId");
+            
+            entity.HasIndex("TaskTitle", "ResourceId").IsUnique();
+        });
+        
+        
     }
 }
