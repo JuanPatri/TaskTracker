@@ -25,7 +25,8 @@ public class User
         {
             if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("The username cannot be empty");
             
-            if(value.Any(char.IsDigit)) throw new ArgumentException("The username cannot contain digits");
+            if (!Regex.IsMatch(value, @"^[a-zA-Z\s]+$"))
+                throw new ArgumentException("The username can only contain letters and spaces");
             
             _name = value;
         }
