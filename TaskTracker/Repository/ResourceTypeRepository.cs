@@ -4,58 +4,59 @@ namespace Repository;
 
 public class ResourceTypeRepository : IRepository<ResourceType>
 {
-    private readonly List<ResourceType> _resourceTypes;
+    private readonly SqlContext _sqlContext;
 
-    public ResourceTypeRepository()
+    public ResourceTypeRepository(SqlContext sqlContext)
     {
-
-        _resourceTypes = new List<ResourceType>()
+        _sqlContext = sqlContext;
+        
+        if (!_sqlContext.ResourceTypes.Any())
         {
-            new ResourceType()
+            var defaultResourceTypes = new List<ResourceType>()
             {
-                Id = 1,
-                Name = "Human"
+                new ResourceType()
+                {
+                    Name = "Human" 
+                },
+                new ResourceType()
+                {
+                    Name = "Infrastructure"
+                },
+                new ResourceType()
+                {
+                    Name = "Software"
+                }
+            };
 
-            },
-            new ResourceType()
-            {
-                Id = 2,
-                Name = "Infrastructure"
-
-            },
-            new ResourceType()
-            {
-                Id = 3,
-                Name = "Software"
-
-            }
-        };
-
+            _sqlContext.ResourceTypes.AddRange(defaultResourceTypes);
+            _sqlContext.SaveChanges();
+        }
     }
 
     public ResourceType Add(ResourceType resourceType)
     {
-        //resourceType.Id = _idCounter++;
-        _resourceTypes.Add(resourceType);
+        _sqlContext.ResourceTypes.Add(resourceType);
+        _sqlContext.SaveChanges();
         return resourceType;
     }
 
     public ResourceType? Find(Func<ResourceType, bool> predicate)
     {
-        return _resourceTypes.FirstOrDefault(predicate);
+        return _sqlContext.ResourceTypes.FirstOrDefault(predicate);
     }
 
     public IList<ResourceType> FindAll()
     {
-        return _resourceTypes; 
+        return _sqlContext.ResourceTypes.ToList(); 
     }
 
     public ResourceType? Update(ResourceType resourceType)
     {
-        ResourceType? existingResourceType = _resourceTypes.FirstOrDefault(r => r.Id == resourceType.Id);
+        ResourceType? existingResourceType = _sqlContext.ResourceTypes.FirstOrDefault(r => r.Id == resourceType.Id);
         if (existingResourceType != null)
         {
             existingResourceType.Name = resourceType.Name;
+            _sqlContext.SaveChanges(); 
             return existingResourceType;
         }
         return null;
@@ -63,10 +64,11 @@ public class ResourceTypeRepository : IRepository<ResourceType>
 
     public void Delete(string entity)
     {
-        ResourceType? resourceType = _resourceTypes.FirstOrDefault(r => r.Id == int.Parse(entity));
+        ResourceType? resourceType = _sqlContext.ResourceTypes.FirstOrDefault(r => r.Id == int.Parse(entity));
         if (resourceType != null)
         {
-            _resourceTypes.Remove(resourceType);
+            _sqlContext.ResourceTypes.Remove(resourceType);
+            _sqlContext.SaveChanges(); 
         }
     }
 }
