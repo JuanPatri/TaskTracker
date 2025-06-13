@@ -10,17 +10,21 @@ public class UserRepository : IRepository<User>
     {
         _sqlContext = sqlContext;
 
-        User newUser = new User()
+        if (!_sqlContext.Users.Any(u => u.Email == "admin@admin.com"))
         {
-            Name = "Admin",
-            LastName = "Admin",
-            Email = "admin@admin.com",
-            Password = "Admin123@",
-            Admin = true,
-            BirthDate = new DateTime(1990, 1, 1)
-        };
+            User newUser = new User()
+            {
+                Name = "Admin",
+                LastName = "Admin",
+                Email = "admin@admin.com",
+                Password = "Admin123@",
+                Admin = true,
+                BirthDate = new DateTime(1990, 1, 1)
+            };
         
-        _sqlContext.Users.Add(newUser);
+            _sqlContext.Users.Add(newUser);
+            _sqlContext.SaveChanges();
+        }
 
     }
     
