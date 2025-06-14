@@ -14,18 +14,9 @@ public class ResourceTypeRepository : IRepository<ResourceType>
         {
             var defaultResourceTypes = new List<ResourceType>()
             {
-                new ResourceType()
-                {
-                    Name = "Human" 
-                },
-                new ResourceType()
-                {
-                    Name = "Infrastructure"
-                },
-                new ResourceType()
-                {
-                    Name = "Software"
-                }
+                new ResourceType() { Name = "Human" },
+                new ResourceType() { Name = "Infrastructure" },
+                new ResourceType() { Name = "Software" }
             };
 
             _sqlContext.ResourceTypes.AddRange(defaultResourceTypes);

@@ -48,7 +48,6 @@ public class Project
         get => _id;
         set
         {
-            if (value <= 0) throw new ArgumentException("The project ID must be a positive integer");
             _id = value;
         }
     }

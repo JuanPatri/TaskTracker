@@ -2,7 +2,6 @@ using Repository;
 using Domain;
 using Frontend.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.InMemory.Storage.Internal;
 using Service;
 using Service.ExportService;
 using Task = Domain.Task;
@@ -12,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveServerComponents();
 
-//bbd
+// Database
 builder.Services.AddDbContext<SqlContext>(
     options => options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -20,18 +19,16 @@ builder.Services.AddDbContext<SqlContext>(
     )
 );
 
-
-
 // Repositories 
 builder.Services.AddScoped<IRepository<User>, UserRepository>();
 builder.Services.AddScoped<IRepository<Project>, ProjectRepository>();
+builder.Services.AddScoped<IRepository<Task>, TaskRepository>();
+builder.Services.AddScoped<IRepository<Resource>, ResourceRepository>();
+builder.Services.AddScoped<IRepository<ResourceType>, ResourceTypeRepository>();
 
-builder.Services.AddSingleton<IRepository<Task>, TaskRepository>();
-builder.Services.AddSingleton<IRepository<Resource>, ResourceRepository>();
-builder.Services.AddSingleton<IRepository<ResourceType>, ResourceTypeRepository>();
 builder.Services.AddSingleton<IRepository<Notification>, NotificationRepository>();
 
-//services
+// Services
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<SessionService>();
 builder.Services.AddScoped<ProjectService>();
@@ -39,8 +36,8 @@ builder.Services.AddScoped<TaskService>();
 builder.Services.AddScoped<ResourceService>();          
 builder.Services.AddScoped<CriticalPathService>();      
 builder.Services.AddScoped<NotificationService>();     
+builder.Services.AddScoped<ResourceTypeService>();
 
-builder.Services.AddSingleton<ResourceTypeService>();
 builder.Services.AddSingleton<ProjectCsvExporter>();
 builder.Services.AddSingleton<ProjectJsonExporter>();
 

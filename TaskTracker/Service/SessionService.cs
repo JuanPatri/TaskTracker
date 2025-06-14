@@ -6,13 +6,17 @@ namespace Service;
 
 public class SessionService
 {
-    private UserService _userService;
-    public User? CurrentUser { get; private set; }
+    private readonly UserService _userService;
+    
+    private static User? _currentUser;
+    
+    public User? CurrentUser => _currentUser;
     
     public SessionService(UserService userService)
     {
         _userService = userService;
     }
+    
     public void Login(LoginDto loginDto)
     {
         GetUserDTO userDto = new GetUserDTO()
@@ -30,16 +34,16 @@ public class SessionService
             throw new ArgumentException("Invalid password");
         }
         
-        CurrentUser = user;
+        _currentUser = user; 
     }
 
     public void Logout()
     {
-        CurrentUser = null;
+        _currentUser = null;
     }
 
     public bool IsLoggedIn()
     {
-        return CurrentUser != null;
+        return _currentUser != null;
     }
 }

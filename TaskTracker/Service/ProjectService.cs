@@ -13,7 +13,6 @@ namespace Service;
 public class ProjectService
 {
     private readonly IRepository<Project> _projectRepository;
-    private int _idProject;
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     private readonly IRepository<User> _userRepository;
@@ -27,7 +26,6 @@ public class ProjectService
         CriticalPathService criticalPathService)
     {
         _projectRepository = projectRepository;
-        _idProject = 2;
         _idResource = 1;
         _taskRepository = taskRepository;
         _resourceTypeRepository = resourceTypeRepository;
@@ -79,8 +77,6 @@ public class ProjectService
                 projectRoles.Add(memberRole);
             }
         }
-
-        project.Id = _idProject++;
 
         Project newProject = FromDto(project, projectRoles);
 
@@ -439,7 +435,6 @@ public class ProjectService
     {
         return new Project()
         {
-            Id = projectDataDto.Id,
             Name = projectDataDto.Name,
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,

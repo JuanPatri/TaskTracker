@@ -22,12 +22,16 @@ public class ProjectRepository : IRepository<Project>
     {
         return _sqlContext.Projects
             .Include(p => p.ProjectRoles)
+                .ThenInclude(pr => pr.User)
             .FirstOrDefault(predicate);
     }
     
     public IList<Project> FindAll()
     {
-        return _sqlContext.Projects.ToList();
+        return _sqlContext.Projects
+            .Include(p => p.ProjectRoles)
+                .ThenInclude(pr => pr.User)
+            .ToList();
     }
     
     public Project? Update(Project updatedProject)

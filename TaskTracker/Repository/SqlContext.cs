@@ -57,6 +57,9 @@ public class SqlContext : DbContext
         {
             entity.HasKey(p => p.Id);
             
+            entity.Property(p => p.Id)
+                .ValueGeneratedOnAdd();
+            
             entity.Property(p => p.Name)
                 .IsRequired()
                 .HasMaxLength(100);
