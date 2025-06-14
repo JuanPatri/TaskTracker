@@ -263,7 +263,7 @@ public class TaskService
         return false;
     }
     
-    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
+    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<TaskDependency> dependencies)
     {
     
         var task = new Task()
@@ -273,7 +273,7 @@ public class TaskService
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
             Resources = resources ?? new List<TaskResource>(),
-            Dependencies = dependencies ?? new List<Task>(),
+            Dependencies = dependencies ?? new List<TaskDependency>(),
         };
         
         return task;
