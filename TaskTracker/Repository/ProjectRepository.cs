@@ -23,6 +23,11 @@ public class ProjectRepository : IRepository<Project>
         return _sqlContext.Projects
             .Include(p => p.ProjectRoles)
                 .ThenInclude(pr => pr.User)
+            .Include(p => p.Tasks) 
+                .ThenInclude(t => t.Resources)
+                .ThenInclude(tr => tr.Resource)
+            .Include(p => p.Tasks) 
+                .ThenInclude(t => t.Dependencies)
             .FirstOrDefault(predicate);
     }
     
@@ -31,26 +36,44 @@ public class ProjectRepository : IRepository<Project>
         return _sqlContext.Projects
             .Include(p => p.ProjectRoles)
                 .ThenInclude(pr => pr.User)
+            .Include(p => p.Tasks)  
+                .ThenInclude(t => t.Resources)
+                .ThenInclude(tr => tr.Resource)
+            .Include(p => p.Tasks)  
+                .ThenInclude(t => t.Dependencies)
             .ToList();
     }
     
     public Project? Update(Project updatedProject)
     {
-        Project? existingProject = _sqlContext.Projects.FirstOrDefault(p => p.Id == updatedProject.Id);
+        Project? existingProject = _sqlContext.Projects
+            .Include(p => p.ProjectRoles)
+            .Include(p => p.Tasks)  
+            .FirstOrDefault(p => p.Id == updatedProject.Id);
+            
         if (existingProject != null)
         {
             existingProject.Name = updatedProject.Name;
             existingProject.Description = updatedProject.Description;
             existingProject.StartDate = updatedProject.StartDate;
-            
+
             existingProject.ProjectRoles.Clear();
             foreach (var role in updatedProject.ProjectRoles)
             {
+                role.Project = existingProject; 
                 existingProject.ProjectRoles.Add(role);
             }
             
-            // existingProject.Tasks = updatedProject.Tasks;
-            // existingProject.ExclusiveResources = updatedProject.ExclusiveResources;
+            if (updatedProject.Tasks != null)
+            {
+                foreach (var task in updatedProject.Tasks)
+                {
+                    if (!existingProject.Tasks.Any(t => t.Title == task.Title))
+                    {
+                        existingProject.Tasks.Add(task);
+                    }
+                }
+            }
         
             _sqlContext.SaveChanges();
             return existingProject;
@@ -60,7 +83,11 @@ public class ProjectRepository : IRepository<Project>
     
     public void Delete(String name)
     {
-        Project? project = _sqlContext.Projects.FirstOrDefault(p => p.Id == int.Parse(name));
+        Project? project = _sqlContext.Projects
+            .Include(p => p.ProjectRoles)
+            .Include(p => p.Tasks)
+            .FirstOrDefault(p => p.Id == int.Parse(name));
+            
         if (project != null)
         {
             _sqlContext.Projects.Remove(project);

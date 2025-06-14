@@ -3,6 +3,7 @@
 namespace Domain;
 public class ProjectRole
 {
+    private int _id;
     private RoleType _roleType;
     private Project _project;
     private User _user;
@@ -35,6 +36,15 @@ public class ProjectRole
             _user = value;
         }
         
+    }
+    
+    public int Id
+    {
+        get => _id;
+        set
+        {
+            _id = value;
+        }
     }
     
 }

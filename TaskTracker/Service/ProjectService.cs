@@ -56,7 +56,7 @@ public class ProjectService
                 };
                 projectRoles.Add(adminRole);
             }
-        
+   
             if (user.Email == leaderEmail)
             {
                 ProjectRole leaderRole = new ProjectRole
@@ -66,7 +66,7 @@ public class ProjectService
                 };
                 projectRoles.Add(leaderRole);
             }
-            
+       
             if (user.Email != adminEmail && user.Email != leaderEmail)
             {
                 ProjectRole memberRole = new ProjectRole
@@ -79,12 +79,7 @@ public class ProjectService
         }
 
         Project newProject = FromDto(project, projectRoles);
-
-        foreach (var role in projectRoles)
-        {
-            role.Project = newProject;
-        }
-
+        
         return _projectRepository.Add(newProject);
     }
 

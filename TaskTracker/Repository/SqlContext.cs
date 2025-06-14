@@ -15,8 +15,6 @@ public class SqlContext : DbContext
     public DbSet<ResourceType> ResourceTypes { get; set; }
     public DbSet<TaskResource> TaskResources { get; set; }
     
-    //public DbSet<Notification> Notifications { get; set; }
-    
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
         //this.Database.Migrate();
@@ -69,15 +67,26 @@ public class SqlContext : DbContext
 
             entity.Property(p => p.StartDate)
                 .IsRequired();
-            
-            entity.Ignore(p => p.Tasks);
-            entity.Ignore(p => p.ExclusiveResources);
+
+            entity.HasMany(p => p.Tasks)
+                .WithOne() 
+                .HasForeignKey("ProjectId")
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasMany(p => p.ExclusiveResources)
+                .WithOne() 
+                .HasForeignKey("ProjectId")
+                .OnDelete(DeleteBehavior.Cascade);
+
             entity.Ignore(p => p.CriticalPath);
         });
 
         modelBuilder.Entity<ProjectRole>(entity =>
         {
-            entity.HasKey("ProjectId", "UserEmail");
+            entity.HasKey(pr => pr.Id); 
+    
+            entity.Property(pr => pr.Id)
+                .ValueGeneratedOnAdd(); 
             
             entity.Property(pr => pr.RoleType)
                 .IsRequired()
@@ -131,6 +140,8 @@ public class SqlContext : DbContext
                 .IsRequired();
             
             entity.Property(t => t.DateCompleated);
+
+            entity.Property<int?>("ProjectId");
             
             entity.HasMany(t => t.Resources)
                 .WithOne(tr => tr.Task)
@@ -181,6 +192,8 @@ public class SqlContext : DbContext
             
             entity.Property(r => r.Quantity)
                 .IsRequired();
+            
+            entity.Property<int?>("ProjectId");
             
             entity.HasOne(r => r.Type)
                 .WithMany()
