@@ -53,7 +53,7 @@ public class TaskTest
             LateFinish = DateTime.Now.AddDays(5),
             DateCompleated = null,
             Resources = new List<TaskResource>(),
-            Dependencies = new List<Task>()
+            Dependencies = new List<TaskDependency>()
         };
     }
 
@@ -148,14 +148,23 @@ public class TaskTest
     [TestMethod]
     public void SetDependencies()
     {
-        List<Task> finishToStartDependencies = new List<Task>
+        List<TaskDependency> dependencies = new List<TaskDependency>
         {
-            new Task { Title = "Task 1" },
-            new Task { Title = "Task 2" }
+            new TaskDependency 
+            {
+                Task = _task,
+                Dependency = new Task { Title = "Task 1", Description = "Description 1" }
+            },
+            new TaskDependency 
+            {
+                Task = _task,
+                Dependency = new Task { Title = "Task 2", Description = "Description 2" }
+            }
         };
-        _task.Dependencies = finishToStartDependencies;
-
-        Assert.AreEqual(finishToStartDependencies, _task.Dependencies);
+    
+        _task.Dependencies = dependencies;
+    
+        Assert.AreEqual(dependencies, _task.Dependencies);
     }
 
     [TestMethod]
