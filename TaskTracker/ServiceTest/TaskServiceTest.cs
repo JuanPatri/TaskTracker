@@ -614,7 +614,7 @@ public class TaskServiceTest
             Title = "Task A",
             Description = "First task",
             Duration = 3,
-            Dependencies = new List<Task>(),
+            Dependencies = new List<TaskDependency>(),
             EarlyStart = DateTime.MinValue,
             EarlyFinish = DateTime.MinValue
         };
@@ -624,10 +624,18 @@ public class TaskServiceTest
             Title = "Task B",
             Description = "Second task",
             Duration = 2,
-            Dependencies = new List<Task> { taskA },
             EarlyStart = DateTime.MinValue,
             EarlyFinish = DateTime.MinValue
         };
+
+        TaskDependency dependency = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { dependency };
 
         project.Tasks.Add(taskA);
         project.Tasks.Add(taskB);
