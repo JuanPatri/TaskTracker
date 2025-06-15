@@ -736,9 +736,9 @@ public void AddTaskToProjectShouldAddTaskToProjectTasksList()
 {
     TaskDataDTO taskDto = new TaskDataDTO
     {
-        Title = "Project Task",
-        Description = "Description of the project task",
-        Duration = 1,
+        Title = "Nueva Tarea",
+        Description = "Descripción de la tarea",
+        Duration = 3,
         Status = Status.Pending,
         Dependencies = new List<string>(),
         Resources = new List<TaskResourceDataDTO>()
@@ -747,9 +747,9 @@ public void AddTaskToProjectShouldAddTaskToProjectTasksList()
     Project project = new Project
     {
         Id = 99,
-        Name = "Task Project",
-        Description = "Description of the project",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        Name = "Proyecto Test",
+        Description = "Descripción del proyecto",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
         Tasks = new List<Task>(),
         ProjectRoles = new List<ProjectRole>()
     };
@@ -759,7 +759,8 @@ public void AddTaskToProjectShouldAddTaskToProjectTasksList()
     Project initialProject = _projectRepository.Find(p => p.Id == 99);
     Assert.AreEqual(0, initialProject.Tasks.Count);
 
-    _taskRepository.Add(_taskService.FromDto(taskDto, new List<TaskResource>(), new List<Task>()));
+    Task task = _taskService.FromDto(taskDto, new List<TaskResource>());
+    _taskRepository.Add(task);
     _projectService.AddTaskToProject(taskDto, project.Id);
 
     Project updatedProject = _projectRepository.Find(p => p.Id == 99);
