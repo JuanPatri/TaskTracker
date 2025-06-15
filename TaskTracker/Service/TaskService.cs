@@ -14,6 +14,7 @@ public class TaskService
     private readonly IRepository<Project> _projectRepository;
     private readonly ProjectService _projectService;
     private readonly CriticalPathService _criticalPathService;
+    private int _idTaskDependency;
     
     public TaskService(IRepository<Task> taskRepository,
         IRepository<Resource> resourceRepository, IRepository<Project> projectRepository, ProjectService projectService, CriticalPathService criticalPathService)
@@ -23,6 +24,7 @@ public class TaskService
         _projectRepository = projectRepository;
         _projectService = projectService;
         _criticalPathService = criticalPathService;
+        _idTaskDependency = 1;
     }
     
     public Task AddTask(TaskDataDTO taskDto)
@@ -32,10 +34,11 @@ public class TaskService
             throw new Exception("Task already exists");
         }
 
-        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies, taskDto.Title);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
-        Task createdTask = FromDto(taskDto, taskResourceList, dependencies);
+        Task createdTask = FromDto(taskDto, taskResourceList);
         Task savedTask = _taskRepository.Add(createdTask);
+        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies, savedTask);
+        savedTask.Dependencies = dependencies;
         foreach (var taskResource in savedTask.Resources)
         {
             taskResource.Task = savedTask;
@@ -96,7 +99,7 @@ public class TaskService
         List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
-        return _taskRepository.Update(FromDto(taskDto, taskResourceList, dependencies));
+        return _taskRepository.Update(FromDto(taskDto, taskResourceList));
     }
 
     public void RemoveTask(GetTaskDTO task)
@@ -162,12 +165,27 @@ public class TaskService
         return (earlyStart, earlyFinish);
     }
     
-    public List<TaskDependency> GetTaskDependenciesWithTitleTask(List<string> titlesTask, string title)
+    public List<TaskDependency> GetTaskDependenciesWithTitleTask(List<string> titlesTask, Task task)
     {
+        List<TaskDependency> dependencies = new List<TaskDependency>();
         
-        List<Task> tasks = _taskRepository.FindAll()
-            .Where(t => titlesTask.Contains(t.Title))
-            .ToList();
+        foreach (var title in titlesTask)
+        {
+            TaskDependency newDependency = new TaskDependency();
+            Task? dependecyTask = _taskRepository.Find(t => t.Title == title);
+
+            if (dependecyTask != null)
+            {
+                newDependency.Id = _idTaskDependency++;
+                newDependency.Task = task;
+                newDependency.Dependency = dependecyTask;
+            }
+            
+            dependencies.Add(newDependency);
+            
+        }
+
+        return dependencies;
     }
 
     public bool IsTaskCriticalById(int projectId, string taskTitle)
@@ -266,7 +284,7 @@ public class TaskService
         return false;
     }
     
-    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<TaskDependency> dependencies)
+    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources)
     {
     
         var task = new Task()
@@ -276,7 +294,7 @@ public class TaskService
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
             Resources = resources ?? new List<TaskResource>(),
-            Dependencies = dependencies ?? new List<TaskDependency>(),
+            Dependencies = new List<TaskDependency>(),
         };
         
         return task;
