@@ -96,7 +96,9 @@ public class TaskService
 
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
+        Task? existingTask = GetTaskByTitle(taskDto.Title);
+        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies, existingTask);
+        existingTask.Dependencies = dependencies;
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
         return _taskRepository.Update(FromDto(taskDto, taskResourceList));
@@ -114,7 +116,9 @@ public class TaskService
     
     public bool ValidateTaskStatus(string title, Status status)
     {
-        List<TaskDependency> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
+        var task = _taskRepository.Find(t => t.Title == title);
+        if (task == null) return false;
+        List<TaskDependency> taskDependencies = task.Dependencies ?? new List<TaskDependency>();
 
         return taskDependencies.Count < 0 || status == Status.Pending;
     }
