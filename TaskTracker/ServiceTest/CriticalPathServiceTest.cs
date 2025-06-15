@@ -250,8 +250,25 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
     public void CalculateLateTimesShouldComputeCorrectLateStartAndFinish()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
+
+        TaskDependency dependencyB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        TaskDependency dependencyC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskB
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { dependencyB };
+        taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
         var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
 
