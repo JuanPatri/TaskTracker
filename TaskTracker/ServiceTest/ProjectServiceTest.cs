@@ -841,62 +841,57 @@ public void GetNextExclusiveResourceId_WithExistingResources_ShouldReturnMaxIdPl
 [TestMethod]
 public void CalculateTaskDates_ShouldCalculateCorrectDates()
 {
-    User admin = new User
+    Task taskA = new Task { Title = "A", Duration = 2 };
+    Task taskB = new Task { Title = "B", Duration = 3 };
+
+    TaskDependency dependencyB = new TaskDependency
     {
-        Name = "Admin",
-        LastName = "User",
-        Email = "admin@test.com",
-        Password = "Test123!",
-        BirthDate = DateTime.Now.AddYears(-30)
+        Id = 1,
+        Task = taskB,
+        Dependency = taskA
     };
+
+    taskB.Dependencies = new List<TaskDependency> { dependencyB };
+    _taskRepository.Add(taskA);
+    _taskRepository.Add(taskB);
 
     Project project = new Project
     {
         Id = 150,
         Name = "Date Test Project",
         Description = "Test description",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
         Tasks = new List<Task>(),
         ProjectRoles = new List<ProjectRole>()
     };
+
     _projectRepository.Add(project);
 
-    Task dependencyTask = new Task
+    _projectService.AddTaskToProject(new TaskDataDTO 
+    { 
+        Title = "A",
+        Duration = 2,
+        Dependencies = new List<string>()
+    }, project.Id);
+
+    _projectService.AddTaskToProject(new TaskDataDTO
     {
-        Title = "Dependency Task",
-        Description = "Dependency",
+        Title = "B",
         Duration = 3,
-        EarlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0)),
-        EarlyFinish = project.StartDate.ToDateTime(new TimeOnly(0, 0)).AddDays(3)
-    };
+        Dependencies = new List<string> { "A" }
+    }, project.Id);
 
-    Task newTask = new Task
-    {
-        Title = "New Task",
-        Description = "Test task",
-        Duration = 2,
-        Dependencies = new List<Task> { dependencyTask }
-    };
+    Project updatedProject = _projectRepository.Find(p => p.Id == 150);
+    Task updatedTaskA = updatedProject.Tasks.First(t => t.Title == "A");
+    Task updatedTaskB = updatedProject.Tasks.First(t => t.Title == "B");
 
-    project.Tasks.Add(dependencyTask);
-    _taskRepository.Add(dependencyTask);
-    _taskRepository.Add(newTask);
+    DateTime startDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
 
-    TaskDataDTO taskDto = new TaskDataDTO
-    {
-        Title = "New Task",
-        Description = "Test task",
-        Duration = 2,
-        Dependencies = new List<string> { "Dependency Task" },
-        Resources = new List<TaskResourceDataDTO>()
-    };
+    Assert.AreEqual(startDate, updatedTaskA.EarlyStart);
+    Assert.AreEqual(startDate.AddDays(2), updatedTaskA.EarlyFinish);
 
-    _projectService.AddTaskToProject(taskDto, 150);
-
-    Task addedTask = project.Tasks.FirstOrDefault(t => t.Title == "New Task");
-    Assert.IsNotNull(addedTask);
-    Assert.AreEqual(dependencyTask.EarlyFinish.AddDays(1), addedTask.EarlyStart);
-    Assert.AreEqual(dependencyTask.EarlyFinish.AddDays(3), addedTask.EarlyFinish);
+    Assert.AreEqual(updatedTaskA.EarlyFinish.AddDays(1), updatedTaskB.EarlyStart);
+    Assert.AreEqual(updatedTaskB.EarlyStart.AddDays(3), updatedTaskB.EarlyFinish);
 }
 
 [TestMethod]
