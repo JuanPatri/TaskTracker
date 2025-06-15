@@ -298,9 +298,24 @@ public class TaskServiceTest
 
         Task taskWithCompletedDependencies = new Task
         {
-            Title = "Task With Completed Dependencies",
-            Dependencies = new List<Task> { dependency1, dependency2 }
+            Title = "Task With Completed Dependencies"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithCompletedDependencies,
+            Dependency = dependency1
+        };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithCompletedDependencies,
+            Dependency = dependency2
+        };
+
+        taskWithCompletedDependencies.Dependencies = new List<TaskDependency> { dep1, dep2 };
         _taskRepository.Add(taskWithCompletedDependencies);
 
         TaskDataDTO taskDto = new TaskDataDTO
