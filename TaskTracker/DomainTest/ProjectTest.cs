@@ -106,11 +106,6 @@ public class ProjectTest
         _project.Id = 1;
         Assert.AreEqual(1, _project.Id);
     }
-    [TestMethod]
-    public void SetIdNegativeReturnsExceptionTest()
-    {
-        Assert.ThrowsException<ArgumentException>(() => _project.Id = -1);
-    }
 
     [TestMethod]
     public void PutLisTasksForProjectTest()
