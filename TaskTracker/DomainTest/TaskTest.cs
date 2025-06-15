@@ -177,8 +177,8 @@ public class TaskTest
             Duration = 1,
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
-            Resources = new List<TaskResourceDataDTO> 
-            { 
+            Resources = new List<TaskResourceDataDTO>
+            {
                 new TaskResourceDataDTO
                 {
                     TaskTitle = "Task 1",
@@ -188,35 +188,28 @@ public class TaskTest
             }
         };
 
-        List<Task> dependencies = new List<Task>
-        {
-            new Task { Title = "Task 3", Description = "Description of Task 3" }
-        };
-
         List<TaskResource> taskResources = new List<TaskResource>
         {
-            new TaskResource()
+            new TaskResource
             {
                 Task = new Task { Title = "Task 1" },
                 Resource = new Resource { Name = "Resource 1" },
-                Quantity = 1,
+                Quantity = 1
             }
         };
 
-        Task task = _taskService.FromDto(taskDto, taskResources, dependencies);
+        Task task = _taskService.FromDto(taskDto, taskResources);
 
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
         Assert.AreEqual(1, task.Duration);
         Assert.AreEqual(Status.Blocked, task.Status);
-        
         Assert.IsNotNull(task.Resources);
         Assert.AreEqual(1, task.Resources.Count);
         Assert.AreEqual(1, task.Resources[0].Quantity);
         Assert.AreEqual("Resource 1", task.Resources[0].Resource.Name);
-
         Assert.IsNotNull(task.Dependencies);
-        Assert.AreEqual("Task 3", task.Dependencies[0].Title);
+        Assert.AreEqual(0, task.Dependencies.Count);
     }
     
     [TestMethod]
