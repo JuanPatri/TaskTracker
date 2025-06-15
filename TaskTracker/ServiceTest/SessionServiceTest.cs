@@ -29,7 +29,7 @@ public class SessionServiceTest
             Name = "Pedro",                    
             LastName = "García",               
             Password = "Pedro123!",
-            BirthDate =new DateTime(1990, 1, 1), 
+            BirthDate = new DateTime(1990, 1, 1), 
             Admin = false
         };
         _userRepository.Add(_user);
