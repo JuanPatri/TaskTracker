@@ -679,11 +679,16 @@ public class TaskServiceTest
         };
 
         Task externalTask = new Task { Title = "External Task" };
-        Task task = new Task
+        Task task = new Task { Title = "Task" };
+
+        TaskDependency dependency = new TaskDependency
         {
-            Title = "Task",
-            Dependencies = new List<Task> { externalTask }
+            Id = 1,
+            Task = task,
+            Dependency = externalTask
         };
+
+        task.Dependencies = new List<TaskDependency> { dependency };
 
         project1.Tasks.Add(task);
         project2.Tasks.Add(externalTask);
@@ -692,7 +697,7 @@ public class TaskServiceTest
         _projectRepository.Add(project2);
         _taskRepository.Add(task);
         _taskRepository.Add(externalTask);
-        
+
         bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
 
         Assert.IsTrue(result, "Task should depend on tasks from another project");
