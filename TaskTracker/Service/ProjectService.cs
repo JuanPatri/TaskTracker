@@ -344,9 +344,9 @@ public class ProjectService
 
             foreach (var dependency in task.Dependencies)
             {
-                if (dependency.EarlyFinish > latestDependencyFinish)
+                if (dependency.Task.EarlyFinish > latestDependencyFinish)
                 {
-                    latestDependencyFinish = dependency.EarlyFinish;
+                    latestDependencyFinish = dependency.Task.EarlyFinish;
                 }
             }
 

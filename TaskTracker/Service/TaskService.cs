@@ -32,7 +32,7 @@ public class TaskService
             throw new Exception("Task already exists");
         }
 
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
+        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies, taskDto.Title);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
         Task createdTask = FromDto(taskDto, taskResourceList, dependencies);
         Task savedTask = _taskRepository.Add(createdTask);
@@ -93,7 +93,7 @@ public class TaskService
 
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
+        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
         return _taskRepository.Update(FromDto(taskDto, taskResourceList, dependencies));
@@ -111,7 +111,7 @@ public class TaskService
     
     public bool ValidateTaskStatus(string title, Status status)
     {
-        List<Task> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
+        List<TaskDependency> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
 
         return taskDependencies.Count < 0 || status == Status.Pending;
     }
@@ -121,7 +121,7 @@ public class TaskService
         var task = _taskRepository.Find(t => t.Title == dto.Title);
         if (task == null) return false;
 
-        return task.Dependencies.All(d => d.Status == Status.Completed);
+        return task.Dependencies.All(d => d.Task.Status == Status.Completed);
     }
 
     public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
@@ -162,9 +162,10 @@ public class TaskService
         return (earlyStart, earlyFinish);
     }
     
-    public List<Task> GetTaskDependenciesWithTitleTask(List<string> titlesTask)
+    public List<TaskDependency> GetTaskDependenciesWithTitleTask(List<string> titlesTask, string title)
     {
-        return _taskRepository.FindAll()
+        
+        List<Task> tasks = _taskRepository.FindAll()
             .Where(t => titlesTask.Contains(t.Title))
             .ToList();
     }
@@ -229,9 +230,9 @@ public class TaskService
             
                 foreach (var dependency in task.Dependencies)
                 {
-                    if (dependency.EarlyFinish > latestDependencyFinish)
+                    if (dependency.Task.EarlyFinish > latestDependencyFinish)
                     {
-                        latestDependencyFinish = dependency.EarlyFinish;
+                        latestDependencyFinish = dependency.Task.EarlyFinish;
                     }
                 }
             
@@ -252,14 +253,16 @@ public class TaskService
         Task task = _taskRepository.Find(t => t.Title == titulo);
 
         Project? project = _projectRepository.Find(p => p.Id == projectId);
-        foreach (var dependencies in task.Dependencies)
+        if (task == null || project == null) return false;
+
+        foreach (var dependency in task.Dependencies)
         {
-            if (!project.Tasks.Contains(dependencies))
+            if (!project.Tasks.Any(t => t.Title == dependency.Task.Title))
             {
                 return true;
             }
         }
-        
+
         return false;
     }
     
