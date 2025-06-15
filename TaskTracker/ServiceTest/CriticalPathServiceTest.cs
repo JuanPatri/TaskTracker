@@ -204,8 +204,25 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
     public void GetProjectWithCriticalPathShouldReturnCorrectDTO()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
+
+        TaskDependency dependencyB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        TaskDependency dependencyC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskB
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { dependencyB };
+        taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
         _project.Tasks = new List<Task> { taskA, taskB, taskC };
 
@@ -222,10 +239,10 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
         Assert.AreEqual(startDate, dtoA.EarlyStart);
         Assert.AreEqual(startDate.AddDays(2), dtoA.EarlyFinish);
 
-        Assert.AreEqual(dtoA.EarlyFinish, dtoB.EarlyStart);
+        Assert.AreEqual(dtoA.EarlyFinish.AddDays(1), dtoB.EarlyStart);
         Assert.AreEqual(dtoB.EarlyStart.AddDays(3), dtoB.EarlyFinish);
 
-        Assert.AreEqual(dtoB.EarlyFinish, dtoC.EarlyStart);
+        Assert.AreEqual(dtoB.EarlyFinish.AddDays(1), dtoC.EarlyStart);
         Assert.AreEqual(dtoC.EarlyStart.AddDays(1), dtoC.EarlyFinish);
     }
     
