@@ -105,8 +105,25 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
     public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
+
+        TaskDependency dependencyB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        TaskDependency dependencyC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskB
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { dependencyB };
+        taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
         var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
 
@@ -123,10 +140,10 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
         Assert.AreEqual(baseStart, taskA.EarlyStart);
         Assert.AreEqual(baseStart.AddDays(2), taskA.EarlyFinish);
 
-        Assert.AreEqual(taskA.EarlyFinish, taskB.EarlyStart);
+        Assert.AreEqual(taskA.EarlyFinish.AddDays(1), taskB.EarlyStart);
         Assert.AreEqual(taskB.EarlyStart.AddDays(3), taskB.EarlyFinish);
 
-        Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
+        Assert.AreEqual(taskB.EarlyFinish.AddDays(1), taskC.EarlyStart);
         Assert.AreEqual(taskC.EarlyStart.AddDays(1), taskC.EarlyFinish);
     }
     
