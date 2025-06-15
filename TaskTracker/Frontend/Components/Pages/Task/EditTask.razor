@@ -140,7 +140,7 @@ else
                 Description = task.Description,
                 Duration = task.Duration,
                 Status = task.Status,
-                Dependencies = task.Dependencies.Select(d => d.Title).ToList()
+                Dependencies = task.Dependencies.Select(d => d.Dependency.Title).ToList()
             };
             _durationInHours = task.Duration;
             _oldDuration = task.Duration;
