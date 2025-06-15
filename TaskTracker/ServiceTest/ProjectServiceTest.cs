@@ -897,41 +897,59 @@ public void CalculateTaskDates_ShouldCalculateCorrectDates()
 [TestMethod]
 public void GetProjectWithCriticalPath_ShouldReturnProjectWithCriticalPathData()
 {
-    Task taskA = new Task
+    Task taskA = new Task { Title = "A", Duration = 2 };
+    Task taskB = new Task { Title = "B", Duration = 3 };
+    Task taskC = new Task { Title = "C", Duration = 1 };
+
+    TaskDependency dependencyB = new TaskDependency
     {
-        Title = "Task A",
-        Duration = 2,
-        EarlyStart = DateTime.Now.AddDays(1),
-        EarlyFinish = DateTime.Now.AddDays(3)
+        Id = 1,
+        Task = taskB,
+        Dependency = taskA
     };
 
-    Task taskB = new Task
+    TaskDependency dependencyC = new TaskDependency
     {
-        Title = "Task B",
-        Duration = 3,
-        Dependencies = new List<Task> { taskA },
-        EarlyStart = DateTime.Now.AddDays(4),
-        EarlyFinish = DateTime.Now.AddDays(7)
+        Id = 2,
+        Task = taskC,
+        Dependency = taskB
     };
+
+    taskB.Dependencies = new List<TaskDependency> { dependencyB };
+    taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
     Project project = new Project
     {
-        Id = 200,
-        Name = "Critical Path Project",
-        Description = "Test critical path",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-        Tasks = new List<Task> { taskA, taskB },
-        ProjectRoles = new List<ProjectRole>()
+        Id = 35,
+        Name = "Test Project",
+        Description = "Description",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+        Tasks = new List<Task> { taskA, taskB, taskC }
     };
+
     _projectRepository.Add(project);
 
-    GetProjectDTO result = _projectService.GetProjectWithCriticalPath(200);
+    GetProjectDTO result = _projectService.GetProjectWithCriticalPath(35);
 
     Assert.IsNotNull(result);
-    Assert.AreEqual("Critical Path Project", result.Name);
-    Assert.IsNotNull(result.CriticalPathTitles);
-    Assert.IsNotNull(result.Tasks);
-    Assert.AreEqual(2, result.Tasks.Count);
+    Assert.AreEqual(project.Name, result.Name);
+    Assert.AreEqual(3, result.Tasks.Count);
+    Assert.AreEqual(3, result.CriticalPathTitles.Count);
+    CollectionAssert.AreEqual(new List<string> { "A", "B", "C" }, result.CriticalPathTitles);
+
+    DateTime startDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+
+    var taskADto = result.Tasks.First(t => t.Title == "A");
+    Assert.AreEqual(startDate, taskADto.EarlyStart);
+    Assert.AreEqual(startDate.AddDays(2), taskADto.EarlyFinish);
+
+    var taskBDto = result.Tasks.First(t => t.Title == "B");
+    Assert.AreEqual(taskADto.EarlyFinish.AddDays(1), taskBDto.EarlyStart);
+    Assert.AreEqual(taskBDto.EarlyStart.AddDays(3), taskBDto.EarlyFinish);
+
+    var taskCDto = result.Tasks.First(t => t.Title == "C");
+    Assert.AreEqual(taskBDto.EarlyFinish.AddDays(1), taskCDto.EarlyStart);
+    Assert.AreEqual(taskCDto.EarlyStart.AddDays(1), taskCDto.EarlyFinish);
 }
 
 [TestMethod]
