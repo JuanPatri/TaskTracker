@@ -444,24 +444,40 @@ public class TaskServiceTest
 
         Task taskWithDependency = new Task
         {
-            Title = "MainTask",
-            Dependencies = new List<Task> { dependencyTask1 }
+            Title = "MainTask"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithDependency,
+            Dependency = dependencyTask1
+        };
+
+        taskWithDependency.Dependencies = new List<TaskDependency> { dep1 };
         _taskRepository.Add(taskWithDependency);
 
         Task taskWithoutSearchedDependency = new Task
         {
-            Title = "AnotherTask",
-            Dependencies = new List<Task> { dependencyTask2 }
+            Title = "AnotherTask"
         };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithoutSearchedDependency,
+            Dependency = dependencyTask2
+        };
+
+        taskWithoutSearchedDependency.Dependencies = new List<TaskDependency> { dep2 };
         _taskRepository.Add(taskWithoutSearchedDependency);
 
         List<string> searchList = new List<string> { "Task1" };
 
-        List<Task> tasks = _taskService.GetTaskDependenciesWithTitleTask(searchList);
+        List<TaskDependency> dependencies = _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
 
-        Assert.AreEqual(1, tasks.Count);
-        Assert.AreEqual("Task1", tasks[0].Title);
+        Assert.AreEqual(1, dependencies.Count);
+        Assert.AreEqual("Task1", dependencies[0].Dependency.Title);
     }
 
     [TestMethod]
