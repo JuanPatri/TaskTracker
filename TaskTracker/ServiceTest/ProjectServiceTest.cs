@@ -1235,4 +1235,29 @@ public void GetProjectsLedByUser_ReturnsCorrectData()
         Assert.AreEqual("Rodriguez", admin.User.LastName);
         Assert.AreEqual("prodriguez@gmail.com", admin.User.Email);
     }
+    [TestMethod]
+    public void IsLeadProject_ReturnsTrue_WhenUserIsLead()
+    {
+        var user = new User { Email = "lead@example.com" };
+        _userRepository.Add(user);
+
+        var project = new Project
+        {
+            Id = 1,
+            Name = "Test Project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>
+            {
+                new ProjectRole { RoleType = RoleType.ProjectLead, User = user }
+            }
+        };
+        _projectRepository.Add(project);
+
+        var dto = new ProjectDataDTO { Id = 1 };
+
+        bool result = _projectService.IsLeadProject(dto, "lead@example.com");
+
+        Assert.IsTrue(result);
+    }
+
 }
