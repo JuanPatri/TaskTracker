@@ -523,9 +523,41 @@ public class TaskServiceTest
     public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
-        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
+        Task taskD = new Task { Title = "D", Duration = 2 };
+
+        TaskDependency depB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        TaskDependency depC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskA
+        };
+
+        TaskDependency depD1 = new TaskDependency
+        {
+            Id = 3,
+            Task = taskD,
+            Dependency = taskB
+        };
+
+        TaskDependency depD2 = new TaskDependency
+        {
+            Id = 4,
+            Task = taskD,
+            Dependency = taskC
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { depB };
+        taskC.Dependencies = new List<TaskDependency> { depC };
+        taskD.Dependencies = new List<TaskDependency> { depD1, depD2 };
 
         Project project = new Project
         {
