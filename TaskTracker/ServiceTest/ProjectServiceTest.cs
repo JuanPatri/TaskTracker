@@ -1107,7 +1107,7 @@ public void GetProjectsLedByUser_ReturnsCorrectData()
     var leaderUser = new User
     {
         Name = "Juan",
-        LastName = "Líder",
+        LastName = "Lider",
         Email = "juan.lider@test.com",
         Password = "Seguro123!",
         BirthDate = DateTime.Now.AddYears(-25),
