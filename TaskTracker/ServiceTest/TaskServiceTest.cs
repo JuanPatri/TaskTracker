@@ -346,9 +346,24 @@ public class TaskServiceTest
 
         Task taskWithMixedDependencies = new Task
         {
-            Title = "Task With Mixed Dependencies",
-            Dependencies = new List<Task> { completedDependency, pendingDependency }
+            Title = "Task With Mixed Dependencies"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithMixedDependencies,
+            Dependency = completedDependency
+        };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithMixedDependencies,
+            Dependency = pendingDependency
+        };
+
+        taskWithMixedDependencies.Dependencies = new List<TaskDependency> { dep1, dep2 };
         _taskRepository.Add(taskWithMixedDependencies);
 
         TaskDataDTO taskDto = new TaskDataDTO
@@ -357,7 +372,6 @@ public class TaskServiceTest
         };
 
         bool result = _taskService.CanMarkTaskAsCompleted(taskDto);
-
 
         Assert.IsFalse(result);
     }
