@@ -150,7 +150,8 @@ public class CriticalPathService
 
             if (successors.Any())
             {
-                task.LateFinish = successors.Min(s => s.LateStart);
+                DateTime earliestSuccessorStart = successors.Min(s => s.LateStart);
+                task.LateFinish = earliestSuccessorStart;
                 task.LateStart = task.LateFinish.AddDays(-task.Duration);
             }
         }
@@ -182,8 +183,8 @@ public class CriticalPathService
             }
             else
             {
-                es = task.Dependencies
-                    .Max(dep => dep.Task.EarlyFinish);
+                DateTime latestDependencyFinish = task.Dependencies.Max(dep => dep.Dependency.EarlyFinish);
+                es = latestDependencyFinish;
             }
 
             task.EarlyStart = es;

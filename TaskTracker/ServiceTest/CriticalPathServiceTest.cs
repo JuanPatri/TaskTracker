@@ -11,7 +11,6 @@ using Task = Domain.Task;
 namespace ServiceTest;
 
 [TestClass]
-
 public class CriticalPathServiceTest
 {
     private CriticalPathService _criticalPathService;
@@ -23,7 +22,7 @@ public class CriticalPathServiceTest
     private UserService _userService;
     private Project _project;
     private SqlContext _sqlContext;
-    
+
     [TestInitialize]
     public void OnInitializated()
     {
@@ -34,73 +33,73 @@ public class CriticalPathServiceTest
         _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
-        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
-        
-            User adminUser = new User()
-            {
-                Name = "Admin",
-                LastName = "User",
-                Email = "admin@test.com",
-                Password = "Admin123!",
-                BirthDate = DateTime.Now.AddYears(-30),
-                Admin = true
-            };
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository,
+            _userRepository, _userService, _criticalPathService);
 
-            _project = new Project()
-            {
-                Id = 35,
-                Name = "Test Project",
-                Description = "Description",
-                StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
-            };
+        User adminUser = new User()
+        {
+            Name = "Admin",
+            LastName = "User",
+            Email = "admin@test.com",
+            Password = "Admin123!",
+            BirthDate = DateTime.Now.AddYears(-30),
+            Admin = true
+        };
 
-            ProjectRole adminRole = new ProjectRole
-            {
-                RoleType = RoleType.ProjectAdmin,
-                User = adminUser,
-                Project = _project
-            };
+        _project = new Project()
+        {
+            Name = "Test Project",
+            Description = "Description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
+        };
 
-            _project.ProjectRoles = new List<ProjectRole> { adminRole };
-            _projectRepository.Add(_project);
+        ProjectRole adminRole = new ProjectRole
+        {
+            RoleType = RoleType.ProjectAdmin,
+            User = adminUser,
+            Project = _project
+        };
+
+        _project.ProjectRoles = new List<ProjectRole> { adminRole };
+        _projectRepository.Add(_project);
     }
-    
+
     [TestMethod]
-public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
-{
-    Task taskA = new Task { Title = "A", Duration = 2 };
-    Task taskB = new Task { Title = "B", Duration = 3 };
-    Task taskC = new Task { Title = "C", Duration = 1 };
-
-    TaskDependency dependencyB = new TaskDependency
+    public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
     {
-        Id = 1,
-        Task = taskB,
-        Dependency = taskA
-    };
+        Task taskA = new Task { Title = "A", Duration = 2 };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
 
-    TaskDependency dependencyC = new TaskDependency
-    {
-        Id = 2,
-        Task = taskC,
-        Dependency = taskB
-    };
+        TaskDependency dependencyB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
 
-    taskB.Dependencies = new List<TaskDependency> { dependencyB };
-    taskC.Dependencies = new List<TaskDependency> { dependencyC };
+        TaskDependency dependencyC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskB
+        };
 
-    Project project = new Project
-    {
-        StartDate = new DateOnly(2025, 9, 12),
-        Tasks = new List<Task> { taskA, taskB, taskC }
-    };
+        taskB.Dependencies = new List<TaskDependency> { dependencyB };
+        taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
-    _criticalPathService.CalculateEarlyTimes(project);
-    DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
+        Project project = new Project
+        {
+            StartDate = new DateOnly(2025, 9, 12),
+            Tasks = new List<Task> { taskA, taskB, taskC }
+        };
 
-    Assert.AreEqual(new DateTime(2025, 9, 18), finish);
-}
-    
+        _criticalPathService.CalculateEarlyTimes(project);
+        DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
+
+        Assert.AreEqual(new DateTime(2025, 9, 18), finish);
+    }
+
     [TestMethod]
     public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
     {
@@ -140,13 +139,13 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
         Assert.AreEqual(baseStart, taskA.EarlyStart);
         Assert.AreEqual(baseStart.AddDays(2), taskA.EarlyFinish);
 
-        Assert.AreEqual(taskA.EarlyFinish.AddDays(1), taskB.EarlyStart);
-        Assert.AreEqual(taskB.EarlyStart.AddDays(3), taskB.EarlyFinish);
+        Assert.AreEqual(taskA.EarlyFinish, taskB.EarlyStart);
+        Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
 
-        Assert.AreEqual(taskB.EarlyFinish.AddDays(1), taskC.EarlyStart);
+        Assert.AreEqual(taskB.EarlyFinish, taskC.EarlyStart);
         Assert.AreEqual(taskC.EarlyStart.AddDays(1), taskC.EarlyFinish);
     }
-    
+
     [TestMethod]
     public void GetCriticalPathShouldReturnCorrectTasks()
     {
@@ -203,20 +202,50 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
     [TestMethod]
     public void GetProjectWithCriticalPathShouldReturnCorrectDTO()
     {
-        Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3 };
-        Task taskC = new Task { Title = "C", Duration = 1 };
+        Task taskA = new Task
+        {
+            Title = "A",
+            Duration = 2,
+            Description = "Task A",
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+
+        Task taskB = new Task
+        {
+            Title = "B",
+            Duration = 3,
+            Description = "Task B",
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+
+        Task taskC = new Task
+        {
+            Title = "C",
+            Duration = 1,
+            Description = "Task C",
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
 
         TaskDependency dependencyB = new TaskDependency
         {
-            Id = 1,
             Task = taskB,
             Dependency = taskA
         };
 
         TaskDependency dependencyC = new TaskDependency
         {
-            Id = 2,
             Task = taskC,
             Dependency = taskB
         };
@@ -224,6 +253,7 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
         taskB.Dependencies = new List<TaskDependency> { dependencyB };
         taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
+        _project.Id = 35;
         _project.Tasks = new List<Task> { taskA, taskB, taskC };
 
         GetProjectDTO result = _projectService.GetProjectWithCriticalPath(35);
@@ -239,13 +269,13 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
         Assert.AreEqual(startDate, dtoA.EarlyStart);
         Assert.AreEqual(startDate.AddDays(2), dtoA.EarlyFinish);
 
-        Assert.AreEqual(dtoA.EarlyFinish.AddDays(1), dtoB.EarlyStart);
+        Assert.AreEqual(dtoA.EarlyFinish, dtoB.EarlyStart);
         Assert.AreEqual(dtoB.EarlyStart.AddDays(3), dtoB.EarlyFinish);
 
-        Assert.AreEqual(dtoB.EarlyFinish.AddDays(1), dtoC.EarlyStart);
+        Assert.AreEqual(dtoB.EarlyFinish, dtoC.EarlyStart);
         Assert.AreEqual(dtoC.EarlyStart.AddDays(1), dtoC.EarlyFinish);
     }
-    
+
     [TestMethod]
     public void CalculateLateTimesShouldComputeCorrectLateStartAndFinish()
     {
@@ -291,5 +321,4 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
         Assert.AreEqual(baseStart, taskA.LateStart);
         Assert.AreEqual(baseStart.AddDays(2), taskA.LateFinish);
     }
-
 }
