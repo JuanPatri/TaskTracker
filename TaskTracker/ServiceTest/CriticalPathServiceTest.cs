@@ -66,26 +66,40 @@ public class CriticalPathServiceTest
     }
     
     [TestMethod]
-    public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
+public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
+{
+    Task taskA = new Task { Title = "A", Duration = 2 };
+    Task taskB = new Task { Title = "B", Duration = 3 };
+    Task taskC = new Task { Title = "C", Duration = 1 };
+
+    TaskDependency dependencyB = new TaskDependency
     {
-        Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskB } };
+        Id = 1,
+        Task = taskB,
+        Dependency = taskA
+    };
 
-        var startDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1));
-        Project project = new Project
-        {
-            StartDate = new DateOnly(2025, 9, 12),
+    TaskDependency dependencyC = new TaskDependency
+    {
+        Id = 2,
+        Task = taskC,
+        Dependency = taskB
+    };
 
-            Tasks = new List<Task> { taskA, taskB, taskC }
-        };
+    taskB.Dependencies = new List<TaskDependency> { dependencyB };
+    taskC.Dependencies = new List<TaskDependency> { dependencyC };
 
-        _criticalPathService.CalculateEarlyTimes(project);
-        DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
+    Project project = new Project
+    {
+        StartDate = new DateOnly(2025, 9, 12),
+        Tasks = new List<Task> { taskA, taskB, taskC }
+    };
 
+    _criticalPathService.CalculateEarlyTimes(project);
+    DateTime finish = _projectService.GetEstimatedProjectFinishDate(project);
 
-        Assert.AreEqual(new DateTime(2025, 9, 18), finish);
-    }
+    Assert.AreEqual(new DateTime(2025, 9, 18), finish);
+}
     
     [TestMethod]
     public void CalculateEarlyTimesSimpleSequenceComputesCorrectStartAndFinish()
