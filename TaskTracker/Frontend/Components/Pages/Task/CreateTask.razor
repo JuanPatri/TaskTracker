@@ -249,9 +249,9 @@
 
                 foreach (var dep in selectedTask.Dependencies)
                 {
-                    if (!_taskDependencies.Contains(dep.Title))
+                    if (!_taskDependencies.Contains(dep.Dependency.Title))
                     {
-                        _taskDependencies.Add(dep.Title);
+                        _taskDependencies.Add(dep.Dependency.Title);
                     }
                 }
             }
