@@ -403,9 +403,6 @@ public class ResourceService
                 resourceStats.Add(resourceStat);
             }
         }
-
-        Console.WriteLine($"✅ Total de recursos agregados: {resourceStats.Count}");
-
         return resourceStats;
     }
 }
