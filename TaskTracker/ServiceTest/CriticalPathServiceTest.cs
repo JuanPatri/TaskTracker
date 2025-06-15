@@ -151,9 +151,41 @@ public void GetEstimatedProjectFinishDate_ShouldReturnCorrectFinishDate()
     public void GetCriticalPathShouldReturnCorrectTasks()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
-        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
+        Task taskD = new Task { Title = "D", Duration = 2 };
+
+        TaskDependency dependencyB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        TaskDependency dependencyC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskA
+        };
+
+        TaskDependency dependencyD1 = new TaskDependency
+        {
+            Id = 3,
+            Task = taskD,
+            Dependency = taskB
+        };
+
+        TaskDependency dependencyD2 = new TaskDependency
+        {
+            Id = 4,
+            Task = taskD,
+            Dependency = taskC
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { dependencyB };
+        taskC.Dependencies = new List<TaskDependency> { dependencyC };
+        taskD.Dependencies = new List<TaskDependency> { dependencyD1, dependencyD2 };
 
         Project project = new Project
         {
