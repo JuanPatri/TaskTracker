@@ -13,7 +13,7 @@ public class SqlContext : DbContext
     public DbSet<Task> Tasks { get; set; }
     public DbSet<Resource> Resources { get; set; }
     public DbSet<ResourceType> ResourceTypes { get; set; }
-    public DbSet<TaskResource> TaskResources { get; set; }
+    public DbSet<TaskResource> TaskResources { get set; }
     
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
