@@ -372,24 +372,31 @@
     {
         try
         {
-            _isSubmitting = true;
-            _errorMessage = string.Empty;
-
-            if (_selectedProjectId <= 0)
+            if (!ProjectService.HasProjectStarted(_selectedProjectId))
             {
-                _errorMessage = "Please select a project.";
-                return;
+                _isSubmitting = true;
+                _errorMessage = string.Empty;
+
+                if (_selectedProjectId <= 0)
+                {
+                    _errorMessage = "Please select a project.";
+                    return;
+                }
+
+                _newTask.Dependencies = _taskDependencies;
+                _newTask.Resources = _taskResourceDataDtos;
+
+                TaskService.AddTask(_newTask);
+                ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
+
+                _successMessage = "Task created successfully!";
+                await Task.Delay(2000);
+                NavigationManager.NavigateTo("/TaskManagement");
             }
-
-            _newTask.Dependencies = _taskDependencies;
-            _newTask.Resources = _taskResourceDataDtos;
-
-            TaskService.AddTask(_newTask);
-            ProjectService.AddTaskToProject(_newTask, _selectedProjectId);
-
-            _successMessage = "Task created successfully!";
-            await Task.Delay(2000);
-            NavigationManager.NavigateTo("/TaskManagement");
+            else
+            {
+                _errorMessage = "Cannot create task: Project has started.";
+            }
         }
         catch (Exception ex)
         {

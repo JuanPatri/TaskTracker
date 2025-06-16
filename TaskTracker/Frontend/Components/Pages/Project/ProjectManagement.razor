@@ -108,7 +108,7 @@ else
     private void GoToEditProject(ProjectDataDTO project)
     {
         ProjectService.SelectedProject = project;
-        NavigationManager.NavigateTo($"/EditProject", true);
+        NavigationManager.NavigateTo("/EditProject"); 
     }
 
     private void DeleteProject(GetProjectDTO project)

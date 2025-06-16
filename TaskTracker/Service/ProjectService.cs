@@ -429,6 +429,18 @@ public class ProjectService
         }).ToList();
     }
     
+    public bool HasProjectStarted(int projectId)
+    {
+        Project project = GetProjectById(projectId);
+        if (project == null)
+        {
+            throw new Exception($"Project with ID {projectId} not found.");
+        }
+
+        DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+        return projectStartDate < DateTime.Today;
+    }
+    
     public Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
     {
         return new Project()
