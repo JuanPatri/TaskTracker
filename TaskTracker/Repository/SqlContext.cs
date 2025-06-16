@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using System.Xml;
+using Domain;
 using Microsoft.EntityFrameworkCore;
 using Task = Domain.Task;
 
@@ -15,6 +16,8 @@ public class SqlContext : DbContext
     public DbSet<Resource> Resources { get; set; }
     public DbSet<ResourceType> ResourceTypes { get; set; }
     public DbSet<TaskResource> TaskResources { get; set; }
+    
+    public DbSet<Notification> Notifications { get; set; }
     
     public SqlContext(DbContextOptions<SqlContext> options) : base(options)
     {
@@ -248,5 +251,35 @@ public class SqlContext : DbContext
             entity.HasIndex(rt => rt.Name)
                 .IsUnique();
         });
+        
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(n => n.Id);
+
+            entity.Property(n => n.Id).ValueGeneratedOnAdd();
+
+            entity.Property(n => n.Message).IsRequired();
+
+            entity.Property(n => n.Date).IsRequired();
+
+            entity.Property(n => n.TypeOfNotification)
+                .IsRequired()
+                .HasConversion<string>();
+
+            entity.Property(n => n.Impact).IsRequired();
+
+            entity.HasMany(n => n.Users)
+                .WithMany();
+
+            entity.HasMany(n => n.Projects)
+                .WithMany();
+
+            entity.Property(n => n.ViewedBy)
+                .HasConversion(
+                    v => string.Join(",", v),                  
+                    v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList() 
+                );
+        });
+
     }
 }
