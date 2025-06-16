@@ -808,20 +808,20 @@ public class ProjectServiceTest
         Assert.IsNotNull(retrievedProject);
 
         ResourceDataDto resourceDto = new ResourceDataDto
-        {
+        { 
             Name = "First Exclusive Resource",
             Description = "Description",
             Quantity = 1,
             TypeResource = resourceType.Id
         };
-        
-        _projectService.AddExclusiveResourceToProject(savedProject.Id, resourceDto);
-        
-        Project updatedProject = _projectRepository.Find(p => p.Id == savedProject.Id);
-        Assert.IsNotNull(updatedProject);
-        Assert.IsNotNull(updatedProject.ExclusiveResources);
-        Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
-        Assert.AreEqual(1000, updatedProject.ExclusiveResources[0].Id);
+
+            _projectService.AddExclusiveResourceToProject(retrievedProject.Id, resourceDto);
+
+            Project updatedProject = _projectRepository.Find(p => p.Id == retrievedProject.Id);
+            Assert.IsNotNull(updatedProject);
+            Assert.IsNotNull(updatedProject.ExclusiveResources);
+            Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
+            Assert.AreEqual(1000, updatedProject.ExclusiveResources[0].Id);
     }
 
     [TestMethod]

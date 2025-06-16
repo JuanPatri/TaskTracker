@@ -211,6 +211,9 @@ public class SqlContext : DbContext
         modelBuilder.Entity<Resource>(entity =>
         {
             entity.HasKey(r => r.Id);
+            
+            entity.Property(r => r.Id)
+                .ValueGeneratedOnAdd();
         
             entity.Property(r => r.Name)
                 .IsRequired()

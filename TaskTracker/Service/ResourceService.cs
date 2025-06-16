@@ -43,25 +43,9 @@ public class ResourceService
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
         
         Resource newResource = FromDto(resource, resourceType);
-    
-        newResource.Id = GetNextResourceId();
-
+        
         Resource? createdResource = _resourceRepository.Add(newResource);
         return createdResource;
-    }
-    
-    private int GetNextResourceId()
-    {
-        var allResources = _resourceRepository.FindAll();
-        int maxId = allResources.Any() ? allResources.Max(r => r.Id) : 0;
-    
-        int nextId = maxId + 1;
-        if (nextId >= 1000)
-        {
-            throw new InvalidOperationException("Too many system resources. Max 999 allowed.");
-        }
-    
-        return nextId;
     }
     
     public void RemoveResource(GetResourceDto resource)
