@@ -31,6 +31,10 @@ public class TaskServiceTest
     public void OnInitialize()
     {
         _sqlContext = SqlContextFactory.CreateMemoryContext();
+
+        _sqlContext.Database.EnsureDeleted();
+        _sqlContext.Database.EnsureCreated();
+
         _taskRepository = new TaskRepository(_sqlContext);
         _resourceRepository = new ResourceRepository(_sqlContext);
         _projectRepository = new ProjectRepository(_sqlContext);
@@ -55,23 +59,35 @@ public class TaskServiceTest
         };
         _projectRepository.Add(_project);
 
-        _task = new Task() { Title = "Test Task", };
-        _taskRepository.Add(_task);
+        var resourceType = new ResourceType()
+        {
+            Name = "TaskServiceTestType"
+        };
+        _resourceTypeRepository.Add(resourceType);
 
         _resource = new Resource()
         {
             Name = "Resource",
             Description = "Description",
-            Type = new ResourceType()
-            {
-                Id = 4,
-                Name = "Type"
-            }
+            Quantity = 1,
+            Type = resourceType
         };
         _resourceRepository.Add(_resource);
-        _resourceTypeRepository.Add(_resource.Type);
+
+        _task = new Task()
+        {
+            Title = "Test Task",
+            Description = "Test Description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+        _taskRepository.Add(_task);
     }
-    
+
     [TestMethod]
     public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
     {
@@ -106,7 +122,7 @@ public class TaskServiceTest
         };
 
         var (startWithDeps, finishWithDeps) = _taskService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
-        
+
         Assert.AreEqual(_task.EarlyFinish.AddDays(1), startWithDeps,
             "Task with dependencies should start day after dependency finishes");
         Assert.AreEqual(_task.EarlyFinish.AddDays(1).AddDays(2), finishWithDeps,
@@ -428,7 +444,8 @@ public class TaskServiceTest
 
         List<string> searchList = new List<string> { "Task1" };
 
-        List<TaskDependency> dependencies = _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
+        List<TaskDependency> dependencies =
+            _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
 
         Assert.AreEqual(1, dependencies.Count);
         Assert.AreEqual("Task1", dependencies[0].Dependency.Title);
@@ -474,7 +491,8 @@ public class TaskServiceTest
 
         List<string> searchList = new List<string> { "Task1" };
 
-        List<TaskDependency> dependencies = _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
+        List<TaskDependency> dependencies =
+            _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
 
         Assert.AreEqual(1, dependencies.Count);
         Assert.AreEqual("Task1", dependencies[0].Dependency.Title);
@@ -594,8 +612,8 @@ public class TaskServiceTest
         bool result = _taskService.IsTaskCritical(null, "AnyTask");
         Assert.IsFalse(result);
     }
-    
-    
+
+
     [TestMethod]
     public void RecalculateTaskDates_ShouldRecalculateDatesForAllTasks()
     {
@@ -702,8 +720,8 @@ public class TaskServiceTest
 
         Assert.IsTrue(result, "Task should depend on tasks from another project");
     }
-    
-    
+
+
     [TestMethod]
     public void DependsOnTasksFromAnotherProject_ShouldReturnFalse_WhenTaskDependsOnSameProjectTasks()
     {
@@ -737,5 +755,4 @@ public class TaskServiceTest
 
         Assert.IsFalse(result, "Task should not depend on tasks from another project");
     }
-
 }

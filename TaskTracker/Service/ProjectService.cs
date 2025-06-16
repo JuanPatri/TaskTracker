@@ -176,6 +176,9 @@ public class ProjectService
 
         if (project == null)
             throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+        
+        if (project.ExclusiveResources == null)
+            project.ExclusiveResources = new List<Resource>();
 
         Resource newResource = new Resource
         {
@@ -194,8 +197,8 @@ public class ProjectService
     private int GetNextExclusiveResourceId(List<Resource> resources)
     {
         int minExclusiveId = 1000;
-
-        if (!resources.Any())
+        
+        if (resources == null || !resources.Any())
         {
             return minExclusiveId;
         }
