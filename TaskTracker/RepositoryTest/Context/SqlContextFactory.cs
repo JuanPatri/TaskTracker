@@ -8,7 +8,7 @@ public static class SqlContextFactory
     public static SqlContext CreateMemoryContext() 
     {
         var optionsBuilder = new DbContextOptionsBuilder<SqlContext>();
-        optionsBuilder.UseInMemoryDatabase("TestDB");
+        optionsBuilder.UseInMemoryDatabase(Guid.NewGuid().ToString());
         return new SqlContext(optionsBuilder.Options);
     }
 }

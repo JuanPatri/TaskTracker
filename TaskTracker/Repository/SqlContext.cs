@@ -11,6 +11,7 @@ public class SqlContext : DbContext
     public DbSet<ProjectRole> ProjectRoles { get; set; }
     
     public DbSet<Task> Tasks { get; set; }
+    public DbSet<TaskDependency> TaskDependencies { get; set; }
     public DbSet<Resource> Resources { get; set; }
     public DbSet<ResourceType> ResourceTypes { get; set; }
     public DbSet<TaskResource> TaskResources { get; set; }
@@ -148,7 +149,35 @@ public class SqlContext : DbContext
                 .HasForeignKey("TaskTitle")
                 .OnDelete(DeleteBehavior.Cascade);
             
-            entity.Ignore(t => t.Dependencies);
+            entity.HasMany(t => t.Dependencies)
+                .WithOne(td => td.Task)
+                .HasForeignKey("TaskTitle")
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+        
+        modelBuilder.Entity<TaskDependency>(entity =>
+        {
+            entity.HasKey(td => td.Id);
+            
+            entity.Property(td => td.Id)
+                .ValueGeneratedOnAdd();
+            
+            entity.HasOne(td => td.Task)
+                .WithMany(t => t.Dependencies)
+                .HasForeignKey("TaskTitle")
+                .OnDelete(DeleteBehavior.Cascade)
+                .IsRequired();
+            
+            entity.HasOne(td => td.Dependency)
+                .WithMany()
+                .HasForeignKey("DependencyTitle")
+                .OnDelete(DeleteBehavior.Restrict) 
+                .IsRequired();
+            
+            entity.Property<string>("TaskTitle").HasMaxLength(200);
+            entity.Property<string>("DependencyTitle").HasMaxLength(200);
+            
+            entity.HasIndex("TaskTitle", "DependencyTitle").IsUnique();
         });
         
         modelBuilder.Entity<TaskResource>(entity =>

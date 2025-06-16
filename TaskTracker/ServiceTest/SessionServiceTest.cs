@@ -23,10 +23,14 @@ public class SessionServiceTest
         _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _sessionService = new SessionService(_userService);
-        _user = new User()
+        _user = new User
         {
             Email = "pedro@gmail.com",
-            Password = "Pedro123!"
+            Name = "Pedro",                    
+            LastName = "García",               
+            Password = "Pedro123!",
+            BirthDate = new DateTime(1990, 1, 1), 
+            Admin = false
         };
         _userRepository.Add(_user);
         

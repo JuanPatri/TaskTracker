@@ -22,9 +22,13 @@ public class  UserServiceTest
         _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         
-        _user = new User()
-        {
-            Email = "pedro@gmail.com"
+        _user = new User {
+            Email = "pedro@gmail.com",
+            Name = "Pedro",                    
+            LastName = "García",               
+            Password = "Pedro123!",            
+            BirthDate = new DateTime(1990, 1, 1), 
+            Admin = false
         };
         _userRepository.Add(_user);
     }

@@ -47,8 +47,20 @@ public class NotificationServiceTest
     [TestMethod]
     public void AddNotificationShouldReturnNotification()
     {
-        var user = new User { Name = "User", Email = "user@example.com" };
-        var project = new Project { Name = "Test Project" };
+        var user = new User 
+        { 
+            Name = "User", 
+            Email = "user@example.com",
+            LastName = "TestLastName",       
+            Password = "Password123@",     
+            BirthDate = new DateTime(1990, 1, 1),  
+            Admin = false                     
+        };
+        var project = new Project
+        {
+            Name = "Test Project",
+            Description = "Test Description",
+        };
         _userRepository.Add(user);
         _projectRepository.Add(project);
 
@@ -108,6 +120,7 @@ public class NotificationServiceTest
         {
             Id = 123,
             Name = "Test Project",
+            Description = "Test Description",
             StartDate = DateOnly.FromDateTime(DateTime.Today),
             Tasks = new List<Task>
             {
@@ -125,8 +138,23 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetUsersFromProject_ShouldReturnProjectUsers()
     {
-        User user1 = new User { Name = "John", Email = "john@mail.com" };
-        User user2 = new User { Name = "Anna", Email = "anna@mail.com" };
+        User user1 = new User 
+        { 
+            Name = "John", 
+            Email = "john@mail.com",
+            LastName = "Doe",
+            Password = "Password123@",
+            BirthDate = new DateTime(1990, 1, 1)
+        };
+
+        User user2 = new User 
+        { 
+            Name = "Anna", 
+            Email = "anna@mail.com",
+            LastName = "Smith", 
+            Password = "Password123@",
+            BirthDate = new DateTime(1985, 5, 15)
+        };
         _userRepository.Add(user1);
         _userRepository.Add(user2);
 
@@ -196,7 +224,14 @@ public class NotificationServiceTest
     [TestMethod]
     public void CreateNotification_ShouldCreateAndReturnNotificationWithCorrectData()
     {
-        User user = new User { Name = "John", Email = "john@mail.com" };
+        User user = new User 
+        { 
+            Name = "John", 
+            Email = "john@mail.com",
+            LastName = "Doe",
+            Password = "Password123@",
+            BirthDate = new DateTime(1990, 1, 1)
+        };
     
         Project project = new Project
         {
@@ -236,7 +271,14 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetNotificationsForUser_ShouldReturnNotificationsForGivenEmail()
     {
-        var user = new User { Name = "John", Email = "john@mail.com" };
+        var user = new User 
+        { 
+            Name = "John", 
+            Email = "john@mail.com",
+            LastName = "Doe",
+            Password = "Password123@", 
+            BirthDate = new DateTime(1990, 1, 1)
+        };
         _userRepository.Add(user);
 
         var notification = new Notification

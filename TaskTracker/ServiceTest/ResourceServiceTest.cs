@@ -32,50 +32,67 @@ public class ResourceServiceTest
     private SqlContext _sqlContext;
     
     [TestInitialize]
-    public void OnInitialize()
+public void OnInitialize()
+{
+    _sqlContext = SqlContextFactory.CreateMemoryContext();
+    _resourceRepository = new ResourceRepository(_sqlContext);
+    _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
+    _projectRepository = new ProjectRepository(_sqlContext);
+    _taskRepository = new TaskRepository(_sqlContext);
+    _userRepository = new UserRepository(_sqlContext);
+    _userService = new UserService(_userRepository);
+    _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+    _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository,
+        _userRepository, _userService, _criticalPathService);
+    _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
+        _criticalPathService);
+    _resourceService =
+        new ResourceService(_resourceRepository, _resourceTypeRepository, _projectRepository, _taskService,
+            _projectService);
+
+    _project = new Project()
     {
-        _sqlContext = SqlContextFactory.CreateMemoryContext();
-        _resourceRepository = new ResourceRepository(_sqlContext);
-        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
-        _projectRepository = new ProjectRepository(_sqlContext);
-        _taskRepository = new TaskRepository(_sqlContext);
-        _userRepository = new UserRepository(_sqlContext);
-        _userService = new UserService(_userRepository);
-        _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
-        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository,
-            _userRepository, _userService, _criticalPathService);
-        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
-            _criticalPathService);
-        _resourceService =
-            new ResourceService(_resourceRepository, _resourceTypeRepository, _projectRepository, _taskService,
-                _projectService);
+        Id = 35,
+        Name = "Test Project",
+        Description = "Description",
+        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+        ProjectRoles = new List<ProjectRole>()
+    };
+    _projectRepository.Add(_project);
 
-        _project = new Project()
+    var existingResourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+    if (existingResourceType == null)
+    {
+        var resourceType = new ResourceType()
         {
-            Id = 35,
-            Name = "Test Project",
-            Description = "Description",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            ProjectRoles = new List<ProjectRole>()
+            Id = 4,
+            Name = "Type"
         };
-        _projectRepository.Add(_project);
-
-        _resource = new Resource()
-        {
-            Name = "Resource",
-            Description = "Description",
-            Type = new ResourceType()
-            {
-                Id = 4,
-                Name = "Type"
-            }
-        };
-        _resourceRepository.Add(_resource);
-        _resourceTypeRepository.Add(_resource.Type);
-
-        _task = new Task() { Title = "Test Task", };
-        _taskRepository.Add(_task);
+        _resourceTypeRepository.Add(resourceType);
+        existingResourceType = resourceType;
     }
+
+    _resource = new Resource()
+    {
+        Name = "Resource",
+        Description = "Description",
+        Type = existingResourceType  
+    };
+    _resourceRepository.Add(_resource);
+
+    _task = new Task() 
+    { 
+        Title = "Test Task",
+        Description = "Test Description",
+        Duration = 1,                     
+        Status = Status.Pending,         
+        EarlyStart = DateTime.MinValue,   
+        EarlyFinish = DateTime.MinValue,
+        LateStart = DateTime.MinValue,
+        LateFinish = DateTime.MinValue
+    };
+    _taskRepository.Add(_task);
+}
 
 
     [TestMethod]

@@ -47,20 +47,22 @@ public class UserRepository : IRepository<User>
 
     public User? Update(User updatedUser)
     {
-        _sqlContext.Users.Select(u => u.Email == updatedUser.Email ? updatedUser : u);
-        // if (existingUser != null)
-        // {
-        //     existingUser.Name = updatedUser.Name;
-        //     existingUser.LastName = updatedUser.LastName;
-        //     existingUser.Password = updatedUser.Password;
-        //     existingUser.Admin = updatedUser.Admin;
-        //     existingUser.BirthDate = updatedUser.BirthDate;
-        //
-        //     return existingUser;
-        // }
+        var existingUser = _sqlContext.Users.FirstOrDefault(u => u.Email == updatedUser.Email);
+    
+        if (existingUser != null)
+        {
+            existingUser.Name = updatedUser.Name;
+            existingUser.LastName = updatedUser.LastName;
+            existingUser.Password = updatedUser.Password;
+            existingUser.Admin = updatedUser.Admin;
+            existingUser.BirthDate = updatedUser.BirthDate;
+            
+            _sqlContext.SaveChanges();
         
-        _sqlContext.SaveChanges();
-        return _sqlContext.Users.FirstOrDefault(u => u.Email == updatedUser.Email) ?? null;
+            return existingUser; 
+        }
+    
+        return null; 
     }
 
     public void Delete(String email)

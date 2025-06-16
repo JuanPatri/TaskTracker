@@ -14,7 +14,6 @@ public class TaskService
     private readonly IRepository<Project> _projectRepository;
     private readonly ProjectService _projectService;
     private readonly CriticalPathService _criticalPathService;
-    private int _idTaskDependency;
     
     public TaskService(IRepository<Task> taskRepository,
         IRepository<Resource> resourceRepository, IRepository<Project> projectRepository, ProjectService projectService, CriticalPathService criticalPathService)
@@ -24,7 +23,6 @@ public class TaskService
         _projectRepository = projectRepository;
         _projectService = projectService;
         _criticalPathService = criticalPathService;
-        _idTaskDependency = 1;
     }
     
     public Task AddTask(TaskDataDTO taskDto)
@@ -180,7 +178,6 @@ public class TaskService
 
             if (dependecyTask != null)
             {
-                newDependency.Id = _idTaskDependency++;
                 newDependency.Task = task;
                 newDependency.Dependency = dependecyTask;
             }

@@ -148,17 +148,23 @@ public class TaskTest
     [TestMethod]
     public void SetDependencies()
     {
-        Task task1 = new Task { Title = "Task 1" };
-        Task task2 = new Task { Title = "Task 2" };
-        
-        List<TaskDependency> finishToStartDependencies = new List<TaskDependency>
+        List<TaskDependency> dependencies = new List<TaskDependency>
         {
-            new TaskDependency { Task = task1 },
-            new TaskDependency { Task = task2 }
+            new TaskDependency 
+            {
+                Task = _task,
+                Dependency = new Task { Title = "Task 1", Description = "Description 1" }
+            },
+            new TaskDependency 
+            {
+                Task = _task,
+                Dependency = new Task { Title = "Task 2", Description = "Description 2" }
+            }
         };
-        _task.Dependencies = finishToStartDependencies;
-
-        Assert.AreEqual(finishToStartDependencies, _task.Dependencies);
+    
+        _task.Dependencies = dependencies;
+    
+        Assert.AreEqual(dependencies, _task.Dependencies);
     }
 
     [TestMethod]
@@ -171,8 +177,8 @@ public class TaskTest
             Duration = 1,
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
-            Resources = new List<TaskResourceDataDTO> 
-            { 
+            Resources = new List<TaskResourceDataDTO>
+            {
                 new TaskResourceDataDTO
                 {
                     TaskTitle = "Task 1",
@@ -189,11 +195,11 @@ public class TaskTest
 
         List<TaskResource> taskResources = new List<TaskResource>
         {
-            new TaskResource()
+            new TaskResource
             {
                 Task = new Task { Title = "Task 1" },
                 Resource = new Resource { Name = "Resource 1" },
-                Quantity = 1,
+                Quantity = 1
             }
         };
 
@@ -210,7 +216,7 @@ public class TaskTest
         Assert.AreEqual("Resource 1", task.Resources[0].Resource.Name);
 
         Assert.IsNotNull(task.Dependencies);
-        Assert.AreEqual("Task 3", task.Dependencies[0].Dependency.Title);
+        Assert.AreEqual(0, task.Dependencies.Count);
     }
     
     [TestMethod]

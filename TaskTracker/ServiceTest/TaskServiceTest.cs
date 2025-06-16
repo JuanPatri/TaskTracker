@@ -31,6 +31,10 @@ public class TaskServiceTest
     public void OnInitialize()
     {
         _sqlContext = SqlContextFactory.CreateMemoryContext();
+
+        _sqlContext.Database.EnsureDeleted();
+        _sqlContext.Database.EnsureCreated();
+
         _taskRepository = new TaskRepository(_sqlContext);
         _resourceRepository = new ResourceRepository(_sqlContext);
         _projectRepository = new ProjectRepository(_sqlContext);
@@ -55,23 +59,35 @@ public class TaskServiceTest
         };
         _projectRepository.Add(_project);
 
-        _task = new Task() { Title = "Test Task", };
-        _taskRepository.Add(_task);
+        var resourceType = new ResourceType()
+        {
+            Name = "TaskServiceTestType"
+        };
+        _resourceTypeRepository.Add(resourceType);
 
         _resource = new Resource()
         {
             Name = "Resource",
             Description = "Description",
-            Type = new ResourceType()
-            {
-                Id = 4,
-                Name = "Type"
-            }
+            Quantity = 1,
+            Type = resourceType
         };
         _resourceRepository.Add(_resource);
-        _resourceTypeRepository.Add(_resource.Type);
+
+        _task = new Task()
+        {
+            Title = "Test Task",
+            Description = "Test Description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+        _taskRepository.Add(_task);
     }
-    
+
     [TestMethod]
     public void GetTaskDatesFromDto_ShouldCalculateCorrectEarlyStartAndFinishDates()
     {
@@ -106,7 +122,7 @@ public class TaskServiceTest
         };
 
         var (startWithDeps, finishWithDeps) = _taskService.GetTaskDatesFromDto(taskWithDeps, _project.Id);
-        
+
         Assert.AreEqual(_task.EarlyFinish.AddDays(1), startWithDeps,
             "Task with dependencies should start day after dependency finishes");
         Assert.AreEqual(_task.EarlyFinish.AddDays(1).AddDays(2), finishWithDeps,
@@ -298,9 +314,24 @@ public class TaskServiceTest
 
         Task taskWithCompletedDependencies = new Task
         {
-            Title = "Task With Completed Dependencies",
-            Dependencies = new List<Task> { dependency1, dependency2 }
+            Title = "Task With Completed Dependencies"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithCompletedDependencies,
+            Dependency = dependency1
+        };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithCompletedDependencies,
+            Dependency = dependency2
+        };
+
+        taskWithCompletedDependencies.Dependencies = new List<TaskDependency> { dep1, dep2 };
         _taskRepository.Add(taskWithCompletedDependencies);
 
         TaskDataDTO taskDto = new TaskDataDTO
@@ -331,9 +362,24 @@ public class TaskServiceTest
 
         Task taskWithMixedDependencies = new Task
         {
-            Title = "Task With Mixed Dependencies",
-            Dependencies = new List<Task> { completedDependency, pendingDependency }
+            Title = "Task With Mixed Dependencies"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithMixedDependencies,
+            Dependency = completedDependency
+        };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithMixedDependencies,
+            Dependency = pendingDependency
+        };
+
+        taskWithMixedDependencies.Dependencies = new List<TaskDependency> { dep1, dep2 };
         _taskRepository.Add(taskWithMixedDependencies);
 
         TaskDataDTO taskDto = new TaskDataDTO
@@ -342,7 +388,6 @@ public class TaskServiceTest
         };
 
         bool result = _taskService.CanMarkTaskAsCompleted(taskDto);
-
 
         Assert.IsFalse(result);
     }
@@ -369,24 +414,41 @@ public class TaskServiceTest
 
         Task taskWithDependency = new Task
         {
-            Title = "MainTask",
-            Dependencies = new List<Task> { dependencyTask1 }
+            Title = "MainTask"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithDependency,
+            Dependency = dependencyTask1
+        };
+
+        taskWithDependency.Dependencies = new List<TaskDependency> { dep1 };
         _taskRepository.Add(taskWithDependency);
 
         Task taskWithoutSearchedDependency = new Task
         {
-            Title = "AnotherTask",
-            Dependencies = new List<Task> { dependencyTask2 }
+            Title = "AnotherTask"
         };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithoutSearchedDependency,
+            Dependency = dependencyTask2
+        };
+
+        taskWithoutSearchedDependency.Dependencies = new List<TaskDependency> { dep2 };
         _taskRepository.Add(taskWithoutSearchedDependency);
 
         List<string> searchList = new List<string> { "Task1" };
 
-        List<Task> tasks = _taskService.GetTaskDependenciesWithTitleTask(searchList);
+        List<TaskDependency> dependencies =
+            _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
 
-        Assert.AreEqual(1, tasks.Count);
-        Assert.AreEqual("Task1", tasks[0].Title);
+        Assert.AreEqual(1, dependencies.Count);
+        Assert.AreEqual("Task1", dependencies[0].Dependency.Title);
     }
 
     [TestMethod]
@@ -399,24 +461,41 @@ public class TaskServiceTest
 
         Task taskWithDependency = new Task
         {
-            Title = "MainTask",
-            Dependencies = new List<Task> { dependencyTask1 }
+            Title = "MainTask"
         };
+
+        TaskDependency dep1 = new TaskDependency
+        {
+            Id = 1,
+            Task = taskWithDependency,
+            Dependency = dependencyTask1
+        };
+
+        taskWithDependency.Dependencies = new List<TaskDependency> { dep1 };
         _taskRepository.Add(taskWithDependency);
 
         Task taskWithoutSearchedDependency = new Task
         {
-            Title = "AnotherTask",
-            Dependencies = new List<Task> { dependencyTask2 }
+            Title = "AnotherTask"
         };
+
+        TaskDependency dep2 = new TaskDependency
+        {
+            Id = 2,
+            Task = taskWithoutSearchedDependency,
+            Dependency = dependencyTask2
+        };
+
+        taskWithoutSearchedDependency.Dependencies = new List<TaskDependency> { dep2 };
         _taskRepository.Add(taskWithoutSearchedDependency);
 
         List<string> searchList = new List<string> { "Task1" };
 
-        List<Task> tasks = _taskService.GetTaskDependenciesWithTitleTask(searchList);
+        List<TaskDependency> dependencies =
+            _taskService.GetTaskDependenciesWithTitleTask(searchList, taskWithDependency);
 
-        Assert.AreEqual(1, tasks.Count);
-        Assert.AreEqual("Task1", tasks[0].Title);
+        Assert.AreEqual(1, dependencies.Count);
+        Assert.AreEqual("Task1", dependencies[0].Dependency.Title);
     }
 
     [TestMethod]
@@ -462,9 +541,41 @@ public class TaskServiceTest
     public void IsTaskCritical_ShouldReturnTrueForCriticalTask_AndFalseForNonCriticalTask()
     {
         Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3, Dependencies = new List<Task> { taskA } };
-        Task taskC = new Task { Title = "C", Duration = 1, Dependencies = new List<Task> { taskA } };
-        Task taskD = new Task { Title = "D", Duration = 2, Dependencies = new List<Task> { taskB, taskC } };
+        Task taskB = new Task { Title = "B", Duration = 3 };
+        Task taskC = new Task { Title = "C", Duration = 1 };
+        Task taskD = new Task { Title = "D", Duration = 2 };
+
+        TaskDependency depB = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        TaskDependency depC = new TaskDependency
+        {
+            Id = 2,
+            Task = taskC,
+            Dependency = taskA
+        };
+
+        TaskDependency depD1 = new TaskDependency
+        {
+            Id = 3,
+            Task = taskD,
+            Dependency = taskB
+        };
+
+        TaskDependency depD2 = new TaskDependency
+        {
+            Id = 4,
+            Task = taskD,
+            Dependency = taskC
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { depB };
+        taskC.Dependencies = new List<TaskDependency> { depC };
+        taskD.Dependencies = new List<TaskDependency> { depD1, depD2 };
 
         Project project = new Project
         {
@@ -501,8 +612,8 @@ public class TaskServiceTest
         bool result = _taskService.IsTaskCritical(null, "AnyTask");
         Assert.IsFalse(result);
     }
-    
-    
+
+
     [TestMethod]
     public void RecalculateTaskDates_ShouldRecalculateDatesForAllTasks()
     {
@@ -521,7 +632,7 @@ public class TaskServiceTest
             Title = "Task A",
             Description = "First task",
             Duration = 3,
-            Dependencies = new List<Task>(),
+            Dependencies = new List<TaskDependency>(),
             EarlyStart = DateTime.MinValue,
             EarlyFinish = DateTime.MinValue
         };
@@ -531,10 +642,18 @@ public class TaskServiceTest
             Title = "Task B",
             Description = "Second task",
             Duration = 2,
-            Dependencies = new List<Task> { taskA },
             EarlyStart = DateTime.MinValue,
             EarlyFinish = DateTime.MinValue
         };
+
+        TaskDependency dependency = new TaskDependency
+        {
+            Id = 1,
+            Task = taskB,
+            Dependency = taskA
+        };
+
+        taskB.Dependencies = new List<TaskDependency> { dependency };
 
         project.Tasks.Add(taskA);
         project.Tasks.Add(taskB);
@@ -578,11 +697,16 @@ public class TaskServiceTest
         };
 
         Task externalTask = new Task { Title = "External Task" };
-        Task task = new Task
+        Task task = new Task { Title = "Task" };
+
+        TaskDependency dependency = new TaskDependency
         {
-            Title = "Task",
-            Dependencies = new List<Task> { externalTask }
+            Id = 1,
+            Task = task,
+            Dependency = externalTask
         };
+
+        task.Dependencies = new List<TaskDependency> { dependency };
 
         project1.Tasks.Add(task);
         project2.Tasks.Add(externalTask);
@@ -591,13 +715,13 @@ public class TaskServiceTest
         _projectRepository.Add(project2);
         _taskRepository.Add(task);
         _taskRepository.Add(externalTask);
-        
+
         bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
 
         Assert.IsTrue(result, "Task should depend on tasks from another project");
     }
-    
-    
+
+
     [TestMethod]
     public void DependsOnTasksFromAnotherProject_ShouldReturnFalse_WhenTaskDependsOnSameProjectTasks()
     {
@@ -609,11 +733,16 @@ public class TaskServiceTest
         };
 
         Task dependencyTask = new Task { Title = "Dependency Task" };
-        Task task = new Task
+        Task task = new Task { Title = "Task" };
+
+        TaskDependency dependency = new TaskDependency
         {
-            Title = "Task",
-            Dependencies = new List<Task> { dependencyTask }
+            Id = 1,
+            Task = task,
+            Dependency = dependencyTask
         };
+
+        task.Dependencies = new List<TaskDependency> { dependency };
 
         project.Tasks.Add(task);
         project.Tasks.Add(dependencyTask);
@@ -621,10 +750,9 @@ public class TaskServiceTest
         _projectRepository.Add(project);
         _taskRepository.Add(task);
         _taskRepository.Add(dependencyTask);
-        
+
         bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
-        
+
         Assert.IsFalse(result, "Task should not depend on tasks from another project");
     }
-
 }
