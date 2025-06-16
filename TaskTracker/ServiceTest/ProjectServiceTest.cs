@@ -1277,4 +1277,45 @@ public class ProjectServiceTest
         Assert.AreEqual("Rodriguez", admin.User.LastName);
         Assert.AreEqual("prodriguez@gmail.com", admin.User.Email);
     }
+    
+    [TestMethod]
+    public void HasProjectStarted_ShouldReturnTrue_WhenProjectHasStarted()
+    {
+        Project project = new Project
+        {
+            Id = 1,
+            Name = "Started Project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-1))
+        };
+        _projectRepository.Add(project);
+        
+        bool result = _projectService.HasProjectStarted(1);
+        
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void HasProjectStarted_ShouldReturnFalse_WhenProjectHasNotStarted()
+    {
+        Project project = new Project
+        {
+            Id = 2,
+            Name = "Not Started Project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1))
+        };
+        _projectRepository.Add(project);
+        
+        bool result = _projectService.HasProjectStarted(2);
+        
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void HasProjectStarted_ShouldThrowException_WhenProjectDoesNotExist()
+    {
+        var exception = Assert.ThrowsException<Exception>(() =>
+            _projectService.HasProjectStarted(999));
+
+        Assert.AreEqual("Project with ID 999 not found.", exception.Message, "Should throw exception when project does not exist.");
+    }
 }
