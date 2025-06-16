@@ -53,7 +53,7 @@ public class TaskTest
             LateFinish = DateTime.Now.AddDays(5),
             DateCompleated = null,
             Resources = new List<TaskResource>(),
-            Dependencies = new List<Task>()
+            Dependencies = new List<TaskDependency>()
         };
     }
 
@@ -148,10 +148,13 @@ public class TaskTest
     [TestMethod]
     public void SetDependencies()
     {
-        List<Task> finishToStartDependencies = new List<Task>
+        Task task1 = new Task { Title = "Task 1" };
+        Task task2 = new Task { Title = "Task 2" };
+        
+        List<TaskDependency> finishToStartDependencies = new List<TaskDependency>
         {
-            new Task { Title = "Task 1" },
-            new Task { Title = "Task 2" }
+            new TaskDependency { Task = task1 },
+            new TaskDependency { Task = task2 }
         };
         _task.Dependencies = finishToStartDependencies;
 
@@ -194,7 +197,7 @@ public class TaskTest
             }
         };
 
-        Task task = _taskService.FromDto(taskDto, taskResources, dependencies);
+        Task task = _taskService.FromDto(taskDto, taskResources);
 
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
@@ -207,7 +210,7 @@ public class TaskTest
         Assert.AreEqual("Resource 1", task.Resources[0].Resource.Name);
 
         Assert.IsNotNull(task.Dependencies);
-        Assert.AreEqual("Task 3", task.Dependencies[0].Title);
+        Assert.AreEqual("Task 3", task.Dependencies[0].Dependency.Title);
     }
     
     [TestMethod]
