@@ -1,35 +1,38 @@
 using Domain;
+using Microsoft.Data.SqlClient;
 
 namespace Repository;
 
 public class NotificationRepository : IRepository<Notification>
 {
-    private readonly List<Notification> _notifications;
+    private readonly SqlContext _sqlContext;
     
-    public NotificationRepository()
+    public NotificationRepository(SqlContext sqlContext)
     {
-        _notifications = new List<Notification>();
+        _sqlContext = sqlContext;
     }
+
     
     public Notification Add(Notification notification)
     {
-        _notifications.Add(notification);
+        _sqlContext.Notifications.Add(notification);
+        _sqlContext.SaveChanges();
         return notification;
     }
 
     public Notification? Find(Func<Notification, bool> predicate)
     {
-        return _notifications.FirstOrDefault(predicate);
+        return _sqlContext.Notifications.FirstOrDefault(predicate);
     }
 
     public IList<Notification> FindAll()
     {
-        return _notifications;
+        return _sqlContext.Notifications.ToList();
     }
 
     public Notification? Update(Notification entity)
     {
-        Notification? existingNotification = _notifications.FirstOrDefault(n => n.Id == entity.Id);
+        Notification? existingNotification = _sqlContext.Notifications.FirstOrDefault(n => n.Id == entity.Id);
         if (existingNotification != null)
         {
             existingNotification.Id = entity.Id;
@@ -41,6 +44,7 @@ public class NotificationRepository : IRepository<Notification>
             existingNotification.Projects = entity.Projects;
             existingNotification.ViewedBy = entity.ViewedBy;
 
+            _sqlContext.SaveChanges();
             return existingNotification;
         }
         return null;
@@ -48,10 +52,11 @@ public class NotificationRepository : IRepository<Notification>
 
     public void Delete(string entity)
     {
-        Notification? notification = _notifications.FirstOrDefault(n => n.Message == entity);
+        Notification? notification = _sqlContext.Notifications.FirstOrDefault(n => n.Message == entity);
         if (notification != null)
         {
-            _notifications.Remove(notification);
+            _sqlContext.Remove(notification);
+            _sqlContext.SaveChanges();
         }
     }
 }

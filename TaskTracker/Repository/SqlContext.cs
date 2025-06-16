@@ -26,7 +26,6 @@ public class SqlContext : DbContext
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(u => u.Email);
@@ -280,6 +279,5 @@ public class SqlContext : DbContext
                     v => v.Split(",", StringSplitOptions.RemoveEmptyEntries).ToList() 
                 );
         });
-
     }
 }
