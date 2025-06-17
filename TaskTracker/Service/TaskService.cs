@@ -170,20 +170,24 @@ public class TaskService
     public List<TaskDependency> GetTaskDependenciesWithTitleTask(List<string> titlesTask, Task task)
     {
         List<TaskDependency> dependencies = new List<TaskDependency>();
-        
-        foreach (var title in titlesTask)
+    
+        if (titlesTask != null)
         {
-            TaskDependency newDependency = new TaskDependency();
-            Task? dependecyTask = _taskRepository.Find(t => t.Title == title);
-
-            if (dependecyTask != null)
+            foreach (var title in titlesTask)
             {
-                newDependency.Task = task;
-                newDependency.Dependency = dependecyTask;
+                Task? dependencyTask = _taskRepository.Find(t => t.Title == title);
+
+                if (dependencyTask != null)
+                {
+                    TaskDependency newDependency = new TaskDependency
+                    {
+                        Task = task,
+                        Dependency = dependencyTask
+                    };
+                
+                    dependencies.Add(newDependency);
+                }
             }
-            
-            dependencies.Add(newDependency);
-            
         }
 
         return dependencies;
