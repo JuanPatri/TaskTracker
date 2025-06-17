@@ -1310,13 +1310,22 @@ public class ProjectServiceTest
     {
         Project project = new Project
         {
-            Id = 1,
+            Id = 1111, 
             Name = "Started Project",
-            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-1))
+            Description = "Test project description", 
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)) 
         };
         _projectRepository.Add(project);
 
-        bool result = _projectService.HasProjectStarted(1);
+        var savedProject = _projectRepository.Find(p => p.Id == 1111);
+        if (savedProject != null)
+        {
+            var startDateField = typeof(Project).GetField("_startDate", 
+                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+            startDateField?.SetValue(savedProject, DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
+        }
+
+        bool result = _projectService.HasProjectStarted(1111);
 
         Assert.IsTrue(result);
     }
@@ -1326,13 +1335,14 @@ public class ProjectServiceTest
     {
         Project project = new Project
         {
-            Id = 2,
+            Id = 2222, 
             Name = "Not Started Project",
+            Description = "Test project description", 
             StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1))
         };
         _projectRepository.Add(project);
 
-        bool result = _projectService.HasProjectStarted(2);
+        bool result = _projectService.HasProjectStarted(2222);
 
         Assert.IsFalse(result);
     }
