@@ -364,14 +364,14 @@ public class ProjectService
 
             foreach (var dependency in task.Dependencies)
             {
-                if (dependency.Task.EarlyFinish > latestDependencyFinish)
+                if (dependency.Dependency.EarlyFinish > latestDependencyFinish) 
                 {
-                    latestDependencyFinish = dependency.Task.EarlyFinish;
+                    latestDependencyFinish = dependency.Dependency.EarlyFinish;
                 }
             }
 
             earlyStart = latestDependencyFinish != DateTime.MinValue
-                ? latestDependencyFinish.AddDays(1)
+                ? latestDependencyFinish 
                 : project.StartDate.ToDateTime(new TimeOnly(0, 0));
         }
 

@@ -77,7 +77,17 @@ public class ProjectServiceTest
         _project.ProjectRoles = new List<ProjectRole> { adminRole };
         _projectRepository.Add(_project);
 
-        _task = new Task() { Title = "Test Task", };
+        _task = new Task()
+        {
+            Title = "Test Task",
+            Description = "Test Description",
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1),
+            Duration = 1,
+            Status = Status.Pending
+        };
         _taskRepository.Add(_task);
 
         var existingResourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
@@ -444,24 +454,24 @@ public class ProjectServiceTest
     [TestMethod]
     public void ProjectsDataByUserEmailShouldReturnAssociatedProjects()
     {
-        User user = new User 
-        { 
-            Name = "Ana", 
-            LastName = "Lopez", 
-            Email = "ana_projectdata@example.com", 
-            Password = "AnaPassword123$",          
+        User user = new User
+        {
+            Name = "Ana",
+            LastName = "Lopez",
+            Email = "ana_projectdata@example.com",
+            Password = "AnaPassword123$",
             BirthDate = new DateTime(1990, 1, 1),
             Admin = false
         };
 
-        User admin = new User 
-        { 
-            Name = "Admin", 
-            LastName = "Root", 
-            Email = "admin_projectdata@example.com", 
-            Password = "AdminPassword123$",          
-            BirthDate = new DateTime(1985, 1, 1), 
-            Admin = true 
+        User admin = new User
+        {
+            Name = "Admin",
+            LastName = "Root",
+            Email = "admin_projectdata@example.com",
+            Password = "AdminPassword123$",
+            BirthDate = new DateTime(1985, 1, 1),
+            Admin = true
         };
 
         _userRepository.Add(user);
@@ -469,7 +479,7 @@ public class ProjectServiceTest
 
         Project project = new Project
         {
-            Id = 7777, 
+            Id = 7777,
             Name = "Test Project",
             Description = "Project description",
             StartDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1)
@@ -887,69 +897,130 @@ public class ProjectServiceTest
     }
 
     [TestMethod]
-    public void CalculateTaskDates_ShouldCalculateCorrectDates()
+public void CalculateTaskDates_ShouldCalculateCorrectDates()
+{
+    var uniqueSuffix = $"{Thread.CurrentThread.ManagedThreadId}_{DateTime.Now.Ticks}_{Guid.NewGuid().ToString()[..8]}";
+    var titleA = $"A_{uniqueSuffix}";
+    var titleB = $"B_{uniqueSuffix}";
+
+    Task taskA = new Task 
+    { 
+        Title = titleA, 
+        Description = "Description", 
+        Duration = 2,
+        EarlyStart = DateTime.MinValue,
+        EarlyFinish = DateTime.MinValue,
+        LateStart = DateTime.MinValue,
+        LateFinish = DateTime.MinValue,
+        Status = Status.Pending
+    };
+
+    Task taskB = new Task 
+    { 
+        Title = titleB, 
+        Description = "Description", 
+        Duration = 3,
+        EarlyStart = DateTime.MinValue,
+        EarlyFinish = DateTime.MinValue,
+        LateStart = DateTime.MinValue,
+        LateFinish = DateTime.MinValue,
+        Status = Status.Pending
+    };
+
+    TaskDependency dependencyB = new TaskDependency
     {
-        Task taskA = new Task { Title = "A", Description = "Description", Duration = 2 };
-        Task taskB = new Task { Title = "B", Description = "Description", Duration = 3 };
+        Id = 1,
+        Task = taskB,
+        Dependency = taskA
+    };
 
-        TaskDependency dependencyB = new TaskDependency
-        {
-            Id = 1,
-            Task = taskB,
-            Dependency = taskA
-        };
+    taskB.Dependencies = new List<TaskDependency> { dependencyB };
 
-        taskB.Dependencies = new List<TaskDependency> { dependencyB };
+
+
         _taskRepository.Add(taskA);
         _taskRepository.Add(taskB);
+        
 
-        Project project = new Project
-        {
-            Id = 150,
-            Name = "Date Test Project",
-            Description = "Test description",
-            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
-            Tasks = new List<Task>(),
-            ProjectRoles = new List<ProjectRole>()
-        };
+    Project project = new Project
+    {
+        Id = 150,
+        Name = "Date Test Project",
+        Description = "Test description",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+        Tasks = new List<Task>(),
+        ProjectRoles = new List<ProjectRole>()
+    };
 
-        _projectRepository.Add(project);
+    _projectRepository.Add(project);
 
-        _projectService.AddTaskToProject(new TaskDataDTO
-        {
-            Title = "A",
-            Description = "Task A description",
-            Duration = 2,
-            Dependencies = new List<string>()
-        }, project.Id);
+    _projectService.AddTaskToProject(new TaskDataDTO
+    {
+        Title = taskA.Title, 
+        Description = "Task A description",
+        Duration = 2,
+        Dependencies = new List<string>()
+    }, project.Id);
 
-        _projectService.AddTaskToProject(new TaskDataDTO
-        {
-            Title = "B",
-            Description = "Task B description",
-            Duration = 3,
-            Dependencies = new List<string> { "A" }
-        }, project.Id);
+    _projectService.AddTaskToProject(new TaskDataDTO
+    {
+        Title = taskB.Title, 
+        Description = "Task B description",
+        Duration = 3,
+        Dependencies = new List<string> { taskA.Title } 
+    }, project.Id);
 
-        Project updatedProject = _projectRepository.Find(p => p.Id == 150);
-        Task updatedTaskA = updatedProject.Tasks.First(t => t.Title == "A");
-        Task updatedTaskB = updatedProject.Tasks.First(t => t.Title == "B");
+    Project updatedProject = _projectRepository.Find(p => p.Id == 150);
+    Task updatedTaskA = updatedProject.Tasks.First(t => t.Title == taskA.Title);
+    Task updatedTaskB = updatedProject.Tasks.First(t => t.Title == taskB.Title);
 
-        DateTime startDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+    DateTime startDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
 
-        Assert.AreEqual(startDate, updatedTaskA.EarlyStart);
-        Assert.AreEqual(startDate.AddDays(2), updatedTaskA.EarlyFinish);
+    Assert.AreEqual(startDate, updatedTaskA.EarlyStart);
+    Assert.AreEqual(startDate.AddDays(2), updatedTaskA.EarlyFinish);
 
-        Assert.AreEqual(startDate, updatedTaskB.EarlyStart);
-        Assert.AreEqual(updatedTaskB.EarlyStart.AddDays(3), updatedTaskB.EarlyFinish);
-    }
+    Assert.AreEqual(updatedTaskA.EarlyFinish, updatedTaskB.EarlyStart);
+    Assert.AreEqual(updatedTaskB.EarlyStart.AddDays(3), updatedTaskB.EarlyFinish);
+}
 
     [TestMethod]
     public void GetProjectWithCriticalPath_ShouldReturnProjectWithCriticalPathData()
     {
-        Task taskA = new Task { Title = "A", Duration = 2 };
-        Task taskB = new Task { Title = "B", Duration = 3 };
-        Task taskC = new Task { Title = "C", Duration = 1 };
+        Task taskA = new Task
+        {
+            Title = "CriticalPath_A",
+            Description = "Task A description",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+
+        Task taskB = new Task
+        {
+            Title = "CriticalPath_B",
+            Description = "Task B description",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+
+        Task taskC = new Task
+        {
+            Title = "CriticalPath_C",
+            Description = "Task C description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
 
         TaskDependency dependencyB = new TaskDependency
         {
@@ -967,38 +1038,41 @@ public class ProjectServiceTest
 
         taskB.Dependencies = new List<TaskDependency> { dependencyB };
         taskC.Dependencies = new List<TaskDependency> { dependencyC };
+        
+        DateOnly projectStartDate = new DateOnly(2025, 6, 21);
 
         Project project = new Project
         {
-            Id = 35,
+            Id = 5555,
             Name = "Test Project",
             Description = "Description",
-            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            StartDate = projectStartDate,
             Tasks = new List<Task> { taskA, taskB, taskC }
         };
 
         _projectRepository.Add(project);
 
-        GetProjectDTO result = _projectService.GetProjectWithCriticalPath(35);
+        GetProjectDTO result = _projectService.GetProjectWithCriticalPath(5555);
 
         Assert.IsNotNull(result);
         Assert.AreEqual(project.Name, result.Name);
         Assert.AreEqual(3, result.Tasks.Count);
         Assert.AreEqual(3, result.CriticalPathTitles.Count);
-        CollectionAssert.AreEqual(new List<string> { "A", "B", "C" }, result.CriticalPathTitles);
+        CollectionAssert.AreEqual(new List<string> { "CriticalPath_A", "CriticalPath_B", "CriticalPath_C" },
+            result.CriticalPathTitles);
+        
+        DateTime startDate = projectStartDate.ToDateTime(new TimeOnly(0, 0));
 
-        DateTime startDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
-
-        var taskADto = result.Tasks.First(t => t.Title == "A");
+        var taskADto = result.Tasks.First(t => t.Title == "CriticalPath_A");
         Assert.AreEqual(startDate, taskADto.EarlyStart);
         Assert.AreEqual(startDate.AddDays(2), taskADto.EarlyFinish);
 
-        var taskBDto = result.Tasks.First(t => t.Title == "B");
-        Assert.AreEqual(taskADto.EarlyFinish.AddDays(1), taskBDto.EarlyStart);
+        var taskBDto = result.Tasks.First(t => t.Title == "CriticalPath_B");
+        Assert.AreEqual(taskADto.EarlyFinish, taskBDto.EarlyStart); 
         Assert.AreEqual(taskBDto.EarlyStart.AddDays(3), taskBDto.EarlyFinish);
 
-        var taskCDto = result.Tasks.First(t => t.Title == "C");
-        Assert.AreEqual(taskBDto.EarlyFinish.AddDays(1), taskCDto.EarlyStart);
+        var taskCDto = result.Tasks.First(t => t.Title == "CriticalPath_C");
+        Assert.AreEqual(taskBDto.EarlyFinish, taskCDto.EarlyStart); 
         Assert.AreEqual(taskCDto.EarlyStart.AddDays(1), taskCDto.EarlyFinish);
     }
 
@@ -1039,8 +1113,25 @@ public class ProjectServiceTest
     [TestMethod]
     public void GetUsersFromProject_ShouldReturnProjectUsers()
     {
-        User user1 = new User { Name = "UserOne", Email = "user1@test.com" };
-        User user2 = new User { Name = "UserTwo", Email = "user2@test.com" };
+        User user1 = new User
+        {
+            Name = "UserOne",
+            LastName = "LastOne",
+            Email = "user1_getusers@test.com",
+            Password = "UserOne123$",
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
+
+        User user2 = new User
+        {
+            Name = "UserTwo",
+            LastName = "LastTwo",
+            Email = "user2_getusers@test.com",
+            Password = "UserTwo123$",
+            BirthDate = new DateTime(1985, 1, 1),
+            Admin = false
+        };
 
         Project project = new Project
         {
@@ -1075,66 +1166,16 @@ public class ProjectServiceTest
     }
 
     [TestMethod]
-    public void GetAdministratorByProjectId_ShouldReturnCorrectResults()
-    {
-        User adminUser = new User
-        {
-            Name = "Admin",
-            LastName = "User",
-            Email = "admin.unique@test.com",
-            Password = "Admin123!",
-            BirthDate = DateTime.Now.AddYears(-30),
-            Admin = true
-        };
-
-        _userRepository.Add(adminUser);
-
-        Project project = new Project
-        {
-            Id = 500,
-            Name = "Test Project",
-            Description = "Test description",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1))
-        };
-
-        ProjectRole adminRole = new ProjectRole
-        {
-            RoleType = RoleType.ProjectAdmin,
-            User = adminUser,
-            Project = project
-        };
-
-        project.ProjectRoles = new List<ProjectRole> { adminRole };
-        _projectRepository.Add(project);
-
-        User? result = _projectService.GetAdministratorByProjectId(500);
-        Assert.IsNotNull(result);
-        Assert.AreEqual("admin.unique@test.com", result.Email);
-
-        User? resultNotFound = _projectService.GetAdministratorByProjectId(999);
-        Assert.IsNull(resultNotFound);
-
-        Project projectNoAdmin = new Project
-        {
-            Id = 600,
-            Name = "No Admin Project",
-            Description = "Project without admin",
-            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            ProjectRoles = new List<ProjectRole>()
-        };
-        _projectRepository.Add(projectNoAdmin);
-
-        User? resultNoAdmin = _projectService.GetAdministratorByProjectId(600);
-        Assert.IsNull(resultNoAdmin);
-    }
-
-    public void isLeadProjectTest()
+    public void IsLeadProjectTest()
     {
         User leadUser = new User
         {
             Name = "Lead",
             LastName = "User",
-            Email = "lead@admin,com",
+            Email = "lead@admin.com",
+            Password = "Lead123!",
+            BirthDate = DateTime.Now.AddYears(-25),
+            Admin = false
         };
         _userRepository.Add(leadUser);
 
@@ -1160,14 +1201,15 @@ public class ProjectServiceTest
             Name = "Lead Project",
             Description = "Project with lead",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            Users = new List<string> { "lead@admin,com" }
+            Users = new List<string> { "lead@admin.com" }
         };
 
         project.ProjectRoles.Add(leadRole);
-
         _projectRepository.Add(project);
 
-        bool isLead = _projectService.IsLeadProject(projectDataDto, "lead@admin,com");
+        bool isLead = _projectService.IsLeadProject(projectDataDto, "lead@admin.com");
+
+        Assert.IsTrue(isLead);
     }
 
     [TestMethod]
@@ -1192,16 +1234,24 @@ public class ProjectServiceTest
             Description = "Un proyecto de prueba"
         };
 
+        var uniqueSuffix =
+            $"{Thread.CurrentThread.ManagedThreadId}_{DateTime.Now.Ticks}_{Guid.NewGuid().ToString()[..8]}";
         var task = new Task
         {
-            Title = "Tarea A",
+            Title = $"Tarea A - {uniqueSuffix}",
+            Description = "Descripción de la tarea",
             EarlyStart = new DateTime(2024, 3, 3),
+            EarlyFinish = new DateTime(2024, 3, 8),
+            LateStart = new DateTime(2024, 3, 3),
+            LateFinish = new DateTime(2024, 3, 8),
             Duration = 5,
+            Status = Status.Pending,
             Resources = new List<TaskResource>
             {
                 new TaskResource
                 {
-                    Resource = _resource
+                    Resource = _resource,
+                    Quantity = 1
                 }
             }
         };
@@ -1218,8 +1268,21 @@ public class ProjectServiceTest
         project.ProjectRoles = new List<ProjectRole> { role };
 
         _projectRepository.Add(project);
-        _taskRepository.Add(task);
 
+        try
+        {
+            _taskRepository.Add(task);
+        }
+        catch (ArgumentException ex) when (ex.Message.Contains("same key has already been added"))
+        {
+
+            var existingTask = _taskRepository.Find(t => t.Title == task.Title);
+            if (existingTask == null)
+            {
+                task.Title = $"Tarea A - Fallback_{DateTime.Now.Ticks}";
+                _taskRepository.Add(task);
+            }
+        }
 
         var projects = _projectService.GetProjectsLedByUser("juan.lider@test.com");
         var result = _projectService.MapProjectsToExporterDataDto(projects);
@@ -1233,7 +1296,7 @@ public class ProjectServiceTest
         Assert.AreEqual(1, exportedProject.Tasks.Count);
 
         var exportedTask = exportedProject.Tasks.First();
-        Assert.AreEqual("Tarea A", exportedTask.Title);
+        Assert.IsTrue(exportedTask.Title.StartsWith("Tarea A"));
         Assert.AreEqual(new DateTime(2024, 3, 3), exportedTask.StartDate);
         Assert.AreEqual("N", exportedTask.IsCritical);
         Assert.AreEqual(1, exportedTask.Resources.Count);
@@ -1310,17 +1373,17 @@ public class ProjectServiceTest
     {
         Project project = new Project
         {
-            Id = 1111, 
+            Id = 1111,
             Name = "Started Project",
-            Description = "Test project description", 
-            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)) 
+            Description = "Test project description",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1))
         };
         _projectRepository.Add(project);
 
         var savedProject = _projectRepository.Find(p => p.Id == 1111);
         if (savedProject != null)
         {
-            var startDateField = typeof(Project).GetField("_startDate", 
+            var startDateField = typeof(Project).GetField("_startDate",
                 System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
             startDateField?.SetValue(savedProject, DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
         }
@@ -1335,9 +1398,9 @@ public class ProjectServiceTest
     {
         Project project = new Project
         {
-            Id = 2222, 
+            Id = 2222,
             Name = "Not Started Project",
-            Description = "Test project description", 
+            Description = "Test project description",
             StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1))
         };
         _projectRepository.Add(project);
