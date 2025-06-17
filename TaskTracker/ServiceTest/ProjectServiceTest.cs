@@ -444,15 +444,32 @@ public class ProjectServiceTest
     [TestMethod]
     public void ProjectsDataByUserEmailShouldReturnAssociatedProjects()
     {
-        User user = new User { Name = "Ana", LastName = "Lopez", Email = "ana@example.com" };
-        User admin = new User { Name = "Admin", LastName = "Root", Email = "admin@example.com", Admin = true };
+        User user = new User 
+        { 
+            Name = "Ana", 
+            LastName = "Lopez", 
+            Email = "ana_projectdata@example.com", 
+            Password = "AnaPassword123$",          
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
+
+        User admin = new User 
+        { 
+            Name = "Admin", 
+            LastName = "Root", 
+            Email = "admin_projectdata@example.com", 
+            Password = "AdminPassword123$",          
+            BirthDate = new DateTime(1985, 1, 1), 
+            Admin = true 
+        };
 
         _userRepository.Add(user);
         _userRepository.Add(admin);
 
         Project project = new Project
         {
-            Id = 1,
+            Id = 7777, 
             Name = "Test Project",
             Description = "Project description",
             StartDate = DateOnly.FromDateTime(DateTime.Now).AddDays(1)
@@ -475,11 +492,12 @@ public class ProjectServiceTest
         project.ProjectRoles = new List<ProjectRole> { adminRole, userRole };
         _projectRepository.Add(project);
 
-        List<ProjectDataDTO> result = _projectService.ProjectsDataByUserEmail("ana@example.com");
+        List<ProjectDataDTO> result = _projectService.ProjectsDataByUserEmail("ana_projectdata@example.com");
 
+        Assert.AreEqual(1, result.Count);
         Assert.AreEqual(project.Id, result[0].Id);
         Assert.AreEqual(project.Name, result[0].Name);
-        Assert.IsTrue(result[0].Users?.Contains("ana@example.com"));
+        Assert.IsTrue(result[0].Users?.Contains("ana_projectdata@example.com"));
     }
 
     [TestMethod]
