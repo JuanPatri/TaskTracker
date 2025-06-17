@@ -56,7 +56,7 @@ public class ProjectService
                 };
                 projectRoles.Add(adminRole);
             }
-   
+
             if (user.Email == leaderEmail)
             {
                 ProjectRole leaderRole = new ProjectRole
@@ -66,7 +66,7 @@ public class ProjectService
                 };
                 projectRoles.Add(leaderRole);
             }
-       
+
             if (user.Email != adminEmail && user.Email != leaderEmail)
             {
                 ProjectRole memberRole = new ProjectRole
@@ -79,7 +79,7 @@ public class ProjectService
         }
 
         Project newProject = FromDto(project, projectRoles);
-        
+
         return _projectRepository.Add(newProject);
     }
 
@@ -108,9 +108,27 @@ public class ProjectService
 
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
+        Console.WriteLine($"UpdateProject called with ID: {projectDto.Id}");
+
+        Project? existingProject = _projectRepository.Find(p => p.Id == projectDto.Id);
+        if (existingProject == null)
+        {
+            Console.WriteLine("ERROR: Existing project not found in UpdateProject");
+            return null;
+        }
+
+        Console.WriteLine("Existing project found in UpdateProject");
+
         List<User> associatedUsers = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
+        Console.WriteLine($"Found {associatedUsers.Count} associated users");
+
+        if (associatedUsers.Count != projectDto.Users.Count)
+        {
+            Console.WriteLine($"ERROR: Expected {projectDto.Users.Count} users, found {associatedUsers.Count}");
+            return null;
+        }
 
         List<ProjectRole> projectRoles = new List<ProjectRole>();
 
@@ -127,14 +145,28 @@ public class ProjectService
             projectRoles.Add(role);
         }
 
-        Project? updatedProject = _projectRepository.Update(FromDto(projectDto, projectRoles));
+        Console.WriteLine($"Created {projectRoles.Count} project roles");
+
+        Project projectToUpdate = FromDto(projectDto, projectRoles);
+        projectToUpdate.Id = projectDto.Id;
+        Console.WriteLine($"Created project to update with ID: {projectToUpdate.Id}");
+
+        Project? updatedProject = _projectRepository.Update(projectToUpdate);
+        Console.WriteLine($"Repository.Update returned: {updatedProject != null}");
 
         if (updatedProject != null)
         {
+            Console.WriteLine($"Updated project ID: {updatedProject.Id}, Name: {updatedProject.Name}");
             foreach (var role in updatedProject.ProjectRoles)
             {
                 role.Project = updatedProject;
             }
+
+            Console.WriteLine("Project roles assigned successfully");
+        }
+        else
+        {
+            Console.WriteLine("ERROR: Repository.Update returned null");
         }
 
         return updatedProject;
@@ -177,11 +209,11 @@ public class ProjectService
             Project? project = _projectRepository.Find(p => p.Id == projectId);
             if (project == null)
                 throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
-            
+
             ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
             if (resourceType == null)
                 throw new ArgumentException($"No se encontró un tipo de recurso con el ID {resourceDto.TypeResource}.");
-            
+
             Resource newResource = new Resource
             {
                 Name = resourceDto.Name,
@@ -194,7 +226,7 @@ public class ProjectService
                 project.ExclusiveResources = new List<Resource>();
 
             project.ExclusiveResources.Add(newResource);
-            
+
             _projectRepository.Update(project);
         }
         catch (Exception ex)
@@ -233,7 +265,7 @@ public class ProjectService
             .ToList();
     }
 
-    public  List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
+    public List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
             .Where(project => project.ProjectRoles != null &&
@@ -352,7 +384,7 @@ public class ProjectService
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
         return projectWithTask?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin)?.User?.Email;
     }
-    
+
     public string? GetLeadEmailByTaskTitle(string title)
     {
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
@@ -384,16 +416,18 @@ public class ProjectService
         Project? existingProject = _projectRepository.Find(p => p.Id == project.Id);
         if (existingProject != null && existingProject.ProjectRoles != null)
         {
-            return existingProject.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == leadEmail);
+            return existingProject.ProjectRoles.Any(pr =>
+                pr.RoleType == RoleType.ProjectLead && pr.User.Email == leadEmail);
         }
-        
+
         return false;
     }
-    
+
     public List<Project> GetProjectsLedByUser(string email)
     {
         return _projectRepository.FindAll()
-            .Where(p => p.ProjectRoles != null && p.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == email))
+            .Where(p => p.ProjectRoles != null &&
+                        p.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == email))
             .ToList();
     }
 
@@ -413,7 +447,7 @@ public class ProjectService
             }).ToList()
         }).ToList();
     }
-    
+
     public bool HasProjectStarted(int projectId)
     {
         Project project = GetProjectById(projectId);
@@ -425,7 +459,7 @@ public class ProjectService
         DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
         return projectStartDate < DateTime.Today;
     }
-    
+
     public Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
     {
         return new Project()
