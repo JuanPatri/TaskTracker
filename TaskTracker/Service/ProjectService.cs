@@ -172,51 +172,36 @@ public class ProjectService
 
     public void AddExclusiveResourceToProject(int projectId, ResourceDataDto resourceDto)
     {
-        Project project = _projectRepository.Find(p => p.Id == projectId);
-
-        if (project == null)
-            throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
-        
-        if (project.ExclusiveResources == null)
-            project.ExclusiveResources = new List<Resource>();
-
-        Resource newResource = new Resource
+        try
         {
-            Name = resourceDto.Name,
-            Description = resourceDto.Description,
-            Quantity = resourceDto.Quantity,
-            Id = GetNextExclusiveResourceId(project.ExclusiveResources),
-            Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
-        };
+            Project? project = _projectRepository.Find(p => p.Id == projectId);
+            if (project == null)
+                throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
+            
+            ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
+            if (resourceType == null)
+                throw new ArgumentException($"No se encontró un tipo de recurso con el ID {resourceDto.TypeResource}.");
+            
+            Resource newResource = new Resource
+            {
+                Name = resourceDto.Name,
+                Description = resourceDto.Description,
+                Quantity = resourceDto.Quantity,
+                Type = resourceType
+            };
 
-        project.ExclusiveResources.Add(newResource);
+            if (project.ExclusiveResources == null)
+                project.ExclusiveResources = new List<Resource>();
 
-        _projectRepository.Update(project);
-    }
-
-    private int GetNextExclusiveResourceId(List<Resource> resources)
-    {
-        int minExclusiveId = 1000;
-        
-        if (resources == null || !resources.Any())
-        {
-            return minExclusiveId;
+            project.ExclusiveResources.Add(newResource);
+            
+            _projectRepository.Update(project);
         }
-
-        int maxId = resources.Max(r => r.Id);
-        int nextId = maxId + 1;
-
-        if (nextId < minExclusiveId)
+        catch (Exception ex)
         {
-            nextId = minExclusiveId;
+            Console.WriteLine($"Error adding exclusive resource: {ex.Message}");
+            throw;
         }
-
-        if (nextId >= 2000)
-        {
-            throw new InvalidOperationException("Too many exclusive resources. Max 999 exclusive resources allowed.");
-        }
-
-        return nextId;
     }
 
     public List<ProjectDataDTO> GetAllProjectsDTOs()

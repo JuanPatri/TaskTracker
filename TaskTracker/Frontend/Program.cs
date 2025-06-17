@@ -25,8 +25,7 @@ builder.Services.AddScoped<IRepository<Project>, ProjectRepository>();
 builder.Services.AddScoped<IRepository<Task>, TaskRepository>();
 builder.Services.AddScoped<IRepository<Resource>, ResourceRepository>();
 builder.Services.AddScoped<IRepository<ResourceType>, ResourceTypeRepository>();
-
-builder.Services.AddSingleton<IRepository<Notification>, NotificationRepository>();
+builder.Services.AddScoped<IRepository<Notification>, NotificationRepository>();
 
 // Services
 builder.Services.AddScoped<UserService>();
