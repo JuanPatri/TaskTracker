@@ -47,16 +47,7 @@ else
                 <td>@resource.Type</td>
                 <td>@resource.Quantity</td>
                 <td>@resource.TaskName</td>
-                <td>@resource.UsagePeriod</td> 
-                <td>
-                    <div class="progress">
-                        <div class="progress-bar" role="progressbar"
-                             style="width:@resource.UsageLevel%"
-                             aria-valuenow="@resource.UsageLevel" aria-valuemin="0" aria-valuemax="100">
-                            @resource.UsageLevel%
-                        </div>
-                    </div>
-                </td>
+                <td>@resource.UsagePeriod</td>  a
             </tr>
         }
         </tbody>
@@ -95,15 +86,9 @@ else
             try
             {
                 _resourceStatsDto = ResourceService.GetResourceStatsByProject(projectId);
-                Console.WriteLine($"Stats para project {projectId}: {_resourceStatsDto.Count} recursos encontrados");
-                foreach (var r in _resourceStatsDto)
-                {
-                    Console.WriteLine($" - {r.Name}, {r.Quantity}");
-                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error al cargar recursos: {ex.Message}");
                 _resourceStatsDto = new(); 
             }
         

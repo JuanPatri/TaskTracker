@@ -380,16 +380,12 @@ public class ResourceService
                     Type = resource.Resource.Type.Name,
                     Quantity = resource.Resource.Quantity,
                     TaskName = resource.Task.Title,
-                    UsageLevel = task.Resources.Count,
                     UsagePeriod = $"{task.EarlyStart:yyyy-MM-dd} - {task.EarlyFinish:yyyy-MM-dd}"
                 };
 
                 resourceStats.Add(resourceStat);
             }
         }
-
-        Console.WriteLine($"✅ Total de recursos agregados: {resourceStats.Count}");
-
         return resourceStats;
     }
 }
