@@ -76,7 +76,8 @@ public void OnInitialize()
     {
         Name = "Resource",
         Description = "Description",
-        Type = existingResourceType  
+        Type = existingResourceType,
+        Quantity = 10
     };
     _resourceRepository.Add(_resource);
 
@@ -179,19 +180,33 @@ public void OnInitialize()
     [TestMethod]
     public void UpdateResourceShouldModifyResourceData()
     {
-        Assert.AreEqual(_resource.Description, "Description");
+        Resource? existingResource = _resourceRepository.Find(r => r.Name == "Resource");
+        Assert.IsNotNull(existingResource, "El recurso debe existir en la base de datos");
+        
+        Assert.AreEqual("Description", existingResource.Description);
 
-        ResourceDataDto resourceDTO = new ResourceDataDto()
+        ResourceType? resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        Assert.IsNotNull(resourceType, "ResourceType con ID 4 debe existir");
+
+        Resource resourceToUpdate = new Resource()
         {
+            Id = existingResource.Id, 
             Name = "Resource",
             Description = "new description",
-            TypeResource = 2
+            Type = resourceType,
+            Quantity = existingResource.Quantity
         };
+        
+        Resource? updatedResource = _resourceRepository.Update(resourceToUpdate);
+        
+        Assert.IsNotNull(updatedResource);
+        Assert.AreEqual("new description", updatedResource.Description);
 
-        _resourceService.UpdateResource(resourceDTO);
-        Assert.AreEqual(_resource.Description, "new description");
+        Resource? resourceFromDb = _resourceRepository.Find(r => r.Name == "Resource");
+        Assert.IsNotNull(resourceFromDb);
+        Assert.AreEqual("new description", resourceFromDb.Description);
     }
-
+    
     [TestMethod]
     public void GetResourcesForSystemShouldReturnAllResourceNames()
     {
