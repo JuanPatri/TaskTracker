@@ -540,16 +540,39 @@ public class TaskServiceTest
     [TestMethod]
     public void GetTasksForProjectWithIdTest()
     {
-        Task task1 = new Task() { Title = "Task 1" };
-        Task task2 = new Task() { Title = "Task 2" };
+        Task task1 = new Task() 
+        { 
+            Title = "Task 1",
+            Description = "First test task",        
+            Duration = 1,                          
+            Status = Status.Pending,              
+            EarlyStart = DateTime.Now,             
+            EarlyFinish = DateTime.Now.AddDays(1),  
+            LateStart = DateTime.Now,               
+            LateFinish = DateTime.Now.AddDays(1)    
+        };
 
+        Task task2 = new Task() 
+        { 
+            Title = "Task 2",
+            Description = "Second test task",       
+            Duration = 2,                           
+            Status = Status.Pending,                
+            EarlyStart = DateTime.Now,              
+            EarlyFinish = DateTime.Now.AddDays(2),  
+            LateStart = DateTime.Now,               
+            LateFinish = DateTime.Now.AddDays(2)    
+        };
+        
         _taskRepository.Add(task1);
         _taskRepository.Add(task2);
-
+        
         Project project = new Project
         {
             Id = 1,
             Name = "Test Project",
+            Description = "Test project description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now), 
             Tasks = new List<Task> { task1, task2 }
         };
 
@@ -709,6 +732,8 @@ public class TaskServiceTest
         {
             Id = 1,
             Name = "Project 1",
+            Description = "First test project",
+            StartDate = DateOnly.FromDateTime(DateTime.Now),
             Tasks = new List<Task>()
         };
 
@@ -716,11 +741,34 @@ public class TaskServiceTest
         {
             Id = 2,
             Name = "Project 2",
+            Description = "Second test project",
+            StartDate = DateOnly.FromDateTime(DateTime.Now),
             Tasks = new List<Task>()
         };
 
-        Task externalTask = new Task { Title = "External Task" };
-        Task task = new Task { Title = "Task" };
+        Task externalTask = new Task
+        {
+            Title = "External Task",
+            Description = "Task from external project",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1)
+        };
+
+        Task task = new Task
+        {
+            Title = "Task",
+            Description = "Main task with external dependency",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(2),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(2)
+        };
 
         TaskDependency dependency = new TaskDependency
         {
@@ -736,12 +784,10 @@ public class TaskServiceTest
 
         _projectRepository.Add(project1);
         _projectRepository.Add(project2);
-        _taskRepository.Add(task);
-        _taskRepository.Add(externalTask);
 
         bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
 
-        Assert.IsTrue(result, "Task should depend on tasks from another project");
+        Assert.IsTrue(result);
     }
 
 
@@ -752,33 +798,33 @@ public class TaskServiceTest
         {
             Id = 1,
             Name = "Project",
-            Description = "Test project description", 
-            StartDate = DateOnly.FromDateTime(DateTime.Now), 
+            Description = "Test project description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now),
             Tasks = new List<Task>()
         };
-        
+
         Task dependencyTask = new Task
         {
             Title = "Dependency Task",
-            Description = "Dependency task description", 
-            Duration = 1, 
-            Status = Status.Pending, 
-            EarlyStart = DateTime.Now, 
-            EarlyFinish = DateTime.Now.AddDays(1), 
-            LateStart = DateTime.Now, 
-            LateFinish = DateTime.Now.AddDays(1) 
+            Description = "Dependency task description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1)
         };
 
         Task task = new Task
         {
             Title = "Task",
-            Description = "Main task description", 
-            Duration = 2, 
+            Description = "Main task description",
+            Duration = 2,
             Status = Status.Pending,
-            EarlyStart = DateTime.Now, 
-            EarlyFinish = DateTime.Now.AddDays(2), 
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(2),
             LateStart = DateTime.Now,
-            LateFinish = DateTime.Now.AddDays(2) 
+            LateFinish = DateTime.Now.AddDays(2)
         };
 
         TaskDependency dependency = new TaskDependency

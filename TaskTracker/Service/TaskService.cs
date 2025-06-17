@@ -274,13 +274,12 @@ public class TaskService
     public bool DependsOnTasksFromAnotherProject(string titulo, int projectId)
     {
         Task task = _taskRepository.Find(t => t.Title == titulo);
-
         Project? project = _projectRepository.Find(p => p.Id == projectId);
         if (task == null || project == null) return false;
 
         foreach (var dependency in task.Dependencies)
         {
-            if (!project.Tasks.Any(t => t.Title == dependency.Task.Title))
+            if (!project.Tasks.Any(t => t.Title == dependency.Dependency.Title))
             {
                 return true;
             }
