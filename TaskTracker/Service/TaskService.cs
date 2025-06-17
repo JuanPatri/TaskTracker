@@ -242,7 +242,7 @@ public class TaskService
         foreach (var task in project.Tasks)
         {
             DateTime earlyStart;
-        
+    
             if (task.Dependencies == null || task.Dependencies.Count == 0)
             {
                 earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
@@ -250,15 +250,15 @@ public class TaskService
             else
             {
                 DateTime latestDependencyFinish = DateTime.MinValue;
-            
+        
                 foreach (var dependency in task.Dependencies)
                 {
-                    if (dependency.Task.EarlyFinish > latestDependencyFinish)
+                    if (dependency.Dependency.EarlyFinish > latestDependencyFinish)
                     {
-                        latestDependencyFinish = dependency.Task.EarlyFinish;
+                        latestDependencyFinish = dependency.Dependency.EarlyFinish;
                     }
                 }
-            
+        
                 earlyStart = latestDependencyFinish != DateTime.MinValue 
                     ? latestDependencyFinish.AddDays(1) 
                     : project.StartDate.ToDateTime(new TimeOnly(0, 0));
@@ -267,7 +267,7 @@ public class TaskService
             task.EarlyStart = earlyStart;
             task.EarlyFinish = earlyStart.AddDays(task.Duration);
         }
-    
+
         _projectRepository.Update(project);
     }
 
