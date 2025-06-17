@@ -254,32 +254,76 @@ public class TaskServiceTest
     [TestMethod]
     public void UpdateTaskShouldUpdateTask()
     {
-        Project project = new Project() { Id = 45, Name = "Updated Test Project" };
+        Project project = new Project()
+        {
+            Id = 45,
+            Name = "Updated Test Project",
+            Description = "Test project for update",
+            StartDate = DateOnly.FromDateTime(DateTime.Now)
+        };
         _projectRepository.Add(project);
 
-        TaskDataDTO taskDto = new TaskDataDTO();
-        taskDto.Title = "Test Task";
-        taskDto.Description = "New Description";
-        taskDto.Duration = 1;
-        taskDto.Status = Status.Blocked;
-        taskDto.Dependencies = new List<string>() { "Task1", "Task2" };
-
-        _taskRepository.Add(new Task()
+        Task task1 = new Task()
         {
-            Title = "Task1"
-        });
+            Title = "UpdateTest_Task1",
+            Description = "First dependency task",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1)
+        };
 
-        _taskRepository.Add(new Task()
+        Task task2 = new Task()
         {
-            Title = "Task2"
-        });
+            Title = "UpdateTest_Task2",
+            Description = "Second dependency task",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1)
+        };
 
-        _task.Description = "Description";
-        Assert.AreEqual(_task.Description, "Description");
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Task taskToUpdate = new Task()
+        {
+            Title = "UpdateTest_MainTask",
+            Description = "Original Description",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(2),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(2)
+        };
+
+        _taskRepository.Add(taskToUpdate);
+
+        Assert.AreEqual("Original Description", taskToUpdate.Description);
+
+        TaskDataDTO taskDto = new TaskDataDTO
+        {
+            Title = "UpdateTest_MainTask",
+            Description = "New Description",
+            Duration = 1,
+            Status = Status.Blocked,
+            Dependencies = new List<string>() { "UpdateTest_Task1", "UpdateTest_Task2" }
+        };
 
         _taskService.UpdateTask(taskDto);
 
-        Assert.AreEqual("New Description", _task.Description);
+        Task? updatedTask = _taskRepository.Find(t => t.Title == "UpdateTest_MainTask");
+
+        Assert.IsNotNull(updatedTask);
+        Assert.AreEqual("New Description", updatedTask.Description);
+        Assert.AreEqual(1, updatedTask.Duration);
+        Assert.AreEqual(Status.Blocked, updatedTask.Status);
+        Assert.AreEqual(2, updatedTask.Dependencies.Count);
     }
 
     [TestMethod]
@@ -540,39 +584,39 @@ public class TaskServiceTest
     [TestMethod]
     public void GetTasksForProjectWithIdTest()
     {
-        Task task1 = new Task() 
-        { 
+        Task task1 = new Task()
+        {
             Title = "Task 1",
-            Description = "First test task",        
-            Duration = 1,                          
-            Status = Status.Pending,              
-            EarlyStart = DateTime.Now,             
-            EarlyFinish = DateTime.Now.AddDays(1),  
-            LateStart = DateTime.Now,               
-            LateFinish = DateTime.Now.AddDays(1)    
+            Description = "First test task",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1)
         };
 
-        Task task2 = new Task() 
-        { 
+        Task task2 = new Task()
+        {
             Title = "Task 2",
-            Description = "Second test task",       
-            Duration = 2,                           
-            Status = Status.Pending,                
-            EarlyStart = DateTime.Now,              
-            EarlyFinish = DateTime.Now.AddDays(2),  
-            LateStart = DateTime.Now,               
-            LateFinish = DateTime.Now.AddDays(2)    
+            Description = "Second test task",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(2),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(2)
         };
-        
+
         _taskRepository.Add(task1);
         _taskRepository.Add(task2);
-        
+
         Project project = new Project
         {
             Id = 1,
             Name = "Test Project",
             Description = "Test project description",
-            StartDate = DateOnly.FromDateTime(DateTime.Now), 
+            StartDate = DateOnly.FromDateTime(DateTime.Now),
             Tasks = new List<Task> { task1, task2 }
         };
 
