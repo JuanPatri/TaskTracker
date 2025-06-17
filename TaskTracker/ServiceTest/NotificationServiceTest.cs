@@ -334,7 +334,16 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetUnviewedNotificationsForUser_ShouldReturnOnlyUnviewedNotifications()
     {
-        var user = new User { Name = "John", Email = "john@mail.com" };
+        var user = new User 
+        { 
+            Name = "John",
+            LastName = "Doe",       
+            Email = "john@mail.com",
+            Password = "Password123@", 
+            BirthDate = DateTime.Now.AddYears(-25),  
+            Admin = false              
+        };
+
         var notificationViewed = new Notification
         {
             Id = 1,
@@ -345,6 +354,7 @@ public class NotificationServiceTest
             Users = new List<User> { user },
             ViewedBy = new List<string> { "john@mail.com" }
         };
+
         var notificationUnviewed = new Notification
         {
             Id = 2,
