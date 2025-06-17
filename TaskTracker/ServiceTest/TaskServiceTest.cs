@@ -302,19 +302,42 @@ public class TaskServiceTest
         Task dependency1 = new Task
         {
             Title = "Dependency 1",
-            Status = Status.Completed
+            Description = "First dependency task",
+            Duration = 1,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Now.AddDays(-2),
+            EarlyFinish = DateTime.Now.AddDays(-1),
+            LateStart = DateTime.Now.AddDays(-2),
+            LateFinish = DateTime.Now.AddDays(-1),
+            DateCompleated = DateTime.Now.AddDays(-1)
         };
+
         Task dependency2 = new Task
         {
             Title = "Dependency 2",
-            Status = Status.Completed
+            Description = "Second dependency task",
+            Duration = 1,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Now.AddDays(-2),
+            EarlyFinish = DateTime.Now.AddDays(-1),
+            LateStart = DateTime.Now.AddDays(-2),
+            LateFinish = DateTime.Now.AddDays(-1),
+            DateCompleated = DateTime.Now.AddDays(-1)
         };
+
         _taskRepository.Add(dependency1);
         _taskRepository.Add(dependency2);
 
         Task taskWithCompletedDependencies = new Task
         {
-            Title = "Task With Completed Dependencies"
+            Title = "Task With Completed Dependencies",
+            Description = "Main task with dependencies",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(2),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(2)
         };
 
         TaskDependency dep1 = new TaskDependency
@@ -729,11 +752,34 @@ public class TaskServiceTest
         {
             Id = 1,
             Name = "Project",
+            Description = "Test project description", 
+            StartDate = DateOnly.FromDateTime(DateTime.Now), 
             Tasks = new List<Task>()
         };
+        
+        Task dependencyTask = new Task
+        {
+            Title = "Dependency Task",
+            Description = "Dependency task description", 
+            Duration = 1, 
+            Status = Status.Pending, 
+            EarlyStart = DateTime.Now, 
+            EarlyFinish = DateTime.Now.AddDays(1), 
+            LateStart = DateTime.Now, 
+            LateFinish = DateTime.Now.AddDays(1) 
+        };
 
-        Task dependencyTask = new Task { Title = "Dependency Task" };
-        Task task = new Task { Title = "Task" };
+        Task task = new Task
+        {
+            Title = "Task",
+            Description = "Main task description", 
+            Duration = 2, 
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now, 
+            EarlyFinish = DateTime.Now.AddDays(2), 
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(2) 
+        };
 
         TaskDependency dependency = new TaskDependency
         {
@@ -748,8 +794,8 @@ public class TaskServiceTest
         project.Tasks.Add(dependencyTask);
 
         _projectRepository.Add(project);
-        _taskRepository.Add(task);
-        _taskRepository.Add(dependencyTask);
+        //_taskRepository.Add(task);
+        //_taskRepository.Add(dependencyTask);
 
         bool result = _taskService.DependsOnTasksFromAnotherProject("Task", 1);
 

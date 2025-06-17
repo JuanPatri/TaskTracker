@@ -125,8 +125,8 @@ public class TaskService
     {
         var task = _taskRepository.Find(t => t.Title == dto.Title);
         if (task == null) return false;
-
-        return task.Dependencies.All(d => d.Task.Status == Status.Completed);
+        
+        return task.Dependencies.All(d => d.Dependency.Status == Status.Completed);
     }
 
     public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
