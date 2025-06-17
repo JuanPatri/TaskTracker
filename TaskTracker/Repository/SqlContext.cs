@@ -57,10 +57,10 @@ public class SqlContext : DbContext
         modelBuilder.Entity<Project>(entity =>
         {
             entity.HasKey(p => p.Id);
-            
+    
             entity.Property(p => p.Id)
                 .ValueGeneratedOnAdd();
-            
+    
             entity.Property(p => p.Name)
                 .IsRequired()
                 .HasMaxLength(100);
