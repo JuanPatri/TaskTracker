@@ -29,7 +29,7 @@ public class NotificationServiceTest
         _sqlContext = SqlContextFactory.CreateMemoryContext();
         _userRepository = new UserRepository(_sqlContext);
         _projectRepository = new ProjectRepository(_sqlContext);
-        _notificationRepository = new NotificationRepository();
+        _notificationRepository = new NotificationRepository(_sqlContext);
         _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
         _taskRepository = new TaskRepository(_sqlContext);
         _userService = new UserService(_userRepository);

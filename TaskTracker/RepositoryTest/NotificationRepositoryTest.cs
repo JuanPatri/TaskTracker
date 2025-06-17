@@ -1,3 +1,4 @@
+using BusinessLogicTest.Context;
 using Domain;
 using Enums;
 using Enums;
@@ -11,11 +12,13 @@ public class NotificationRepositoryTest
 {
     private NotificationRepository _notificationRepository;
     private Notification _notification;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        _notificationRepository = new NotificationRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _notificationRepository = new NotificationRepository(_sqlContext);
         _notification = new Notification();
         _notification.Id = 1;
         _notification.Message = "new notification";
