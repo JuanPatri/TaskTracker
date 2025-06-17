@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Repository;
 
-namespace BusinessLogicTest.Context;
+namespace RepositoryTest.Context;
 
 public static class SqlContextFactory
 {
