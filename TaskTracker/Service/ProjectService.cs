@@ -38,6 +38,11 @@ public class ProjectService
     {
         ValidateProjectName(project.Name);
 
+        if (project.StartDate < DateOnly.FromDateTime(DateTime.Today))
+        {
+            throw new ArgumentException("The project start date cannot be in the past");
+        }
+
         List<User> associatedUsers = _userService.GetUsersFromEmails(project.Users);
 
         string adminEmail = project.Users[0];
@@ -356,7 +361,10 @@ public class ProjectService
 
         if (task.Dependencies == null || task.Dependencies.Count == 0)
         {
-            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime today = DateTime.Today;
+        
+            earlyStart = projectStartDate > today ? projectStartDate : today;
         }
         else
         {
@@ -370,9 +378,17 @@ public class ProjectService
                 }
             }
 
-            earlyStart = latestDependencyFinish != DateTime.MinValue
-                ? latestDependencyFinish 
-                : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            if (latestDependencyFinish != DateTime.MinValue)
+            {
+                earlyStart = latestDependencyFinish;
+            }
+            else
+            {
+                DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+                DateTime today = DateTime.Today;
+            
+                earlyStart = projectStartDate > today ? projectStartDate : today;
+            }
         }
 
         task.EarlyStart = earlyStart;
@@ -457,7 +473,11 @@ public class ProjectService
         }
 
         DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        return projectStartDate < DateTime.Today;
+        
+        bool hasActiveTasks = project.Tasks?.Any(t => t.Status != Status.Pending) == true;
+        bool startedLongAgo = projectStartDate < DateTime.Today.AddDays(-7);
+    
+        return hasActiveTasks || startedLongAgo;
     }
 
     public Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)

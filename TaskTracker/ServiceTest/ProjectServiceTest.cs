@@ -1353,31 +1353,78 @@ public void GetProjectsLedByUser_ReturnsCorrectData()
         Assert.AreEqual("Rodriguez", admin.User.LastName);
         Assert.AreEqual("prodriguez@gmail.com", admin.User.Email);
     }
-
-    [TestMethod]
-    public void HasProjectStarted_ShouldReturnTrue_WhenProjectHasStarted()
+    
+[TestMethod]
+public void HasProjectStarted_ShouldReturnTrue_WhenProjectHasActiveTasks()
+{
+    Project project = new Project
     {
-        Project project = new Project
-        {
-            Id = 1111,
-            Name = "Started Project",
-            Description = "Test project description",
-            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1))
-        };
-        _projectRepository.Add(project);
+        Id = 1111,
+        Name = "Started Project",
+        Description = "Test project description",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-1))
+    };
+    
+    var activeTask = new Domain.Task
+    {
+        Title = "Active Task",
+        Description = "Test task",
+        Duration = 1,
+        Status = Status.Completed
+    };
+    
+    project.Tasks = new List<Domain.Task> { activeTask };
+    _projectRepository.Add(project);
 
-        var savedProject = _projectRepository.Find(p => p.Id == 1111);
-        if (savedProject != null)
-        {
-            var startDateField = typeof(Project).GetField("_startDate",
-                System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-            startDateField?.SetValue(savedProject, DateOnly.FromDateTime(DateTime.Today.AddDays(-1)));
-        }
+    bool result = _projectService.HasProjectStarted(1111);
 
-        bool result = _projectService.HasProjectStarted(1111);
+    Assert.IsTrue(result);
+}
 
-        Assert.IsTrue(result);
-    }
+[TestMethod]
+public void HasProjectStarted_ShouldReturnTrue_WhenProjectStartedLongAgo()
+{
+    Project project = new Project
+    {
+        Id = 1111,
+        Name = "Old Project",
+        Description = "Test project description",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-10))
+    };
+    
+    _projectRepository.Add(project);
+
+    bool result = _projectService.HasProjectStarted(1111);
+
+    Assert.IsTrue(result);
+}
+
+[TestMethod]
+public void HasProjectStarted_ShouldReturnFalse_WhenProjectIsRecent()
+{
+    Project project = new Project
+    {
+        Id = 1111,
+        Name = "Recent Project",
+        Description = "Test project description",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-1))
+    };
+    
+    var pendingTask = new Domain.Task
+    {
+        Title = "Pending Task",
+        Description = "Test task",
+        Duration = 1,
+        Status = Status.Pending
+    };
+    
+    project.Tasks = new List<Domain.Task> { pendingTask };
+    _projectRepository.Add(project);
+
+    bool result = _projectService.HasProjectStarted(1111);
+
+    Assert.IsFalse(result);
+}
 
     [TestMethod]
     public void HasProjectStarted_ShouldReturnFalse_WhenProjectHasNotStarted()

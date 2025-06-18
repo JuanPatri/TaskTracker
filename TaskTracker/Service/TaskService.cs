@@ -139,12 +139,15 @@ public class TaskService
 
         if (taskDto.Dependencies == null || taskDto.Dependencies.Count == 0)
         {
-            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime today = DateTime.Today;
+        
+            earlyStart = projectStartDate > today ? projectStartDate : today;
         }
         else
         {
             DateTime latestDependencyFinish = DateTime.MinValue;
-        
+    
             foreach (string dependencyTitle in taskDto.Dependencies)
             {
                 var dependencyTask = project.Tasks?.FirstOrDefault(t => t.Title == dependencyTitle);
@@ -156,10 +159,18 @@ public class TaskService
                     }
                 }
             }
-        
-            earlyStart = latestDependencyFinish != DateTime.MinValue 
-                ? latestDependencyFinish.AddDays(1) 
-                : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+    
+            if (latestDependencyFinish != DateTime.MinValue)
+            {
+                earlyStart = latestDependencyFinish.AddDays(1);
+            }
+            else
+            {
+                DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+                DateTime today = DateTime.Today;
+            
+                earlyStart = projectStartDate > today ? projectStartDate : today;
+            }
         }
 
         DateTime earlyFinish = earlyStart.AddDays(taskDto.Duration);
