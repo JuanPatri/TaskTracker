@@ -71,7 +71,7 @@ public class ProjectRepository : IRepository<Project>
         existingProject.Description = updatedProject.Description;
         existingProject.StartDate = updatedProject.StartDate;
 
-        if (updatedProject.ProjectRoles != null)
+        if (updatedProject.ProjectRoles != null && updatedProject.ProjectRoles.Any())
         {
             var rolesToRemove = existingProject.ProjectRoles.ToList();
             foreach (var role in rolesToRemove)
@@ -83,13 +83,18 @@ public class ProjectRepository : IRepository<Project>
 
             foreach (var role in updatedProject.ProjectRoles)
             {
-                var newRole = new ProjectRole
+                var userInContext = _sqlContext.Users.FirstOrDefault(u => u.Email == role.User.Email);
+
+                if (userInContext != null)
                 {
-                    RoleType = role.RoleType,
-                    User = role.User,
-                    Project = existingProject
-                };
-                existingProject.ProjectRoles.Add(newRole);
+                    var newRole = new ProjectRole
+                    {
+                        RoleType = role.RoleType,
+                        User = userInContext,
+                        Project = existingProject
+                    };
+                    existingProject.ProjectRoles.Add(newRole);
+                }
             }
         }
 

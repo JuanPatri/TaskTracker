@@ -227,7 +227,18 @@ public class ProjectService
 
             project.ExclusiveResources.Add(newResource);
 
-            _projectRepository.Update(project);
+            Project projectToUpdate = new Project
+            {
+                Id = project.Id,
+                Name = project.Name,
+                Description = project.Description,
+                StartDate = project.StartDate,
+                Tasks = project.Tasks,
+                ExclusiveResources = project.ExclusiveResources,
+                ProjectRoles = null
+            };
+
+            _projectRepository.Update(projectToUpdate);
         }
         catch (Exception ex)
         {
