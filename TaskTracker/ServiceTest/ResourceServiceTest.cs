@@ -848,7 +848,7 @@ public class ResourceServiceTest
             Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(negativeResource));
         Assert.AreEqual("Resource quantity must be greater than zero", exception2.Message);
     }
-    
+
     [TestMethod]
     public void IsResourceAvailable_ErrorCases()
     {
@@ -1099,5 +1099,224 @@ public class ResourceServiceTest
         Assert.IsTrue(result.HasConflicts);
         Assert.IsTrue(result.ConflictingTasks.Count >= 1);
         Assert.IsTrue(edgeCaseTask.Dependencies.Count >= 1);
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_ShouldReturnStatsForProject()
+    {
+        ResourceType testType = new ResourceType { Id = 15, Name = "Test Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource testResource = new Resource
+        {
+            Name = "Test Resource",
+            Description = "Test resource description",
+            Type = testType,
+            Quantity = 5
+        };
+        _resourceRepository.Add(testResource);
+
+        Task testTask = new Task
+        {
+            Title = "Test Task For Stats",
+            Description = "Test task description",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(3),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(3)
+        };
+
+        TaskResource taskResource = new TaskResource
+        {
+            Task = testTask,
+            Resource = testResource,
+            Quantity = 2
+        };
+
+        testTask.Resources = new List<TaskResource> { taskResource };
+        _taskRepository.Add(testTask);
+
+        Project testProject = new Project
+        {
+            Id = 100,
+            Name = "Stats Test Project",
+            Description = "Project for testing stats",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { testTask }
+        };
+        _projectRepository.Add(testProject);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(100);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+
+        ResourceStatsDto stat = result[0];
+        Assert.AreEqual("Test Resource", stat.Name);
+        Assert.AreEqual("Test resource description", stat.Description);
+        Assert.AreEqual("Test Type", stat.Type);
+        Assert.AreEqual(2, stat.Quantity);
+        Assert.AreEqual("Test Task For Stats", stat.TaskName);
+        Assert.IsTrue(stat.UsagePeriod.Contains(DateTime.Today.ToString("yyyy-MM-dd")));
+        Assert.IsTrue(stat.UsagePeriod.Contains(DateTime.Today.AddDays(3).ToString("yyyy-MM-dd")));
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_WithMultipleTasksAndResources_ShouldReturnAllStats()
+    {
+        ResourceType type1 = new ResourceType { Id = 16, Name = "Type 1" };
+        ResourceType type2 = new ResourceType { Id = 17, Name = "Type 2" };
+        _resourceTypeRepository.Add(type1);
+        _resourceTypeRepository.Add(type2);
+
+        Resource resource1 = new Resource
+        {
+            Name = "Resource 1",
+            Description = "First resource",
+            Type = type1,
+            Quantity = 10
+        };
+
+        Resource resource2 = new Resource
+        {
+            Name = "Resource 2",
+            Description = "Second resource",
+            Type = type2,
+            Quantity = 5
+        };
+        _resourceRepository.Add(resource1);
+        _resourceRepository.Add(resource2);
+
+        Task task1 = new Task
+        {
+            Title = "Task 1",
+            Description = "First task",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(2)
+        };
+
+        Task task2 = new Task
+        {
+            Title = "Task 2",
+            Description = "Second task",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today.AddDays(3),
+            EarlyFinish = DateTime.Today.AddDays(4),
+            LateStart = DateTime.Today.AddDays(3),
+            LateFinish = DateTime.Today.AddDays(4)
+        };
+
+        TaskResource taskResource1 = new TaskResource
+        {
+            Task = task1,
+            Resource = resource1,
+            Quantity = 3
+        };
+
+        TaskResource taskResource2 = new TaskResource
+        {
+            Task = task2,
+            Resource = resource2,
+            Quantity = 1
+        };
+
+        task1.Resources = new List<TaskResource> { taskResource1 };
+        task2.Resources = new List<TaskResource> { taskResource2 };
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project multiProject = new Project
+        {
+            Id = 101,
+            Name = "Multi Stats Project",
+            Description = "Project with multiple tasks and resources",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task1, task2 }
+        };
+        _projectRepository.Add(multiProject);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(101);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(2, result.Count);
+
+        ResourceStatsDto stat1 = result.FirstOrDefault(r => r.Name == "Resource 1");
+        ResourceStatsDto stat2 = result.FirstOrDefault(r => r.Name == "Resource 2");
+
+        Assert.IsNotNull(stat1);
+        Assert.IsNotNull(stat2);
+
+        Assert.AreEqual("First resource", stat1.Description);
+        Assert.AreEqual("Type 1", stat1.Type);
+        Assert.AreEqual(3, stat1.Quantity);
+        Assert.AreEqual("Task 1", stat1.TaskName);
+
+        Assert.AreEqual("Second resource", stat2.Description);
+        Assert.AreEqual("Type 2", stat2.Type);
+        Assert.AreEqual(1, stat2.Quantity);
+        Assert.AreEqual("Task 2", stat2.TaskName);
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_EmptyProject_ShouldReturnEmptyList()
+    {
+        Project emptyProject = new Project
+        {
+            Id = 102,
+            Name = "Empty Project",
+            Description = "Project with no tasks",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(emptyProject);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(102);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_TasksWithoutResources_ShouldReturnEmptyList()
+    {
+        Task taskWithoutResources = new Task
+        {
+            Title = "Task Without Resources",
+            Description = "Task that doesn't use any resources",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(1),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(1),
+            Resources = new List<TaskResource>()
+        };
+        _taskRepository.Add(taskWithoutResources);
+
+        Project projectWithoutResourceUsage = new Project
+        {
+            Id = 103,
+            Name = "Project Without Resource Usage",
+            Description = "Project with tasks but no resource usage",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { taskWithoutResources }
+        };
+        _projectRepository.Add(projectWithoutResourceUsage);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(103);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
     }
 }
