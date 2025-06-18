@@ -848,7 +848,7 @@ public class ResourceServiceTest
             Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(negativeResource));
         Assert.AreEqual("Resource quantity must be greater than zero", exception2.Message);
     }
-    
+
     [TestMethod]
     public void IsResourceAvailable_ErrorCases()
     {
@@ -1099,5 +1099,1102 @@ public class ResourceServiceTest
         Assert.IsTrue(result.HasConflicts);
         Assert.IsTrue(result.ConflictingTasks.Count >= 1);
         Assert.IsTrue(edgeCaseTask.Dependencies.Count >= 1);
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_ShouldReturnStatsForProject()
+    {
+        ResourceType testType = new ResourceType { Id = 15, Name = "Test Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource testResource = new Resource
+        {
+            Name = "Test Resource",
+            Description = "Test resource description",
+            Type = testType,
+            Quantity = 5
+        };
+        _resourceRepository.Add(testResource);
+
+        Task testTask = new Task
+        {
+            Title = "Test Task For Stats",
+            Description = "Test task description",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(3),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(3)
+        };
+
+        TaskResource taskResource = new TaskResource
+        {
+            Task = testTask,
+            Resource = testResource,
+            Quantity = 2
+        };
+
+        testTask.Resources = new List<TaskResource> { taskResource };
+        _taskRepository.Add(testTask);
+
+        Project testProject = new Project
+        {
+            Id = 100,
+            Name = "Stats Test Project",
+            Description = "Project for testing stats",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { testTask }
+        };
+        _projectRepository.Add(testProject);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(100);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Count);
+
+        ResourceStatsDto stat = result[0];
+        Assert.AreEqual("Test Resource", stat.Name);
+        Assert.AreEqual("Test resource description", stat.Description);
+        Assert.AreEqual("Test Type", stat.Type);
+        Assert.AreEqual(2, stat.Quantity);
+        Assert.AreEqual("Test Task For Stats", stat.TaskName);
+        Assert.IsTrue(stat.UsagePeriod.Contains(DateTime.Today.ToString("yyyy-MM-dd")));
+        Assert.IsTrue(stat.UsagePeriod.Contains(DateTime.Today.AddDays(3).ToString("yyyy-MM-dd")));
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_WithMultipleTasksAndResources_ShouldReturnAllStats()
+    {
+        ResourceType type1 = new ResourceType { Id = 16, Name = "Type 1" };
+        ResourceType type2 = new ResourceType { Id = 17, Name = "Type 2" };
+        _resourceTypeRepository.Add(type1);
+        _resourceTypeRepository.Add(type2);
+
+        Resource resource1 = new Resource
+        {
+            Name = "Resource 1",
+            Description = "First resource",
+            Type = type1,
+            Quantity = 10
+        };
+
+        Resource resource2 = new Resource
+        {
+            Name = "Resource 2",
+            Description = "Second resource",
+            Type = type2,
+            Quantity = 5
+        };
+        _resourceRepository.Add(resource1);
+        _resourceRepository.Add(resource2);
+
+        Task task1 = new Task
+        {
+            Title = "Task 1",
+            Description = "First task",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(2)
+        };
+
+        Task task2 = new Task
+        {
+            Title = "Task 2",
+            Description = "Second task",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today.AddDays(3),
+            EarlyFinish = DateTime.Today.AddDays(4),
+            LateStart = DateTime.Today.AddDays(3),
+            LateFinish = DateTime.Today.AddDays(4)
+        };
+
+        TaskResource taskResource1 = new TaskResource
+        {
+            Task = task1,
+            Resource = resource1,
+            Quantity = 3
+        };
+
+        TaskResource taskResource2 = new TaskResource
+        {
+            Task = task2,
+            Resource = resource2,
+            Quantity = 1
+        };
+
+        task1.Resources = new List<TaskResource> { taskResource1 };
+        task2.Resources = new List<TaskResource> { taskResource2 };
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project multiProject = new Project
+        {
+            Id = 101,
+            Name = "Multi Stats Project",
+            Description = "Project with multiple tasks and resources",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task1, task2 }
+        };
+        _projectRepository.Add(multiProject);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(101);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(2, result.Count);
+
+        ResourceStatsDto stat1 = result.FirstOrDefault(r => r.Name == "Resource 1");
+        ResourceStatsDto stat2 = result.FirstOrDefault(r => r.Name == "Resource 2");
+
+        Assert.IsNotNull(stat1);
+        Assert.IsNotNull(stat2);
+
+        Assert.AreEqual("First resource", stat1.Description);
+        Assert.AreEqual("Type 1", stat1.Type);
+        Assert.AreEqual(3, stat1.Quantity);
+        Assert.AreEqual("Task 1", stat1.TaskName);
+
+        Assert.AreEqual("Second resource", stat2.Description);
+        Assert.AreEqual("Type 2", stat2.Type);
+        Assert.AreEqual(1, stat2.Quantity);
+        Assert.AreEqual("Task 2", stat2.TaskName);
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_EmptyProject_ShouldReturnEmptyList()
+    {
+        Project emptyProject = new Project
+        {
+            Id = 102,
+            Name = "Empty Project",
+            Description = "Project with no tasks",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(emptyProject);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(102);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void GetResourceStatsByProject_TasksWithoutResources_ShouldReturnEmptyList()
+    {
+        Task taskWithoutResources = new Task
+        {
+            Title = "Task Without Resources",
+            Description = "Task that doesn't use any resources",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(1),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(1),
+            Resources = new List<TaskResource>()
+        };
+        _taskRepository.Add(taskWithoutResources);
+
+        Project projectWithoutResourceUsage = new Project
+        {
+            Id = 103,
+            Name = "Project Without Resource Usage",
+            Description = "Project with tasks but no resource usage",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { taskWithoutResources }
+        };
+        _projectRepository.Add(projectWithoutResourceUsage);
+
+        List<ResourceStatsDto> result = _resourceService.GetResourceStatsByProject(103);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public void UpdateResource_ReducingQuantity_ShouldValidateUsage()
+    {
+        ResourceType testType = new ResourceType { Id = 18, Name = "Usage Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource testResource = new Resource
+        {
+            Name = "Usage Resource",
+            Description = "Resource for usage testing",
+            Type = testType,
+            Quantity = 10
+        };
+        _resourceRepository.Add(testResource);
+
+        Task activeTask = new Task
+        {
+            Title = "Active Task",
+            Description = "Active task using resource",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(2)
+        };
+
+        TaskResource taskResource = new TaskResource
+        {
+            Task = activeTask,
+            Resource = testResource,
+            Quantity = 3
+        };
+
+        activeTask.Resources = new List<TaskResource> { taskResource };
+        _taskRepository.Add(activeTask);
+
+        Project testProject = new Project
+        {
+            Id = 104,
+            Name = "Usage Test Project",
+            Description = "Project for testing usage",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { activeTask }
+        };
+        _projectRepository.Add(testProject);
+
+        ResourceDataDto updateDto = new ResourceDataDto
+        {
+            Id = testResource.Id,
+            Name = testResource.Name,
+            Description = testResource.Description,
+            TypeResource = testType.Id,
+            Quantity = 2
+        };
+
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+            () => _resourceService.UpdateResource(updateDto));
+
+        Assert.IsTrue(exception.Message.Contains("Cannot reduce resource quantity to 2"));
+        Assert.IsTrue(exception.Message.Contains("Currently 3 units are being used"));
+    }
+
+    [TestMethod]
+    public void UpdateResource_ReducingQuantityWithMultipleTasks_ShouldValidateTotal()
+    {
+        ResourceType testType = new ResourceType { Id = 19, Name = "Multi Usage Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource sharedResource = new Resource
+        {
+            Name = "Shared Resource",
+            Description = "Resource shared across tasks",
+            Type = testType,
+            Quantity = 20
+        };
+        _resourceRepository.Add(sharedResource);
+
+        Task task1 = new Task
+        {
+            Title = "Task 1 Usage",
+            Description = "First task using resource",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(1),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(1)
+        };
+
+        Task task2 = new Task
+        {
+            Title = "Task 2 Usage",
+            Description = "Second task using resource",
+            Duration = 2,
+            Status = Status.Blocked,
+            EarlyStart = DateTime.Today.AddDays(2),
+            EarlyFinish = DateTime.Today.AddDays(4),
+            LateStart = DateTime.Today.AddDays(2),
+            LateFinish = DateTime.Today.AddDays(4)
+        };
+
+        TaskResource taskResource1 = new TaskResource
+        {
+            Task = task1,
+            Resource = sharedResource,
+            Quantity = 5
+        };
+
+        TaskResource taskResource2 = new TaskResource
+        {
+            Task = task2,
+            Resource = sharedResource,
+            Quantity = 7
+        };
+
+        task1.Resources = new List<TaskResource> { taskResource1 };
+        task2.Resources = new List<TaskResource> { taskResource2 };
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project multiUsageProject = new Project
+        {
+            Id = 105,
+            Name = "Multi Usage Project",
+            Description = "Project with multiple resource usage",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task1, task2 }
+        };
+        _projectRepository.Add(multiUsageProject);
+
+        ResourceDataDto updateDto = new ResourceDataDto
+        {
+            Id = sharedResource.Id,
+            Name = sharedResource.Name,
+            Description = sharedResource.Description,
+            TypeResource = testType.Id,
+            Quantity = 10
+        };
+
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+            () => _resourceService.UpdateResource(updateDto));
+
+        Assert.IsTrue(exception.Message.Contains("Cannot reduce resource quantity to 10"));
+        Assert.IsTrue(exception.Message.Contains("Currently 12 units are being used"));
+    }
+
+    [TestMethod]
+    public void UpdateResource_WithCompletedTasks_ShouldIgnoreCompletedUsage()
+    {
+        ResourceType testType = new ResourceType { Id = 20, Name = "Completed Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource completedResource = new Resource
+        {
+            Name = "Completed Resource",
+            Description = "Resource with completed tasks",
+            Type = testType,
+            Quantity = 15
+        };
+        _resourceRepository.Add(completedResource);
+
+        Task activeTask = new Task
+        {
+            Title = "Active Task For Completed Test",
+            Description = "Active task",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(1),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(1)
+        };
+
+        Task completedTask = new Task
+        {
+            Title = "Completed Task",
+            Description = "Completed task",
+            Duration = 2,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Today.AddDays(-3),
+            EarlyFinish = DateTime.Today.AddDays(-1),
+            LateStart = DateTime.Today.AddDays(-3),
+            LateFinish = DateTime.Today.AddDays(-1)
+        };
+
+        TaskResource activeTaskResource = new TaskResource
+        {
+            Task = activeTask,
+            Resource = completedResource,
+            Quantity = 4
+        };
+
+        TaskResource completedTaskResource = new TaskResource
+        {
+            Task = completedTask,
+            Resource = completedResource,
+            Quantity = 8
+        };
+
+        activeTask.Resources = new List<TaskResource> { activeTaskResource };
+        completedTask.Resources = new List<TaskResource> { completedTaskResource };
+        _taskRepository.Add(activeTask);
+        _taskRepository.Add(completedTask);
+
+        Project completedTestProject = new Project
+        {
+            Id = 106,
+            Name = "Completed Test Project",
+            Description = "Project with completed and active tasks",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-5)),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { activeTask, completedTask }
+        };
+        _projectRepository.Add(completedTestProject);
+
+        ResourceDataDto updateDto = new ResourceDataDto
+        {
+            Id = completedResource.Id,
+            Name = completedResource.Name,
+            Description = completedResource.Description,
+            TypeResource = testType.Id,
+            Quantity = 3
+        };
+
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+            () => _resourceService.UpdateResource(updateDto));
+
+        Assert.IsTrue(exception.Message.Contains("Cannot reduce resource quantity to 3"));
+        Assert.IsTrue(exception.Message.Contains("Currently 4 units are being used"));
+    }
+
+    [TestMethod]
+    public void UpdateResource_WithUnusedResource_ShouldAllowQuantityReduction()
+    {
+        ResourceType unusedType = new ResourceType { Id = 21, Name = "Unused Type" };
+        _resourceTypeRepository.Add(unusedType);
+
+        Resource unusedResource = new Resource
+        {
+            Name = "Unused Resource",
+            Description = "Resource not used by any task",
+            Type = unusedType,
+            Quantity = 10
+        };
+        _resourceRepository.Add(unusedResource);
+
+        ResourceDataDto updateDto = new ResourceDataDto
+        {
+            Id = unusedResource.Id,
+            Name = unusedResource.Name,
+            Description = unusedResource.Description,
+            TypeResource = unusedType.Id,
+            Quantity = 1
+        };
+
+        Resource result = _resourceService.UpdateResource(updateDto);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(1, result.Quantity);
+    }
+
+    [TestMethod]
+    public void UpdateResource_IncreasingQuantity_ShouldAllowUpdate()
+    {
+        ResourceType testType = new ResourceType { Id = 22, Name = "Increase Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource increaseResource = new Resource
+        {
+            Name = "Increase Resource",
+            Description = "Resource for increasing quantity",
+            Type = testType,
+            Quantity = 5
+        };
+        _resourceRepository.Add(increaseResource);
+
+        Task task = new Task
+        {
+            Title = "Task Using Resource",
+            Description = "Task using the resource",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(1),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(1)
+        };
+
+        TaskResource taskResource = new TaskResource
+        {
+            Task = task,
+            Resource = increaseResource,
+            Quantity = 3
+        };
+
+        task.Resources = new List<TaskResource> { taskResource };
+        _taskRepository.Add(task);
+
+        Project project = new Project
+        {
+            Id = 107,
+            Name = "Increase Test Project",
+            Description = "Project for testing quantity increase",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task }
+        };
+        _projectRepository.Add(project);
+
+        ResourceDataDto updateDto = new ResourceDataDto
+        {
+            Id = increaseResource.Id,
+            Name = increaseResource.Name,
+            Description = increaseResource.Description,
+            TypeResource = testType.Id,
+            Quantity = 10
+        };
+
+        Resource result = _resourceService.UpdateResource(updateDto);
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(10, result.Quantity);
+    }
+
+    [TestMethod]
+    public void RemoveResource_WithCompletedTasks_ShouldRemoveReferences()
+    {
+        ResourceType testType = new ResourceType { Id = 23, Name = "Removal Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource resourceToRemove = new Resource
+        {
+            Name = "Resource To Remove",
+            Description = "Resource that will be removed",
+            Type = testType,
+            Quantity = 5
+        };
+        _resourceRepository.Add(resourceToRemove);
+
+        Task completedTask = new Task
+        {
+            Title = "Completed Task Using Resource",
+            Description = "Completed task description",
+            Duration = 2,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Today.AddDays(-5),
+            EarlyFinish = DateTime.Today.AddDays(-3),
+            LateStart = DateTime.Today.AddDays(-5),
+            LateFinish = DateTime.Today.AddDays(-3)
+        };
+
+        TaskResource taskResource = new TaskResource
+        {
+            Task = completedTask,
+            Resource = resourceToRemove,
+            Quantity = 2
+        };
+
+        completedTask.Resources = new List<TaskResource> { taskResource };
+        _taskRepository.Add(completedTask);
+
+        Project testProject = new Project
+        {
+            Id = 108,
+            Name = "Removal Test Project",
+            Description = "Project for testing resource removal",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-10)),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { completedTask }
+        };
+        _projectRepository.Add(testProject);
+
+        GetResourceDto resourceDto = new GetResourceDto { Name = "Resource To Remove" };
+
+        _resourceService.RemoveResource(resourceDto);
+
+        Assert.AreEqual(0, _resourceRepository.FindAll().Count(r => r.Name == "Resource To Remove"));
+
+        Project updatedProject = _projectRepository.Find(p => p.Id == 108);
+        Task updatedTask = updatedProject.Tasks.First();
+        Assert.AreEqual(0, updatedTask.Resources.Count);
+    }
+
+    [TestMethod]
+    public void RemoveResource_WithActiveTasksUsage_ShouldThrowException()
+    {
+        ResourceType testType = new ResourceType { Id = 24, Name = "Active Usage Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource resourceInUse = new Resource
+        {
+            Name = "Resource In Use",
+            Description = "Resource currently being used",
+            Type = testType,
+            Quantity = 3
+        };
+        _resourceRepository.Add(resourceInUse);
+
+        Task activeTask = new Task
+        {
+            Title = "Active Task Using Resource",
+            Description = "Active task description",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(3),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(3)
+        };
+
+        TaskResource taskResource = new TaskResource
+        {
+            Task = activeTask,
+            Resource = resourceInUse,
+            Quantity = 1
+        };
+
+        activeTask.Resources = new List<TaskResource> { taskResource };
+        _taskRepository.Add(activeTask);
+
+        Project activeProject = new Project
+        {
+            Id = 109,
+            Name = "Active Usage Project",
+            Description = "Project with active resource usage",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { activeTask }
+        };
+        _projectRepository.Add(activeProject);
+
+        GetResourceDto resourceDto = new GetResourceDto { Name = "Resource In Use" };
+
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+            () => _resourceService.RemoveResource(resourceDto));
+
+        Assert.IsTrue(exception.Message.Contains("Cannot delete resource 'Resource In Use'"));
+        Assert.IsTrue(exception.Message.Contains("Active Task Using Resource"));
+    }
+
+    [TestMethod]
+    public void RemoveResource_WithMixedCompletedAndActiveTasks_ShouldThrowException()
+    {
+        ResourceType testType = new ResourceType { Id = 25, Name = "Mixed Usage Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource mixedResource = new Resource
+        {
+            Name = "Mixed Usage Resource",
+            Description = "Resource with mixed usage",
+            Type = testType,
+            Quantity = 8
+        };
+        _resourceRepository.Add(mixedResource);
+
+        Task completedTask = new Task
+        {
+            Title = "Completed Task Mixed",
+            Description = "Completed task",
+            Duration = 1,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Today.AddDays(-2),
+            EarlyFinish = DateTime.Today.AddDays(-1),
+            LateStart = DateTime.Today.AddDays(-2),
+            LateFinish = DateTime.Today.AddDays(-1)
+        };
+
+        Task activeTask = new Task
+        {
+            Title = "Active Task Mixed",
+            Description = "Active task",
+            Duration = 2,
+            Status = Status.Blocked,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(2)
+        };
+
+        TaskResource completedTaskResource = new TaskResource
+        {
+            Task = completedTask,
+            Resource = mixedResource,
+            Quantity = 3
+        };
+
+        TaskResource activeTaskResource = new TaskResource
+        {
+            Task = activeTask,
+            Resource = mixedResource,
+            Quantity = 2
+        };
+
+        completedTask.Resources = new List<TaskResource> { completedTaskResource };
+        activeTask.Resources = new List<TaskResource> { activeTaskResource };
+        _taskRepository.Add(completedTask);
+        _taskRepository.Add(activeTask);
+
+        Project mixedProject = new Project
+        {
+            Id = 110,
+            Name = "Mixed Usage Project",
+            Description = "Project with mixed resource usage",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-5)),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { completedTask, activeTask }
+        };
+        _projectRepository.Add(mixedProject);
+
+        GetResourceDto resourceDto = new GetResourceDto { Name = "Mixed Usage Resource" };
+
+        InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+            () => _resourceService.RemoveResource(resourceDto));
+
+        Assert.IsTrue(exception.Message.Contains("Cannot delete resource 'Mixed Usage Resource'"));
+        Assert.IsTrue(exception.Message.Contains("Active Task Mixed"));
+        Assert.IsFalse(exception.Message.Contains("Completed Task Mixed"));
+    }
+
+    [TestMethod]
+    public void RemoveResource_WithMultipleProjects_ShouldRemoveAllReferences()
+    {
+        ResourceType testType = new ResourceType { Id = 26, Name = "Multi Project Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource multiProjectResource = new Resource
+        {
+            Name = "Multi Project Resource",
+            Description = "Resource used across multiple projects",
+            Type = testType,
+            Quantity = 6
+        };
+        _resourceRepository.Add(multiProjectResource);
+
+        Task task1 = new Task
+        {
+            Title = "Task In Project 1",
+            Description = "Task from first project",
+            Duration = 1,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Today.AddDays(-3),
+            EarlyFinish = DateTime.Today.AddDays(-2),
+            LateStart = DateTime.Today.AddDays(-3),
+            LateFinish = DateTime.Today.AddDays(-2)
+        };
+
+        Task task2 = new Task
+        {
+            Title = "Task In Project 2",
+            Description = "Task from second project",
+            Duration = 2,
+            Status = Status.Completed,
+            EarlyStart = DateTime.Today.AddDays(-5),
+            EarlyFinish = DateTime.Today.AddDays(-3),
+            LateStart = DateTime.Today.AddDays(-5),
+            LateFinish = DateTime.Today.AddDays(-3)
+        };
+
+        TaskResource taskResource1 = new TaskResource
+        {
+            Task = task1,
+            Resource = multiProjectResource,
+            Quantity = 2
+        };
+
+        TaskResource taskResource2 = new TaskResource
+        {
+            Task = task2,
+            Resource = multiProjectResource,
+            Quantity = 1
+        };
+
+        task1.Resources = new List<TaskResource> { taskResource1 };
+        task2.Resources = new List<TaskResource> { taskResource2 };
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+
+        Project project1 = new Project
+        {
+            Id = 111,
+            Name = "Multi Project 1",
+            Description = "First project using resource",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-10)),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task1 }
+        };
+
+        Project project2 = new Project
+        {
+            Id = 112,
+            Name = "Multi Project 2",
+            Description = "Second project using resource",
+            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-10)),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task2 }
+        };
+
+        _projectRepository.Add(project1);
+        _projectRepository.Add(project2);
+
+        GetResourceDto resourceDto = new GetResourceDto { Name = "Multi Project Resource" };
+
+        _resourceService.RemoveResource(resourceDto);
+
+        Assert.AreEqual(0, _resourceRepository.FindAll().Count(r => r.Name == "Multi Project Resource"));
+
+        Project updatedProject1 = _projectRepository.Find(p => p.Id == 111);
+        Project updatedProject2 = _projectRepository.Find(p => p.Id == 112);
+
+        Assert.AreEqual(0, updatedProject1.Tasks.First().Resources.Count);
+        Assert.AreEqual(0, updatedProject2.Tasks.First().Resources.Count);
+    }
+
+    [TestMethod]
+    public void RemoveResource_NonExistentResource_ShouldThrowException()
+    {
+        GetResourceDto nonExistentResource = new GetResourceDto { Name = "Non Existent Resource" };
+
+        ArgumentException exception = Assert.ThrowsException<ArgumentException>(
+            () => _resourceService.RemoveResource(nonExistentResource));
+
+        Assert.AreEqual("Resource 'Non Existent Resource' not found", exception.Message);
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_WithExclusiveResource_ShouldDetectCorrectResource()
+    {
+        ResourceType exclusiveType = new ResourceType { Id = 27, Name = "Exclusive Info Type" };
+        _resourceTypeRepository.Add(exclusiveType);
+
+        Resource exclusiveResource = new Resource
+        {
+            Name = "Exclusive Info Resource",
+            Description = "Exclusive resource for testing info",
+            Type = exclusiveType,
+            Quantity = 2
+        };
+
+        Project exclusiveProject = new Project
+        {
+            Id = 113,
+            Name = "Exclusive Info Project",
+            Description = "Project with exclusive resource",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            ExclusiveResources = new List<Resource> { exclusiveResource },
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(exclusiveProject);
+
+        Task existingTask = new Task
+        {
+            Title = "Existing Exclusive Task",
+            Description = "Task using exclusive resource",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(2)
+        };
+
+        TaskResource existingTaskResource = new TaskResource
+        {
+            Task = existingTask,
+            Resource = exclusiveResource,
+            Quantity = 2
+        };
+
+        existingTask.Resources = new List<TaskResource> { existingTaskResource };
+        _taskRepository.Add(existingTask);
+        exclusiveProject.Tasks.Add(existingTask);
+
+        TaskResourceDataDTO conflictingResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "New Conflicting Task",
+            ResourceId = exclusiveResource.Id,
+            Quantity = 1
+        };
+
+        TaskDataDTO newTask = new TaskDataDTO
+        {
+            Title = "New Conflicting Task",
+            Description = "New task that conflicts with exclusive resource",
+            Duration = 1,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { conflictingResource }
+        };
+
+        ResourceConflictDto result = _resourceService.CheckAndResolveConflicts(newTask, 113, false);
+
+        Assert.IsTrue(result.HasConflicts);
+        Assert.IsTrue(result.Message.Contains("Exclusive Info Resource"));
+        Assert.IsTrue(result.Message.Contains("Existing Exclusive Task"));
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_WithSystemResource_ShouldDetectCorrectResource()
+    {
+        ResourceType systemType = new ResourceType { Id = 28, Name = "System Info Type" };
+        _resourceTypeRepository.Add(systemType);
+
+        Resource systemResource = new Resource
+        {
+            Name = "System Info Resource",
+            Description = "System resource for testing info",
+            Type = systemType,
+            Quantity = 3
+        };
+        _resourceRepository.Add(systemResource);
+
+        Task existingTask = new Task
+        {
+            Title = "Existing System Task",
+            Description = "Task using system resource",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today.AddDays(1),
+            EarlyFinish = DateTime.Today.AddDays(4),
+            LateStart = DateTime.Today.AddDays(1),
+            LateFinish = DateTime.Today.AddDays(4)
+        };
+
+        TaskResource existingTaskResource = new TaskResource
+        {
+            Task = existingTask,
+            Resource = systemResource,
+            Quantity = 3
+        };
+
+        existingTask.Resources = new List<TaskResource> { existingTaskResource };
+        _taskRepository.Add(existingTask);
+
+        Project systemProject = new Project
+        {
+            Id = 114,
+            Name = "System Info Project",
+            Description = "Project using system resource",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { existingTask }
+        };
+        _projectRepository.Add(systemProject);
+
+        TaskResourceDataDTO conflictingResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "New System Task",
+            ResourceId = systemResource.Id,
+            Quantity = 1
+        };
+
+        TaskDataDTO newTask = new TaskDataDTO
+        {
+            Title = "New System Task",
+            Description = "New task that conflicts with system resource",
+            Duration = 2,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { conflictingResource }
+        };
+
+        ResourceConflictDto result = _resourceService.CheckAndResolveConflicts(newTask, 114, false);
+
+        Assert.IsTrue(result.HasConflicts);
+        Assert.IsTrue(result.Message.Contains("System Info Resource"));
+        Assert.IsTrue(result.Message.Contains("Existing System Task"));
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_WithNonExistentExclusiveResource_ShouldReturnUnknownResource()
+    {
+        TaskResourceDataDTO nonExistentResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "Task With Non Existent Resource",
+            ResourceId = 99999,
+            Quantity = 1
+        };
+
+        TaskDataDTO taskWithNonExistentResource = new TaskDataDTO
+        {
+            Title = "Task With Non Existent Resource",
+            Description = "Task trying to use non-existent exclusive resource",
+            Duration = 1,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { nonExistentResource }
+        };
+
+        ResourceConflictDto result =
+            _resourceService.CheckAndResolveConflicts(taskWithNonExistentResource, _project.Id, false);
+
+        Assert.IsFalse(result.HasConflicts);
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_WithNonExistentSystemResource_ShouldReturnUnknownResource()
+    {
+        TaskResourceDataDTO nonExistentResource = new TaskResourceDataDTO
+        {
+            TaskTitle = "Task With Non Existent System Resource",
+            ResourceId = 88888,
+            Quantity = 1
+        };
+
+        TaskDataDTO taskWithNonExistentResource = new TaskDataDTO
+        {
+            Title = "Task With Non Existent System Resource",
+            Description = "Task trying to use non-existent system resource",
+            Duration = 1,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { nonExistentResource }
+        };
+
+        Project newProject = new Project
+        {
+            Id = 115,
+            Name = "Non Existent Resource Project",
+            Description = "Project for testing non-existent resource",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(newProject);
+
+        ResourceConflictDto result = _resourceService.CheckAndResolveConflicts(taskWithNonExistentResource, 115, false);
+
+        Assert.IsFalse(result.HasConflicts);
+    }
+
+    [TestMethod]
+    public void CheckAndResolveConflicts_WithAvailableExclusiveResource_ShouldNotDetectConflicts()
+    {
+        ResourceType availableType = new ResourceType { Id = 29, Name = "Available Exclusive Type" };
+        _resourceTypeRepository.Add(availableType);
+
+        Resource availableResource = new Resource
+        {
+            Name = "Available Exclusive Resource",
+            Description = "Available exclusive resource",
+            Type = availableType,
+            Quantity = 5
+        };
+
+        Project availableProject = new Project
+        {
+            Id = 116,
+            Name = "Available Exclusive Project",
+            Description = "Project with available exclusive resource",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            ExclusiveResources = new List<Resource> { availableResource },
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(availableProject);
+
+        TaskResourceDataDTO availableResourceDto = new TaskResourceDataDTO
+        {
+            TaskTitle = "Task Using Available Resource",
+            ResourceId = availableResource.Id,
+            Quantity = 2
+        };
+
+        TaskDataDTO taskWithAvailableResource = new TaskDataDTO
+        {
+            Title = "Task Using Available Resource",
+            Description = "Task using available exclusive resource",
+            Duration = 2,
+            Dependencies = new List<string>(),
+            Resources = new List<TaskResourceDataDTO> { availableResourceDto }
+        };
+
+        ResourceConflictDto result = _resourceService.CheckAndResolveConflicts(taskWithAvailableResource, 116, false);
+
+        Assert.IsFalse(result.HasConflicts);
+        Assert.AreEqual(0, result.ConflictingTasks.Count);
     }
 }
