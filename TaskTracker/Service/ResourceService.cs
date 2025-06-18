@@ -73,6 +73,7 @@ public class ResourceService
     public List<GetResourceDto> GetResourcesForSystem()
     {
         return _resourceRepository.FindAll()
+            .Where(resource => resource.ProjectId == null) 
             .Select(resource => new GetResourceDto
             {
                 ResourceId = resource.Id,
@@ -388,4 +389,5 @@ public class ResourceService
         }
         return resourceStats;
     }
+
 }

@@ -8,6 +8,7 @@ public class Resource
     private string _description;
     private ResourceType _type;
     private int _quantity;
+    private int? _projectId;
     public string Name
     {
         get => _name;
@@ -53,5 +54,11 @@ public class Resource
             _quantity = value; 
             
         }
+    }
+    
+    public int? ProjectId
+    {
+        get => _projectId;
+        set => _projectId = value;
     }
 }
