@@ -231,7 +231,6 @@ public class ProjectService
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error adding exclusive resource: {ex.Message}");
             throw;
         }
     }

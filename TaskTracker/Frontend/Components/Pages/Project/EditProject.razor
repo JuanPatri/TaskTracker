@@ -76,7 +76,6 @@
         catch (Exception ex)
         {
             _errorMessage = "Error loading project";
-            Console.WriteLine($"Error: {ex.Message}");
         }
     }
 
@@ -93,7 +92,6 @@
         catch (Exception ex)
         {
             _errorMessage = "Error updating project";
-            Console.WriteLine($"Error: {ex.Message}");
             StateHasChanged();
         }
     }
