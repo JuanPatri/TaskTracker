@@ -50,4 +50,11 @@ public class TaskDependencyTest
         _taskDependency.Dependency = dependency;
         Assert.AreEqual(dependency, _taskDependency.Dependency);
     }
+    
+    [TestMethod]
+    public void SetNullDependencyThrowsException()
+    {
+        var ex = Assert.ThrowsException<ArgumentException>(() => _taskDependency.Dependency = null);
+        Assert.AreEqual("Dependency cannot be null", ex.Message);
+    }
 }
