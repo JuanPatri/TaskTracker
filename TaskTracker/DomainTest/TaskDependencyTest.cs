@@ -20,4 +20,11 @@ public class TaskDependencyTest
     {
         Assert.IsNotNull(_taskDependency);
     }
+    
+    [TestMethod]
+    public void SetValidIdForTaskDependency()
+    {
+        _taskDependency.Id = 1;
+        Assert.AreEqual(1, _taskDependency.Id);
+    }
 }
