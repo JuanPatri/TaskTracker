@@ -27,4 +27,12 @@ public class TaskDependencyTest
         _taskDependency.Id = 1;
         Assert.AreEqual(1, _taskDependency.Id);
     }
+    
+    [TestMethod]
+    public void SetValidTaskForTaskDependency()
+    {
+        Task task = new Task { Title = "Task 1", Description = "Description 1" };
+        _taskDependency.Task = task;
+        Assert.AreEqual(task, _taskDependency.Task);
+    }
 }
