@@ -60,4 +60,11 @@ public class TaskResourceTest
         Assert.IsNotNull(_taskResource.Resource);
         Assert.AreEqual(resource, _taskResource.Resource);
     }
+    
+    [TestMethod]
+    public void SetValidIdForTaskResource()
+    {
+        _taskResource.Id = 10;
+        Assert.AreEqual(10, _taskResource.Id);
+    }
 }
