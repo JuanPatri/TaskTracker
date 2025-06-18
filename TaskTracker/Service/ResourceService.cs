@@ -529,7 +529,7 @@ public class ResourceService
                     Name = resource.Resource.Name,
                     Description = resource.Resource.Description,
                     Type = resource.Resource.Type.Name,
-                    Quantity = resource.Resource.Quantity,
+                    Quantity = resource.Quantity,
                     TaskName = resource.Task.Title,
                     UsagePeriod = $"{task.EarlyStart:yyyy-MM-dd} - {task.EarlyFinish:yyyy-MM-dd}"
                 };
