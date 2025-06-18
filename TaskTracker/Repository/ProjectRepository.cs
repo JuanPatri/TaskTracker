@@ -66,26 +66,33 @@ public class ProjectRepository : IRepository<Project>
 
         if (existingProject == null)
             return null;
-    
+
         existingProject.Name = updatedProject.Name;
         existingProject.Description = updatedProject.Description;
         existingProject.StartDate = updatedProject.StartDate;
-        
+
         if (updatedProject.ProjectRoles != null)
         {
+            var rolesToRemove = existingProject.ProjectRoles.ToList();
+            foreach (var role in rolesToRemove)
+            {
+                _sqlContext.Remove(role);
+            }
+
             existingProject.ProjectRoles.Clear();
-            
+
             foreach (var role in updatedProject.ProjectRoles)
             {
-                existingProject.ProjectRoles.Add(new ProjectRole
+                var newRole = new ProjectRole
                 {
                     RoleType = role.RoleType,
                     User = role.User,
                     Project = existingProject
-                });
+                };
+                existingProject.ProjectRoles.Add(newRole);
             }
         }
-    
+
         if (updatedProject.ExclusiveResources != null)
         {
             foreach (var resource in updatedProject.ExclusiveResources)

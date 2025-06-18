@@ -113,66 +113,61 @@ public class ProjectService
 
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
-        Console.WriteLine($"UpdateProject called with ID: {projectDto.Id}");
-
         Project? existingProject = _projectRepository.Find(p => p.Id == projectDto.Id);
         if (existingProject == null)
         {
-            Console.WriteLine("ERROR: Existing project not found in UpdateProject");
             return null;
         }
-
-        Console.WriteLine("Existing project found in UpdateProject");
 
         List<User> associatedUsers = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
-        Console.WriteLine($"Found {associatedUsers.Count} associated users");
 
         if (associatedUsers.Count != projectDto.Users.Count)
         {
-            Console.WriteLine($"ERROR: Expected {projectDto.Users.Count} users, found {associatedUsers.Count}");
             return null;
         }
 
         List<ProjectRole> projectRoles = new List<ProjectRole>();
 
-        for (int i = 0; i < associatedUsers.Count; i++)
+        string adminEmail = projectDto.Users.Count > 0 ? projectDto.Users[0] : "";
+        string leaderEmail = projectDto.Users.Count > 1 ? projectDto.Users[1] : "";
+
+        foreach (User user in associatedUsers)
         {
-            User user = associatedUsers[i];
-            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : RoleType.ProjectMember;
-
-            ProjectRole role = new ProjectRole
+            if (user.Email == adminEmail)
             {
-                RoleType = roleType,
-                User = user
-            };
-            projectRoles.Add(role);
+                ProjectRole adminRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectAdmin,
+                    User = user
+                };
+                projectRoles.Add(adminRole);
+            }
+            else if (user.Email == leaderEmail)
+            {
+                ProjectRole leaderRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectLead,
+                    User = user
+                };
+                projectRoles.Add(leaderRole);
+            }
+            else
+            {
+                ProjectRole memberRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectMember,
+                    User = user
+                };
+                projectRoles.Add(memberRole);
+            }
         }
-
-        Console.WriteLine($"Created {projectRoles.Count} project roles");
 
         Project projectToUpdate = FromDto(projectDto, projectRoles);
         projectToUpdate.Id = projectDto.Id;
-        Console.WriteLine($"Created project to update with ID: {projectToUpdate.Id}");
 
         Project? updatedProject = _projectRepository.Update(projectToUpdate);
-        Console.WriteLine($"Repository.Update returned: {updatedProject != null}");
-
-        if (updatedProject != null)
-        {
-            Console.WriteLine($"Updated project ID: {updatedProject.Id}, Name: {updatedProject.Name}");
-            foreach (var role in updatedProject.ProjectRoles)
-            {
-                role.Project = updatedProject;
-            }
-
-            Console.WriteLine("Project roles assigned successfully");
-        }
-        else
-        {
-            Console.WriteLine("ERROR: Repository.Update returned null");
-        }
 
         return updatedProject;
     }
@@ -351,7 +346,18 @@ public class ProjectService
 
         CalculateTaskDates(taskInRepository, project);
 
-        _projectRepository.Update(project);
+        Project projectForUpdate = new Project
+        {
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            StartDate = project.StartDate,
+            Tasks = project.Tasks,
+            ExclusiveResources = project.ExclusiveResources,
+            ProjectRoles = null
+        };
+
+        _projectRepository.Update(projectForUpdate);
         _taskRepository.Update(taskInRepository);
     }
 
@@ -363,7 +369,7 @@ public class ProjectService
         {
             DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
             DateTime today = DateTime.Today;
-        
+
             earlyStart = projectStartDate > today ? projectStartDate : today;
         }
         else
@@ -372,7 +378,7 @@ public class ProjectService
 
             foreach (var dependency in task.Dependencies)
             {
-                if (dependency.Dependency.EarlyFinish > latestDependencyFinish) 
+                if (dependency.Dependency.EarlyFinish > latestDependencyFinish)
                 {
                     latestDependencyFinish = dependency.Dependency.EarlyFinish;
                 }
@@ -386,7 +392,7 @@ public class ProjectService
             {
                 DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
                 DateTime today = DateTime.Today;
-            
+
                 earlyStart = projectStartDate > today ? projectStartDate : today;
             }
         }
@@ -473,10 +479,10 @@ public class ProjectService
         }
 
         DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
-        
+
         bool hasActiveTasks = project.Tasks?.Any(t => t.Status != Status.Pending) == true;
         bool startedLongAgo = projectStartDate < DateTime.Today.AddDays(-7);
-    
+
         return hasActiveTasks || startedLongAgo;
     }
 
