@@ -74,4 +74,11 @@ public class TaskResourceTest
         _taskResource.Id = 0;
         Assert.AreEqual(0, _taskResource.Id);
     }
+    
+    [TestMethod]
+    public void SetNegativeIdForTaskResource()
+    {
+        _taskResource.Id = -5;
+        Assert.AreEqual(-5, _taskResource.Id);
+    }
 }
