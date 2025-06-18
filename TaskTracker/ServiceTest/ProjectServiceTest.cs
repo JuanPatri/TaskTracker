@@ -1456,13 +1456,22 @@ public void HasProjectStarted_ShouldReturnFalse_WhenProjectIsRecent()
     [TestMethod]
     public void IsLeadProject_ReturnsTrue_WhenUserIsLead()
     {
-        var user = new User { Email = "lead@example.com" };
+        var user = new User
+        {
+            Email = "lead@example.com",
+            Name = "Pedro",                    
+            LastName = "Garcia",               
+            Password = "Pedro123!",
+            BirthDate = new DateTime(1990, 1, 1), 
+            Admin = false
+        };
         _userRepository.Add(user);
 
         var project = new Project
         {
             Id = 1,
             Name = "Test Project",
+            Description = "Description of the project",
             StartDate = DateOnly.FromDateTime(DateTime.Today),
             ProjectRoles = new List<ProjectRole>
             {
