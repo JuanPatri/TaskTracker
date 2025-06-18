@@ -15,4 +15,9 @@ public class TaskDependencyTest
         _taskDependency = new TaskDependency();
     }
     
+    [TestMethod]
+    public void TaskDependencyIsNotNull()
+    {
+        Assert.IsNotNull(_taskDependency);
+    }
 }
