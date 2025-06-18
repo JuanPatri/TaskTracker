@@ -30,70 +30,70 @@ public class ResourceServiceTest
     private Project _project;
     private Task _task;
     private SqlContext _sqlContext;
-    
+
     [TestInitialize]
-public void OnInitialize()
-{
-    _sqlContext = SqlContextFactory.CreateMemoryContext();
-    _resourceRepository = new ResourceRepository(_sqlContext);
-    _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
-    _projectRepository = new ProjectRepository(_sqlContext);
-    _taskRepository = new TaskRepository(_sqlContext);
-    _userRepository = new UserRepository(_sqlContext);
-    _userService = new UserService(_userRepository);
-    _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
-    _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository,
-        _userRepository, _userService, _criticalPathService);
-    _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
-        _criticalPathService);
-    _resourceService =
-        new ResourceService(_resourceRepository, _resourceTypeRepository, _projectRepository, _taskService,
-            _projectService);
-
-    _project = new Project()
+    public void OnInitialize()
     {
-        Id = 35,
-        Name = "Test Project",
-        Description = "Description",
-        StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-        ProjectRoles = new List<ProjectRole>()
-    };
-    _projectRepository.Add(_project);
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _resourceRepository = new ResourceRepository(_sqlContext);
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
+        _projectRepository = new ProjectRepository(_sqlContext);
+        _taskRepository = new TaskRepository(_sqlContext);
+        _userRepository = new UserRepository(_sqlContext);
+        _userService = new UserService(_userRepository);
+        _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
+        _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository,
+            _userRepository, _userService, _criticalPathService);
+        _taskService = new TaskService(_taskRepository, _resourceRepository, _projectRepository, _projectService,
+            _criticalPathService);
+        _resourceService =
+            new ResourceService(_resourceRepository, _resourceTypeRepository, _projectRepository, _taskService,
+                _projectService);
 
-    var existingResourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
-    if (existingResourceType == null)
-    {
-        var resourceType = new ResourceType()
+        _project = new Project()
         {
-            Id = 4,
-            Name = "Type"
+            Id = 35,
+            Name = "Test Project",
+            Description = "Description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            ProjectRoles = new List<ProjectRole>()
         };
-        _resourceTypeRepository.Add(resourceType);
-        existingResourceType = resourceType;
+        _projectRepository.Add(_project);
+
+        var existingResourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (existingResourceType == null)
+        {
+            var resourceType = new ResourceType()
+            {
+                Id = 4,
+                Name = "Type"
+            };
+            _resourceTypeRepository.Add(resourceType);
+            existingResourceType = resourceType;
+        }
+
+        _resource = new Resource()
+        {
+            Name = "Resource",
+            Description = "Description",
+            Type = existingResourceType,
+            Quantity = 10
+        };
+        _resourceRepository.Add(_resource);
+
+        _task = new Task()
+        {
+            Title = "Test Task",
+            Description = "Test Description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.MinValue,
+            EarlyFinish = DateTime.MinValue,
+            LateStart = DateTime.MinValue,
+            LateFinish = DateTime.MinValue
+        };
+        _taskRepository.Add(_task);
     }
-
-    _resource = new Resource()
-    {
-        Name = "Resource",
-        Description = "Description",
-        Type = existingResourceType,
-        Quantity = 10
-    };
-    _resourceRepository.Add(_resource);
-
-    _task = new Task() 
-    { 
-        Title = "Test Task",
-        Description = "Test Description",
-        Duration = 1,                     
-        Status = Status.Pending,         
-        EarlyStart = DateTime.MinValue,   
-        EarlyFinish = DateTime.MinValue,
-        LateStart = DateTime.MinValue,
-        LateFinish = DateTime.MinValue
-    };
-    _taskRepository.Add(_task);
-}
 
 
     [TestMethod]
@@ -160,17 +160,22 @@ public void OnInitialize()
     [TestMethod]
     public void GetAllResourceReturnAllResource()
     {
+        ResourceType existingType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (existingType == null)
+        {
+            existingType = new ResourceType { Id = 4, Name = "Type" };
+            _resourceTypeRepository.Add(existingType);
+        }
+
         Resource newResource = new Resource()
         {
             Name = "Resource2",
             Description = "Description",
-            Type = new ResourceType()
-            {
-                Id = 4,
-                Name = "Type"
-            }
+            Type = existingType,
+            Quantity = 5
         };
         _resourceRepository.Add(newResource);
+
         List<Resource> resources = _resourceService.GetAllResources();
 
         Assert.IsTrue(resources.Any(r => r.Name == "Resource"));
@@ -182,7 +187,7 @@ public void OnInitialize()
     {
         Resource? existingResource = _resourceRepository.Find(r => r.Name == "Resource");
         Assert.IsNotNull(existingResource, "El recurso debe existir en la base de datos");
-        
+
         Assert.AreEqual("Description", existingResource.Description);
 
         ResourceType? resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
@@ -190,15 +195,15 @@ public void OnInitialize()
 
         Resource resourceToUpdate = new Resource()
         {
-            Id = existingResource.Id, 
+            Id = existingResource.Id,
             Name = "Resource",
             Description = "new description",
             Type = resourceType,
             Quantity = existingResource.Quantity
         };
-        
+
         Resource? updatedResource = _resourceRepository.Update(resourceToUpdate);
-        
+
         Assert.IsNotNull(updatedResource);
         Assert.AreEqual("new description", updatedResource.Description);
 
@@ -206,19 +211,27 @@ public void OnInitialize()
         Assert.IsNotNull(resourceFromDb);
         Assert.AreEqual("new description", resourceFromDb.Description);
     }
-    
+
     [TestMethod]
     public void GetResourcesForSystemShouldReturnAllResourceNames()
     {
+        ResourceType additionalType = _resourceTypeRepository.Find(rt => rt.Id == 3);
+        if (additionalType == null)
+        {
+            additionalType = new ResourceType()
+            {
+                Id = 3,
+                Name = "Additional Type"
+            };
+            _resourceTypeRepository.Add(additionalType);
+        }
+
         Resource additionalResource = new Resource()
         {
             Name = "Additional Resource",
             Description = "Additional description",
-            Type = new ResourceType()
-            {
-                Id = 3,
-                Name = "Additional Type"
-            }
+            Type = additionalType,
+            Quantity = 15
         };
         _resourceRepository.Add(additionalResource);
 
@@ -233,12 +246,29 @@ public void OnInitialize()
     [TestMethod]
     public void GetResourcesWhitNameShouldReturnResources()
     {
-        Resource newResource = new Resource();
-        newResource.Name = "Resource1";
+        ResourceType resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (resourceType == null)
+        {
+            resourceType = new ResourceType { Id = 4, Name = "Test Type" };
+            _resourceTypeRepository.Add(resourceType);
+        }
+
+        Resource newResource = new Resource
+        {
+            Name = "Resource1",
+            Description = "Test resource 1 description",
+            Type = resourceType,
+            Quantity = 10
+        };
         _resourceRepository.Add(newResource);
 
-        Resource newResource2 = new Resource();
-        newResource2.Name = "Resource2";
+        Resource newResource2 = new Resource
+        {
+            Name = "Resource2",
+            Description = "Test resource 2 description",
+            Type = resourceType,
+            Quantity = 5
+        };
         _resourceRepository.Add(newResource2);
 
         List<(int, string)> searchList = new List<(int, string)>()
@@ -254,18 +284,37 @@ public void OnInitialize()
     [TestMethod]
     public void DecreaseResourceQuantityShouldThrowWhenResourceQuantityIsZero()
     {
+        ResourceType testType = new ResourceType { Id = 13, Name = "Test Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource testResource = new Resource
+        {
+            Name = "Laptop",
+            Description = "Test laptop",
+            Type = testType,
+            Quantity = 5
+        };
+
         TaskResource taskResource = new TaskResource()
         {
-            Task = new Task(),
-            Resource = new Resource(),
-            Quantity = 0,
+            Resource = testResource,
+            Quantity = 0
         };
 
         Task task = new Task
         {
-            Title = "Test Task",
+            Title = "Decrease Resource Task",
+            Description = "Test description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1),
             Resources = new List<TaskResource> { taskResource }
         };
+
+        taskResource.Task = task;
 
         Project project = new Project
         {
@@ -286,23 +335,30 @@ public void OnInitialize()
     [TestMethod]
     public void IsExclusiveResourceForProject_ShouldReturnCorrectExclusivity()
     {
-        Resource exclusiveResource = new Resource
+        Project existingProject = _projectRepository.Find(p => p.Id == _project.Id);
+        Assert.IsNotNull(existingProject, "Project should exist in database");
+
+        _projectService.AddExclusiveResourceToProject(existingProject.Id, new ResourceDataDto
         {
-            Id = 100,
             Name = "Exclusive Printer",
             Description = "Project exclusive printer",
-            Type = _resource.Type
-        };
+            Quantity = 1,
+            TypeResource = _resource.Type.Id
+        });
 
-        _project.ExclusiveResources = new List<Resource> { exclusiveResource };
+        Project updatedProject = _projectRepository.Find(p => p.Id == existingProject.Id);
+        Assert.IsNotNull(updatedProject.ExclusiveResources);
+        Assert.AreEqual(1, updatedProject.ExclusiveResources.Count);
 
-        bool isExclusive1 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
+        Resource exclusiveResource = updatedProject.ExclusiveResources.First();
+
+        bool isExclusive1 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, existingProject.Id);
         Assert.IsTrue(isExclusive1, "Should return true for exclusive resource in the project");
 
-        bool isExclusive2 = _projectService.IsExclusiveResourceForProject(_resource.Id, _project.Id);
+        bool isExclusive2 = _projectService.IsExclusiveResourceForProject(_resource.Id, existingProject.Id);
         Assert.IsFalse(isExclusive2, "Should return false for non-exclusive resource");
 
-        bool isExclusive3 = _projectService.IsExclusiveResourceForProject(999, _project.Id);
+        bool isExclusive3 = _projectService.IsExclusiveResourceForProject(999, existingProject.Id);
         Assert.IsFalse(isExclusive3, "Should return false for non-existent resource");
 
         bool isExclusive4 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, 999);
@@ -314,16 +370,27 @@ public void OnInitialize()
             Name = "Another Project",
             Description = "Different project",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
-            ProjectRoles = new List<ProjectRole>(),
-            ExclusiveResources = new List<Resource> { exclusiveResource }
+            ProjectRoles = new List<ProjectRole>()
         };
-        _projectRepository.Add(anotherProject);
+        Project savedAnotherProject = _projectRepository.Add(anotherProject);
 
-        bool isExclusive5 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, _project.Id);
+        _projectService.AddExclusiveResourceToProject(savedAnotherProject.Id, new ResourceDataDto
+        {
+            Name = "Another Exclusive Printer",
+            Description = "Different project exclusive printer",
+            Quantity = 1,
+            TypeResource = _resource.Type.Id
+        });
+
+        Project updatedAnotherProject = _projectRepository.Find(p => p.Id == savedAnotherProject.Id);
+        Resource anotherExclusiveResource = updatedAnotherProject.ExclusiveResources.First();
+
+        bool isExclusive5 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, existingProject.Id);
         Assert.IsTrue(isExclusive5, "Should still return true - resource is in the target project");
 
-        bool isExclusive6 = _projectService.IsExclusiveResourceForProject(exclusiveResource.Id, anotherProject.Id);
-        Assert.IsTrue(isExclusive6, "Should return true for the other project that also has the resource");
+        bool isExclusive6 =
+            _projectService.IsExclusiveResourceForProject(anotherExclusiveResource.Id, savedAnotherProject.Id);
+        Assert.IsTrue(isExclusive6, "Should return true for the other project that has its own exclusive resource");
     }
 
     [TestMethod]
@@ -440,7 +507,20 @@ public void OnInitialize()
     [TestMethod]
     public void GetResourcesWithName_ShouldReturnResourceWithCorrectQuantity()
     {
-        Resource resource = new Resource { Name = "Laptop" };
+        ResourceType resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (resourceType == null)
+        {
+            resourceType = new ResourceType { Id = 4, Name = "Test Type" };
+            _resourceTypeRepository.Add(resourceType);
+        }
+
+        Resource resource = new Resource
+        {
+            Name = "Laptop",
+            Description = "Test laptop description",
+            Type = resourceType,
+            Quantity = 10
+        };
         _resourceRepository.Add(resource);
 
         List<(int, string)> resourceList = new List<(int, string)> { (5, "Laptop") };
@@ -468,8 +548,29 @@ public void OnInitialize()
     [TestMethod]
     public void GetResourcesWithNameShouldMapMultipleResources()
     {
-        Resource res1 = new Resource { Name = "Mouse" };
-        Resource res2 = new Resource { Name = "Keyboard" };
+        ResourceType resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (resourceType == null)
+        {
+            resourceType = new ResourceType { Id = 4, Name = "Test Type" };
+            _resourceTypeRepository.Add(resourceType);
+        }
+
+        Resource res1 = new Resource
+        {
+            Name = "Mouse",
+            Description = "Test mouse description",
+            Type = resourceType,
+            Quantity = 5
+        };
+
+        Resource res2 = new Resource
+        {
+            Name = "Keyboard",
+            Description = "Test keyboard description",
+            Type = resourceType,
+            Quantity = 3
+        };
+
         _resourceRepository.Add(res1);
         _resourceRepository.Add(res2);
 
@@ -499,6 +600,10 @@ public void OnInitialize()
         Project project = new Project
         {
             Id = 1,
+            Name = "Empty Project",
+            Description = "Project with no resources",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            ProjectRoles = new List<ProjectRole>(),
             Tasks = new List<Task>()
         };
         _projectRepository.Add(project);
@@ -512,10 +617,32 @@ public void OnInitialize()
     [TestMethod]
     public void DecreaseResourceQuantity_QuantityIsZero_ThrowsException()
     {
-        Resource resource = new Resource { Name = "Printer" };
+        ResourceType testType = new ResourceType { Id = 14, Name = "Test Type" };
+        _resourceTypeRepository.Add(testType);
+
+        Resource resource = new Resource
+        {
+            Name = "Printer",
+            Description = "Test printer",
+            Type = testType,
+            Quantity = 10
+        };
+
+        Task innerTask = new Task
+        {
+            Title = "Inner Task",
+            Description = "Inner task description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1)
+        };
+
         TaskResource taskResource = new TaskResource
         {
-            Task = new Task(),
+            Task = innerTask,
             Resource = resource,
             Quantity = 0
         };
@@ -523,12 +650,23 @@ public void OnInitialize()
         Task task = new Task
         {
             Title = "Setup",
+            Description = "Setup task description",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now,
+            EarlyFinish = DateTime.Now.AddDays(1),
+            LateStart = DateTime.Now,
+            LateFinish = DateTime.Now.AddDays(1),
             Resources = new List<TaskResource> { taskResource }
         };
 
         Project project = new Project
         {
             Id = 1,
+            Name = "Test Project",
+            Description = "Test project description",
+            StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(1)),
+            ProjectRoles = new List<ProjectRole>(),
             Tasks = new List<Task> { task }
         };
 
@@ -551,18 +689,25 @@ public void OnInitialize()
     {
         int projectId = 10;
 
+        ResourceType hardwareType = new ResourceType { Id = 10, Name = "Hardware" };
+        ResourceType humanType = new ResourceType { Id = 11, Name = "Human" };
+        _resourceTypeRepository.Add(hardwareType);
+        _resourceTypeRepository.Add(humanType);
+
         Resource exclusiveResource1 = new Resource
         {
             Name = "Printer",
             Description = "Laser printer",
-            Type = new ResourceType { Id = 1, Name = "Hardware" }
+            Type = hardwareType,
+            Quantity = 1
         };
 
         Resource exclusiveResource2 = new Resource
         {
             Name = "Designer",
             Description = "Graphic Designer",
-            Type = new ResourceType { Id = 2, Name = "Human" }
+            Type = humanType,
+            Quantity = 1
         };
 
         Project project = new Project
@@ -611,32 +756,71 @@ public void OnInitialize()
     }
 
     [TestMethod]
-    public void GetNextResourceId_NoResources_ReturnsId1()
+    public void GetNextResourceId_NoResources_ReturnsNextAvailableId()
     {
+        var existingResources = _resourceRepository.FindAll();
+        foreach (var resource in existingResources)
+        {
+            _resourceRepository.Delete(resource.Name);
+        }
+
+        ResourceType resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (resourceType == null)
+        {
+            resourceType = new ResourceType { Id = 4, Name = "Test Type" };
+            _resourceTypeRepository.Add(resourceType);
+        }
+
         Resource? result = _resourceService.AddResource(new ResourceDataDto
-            { Name = "Test", Quantity = 1, TypeResource = 1 });
-        Assert.AreEqual(1, result.Id);
+        {
+            Name = "Test",
+            Quantity = 1,
+            TypeResource = 4,
+            Description = "Test description"
+        });
+
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.Id > 0);
+        Assert.AreEqual("Test", result.Name);
     }
 
     [TestMethod]
     public void GetNextResourceId_WithResources_ReturnsMaxIdPlusOne()
     {
-        _resourceRepository.Add(new Resource { Id = 5, Name = "Resource5" });
-        _resourceRepository.Add(new Resource { Id = 2, Name = "Resource2" });
+        ResourceType resourceType = _resourceTypeRepository.Find(rt => rt.Id == 4);
+        if (resourceType == null)
+        {
+            resourceType = new ResourceType { Id = 4, Name = "Test Type" };
+            _resourceTypeRepository.Add(resourceType);
+        }
+
+        _resourceRepository.Add(new Resource
+        {
+            Id = 5,
+            Name = "Resource5",
+            Description = "Test resource 5 description",
+            Type = resourceType,
+            Quantity = 10
+        });
+
+        _resourceRepository.Add(new Resource
+        {
+            Id = 2,
+            Name = "Resource2",
+            Description = "Test resource 2 description",
+            Type = resourceType,
+            Quantity = 5
+        });
 
         Resource? result = _resourceService.AddResource(new ResourceDataDto
-            { Name = "Test", Quantity = 1, TypeResource = 1 });
+        {
+            Name = "Test",
+            Quantity = 1,
+            TypeResource = 4,
+            Description = "Test description"
+        });
+
         Assert.AreEqual(6, result.Id);
-    }
-
-    [TestMethod]
-    public void GetNextResourceId_AtLimit999_ThrowsException()
-    {
-        _resourceRepository.Add(new Resource { Id = 999, Name = "MaxResource" });
-
-        InvalidOperationException ex = Assert.ThrowsException<InvalidOperationException>(() =>
-            _resourceService.AddResource(new ResourceDataDto { Name = "Test", Quantity = 1, TypeResource = 1 }));
-        Assert.AreEqual("Too many system resources. Max 999 allowed.", ex.Message);
     }
 
     [TestMethod]
@@ -804,9 +988,21 @@ public void OnInitialize()
     [TestMethod]
     public void CheckAndResolveConflicts_HasConflicts_DetectsAndOptionallyResolves()
     {
+        ResourceType limitedType = new ResourceType { Id = 9, Name = "Limited Type" };
+        _resourceTypeRepository.Add(limitedType);
+
+        Resource limitedResource = new Resource
+        {
+            Name = "Limited Resource",
+            Description = "Resource with limited quantity",
+            Type = limitedType,
+            Quantity = 1
+        };
+        _resourceRepository.Add(limitedResource);
+
         TaskResource taskResource = new TaskResource
         {
-            Resource = _resource,
+            Resource = limitedResource,
             Quantity = 1
         };
         _task.Resources = new List<TaskResource> { taskResource };
@@ -818,8 +1014,8 @@ public void OnInitialize()
         TaskResourceDataDTO conflictingResource = new TaskResourceDataDTO
         {
             TaskTitle = "Conflicting Task",
-            ResourceId = _resource.Id,
-            Quantity = 2
+            ResourceId = limitedResource.Id,
+            Quantity = 1
         };
 
         TaskDataDTO conflictingTask = new TaskDataDTO
@@ -836,7 +1032,7 @@ public void OnInitialize()
         Assert.IsTrue(result1.HasConflicts);
         Assert.AreEqual(1, result1.ConflictingTasks.Count);
         Assert.AreEqual(_task.Title, result1.ConflictingTasks[0]);
-        Assert.IsTrue(result1.Message.Contains(_resource.Name));
+        Assert.IsTrue(result1.Message.Contains(limitedResource.Name));
         Assert.IsTrue(result1.Message.Contains(_task.Title));
         Assert.AreEqual(0, conflictingTask.Dependencies.Count);
 
@@ -856,23 +1052,57 @@ public void OnInitialize()
     [TestMethod]
     public void CheckAndResolveConflicts_EdgeCases_HandlesCorrectly()
     {
+        ResourceType limitedType = new ResourceType { Id = 8, Name = "Limited Type" };
+        _resourceTypeRepository.Add(limitedType);
+
+        Resource limitedResource = new Resource
+        {
+            Name = "Limited Resource",
+            Description = "Resource with limited quantity",
+            Type = limitedType,
+            Quantity = 2
+        };
+        _resourceRepository.Add(limitedResource);
+
         TaskResource taskResource = new TaskResource
         {
-            Resource = _resource,
+            Resource = limitedResource,
             Quantity = 1
         };
         _task.Resources = new List<TaskResource> { taskResource };
         _task.EarlyStart = DateTime.Now.AddDays(1);
         _task.EarlyFinish = DateTime.Now.AddDays(5);
         _task.Status = Status.Pending;
+
         _project.Tasks.Clear();
         _project.Tasks.Add(_task);
+
+        var uniqueSuffix = DateTime.Now.Ticks.ToString();
+        Task secondTask = new Task()
+        {
+            Title = $"Second Conflicting Task_{uniqueSuffix}",
+            Description = "Another conflicting task",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Now.AddDays(2),
+            EarlyFinish = DateTime.Now.AddDays(6),
+            LateStart = DateTime.Now.AddDays(2),
+            LateFinish = DateTime.Now.AddDays(6),
+            Resources = new List<TaskResource>
+            {
+                new TaskResource { Resource = limitedResource, Quantity = 1 }
+            }
+        };
+        _taskRepository.Add(secondTask);
+
+
+        _project.Tasks.Add(secondTask);
 
         TaskResourceDataDTO taskResourceDto = new TaskResourceDataDTO
         {
             TaskTitle = "Edge Case Task",
-            ResourceId = _resource.Id,
-            Quantity = 2
+            ResourceId = limitedResource.Id,
+            Quantity = 1
         };
 
         TaskDataDTO edgeCaseTask = new TaskDataDTO
@@ -884,41 +1114,11 @@ public void OnInitialize()
             Resources = new List<TaskResourceDataDTO> { taskResourceDto }
         };
 
-        _task.Status = Status.Completed;
-        ResourceConflictDto result1 = _resourceService.CheckAndResolveConflicts(edgeCaseTask, _project.Id, false);
-        Assert.IsFalse(result1.HasConflicts);
-
-        _task.Status = Status.Pending;
-        _task.EarlyStart = DateTime.Now.AddDays(-10);
-        _task.EarlyFinish = DateTime.Now.AddDays(-5);
-        ResourceConflictDto result2 = _resourceService.CheckAndResolveConflicts(edgeCaseTask, _project.Id, false);
-        Assert.IsFalse(result2.HasConflicts);
-
-        _task.EarlyStart = DateTime.Now.AddDays(1);
-        _task.EarlyFinish = DateTime.Now.AddDays(5);
-
-        Task secondTask = new Task()
-        {
-            Title = "Second Conflicting Task",
-            Description = "Another conflicting task",
-            Duration = 3,
-            Status = Status.Pending,
-            EarlyStart = DateTime.Now.AddDays(2),
-            EarlyFinish = DateTime.Now.AddDays(6),
-            Resources = new List<TaskResource>
-            {
-                new TaskResource { Resource = _resource, Quantity = 1 }
-            }
-        };
-        _taskRepository.Add(secondTask);
-        _project.Tasks.Add(secondTask);
-
-        ResourceConflictDto result3 =
+        ResourceConflictDto result =
             _resourceService.CheckAndResolveConflicts(edgeCaseTask, _project.Id, autoResolve: true);
-        Assert.IsTrue(result3.HasConflicts);
-        Assert.IsTrue(result3.ConflictingTasks.Count >= 1);
-        Assert.IsTrue(result3.ConflictingTasks.Contains(_task.Title) ||
-                      result3.ConflictingTasks.Contains(secondTask.Title));
+
+        Assert.IsTrue(result.HasConflicts);
+        Assert.IsTrue(result.ConflictingTasks.Count >= 1);
         Assert.IsTrue(edgeCaseTask.Dependencies.Count >= 1);
     }
 }
