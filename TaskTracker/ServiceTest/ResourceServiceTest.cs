@@ -1319,4 +1319,331 @@ public class ResourceServiceTest
         Assert.IsNotNull(result);
         Assert.AreEqual(0, result.Count);
     }
+    
+    [TestMethod]
+public void UpdateResource_ReducingQuantity_ShouldValidateUsage()
+{
+    ResourceType testType = new ResourceType { Id = 18, Name = "Usage Type" };
+    _resourceTypeRepository.Add(testType);
+
+    Resource testResource = new Resource
+    {
+        Name = "Usage Resource",
+        Description = "Resource for usage testing",
+        Type = testType,
+        Quantity = 10
+    };
+    _resourceRepository.Add(testResource);
+
+    Task activeTask = new Task
+    {
+        Title = "Active Task",
+        Description = "Active task using resource",
+        Duration = 2,
+        Status = Status.Pending,
+        EarlyStart = DateTime.Today,
+        EarlyFinish = DateTime.Today.AddDays(2),
+        LateStart = DateTime.Today,
+        LateFinish = DateTime.Today.AddDays(2)
+    };
+
+    TaskResource taskResource = new TaskResource
+    {
+        Task = activeTask,
+        Resource = testResource,
+        Quantity = 3
+    };
+
+    activeTask.Resources = new List<TaskResource> { taskResource };
+    _taskRepository.Add(activeTask);
+
+    Project testProject = new Project
+    {
+        Id = 104,
+        Name = "Usage Test Project",
+        Description = "Project for testing usage",
+        StartDate = DateOnly.FromDateTime(DateTime.Today),
+        ProjectRoles = new List<ProjectRole>(),
+        Tasks = new List<Task> { activeTask }
+    };
+    _projectRepository.Add(testProject);
+
+    ResourceDataDto updateDto = new ResourceDataDto
+    {
+        Id = testResource.Id,
+        Name = testResource.Name,
+        Description = testResource.Description,
+        TypeResource = testType.Id,
+        Quantity = 2
+    };
+
+    InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+        () => _resourceService.UpdateResource(updateDto));
+
+    Assert.IsTrue(exception.Message.Contains("Cannot reduce resource quantity to 2"));
+    Assert.IsTrue(exception.Message.Contains("Currently 3 units are being used"));
+}
+
+[TestMethod]
+public void UpdateResource_ReducingQuantityWithMultipleTasks_ShouldValidateTotal()
+{
+    ResourceType testType = new ResourceType { Id = 19, Name = "Multi Usage Type" };
+    _resourceTypeRepository.Add(testType);
+
+    Resource sharedResource = new Resource
+    {
+        Name = "Shared Resource",
+        Description = "Resource shared across tasks",
+        Type = testType,
+        Quantity = 20
+    };
+    _resourceRepository.Add(sharedResource);
+
+    Task task1 = new Task
+    {
+        Title = "Task 1 Usage",
+        Description = "First task using resource",
+        Duration = 1,
+        Status = Status.Pending,
+        EarlyStart = DateTime.Today,
+        EarlyFinish = DateTime.Today.AddDays(1),
+        LateStart = DateTime.Today,
+        LateFinish = DateTime.Today.AddDays(1)
+    };
+
+    Task task2 = new Task
+    {
+        Title = "Task 2 Usage",
+        Description = "Second task using resource",
+        Duration = 2,
+        Status = Status.Blocked,
+        EarlyStart = DateTime.Today.AddDays(2),
+        EarlyFinish = DateTime.Today.AddDays(4),
+        LateStart = DateTime.Today.AddDays(2),
+        LateFinish = DateTime.Today.AddDays(4)
+    };
+
+    TaskResource taskResource1 = new TaskResource
+    {
+        Task = task1,
+        Resource = sharedResource,
+        Quantity = 5
+    };
+
+    TaskResource taskResource2 = new TaskResource
+    {
+        Task = task2,
+        Resource = sharedResource,
+        Quantity = 7
+    };
+
+    task1.Resources = new List<TaskResource> { taskResource1 };
+    task2.Resources = new List<TaskResource> { taskResource2 };
+    _taskRepository.Add(task1);
+    _taskRepository.Add(task2);
+
+    Project multiUsageProject = new Project
+    {
+        Id = 105,
+        Name = "Multi Usage Project",
+        Description = "Project with multiple resource usage",
+        StartDate = DateOnly.FromDateTime(DateTime.Today),
+        ProjectRoles = new List<ProjectRole>(),
+        Tasks = new List<Task> { task1, task2 }
+    };
+    _projectRepository.Add(multiUsageProject);
+
+    ResourceDataDto updateDto = new ResourceDataDto
+    {
+        Id = sharedResource.Id,
+        Name = sharedResource.Name,
+        Description = sharedResource.Description,
+        TypeResource = testType.Id,
+        Quantity = 10
+    };
+
+    InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+        () => _resourceService.UpdateResource(updateDto));
+
+    Assert.IsTrue(exception.Message.Contains("Cannot reduce resource quantity to 10"));
+    Assert.IsTrue(exception.Message.Contains("Currently 12 units are being used"));
+}
+
+[TestMethod]
+public void UpdateResource_WithCompletedTasks_ShouldIgnoreCompletedUsage()
+{
+    ResourceType testType = new ResourceType { Id = 20, Name = "Completed Type" };
+    _resourceTypeRepository.Add(testType);
+
+    Resource completedResource = new Resource
+    {
+        Name = "Completed Resource",
+        Description = "Resource with completed tasks",
+        Type = testType,
+        Quantity = 15
+    };
+    _resourceRepository.Add(completedResource);
+
+    Task activeTask = new Task
+    {
+        Title = "Active Task For Completed Test",
+        Description = "Active task",
+        Duration = 1,
+        Status = Status.Pending,
+        EarlyStart = DateTime.Today,
+        EarlyFinish = DateTime.Today.AddDays(1),
+        LateStart = DateTime.Today,
+        LateFinish = DateTime.Today.AddDays(1)
+    };
+
+    Task completedTask = new Task
+    {
+        Title = "Completed Task",
+        Description = "Completed task",
+        Duration = 2,
+        Status = Status.Completed,
+        EarlyStart = DateTime.Today.AddDays(-3),
+        EarlyFinish = DateTime.Today.AddDays(-1),
+        LateStart = DateTime.Today.AddDays(-3),
+        LateFinish = DateTime.Today.AddDays(-1)
+    };
+
+    TaskResource activeTaskResource = new TaskResource
+    {
+        Task = activeTask,
+        Resource = completedResource,
+        Quantity = 4
+    };
+
+    TaskResource completedTaskResource = new TaskResource
+    {
+        Task = completedTask,
+        Resource = completedResource,
+        Quantity = 8
+    };
+
+    activeTask.Resources = new List<TaskResource> { activeTaskResource };
+    completedTask.Resources = new List<TaskResource> { completedTaskResource };
+    _taskRepository.Add(activeTask);
+    _taskRepository.Add(completedTask);
+
+    Project completedTestProject = new Project
+    {
+        Id = 106,
+        Name = "Completed Test Project",
+        Description = "Project with completed and active tasks",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(-5)),
+        ProjectRoles = new List<ProjectRole>(),
+        Tasks = new List<Task> { activeTask, completedTask }
+    };
+    _projectRepository.Add(completedTestProject);
+
+    ResourceDataDto updateDto = new ResourceDataDto
+    {
+        Id = completedResource.Id,
+        Name = completedResource.Name,
+        Description = completedResource.Description,
+        TypeResource = testType.Id,
+        Quantity = 3
+    };
+
+    InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+        () => _resourceService.UpdateResource(updateDto));
+
+    Assert.IsTrue(exception.Message.Contains("Cannot reduce resource quantity to 3"));
+    Assert.IsTrue(exception.Message.Contains("Currently 4 units are being used"));
+}
+
+[TestMethod]
+public void UpdateResource_WithUnusedResource_ShouldAllowQuantityReduction()
+{
+    ResourceType unusedType = new ResourceType { Id = 21, Name = "Unused Type" };
+    _resourceTypeRepository.Add(unusedType);
+
+    Resource unusedResource = new Resource
+    {
+        Name = "Unused Resource",
+        Description = "Resource not used by any task",
+        Type = unusedType,
+        Quantity = 10
+    };
+    _resourceRepository.Add(unusedResource);
+
+    ResourceDataDto updateDto = new ResourceDataDto
+    {
+        Id = unusedResource.Id,
+        Name = unusedResource.Name,
+        Description = unusedResource.Description,
+        TypeResource = unusedType.Id,
+        Quantity = 1
+    };
+
+    Resource result = _resourceService.UpdateResource(updateDto);
+
+    Assert.IsNotNull(result);
+    Assert.AreEqual(1, result.Quantity);
+}
+
+[TestMethod]
+public void UpdateResource_IncreasingQuantity_ShouldAllowUpdate()
+{
+    ResourceType testType = new ResourceType { Id = 22, Name = "Increase Type" };
+    _resourceTypeRepository.Add(testType);
+
+    Resource increaseResource = new Resource
+    {
+        Name = "Increase Resource",
+        Description = "Resource for increasing quantity",
+        Type = testType,
+        Quantity = 5
+    };
+    _resourceRepository.Add(increaseResource);
+
+    Task task = new Task
+    {
+        Title = "Task Using Resource",
+        Description = "Task using the resource",
+        Duration = 1,
+        Status = Status.Pending,
+        EarlyStart = DateTime.Today,
+        EarlyFinish = DateTime.Today.AddDays(1),
+        LateStart = DateTime.Today,
+        LateFinish = DateTime.Today.AddDays(1)
+    };
+
+    TaskResource taskResource = new TaskResource
+    {
+        Task = task,
+        Resource = increaseResource,
+        Quantity = 3
+    };
+
+    task.Resources = new List<TaskResource> { taskResource };
+    _taskRepository.Add(task);
+
+    Project project = new Project
+    {
+        Id = 107,
+        Name = "Increase Test Project",
+        Description = "Project for testing quantity increase",
+        StartDate = DateOnly.FromDateTime(DateTime.Today),
+        ProjectRoles = new List<ProjectRole>(),
+        Tasks = new List<Task> { task }
+    };
+    _projectRepository.Add(project);
+
+    ResourceDataDto updateDto = new ResourceDataDto
+    {
+        Id = increaseResource.Id,
+        Name = increaseResource.Name,
+        Description = increaseResource.Description,
+        TypeResource = testType.Id,
+        Quantity = 10
+    };
+
+    Resource result = _resourceService.UpdateResource(updateDto);
+
+    Assert.IsNotNull(result);
+    Assert.AreEqual(10, result.Quantity);
+}
 }
