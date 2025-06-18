@@ -1077,10 +1077,9 @@ public class ResourceServiceTest
         _project.Tasks.Clear();
         _project.Tasks.Add(_task);
 
-        var uniqueSuffix = DateTime.Now.Ticks.ToString();
         Task secondTask = new Task()
         {
-            Title = $"Second Conflicting Task_{uniqueSuffix}",
+            Title = "Blocking Task",
             Description = "Another conflicting task",
             Duration = 3,
             Status = Status.Pending,
@@ -1094,8 +1093,6 @@ public class ResourceServiceTest
             }
         };
         _taskRepository.Add(secondTask);
-
-
         _project.Tasks.Add(secondTask);
 
         TaskResourceDataDTO taskResourceDto = new TaskResourceDataDTO

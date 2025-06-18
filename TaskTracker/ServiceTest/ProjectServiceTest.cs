@@ -899,13 +899,9 @@ public class ProjectServiceTest
     [TestMethod]
 public void CalculateTaskDates_ShouldCalculateCorrectDates()
 {
-    var uniqueSuffix = $"{Thread.CurrentThread.ManagedThreadId}_{DateTime.Now.Ticks}_{Guid.NewGuid().ToString()[..8]}";
-    var titleA = $"A_{uniqueSuffix}";
-    var titleB = $"B_{uniqueSuffix}";
-
     Task taskA = new Task 
     { 
-        Title = titleA, 
+        Title = "Planning Task", 
         Description = "Description", 
         Duration = 2,
         EarlyStart = DateTime.MinValue,
@@ -917,7 +913,7 @@ public void CalculateTaskDates_ShouldCalculateCorrectDates()
 
     Task taskB = new Task 
     { 
-        Title = titleB, 
+        Title = "Development Task", 
         Description = "Description", 
         Duration = 3,
         EarlyStart = DateTime.MinValue,
@@ -936,11 +932,8 @@ public void CalculateTaskDates_ShouldCalculateCorrectDates()
 
     taskB.Dependencies = new List<TaskDependency> { dependencyB };
 
-
-
-        _taskRepository.Add(taskA);
-        _taskRepository.Add(taskB);
-        
+    _taskRepository.Add(taskA);
+    _taskRepository.Add(taskB);
 
     Project project = new Project
     {
@@ -1213,95 +1206,88 @@ public void CalculateTaskDates_ShouldCalculateCorrectDates()
     }
 
     [TestMethod]
-    public void GetProjectsLedByUser_ReturnsCorrectData()
+public void GetProjectsLedByUser_ReturnsCorrectData()
+{
+    var leaderUser = new User
     {
-        var leaderUser = new User
-        {
-            Name = "Juan",
-            LastName = "Líder",
-            Email = "juan.lider@test.com",
-            Password = "Seguro123!",
-            BirthDate = DateTime.Now.AddYears(-25),
-            Admin = false
-        };
-        _userRepository.Add(leaderUser);
+        Name = "Juan",
+        LastName = "Líder",
+        Email = "juan.lider@test.com",
+        Password = "Seguro123!",
+        BirthDate = DateTime.Now.AddYears(-25),
+        Admin = false
+    };
+    _userRepository.Add(leaderUser);
 
-        var project = new Project
-        {
-            Id = 100,
-            Name = "Proyecto de Prueba",
-            StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
-            Description = "Un proyecto de prueba"
-        };
+    var project = new Project
+    {
+        Id = 100,
+        Name = "Proyecto de Prueba",
+        StartDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+        Description = "Un proyecto de prueba",
+        Tasks = new List<Task>() 
+    };
 
-        var uniqueSuffix =
-            $"{Thread.CurrentThread.ManagedThreadId}_{DateTime.Now.Ticks}_{Guid.NewGuid().ToString()[..8]}";
-        var task = new Task
+    var task = new Task
+    {
+        Title = "Export Task Alpha",
+        Description = "Descripción de la tarea",
+        EarlyStart = new DateTime(2024, 3, 3),
+        EarlyFinish = new DateTime(2024, 3, 8),
+        LateStart = new DateTime(2024, 3, 3),
+        LateFinish = new DateTime(2024, 3, 8),
+        Duration = 5,
+        Status = Status.Pending,
+        Resources = new List<TaskResource>
         {
-            Title = $"Tarea A - {uniqueSuffix}",
-            Description = "Descripción de la tarea",
-            EarlyStart = new DateTime(2024, 3, 3),
-            EarlyFinish = new DateTime(2024, 3, 8),
-            LateStart = new DateTime(2024, 3, 3),
-            LateFinish = new DateTime(2024, 3, 8),
-            Duration = 5,
-            Status = Status.Pending,
-            Resources = new List<TaskResource>
+            new TaskResource
             {
-                new TaskResource
-                {
-                    Resource = _resource,
-                    Quantity = 1
-                }
-            }
-        };
-
-        project.Tasks = new List<Task> { task };
-
-        var role = new ProjectRole
-        {
-            RoleType = RoleType.ProjectLead,
-            User = leaderUser,
-            Project = project
-        };
-
-        project.ProjectRoles = new List<ProjectRole> { role };
-
-        _projectRepository.Add(project);
-
-        try
-        {
-            _taskRepository.Add(task);
-        }
-        catch (ArgumentException ex) when (ex.Message.Contains("same key has already been added"))
-        {
-
-            var existingTask = _taskRepository.Find(t => t.Title == task.Title);
-            if (existingTask == null)
-            {
-                task.Title = $"Tarea A - Fallback_{DateTime.Now.Ticks}";
-                _taskRepository.Add(task);
+                Resource = _resource,
+                Quantity = 1
             }
         }
+    };
 
-        var projects = _projectService.GetProjectsLedByUser("juan.lider@test.com");
-        var result = _projectService.MapProjectsToExporterDataDto(projects);
+    var role = new ProjectRole
+    {
+        RoleType = RoleType.ProjectLead,
+        User = leaderUser,
+        Project = project
+    };
 
-        Assert.AreEqual(1, result.Count);
+    project.ProjectRoles = new List<ProjectRole> { role };
+    _projectRepository.Add(project);
 
-        var exportedProject = result.First();
-        Assert.AreEqual("Proyecto de Prueba", exportedProject.Name);
-        Assert.AreEqual(DateOnly.FromDateTime(DateTime.Today.AddDays(1)), exportedProject.StartDate);
-
-        Assert.AreEqual(1, exportedProject.Tasks.Count);
-
-        var exportedTask = exportedProject.Tasks.First();
-        Assert.IsTrue(exportedTask.Title.StartsWith("Tarea A"));
-        Assert.AreEqual(new DateTime(2024, 3, 3), exportedTask.StartDate);
-        Assert.AreEqual("N", exportedTask.IsCritical);
-        Assert.AreEqual(1, exportedTask.Resources.Count);
-        Assert.AreEqual("Resource", exportedTask.Resources.First());
+    try
+    {
+        _taskRepository.Add(task);
     }
+    catch (ArgumentException ex) when (ex.Message.Contains("same key has already been added"))
+    {
+        task.Title = "Export Task Beta";
+        _taskRepository.Add(task);
+    }
+    
+    project.Tasks.Add(task);
+
+    var projects = _projectService.GetProjectsLedByUser("juan.lider@test.com");
+    var result = _projectService.MapProjectsToExporterDataDto(projects);
+
+    Assert.AreEqual(1, result.Count);
+
+    var exportedProject = result.First();
+    Assert.AreEqual("Proyecto de Prueba", exportedProject.Name);
+    Assert.AreEqual(DateOnly.FromDateTime(DateTime.Today.AddDays(1)), exportedProject.StartDate);
+
+    Assert.AreEqual(1, exportedProject.Tasks.Count);
+
+    var exportedTask = exportedProject.Tasks.First();
+    Assert.IsTrue(exportedTask.Title.StartsWith("Export Task"));
+    Assert.AreEqual(new DateTime(2024, 3, 3), exportedTask.StartDate);
+    Assert.AreEqual("N", exportedTask.IsCritical);
+    Assert.AreEqual(1, exportedTask.Resources.Count);
+    Assert.AreEqual("Resource", exportedTask.Resources.First());
+}
 
     [TestMethod]
     public void FromDtoShouldMapAllPropertiesCorrectly()
