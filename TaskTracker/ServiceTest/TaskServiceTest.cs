@@ -891,4 +891,222 @@ public class TaskServiceTest
 
         Assert.IsFalse(result, "Task should not depend on tasks from another project");
     }
+
+    [TestMethod]
+    public void IsTaskCriticalById_WithExistingCriticalTask_ShouldReturnTrue()
+    {
+        Task criticalTask = new Task
+        {
+            Title = "Critical Task Test",
+            Description = "Task that should be critical",
+            Duration = 5,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(5),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(5)
+        };
+        _taskRepository.Add(criticalTask);
+
+        Project criticalProject = new Project
+        {
+            Id = 117,
+            Name = "Critical Task Project",
+            Description = "Project for testing critical task",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { criticalTask }
+        };
+        _projectRepository.Add(criticalProject);
+
+        bool result = _taskService.IsTaskCriticalById(117, "Critical Task Test");
+
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCriticalById_WithNonCriticalTask_ShouldReturnFalse()
+    {
+        Task nonCriticalTask = new Task
+        {
+            Title = "Non Critical Task Test",
+            Description = "Task that should not be critical",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today.AddDays(3),
+            LateFinish = DateTime.Today.AddDays(5)
+        };
+        _taskRepository.Add(nonCriticalTask);
+
+        Task anotherTask = new Task
+        {
+            Title = "Another Task",
+            Description = "Another task in the project",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(3),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(3)
+        };
+        _taskRepository.Add(anotherTask);
+
+        Project nonCriticalProject = new Project
+        {
+            Id = 118,
+            Name = "Non Critical Task Project",
+            Description = "Project for testing non-critical task",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { nonCriticalTask, anotherTask }
+        };
+        _projectRepository.Add(nonCriticalProject);
+
+        bool result = _taskService.IsTaskCriticalById(118, "Non Critical Task Test");
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCriticalById_WithNonExistentProject_ShouldReturnFalse()
+    {
+        bool result = _taskService.IsTaskCriticalById(99999, "Any Task");
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCriticalById_WithNonExistentTask_ShouldReturnFalse()
+    {
+        Project emptyProject = new Project
+        {
+            Id = 119,
+            Name = "Empty Project For Critical Test",
+            Description = "Project with no tasks",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(emptyProject);
+
+        bool result = _taskService.IsTaskCriticalById(119, "Non Existent Task");
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCriticalById_WithTaskNotInProject_ShouldReturnFalse()
+    {
+        Task taskInAnotherProject = new Task
+        {
+            Title = "Task In Different Project",
+            Description = "Task that exists but not in the specified project",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(1),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(1)
+        };
+        _taskRepository.Add(taskInAnotherProject);
+
+        Project anotherProject = new Project
+        {
+            Id = 120,
+            Name = "Another Project",
+            Description = "Different project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { taskInAnotherProject }
+        };
+        _projectRepository.Add(anotherProject);
+
+        Project projectWithoutTask = new Project
+        {
+            Id = 121,
+            Name = "Project Without Task",
+            Description = "Project that doesn't contain the task",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task>()
+        };
+        _projectRepository.Add(projectWithoutTask);
+
+        bool result = _taskService.IsTaskCriticalById(121, "Task In Different Project");
+
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void IsTaskCriticalById_WithComplexProjectStructure_ShouldReturnCorrectResult()
+    {
+        Task task1 = new Task
+        {
+            Title = "Complex Task 1",
+            Description = "First task in complex project",
+            Duration = 3,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today,
+            EarlyFinish = DateTime.Today.AddDays(3),
+            LateStart = DateTime.Today,
+            LateFinish = DateTime.Today.AddDays(3)
+        };
+
+        Task task2 = new Task
+        {
+            Title = "Complex Task 2",
+            Description = "Second task in complex project",
+            Duration = 2,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today.AddDays(3),
+            EarlyFinish = DateTime.Today.AddDays(5),
+            LateStart = DateTime.Today.AddDays(3),
+            LateFinish = DateTime.Today.AddDays(5)
+        };
+
+        Task task3 = new Task
+        {
+            Title = "Complex Task 3",
+            Description = "Third task in complex project",
+            Duration = 1,
+            Status = Status.Pending,
+            EarlyStart = DateTime.Today.AddDays(1),
+            EarlyFinish = DateTime.Today.AddDays(2),
+            LateStart = DateTime.Today.AddDays(4),
+            LateFinish = DateTime.Today.AddDays(5)
+        };
+
+        TaskDependency dependency = new TaskDependency
+        {
+            Task = task2,
+            Dependency = task1
+        };
+
+        task2.Dependencies = new List<TaskDependency> { dependency };
+
+        _taskRepository.Add(task1);
+        _taskRepository.Add(task2);
+        _taskRepository.Add(task3);
+
+        Project complexProject = new Project
+        {
+            Id = 122,
+            Name = "Complex Critical Path Project",
+            Description = "Project with complex task dependencies",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>(),
+            Tasks = new List<Task> { task1, task2, task3 }
+        };
+        _projectRepository.Add(complexProject);
+
+        bool result1 = _taskService.IsTaskCriticalById(122, "Complex Task 1");
+        bool result2 = _taskService.IsTaskCriticalById(122, "Complex Task 2");
+        bool result3 = _taskService.IsTaskCriticalById(122, "Complex Task 3");
+
+        Assert.IsTrue(result1);
+        Assert.IsTrue(result2);
+        Assert.IsFalse(result3);
+    }
 }
