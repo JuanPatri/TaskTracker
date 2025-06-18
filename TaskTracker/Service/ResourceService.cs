@@ -66,11 +66,6 @@ public class ResourceService
                 string.Join(", ", activeTasks) + ". " +
                 "Please remove the resource from these tasks first or complete the tasks.");
         }
-        if (completedTasks.Any())
-        {
-            Console.WriteLine(
-                $"Deleting resource '{resource.Name}' and removing its references from {completedTasks.Count} completed tasks.");
-        }
 
         RemoveResourceReferences(resourceToDelete.Id);
         _resourceRepository.Delete(resource.Name);
