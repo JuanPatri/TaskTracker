@@ -27,7 +27,7 @@ public class SessionServiceTest
         {
             Email = "pedro@gmail.com",
             Name = "Pedro",                    
-            LastName = "García",               
+            LastName = "Garcia",               
             Password = "Pedro123!",
             BirthDate = new DateTime(1990, 1, 1), 
             Admin = false
