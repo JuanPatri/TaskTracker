@@ -67,4 +67,11 @@ public class TaskResourceTest
         _taskResource.Id = 10;
         Assert.AreEqual(10, _taskResource.Id);
     }
+    
+    [TestMethod]
+    public void SetZeroIdForTaskResource()
+    {
+        _taskResource.Id = 0;
+        Assert.AreEqual(0, _taskResource.Id);
+    }
 }
