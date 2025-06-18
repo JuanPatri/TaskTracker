@@ -66,8 +66,30 @@ public class ResourceService
     public Resource? UpdateResource(ResourceDataDto resourceDto)
     {
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
-        Resource? updatedResource = _resourceRepository.Update(FromDto(resourceDto, resourceType));
-        return updatedResource;
+    
+        if (resourceType == null)
+        {
+            throw new ArgumentException($"Resource type with ID {resourceDto.TypeResource} not found");
+        }
+        
+        Resource? existingResource = _resourceRepository.Find(r => r.Id == resourceDto.Id);
+    
+        if (existingResource == null)
+        {
+            throw new ArgumentException($"Resource with ID {resourceDto.Id} not found");
+        }
+        
+        Resource updatedResource = new Resource()
+        {
+            Id = resourceDto.Id,
+            Name = resourceDto.Name,
+            Description = resourceDto.Description,
+            Type = resourceType,
+            Quantity = resourceDto.Quantity,
+            ProjectId = existingResource.ProjectId
+        };
+
+        return _resourceRepository.Update(updatedResource);
     }
 
     public List<GetResourceDto> GetResourcesForSystem()
