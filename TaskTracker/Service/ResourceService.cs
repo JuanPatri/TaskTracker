@@ -537,7 +537,6 @@ public class ResourceService
                 resourceStats.Add(resourceStat);
             }
         }
-
         return resourceStats;
     }
 }

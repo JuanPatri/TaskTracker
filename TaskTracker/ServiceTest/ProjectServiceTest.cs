@@ -1211,7 +1211,7 @@ public void GetProjectsLedByUser_ReturnsCorrectData()
     var leaderUser = new User
     {
         Name = "Juan",
-        LastName = "Líder",
+        LastName = "Lider",
         Email = "juan.lider@test.com",
         Password = "Seguro123!",
         BirthDate = DateTime.Now.AddYears(-25),
@@ -1451,5 +1451,30 @@ public void HasProjectStarted_ShouldReturnFalse_WhenProjectIsRecent()
 
         Assert.AreEqual("Project with ID 999 not found.", exception.Message,
             "Should throw exception when project does not exist.");
+    }
+
+    [TestMethod]
+    public void IsLeadProject_ReturnsTrue_WhenUserIsLead()
+    {
+        var user = new User { Email = "lead@example.com" };
+        _userRepository.Add(user);
+
+        var project = new Project
+        {
+            Id = 1,
+            Name = "Test Project",
+            StartDate = DateOnly.FromDateTime(DateTime.Today),
+            ProjectRoles = new List<ProjectRole>
+            {
+                new ProjectRole { RoleType = RoleType.ProjectLead, User = user }
+            }
+        };
+        _projectRepository.Add(project);
+
+        var dto = new ProjectDataDTO { Id = 1 };
+
+        bool result = _projectService.IsLeadProject(dto, "lead@example.com");
+
+        Assert.IsTrue(result);
     }
 }

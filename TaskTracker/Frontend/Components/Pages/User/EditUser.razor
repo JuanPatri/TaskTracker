@@ -49,11 +49,22 @@ else
     </EditForm>
 }
 
+@if (!string.IsNullOrEmpty(_errorMessage))
+{
+    <div class="alert alert-danger mt-2">@_errorMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(_successMessage))
+{
+    <div class="alert alert-success mt-2">@_successMessage</div>
+}
+
 @code {
     [Parameter] public string Email { get; set; } = string.Empty;
 
     private UserDataDTO? _userData;
-    
+    private string _errorMessage = string.Empty;
+    private string _successMessage = string.Empty;
     private bool showPassword = false;
 
     private string passwordInputType => showPassword ? "text" : "password";
@@ -75,16 +86,21 @@ else
         }
     }
 
-    private void SaveChanges()
+    private async void SaveChanges()
     {
         try
         {
             UserService.UpdateUser(_userData!);
+            _errorMessage = string.Empty;
+            _successMessage = "User updated successfully!";
+            await Task.Delay(2000);
             NavigationManager.NavigateTo("/UserProfile");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Validation error: {ex.Message}");
+            _errorMessage = ex.Message;
+            _successMessage = string.Empty;
+            StateHasChanged();
         }
     }
 
