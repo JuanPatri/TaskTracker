@@ -41,16 +41,105 @@ public class ResourceService
         }
 
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resource.TypeResource);
-        
+
         Resource newResource = FromDto(resource, resourceType);
-        
+
         Resource? createdResource = _resourceRepository.Add(newResource);
         return createdResource;
     }
-    
+
     public void RemoveResource(GetResourceDto resource)
     {
+        Resource? resourceToDelete = _resourceRepository.Find(r => r.Name == resource.Name);
+
+        if (resourceToDelete == null)
+        {
+            throw new ArgumentException($"Resource '{resource.Name}' not found");
+        }
+        
+        var (isBeingUsed, activeTasks, completedTasks) = GetResourceUsageDetails(resourceToDelete.Id);
+
+        if (isBeingUsed)
+        {
+            throw new InvalidOperationException(
+                $"Cannot delete resource '{resource.Name}' because it is being used by the following active tasks: " +
+                string.Join(", ", activeTasks) + ". " +
+                "Please remove the resource from these tasks first or complete the tasks.");
+        }
+        if (completedTasks.Any())
+        {
+            Console.WriteLine(
+                $"Deleting resource '{resource.Name}' and removing its references from {completedTasks.Count} completed tasks.");
+        }
+
+        RemoveResourceReferences(resourceToDelete.Id);
         _resourceRepository.Delete(resource.Name);
+    }
+
+    private void RemoveResourceReferences(int resourceId)
+    {
+        var allProjects = _projectRepository.FindAll();
+
+        foreach (var project in allProjects)
+        {
+            if (project.Tasks != null)
+            {
+                bool projectModified = false;
+
+                foreach (var task in project.Tasks)
+                {
+                    if (task.Resources != null)
+                    {
+                        var resourcesToRemove = task.Resources
+                            .Where(tr => tr.Resource.Id == resourceId)
+                            .ToList();
+
+                        foreach (var taskResource in resourcesToRemove)
+                        {
+                            task.Resources.Remove(taskResource);
+                            projectModified = true;
+                        }
+                    }
+                }
+
+                if (projectModified)
+                {
+                    _projectRepository.Update(project);
+                }
+            }
+        }
+    }
+
+    private (bool isBeingUsedByActiveTasks, List<string> activeTaskTitles, List<string> completedTaskTitles)
+        GetResourceUsageDetails(int resourceId)
+    {
+        List<string> activeTasks = new();
+        List<string> completedTasks = new();
+
+        var allProjects = _projectRepository.FindAll();
+
+        foreach (var project in allProjects)
+        {
+            if (project.Tasks != null)
+            {
+                foreach (var task in project.Tasks)
+                {
+                    if (task.Resources != null && task.Resources.Any(tr => tr.Resource.Id == resourceId))
+                    {
+                        if (task.Status == Status.Completed)
+                        {
+                            completedTasks.Add(task.Title);
+                        }
+                        else
+                        {
+                            activeTasks.Add(task.Title);
+                        }
+                    }
+                }
+            }
+        }
+
+        return (activeTasks.Any(), activeTasks, completedTasks);
     }
 
     public Resource? GetResource(GetResourceDto resource)
@@ -66,19 +155,32 @@ public class ResourceService
     public Resource? UpdateResource(ResourceDataDto resourceDto)
     {
         ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
-    
+
         if (resourceType == null)
         {
             throw new ArgumentException($"Resource type with ID {resourceDto.TypeResource} not found");
         }
-        
+
         Resource? existingResource = _resourceRepository.Find(r => r.Id == resourceDto.Id);
-    
+
         if (existingResource == null)
         {
             throw new ArgumentException($"Resource with ID {resourceDto.Id} not found");
         }
-        
+
+        if (resourceDto.Quantity < existingResource.Quantity)
+        {
+            int totalUsedQuantity = GetTotalUsedQuantityForResource(resourceDto.Id);
+
+            if (resourceDto.Quantity < totalUsedQuantity)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot reduce resource quantity to {resourceDto.Quantity}. " +
+                    $"Currently {totalUsedQuantity} units are being used by active tasks. " +
+                    $"Minimum allowed quantity: {totalUsedQuantity}");
+            }
+        }
+
         Resource updatedResource = new Resource()
         {
             Id = resourceDto.Id,
@@ -92,10 +194,37 @@ public class ResourceService
         return _resourceRepository.Update(updatedResource);
     }
 
+    private int GetTotalUsedQuantityForResource(int resourceId)
+    {
+        int totalUsed = 0;
+
+        var allProjects = _projectRepository.FindAll();
+
+        foreach (var project in allProjects)
+        {
+            if (project.Tasks != null)
+            {
+                foreach (var task in project.Tasks)
+                {
+                    if (task.Status != Status.Completed && task.Resources != null)
+                    {
+                        var resourceUsage = task.Resources
+                            .Where(tr => tr.Resource.Id == resourceId)
+                            .Sum(tr => tr.Quantity);
+
+                        totalUsed += resourceUsage;
+                    }
+                }
+            }
+        }
+
+        return totalUsed;
+    }
+
     public List<GetResourceDto> GetResourcesForSystem()
     {
         return _resourceRepository.FindAll()
-            .Where(resource => resource.ProjectId == null) 
+            .Where(resource => resource.ProjectId == null)
             .Select(resource => new GetResourceDto
             {
                 ResourceId = resource.Id,
@@ -189,7 +318,7 @@ public class ResourceService
         }
 
         var overlappingTasks = new List<Task>();
-        
+
         foreach (var task in tasksToCheck)
         {
             if (task.Status == Status.Completed)
@@ -203,7 +332,7 @@ public class ResourceService
             DateTime newTaskEnd = taskEarlyFinish.Date;
 
             bool overlaps = taskStart <= newTaskEnd && newTaskStart <= taskEnd;
-            
+
             if (overlaps)
             {
                 overlappingTasks.Add(task);
@@ -221,10 +350,10 @@ public class ResourceService
         }
 
         int availableQuantity = resource.Quantity - totalUsedQuantity;
-        
+
         return availableQuantity >= requiredQuantity;
     }
-    
+
     public void DecreaseResourceQuantity(int projectId, string resourceName)
     {
         Project project = _projectRepository.Find(p => p.Id == projectId);
@@ -254,7 +383,7 @@ public class ResourceService
 
         _projectRepository.Update(project);
     }
-    
+
     public List<(int, Resource)> GetResourcesWithName(List<(int, string)> resourceName)
     {
         return resourceName
@@ -268,8 +397,8 @@ public class ResourceService
     {
         return _resourceRepository.Find(resource => resource.Name == resourceName);
     }
-    
-    public Resource FromDto(ResourceDataDto resourceDataDto,ResourceType resourceType)
+
+    public Resource FromDto(ResourceDataDto resourceDataDto, ResourceType resourceType)
     {
         return new Resource()
         {
@@ -393,7 +522,6 @@ public class ResourceService
 
         foreach (var task in project.Tasks)
         {
-
             foreach (var resource in task.Resources)
             {
                 ResourceStatsDto resourceStat = new ResourceStatsDto
@@ -409,7 +537,7 @@ public class ResourceService
                 resourceStats.Add(resourceStat);
             }
         }
+
         return resourceStats;
     }
-
 }

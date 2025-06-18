@@ -195,13 +195,13 @@ public class SqlContext : DbContext
             entity.HasOne(tr => tr.Task)
                 .WithMany(t => t.Resources)
                 .HasForeignKey("TaskTitle")
-                .OnDelete(DeleteBehavior.Cascade)
+                .OnDelete(DeleteBehavior.Restrict) 
                 .IsRequired();
             
             entity.HasOne(tr => tr.Resource)
                 .WithMany()
                 .HasForeignKey("ResourceId")
-                .OnDelete(DeleteBehavior.Restrict)
+                .OnDelete(DeleteBehavior.Cascade) 
                 .IsRequired();
             
             entity.Property<string>("TaskTitle").HasMaxLength(200);

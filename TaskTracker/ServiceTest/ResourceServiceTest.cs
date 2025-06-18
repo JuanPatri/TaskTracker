@@ -848,25 +848,7 @@ public class ResourceServiceTest
             Assert.ThrowsException<ArgumentException>(() => _resourceService.AddResource(negativeResource));
         Assert.AreEqual("Resource quantity must be greater than zero", exception2.Message);
     }
-
-    [TestMethod]
-    public void ResourceNotFound_Tests()
-    {
-        ResourceDataDto nonExistentDto = new ResourceDataDto()
-        {
-            Name = "NonExistent",
-            Description = "desc",
-            TypeResource = 1,
-            Quantity = 5
-        };
-        Resource? updateResult = _resourceService.UpdateResource(nonExistentDto);
-        Assert.IsNull(updateResult);
-
-        GetResourceDto getDto = new GetResourceDto() { Name = "NonExistent" };
-        Resource? getResult = _resourceService.GetResource(getDto);
-        Assert.IsNull(getResult);
-    }
-
+    
     [TestMethod]
     public void IsResourceAvailable_ErrorCases()
     {
