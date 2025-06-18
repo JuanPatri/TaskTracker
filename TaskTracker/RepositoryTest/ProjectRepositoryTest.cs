@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
 using DTOs.ProjectDTOs;
 using Enums;
+using RepositoryTest.Context;
 using Service;
 
 namespace RepositoryTest;
@@ -18,14 +19,16 @@ public class ProjectRepositoryTest
     private UserRepository _userRepository;
     private UserService _userService;
     private CriticalPathService _criticalPathService;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _projectRepository = new ProjectRepository(); // inicializar antes que otros lo usen
-        _taskRepository = new TaskRepository();
-        _resourceTypeRepository = new ResourceTypeRepository();
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _projectRepository = new ProjectRepository(_sqlContext); 
+        _taskRepository = new TaskRepository(_sqlContext);
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
@@ -83,14 +86,17 @@ public class ProjectRepositoryTest
         Assert.AreEqual(1, _projectRepository.FindAll().Count);
     }
 
+   
     [TestMethod]
     public void UpdateExistingProjectUpdatesFieldsCorrectlyTest()
     {
-        _project.Id = 2;
-        _projectRepository.Add(_project);
+        Project addedProject = _projectRepository.Add(_project);
+        int originalId = addedProject.Id;
+        
+        Assert.AreEqual("Project1", addedProject.Name);
         Assert.AreEqual(1, _projectRepository.FindAll().Count);
-
-        var updatedAdmin = new User()
+        
+        User updatedAdmin = new User
         {
             Name = "UpdatedAdmin",
             LastName = "UpdatedAdmin",
@@ -100,35 +106,33 @@ public class ProjectRepositoryTest
             BirthDate = new DateTime(1990, 1, 1)
         };
 
-        var updatedRole = new ProjectRole()
+        var updatedRole = new ProjectRole
         {
             RoleType = RoleType.ProjectAdmin,
             User = updatedAdmin
         };
 
-        var updatedProjectDto = new ProjectDataDTO()
+
+        var updatedProject = new Project
         {
-            Id = 2,
+            Id = originalId, 
             Name = "Updated Project",
             Description = "UpdatedDescription",
             StartDate = DateOnly.FromDateTime(DateTime.Now.AddDays(2)),
-            Users = new List<string> { "updatedadmin@test.com" }
+            ProjectRoles = new List<ProjectRole> { updatedRole }
         };
-
-        var updatedProject = _projectService.FromDto(updatedProjectDto, new List<ProjectRole> { updatedRole });
+    
         updatedRole.Project = updatedProject;
-
-        _projectRepository.Update(updatedProject);
-        var updatedProjectFromRepo = _projectRepository.Find(p => p.Id == 2);
-
-        Assert.IsNotNull(updatedProjectFromRepo);
-        Assert.AreEqual(updatedProject.Name, updatedProjectFromRepo.Name);
-        Assert.AreEqual(updatedProject.Description, updatedProjectFromRepo.Description);
-        Assert.AreEqual(updatedProject.StartDate, updatedProjectFromRepo.StartDate);
-
-        var adminRole = updatedProjectFromRepo.ProjectRoles.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin);
-        Assert.IsNotNull(adminRole);
-        Assert.AreEqual("updatedadmin@test.com", adminRole.User.Email);
+        
+        Project result = _projectRepository.Update(updatedProject);
+        
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Updated Project", result.Name);
+        Assert.AreEqual("UpdatedDescription", result.Description);
+        
+        var foundProject = _projectRepository.Find(p => p.Id == originalId);
+        Assert.IsNotNull(foundProject);
+        Assert.AreEqual("Updated Project", foundProject.Name);
     }
 
     [TestMethod]

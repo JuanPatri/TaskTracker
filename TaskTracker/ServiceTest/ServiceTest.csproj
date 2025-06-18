@@ -11,6 +11,7 @@
     <ItemGroup>
         <ProjectReference Include="..\Domain\Domain.csproj" />
         <ProjectReference Include="..\DTOs\DTOs.csproj" />
+        <ProjectReference Include="..\RepositoryTest\RepositoryTest.csproj" />
         <ProjectReference Include="..\Repository\Repository.csproj" />
         <ProjectReference Include="..\Service\Service.csproj" />
     </ItemGroup>

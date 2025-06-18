@@ -2,6 +2,7 @@ using Domain;
 using DTOs.UserDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 using Service;
 
 namespace DomainTest;
@@ -12,12 +13,14 @@ public class UserTest
     private User _user;
     private UserService _userService;
     private UserRepository _userRepository;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
         _user = new User();
-        _userRepository = new UserRepository();
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
     }
     

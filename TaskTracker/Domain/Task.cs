@@ -11,7 +11,7 @@ public class Task
     private int _duration;
     private Status _status = Status.Pending;
     private List<TaskResource> _resources = new List<TaskResource>();
-    private List<Task> _dependencies = new List<Task>();
+    private List<TaskDependency> _dependencies = new List<TaskDependency>();
     public DateTime EarlyStart { get; set; }
     public DateTime EarlyFinish { get; set; }
     public DateTime? DateCompleated { get; set; }
@@ -68,9 +68,9 @@ public class Task
         } 
     }
     
-    public List<Task> Dependencies
+    public List<TaskDependency> Dependencies
     {
         get => _dependencies;
-        set => _dependencies = value; 
+        set => _dependencies = value ?? new List<TaskDependency>();
     }
 }

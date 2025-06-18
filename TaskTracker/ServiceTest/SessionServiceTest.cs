@@ -2,6 +2,7 @@ using Repository;
 using Domain;
 using DTOs.SessionDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using RepositoryTest.Context;
 using Service;
 
 namespace BackendTest.ServiceTest;
@@ -13,17 +14,23 @@ public class SessionServiceTest
     private UserService _userService;
     private UserRepository _userRepository;
     private User _user;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _sessionService = new SessionService(_userService);
-        _user = new User()
+        _user = new User
         {
             Email = "pedro@gmail.com",
-            Password = "Pedro123!"
+            Name = "Pedro",                    
+            LastName = "Garcia",               
+            Password = "Pedro123!",
+            BirthDate = new DateTime(1990, 1, 1), 
+            Admin = false
         };
         _userRepository.Add(_user);
         

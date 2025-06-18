@@ -1,6 +1,8 @@
 using Domain;
+using Microsoft.EntityFrameworkCore.SqlServer.Query.Internal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 
 namespace BackendTest.RepositoryTest;
 
@@ -9,14 +11,22 @@ public class UserRepositoryTest
 {
     private UserRepository _userRepository;
     private User _user;
-    //private User _updatedUser;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        _userRepository = new UserRepository();
-        _user = new User();
-        _user.Email = "usuario@nuevo.com";
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
+        _user = new User
+        {
+            Email = "usuario@nuevo.com",
+            Name = "Test Name",           
+            LastName = "Test LastName",    
+            Password = "Password123!",    
+            BirthDate = new DateTime(1990, 1, 1),
+            Admin = false
+        };
     }
     
     [TestMethod]
@@ -43,8 +53,8 @@ public class UserRepositoryTest
     [TestMethod]
     public void UpdateExistingUserUpdatesFieldsCorrectly()
     {
-        _user.Name = "Name";
         _userRepository.Add(_user);
+        
         User updateUser = new User()
         {
             Name = "UpdatedName",
@@ -54,8 +64,9 @@ public class UserRepositoryTest
             BirthDate = new DateTime(1995, 5, 5),
             Email = "usuario@nuevo.com"
         };
-        _userRepository.Update(updateUser);
-        Assert.AreEqual(_user.Name, "UpdatedName");
+        User updatedUser = _userRepository.Update(updateUser);
+        Assert.IsNotNull(updatedUser);
+        Assert.AreEqual("UpdatedName", updatedUser.Name);
     }
 
     [TestMethod]

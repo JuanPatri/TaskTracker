@@ -1,6 +1,7 @@
 using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 
 namespace BackendTest.RepositoryTest;
 
@@ -9,11 +10,13 @@ public class ResourceTypeRepositoryTest
 {
     private ResourceTypeRepository _resourceTypeRepository;
     private ResourceType _resourceType;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        _resourceTypeRepository = new ResourceTypeRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
         _resourceType = new ResourceType();
         _resourceType.Name = "new resource type";
     }

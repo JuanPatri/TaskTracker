@@ -32,10 +32,11 @@ public class TaskService
             throw new Exception("Task already exists");
         }
 
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
-        Task createdTask = FromDto(taskDto, taskResourceList, dependencies);
+        Task createdTask = FromDto(taskDto, taskResourceList);
         Task savedTask = _taskRepository.Add(createdTask);
+        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies, savedTask);
+        savedTask.Dependencies = dependencies;
         foreach (var taskResource in savedTask.Resources)
         {
             taskResource.Task = savedTask;
@@ -93,10 +94,12 @@ public class TaskService
 
     public Task? UpdateTask(TaskDataDTO taskDto)
     {
-        List<Task> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies);
+        Task? existingTask = GetTaskByTitle(taskDto.Title);
+        List<TaskDependency> dependencies = GetTaskDependenciesWithTitleTask(taskDto.Dependencies, existingTask);
+        existingTask.Dependencies = dependencies;
         List<TaskResource> taskResourceList = GetTaskResourcesWithDto(taskDto.Resources);
 
-        return _taskRepository.Update(FromDto(taskDto, taskResourceList, dependencies));
+        return _taskRepository.Update(FromDto(taskDto, taskResourceList));
     }
 
     public void RemoveTask(GetTaskDTO task)
@@ -111,7 +114,9 @@ public class TaskService
     
     public bool ValidateTaskStatus(string title, Status status)
     {
-        List<Task> taskDependencies = GetTaskDependenciesWithTitleTask(new List<string> { title });
+        var task = _taskRepository.Find(t => t.Title == title);
+        if (task == null) return false;
+        List<TaskDependency> taskDependencies = task.Dependencies ?? new List<TaskDependency>();
 
         return taskDependencies.Count < 0 || status == Status.Pending;
     }
@@ -120,8 +125,8 @@ public class TaskService
     {
         var task = _taskRepository.Find(t => t.Title == dto.Title);
         if (task == null) return false;
-
-        return task.Dependencies.All(d => d.Status == Status.Completed);
+        
+        return task.Dependencies.All(d => d.Dependency.Status == Status.Completed);
     }
 
     public (DateTime EarlyStart, DateTime EarlyFinish) GetTaskDatesFromDto(TaskDataDTO taskDto, int projectId)
@@ -134,12 +139,15 @@ public class TaskService
 
         if (taskDto.Dependencies == null || taskDto.Dependencies.Count == 0)
         {
-            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime today = DateTime.Today;
+        
+            earlyStart = projectStartDate > today ? projectStartDate : today;
         }
         else
         {
             DateTime latestDependencyFinish = DateTime.MinValue;
-        
+    
             foreach (string dependencyTitle in taskDto.Dependencies)
             {
                 var dependencyTask = project.Tasks?.FirstOrDefault(t => t.Title == dependencyTitle);
@@ -151,10 +159,18 @@ public class TaskService
                     }
                 }
             }
-        
-            earlyStart = latestDependencyFinish != DateTime.MinValue 
-                ? latestDependencyFinish.AddDays(1) 
-                : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+    
+            if (latestDependencyFinish != DateTime.MinValue)
+            {
+                earlyStart = latestDependencyFinish.AddDays(1);
+            }
+            else
+            {
+                DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+                DateTime today = DateTime.Today;
+            
+                earlyStart = projectStartDate > today ? projectStartDate : today;
+            }
         }
 
         DateTime earlyFinish = earlyStart.AddDays(taskDto.Duration);
@@ -162,11 +178,30 @@ public class TaskService
         return (earlyStart, earlyFinish);
     }
     
-    public List<Task> GetTaskDependenciesWithTitleTask(List<string> titlesTask)
+    public List<TaskDependency> GetTaskDependenciesWithTitleTask(List<string> titlesTask, Task task)
     {
-        return _taskRepository.FindAll()
-            .Where(t => titlesTask.Contains(t.Title))
-            .ToList();
+        List<TaskDependency> dependencies = new List<TaskDependency>();
+    
+        if (titlesTask != null)
+        {
+            foreach (var title in titlesTask)
+            {
+                Task? dependencyTask = _taskRepository.Find(t => t.Title == title);
+
+                if (dependencyTask != null)
+                {
+                    TaskDependency newDependency = new TaskDependency
+                    {
+                        Task = task,
+                        Dependency = dependencyTask
+                    };
+                
+                    dependencies.Add(newDependency);
+                }
+            }
+        }
+
+        return dependencies;
     }
 
     public bool IsTaskCriticalById(int projectId, string taskTitle)
@@ -218,7 +253,7 @@ public class TaskService
         foreach (var task in project.Tasks)
         {
             DateTime earlyStart;
-        
+    
             if (task.Dependencies == null || task.Dependencies.Count == 0)
             {
                 earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
@@ -226,15 +261,15 @@ public class TaskService
             else
             {
                 DateTime latestDependencyFinish = DateTime.MinValue;
-            
+        
                 foreach (var dependency in task.Dependencies)
                 {
-                    if (dependency.EarlyFinish > latestDependencyFinish)
+                    if (dependency.Dependency.EarlyFinish > latestDependencyFinish)
                     {
-                        latestDependencyFinish = dependency.EarlyFinish;
+                        latestDependencyFinish = dependency.Dependency.EarlyFinish;
                     }
                 }
-            
+        
                 earlyStart = latestDependencyFinish != DateTime.MinValue 
                     ? latestDependencyFinish.AddDays(1) 
                     : project.StartDate.ToDateTime(new TimeOnly(0, 0));
@@ -243,27 +278,28 @@ public class TaskService
             task.EarlyStart = earlyStart;
             task.EarlyFinish = earlyStart.AddDays(task.Duration);
         }
-    
+
         _projectRepository.Update(project);
     }
 
     public bool DependsOnTasksFromAnotherProject(string titulo, int projectId)
     {
         Task task = _taskRepository.Find(t => t.Title == titulo);
-
         Project? project = _projectRepository.Find(p => p.Id == projectId);
-        foreach (var dependencies in task.Dependencies)
+        if (task == null || project == null) return false;
+
+        foreach (var dependency in task.Dependencies)
         {
-            if (!project.Tasks.Contains(dependencies))
+            if (!project.Tasks.Any(t => t.Title == dependency.Dependency.Title))
             {
                 return true;
             }
         }
-        
+
         return false;
     }
     
-    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources, List<Task> dependencies)
+    public  Task FromDto(TaskDataDTO taskDataDto, List<TaskResource> resources)
     {
     
         var task = new Task()
@@ -273,7 +309,7 @@ public class TaskService
             Duration = taskDataDto.Duration,
             Status = taskDataDto.Status,
             Resources = resources ?? new List<TaskResource>(),
-            Dependencies = dependencies ?? new List<Task>(),
+            Dependencies = new List<TaskDependency>(),
         };
         
         return task;

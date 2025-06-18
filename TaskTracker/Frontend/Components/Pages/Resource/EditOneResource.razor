@@ -78,9 +78,11 @@ else
         {
             _resourceDto = new ResourceDataDto
             {
+                Id = _resource.Id,                    
                 Name = _resource.Name,
                 Description = _resource.Description,
-                TypeResource = _resource.Type.Id
+                TypeResource = _resource.Type.Id,
+                Quantity = _resource.Quantity        
             };
         }
     }

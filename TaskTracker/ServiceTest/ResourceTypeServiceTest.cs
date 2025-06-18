@@ -2,6 +2,7 @@ using Domain;
 using DTOs.ResourceTypeDTOs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 using Service;
 
 namespace ServiceTest;
@@ -11,11 +12,13 @@ public class ResourceTypeServiceTest
 {
     private IRepository<ResourceType> _resourceTypeRepository;
     private ResourceTypeService _resourceTypeService;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _resourceTypeRepository = new ResourceTypeRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
         _resourceTypeService = new ResourceTypeService(_resourceTypeRepository);
         
     }

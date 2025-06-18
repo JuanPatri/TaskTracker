@@ -39,7 +39,6 @@ public class Project
         get => _startDate;
         set 
         {
-            if (value < DateOnly.FromDateTime(DateTime.Now)) throw new ArgumentException("The project start date cannot be in the past");
             _startDate = value;
         }
     }
@@ -48,7 +47,6 @@ public class Project
         get => _id;
         set
         {
-            if (value <= 0) throw new ArgumentException("The project ID must be a positive integer");
             _id = value;
         }
     }

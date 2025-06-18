@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository;
 
@@ -11,9 +12,11 @@ using Repository;
 namespace Repository.Migrations
 {
     [DbContext(typeof(SqlContext))]
-    partial class SqlContextModelSnapshot : ModelSnapshot
+    [Migration("20250614041043_addIdToProjectRole")]
+    partial class addIdToProjectRole
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,37 +24,6 @@ namespace Repository.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Domain.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Impact")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TypeOfNotification")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ViewedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Notifications");
-                });
 
             modelBuilder.Entity("Domain.Project", b =>
                 {
@@ -130,9 +102,6 @@ namespace Repository.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -140,8 +109,6 @@ namespace Repository.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
 
                     b.HasIndex("ResourceTypeId");
 
@@ -198,46 +165,13 @@ namespace Repository.Migrations
                     b.Property<DateTime>("LateStart")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Title");
 
-                    b.HasIndex("ProjectId");
-
                     b.ToTable("Tasks");
-                });
-
-            modelBuilder.Entity("Domain.TaskDependency", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("DependencyTitle")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("TaskTitle")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DependencyTitle");
-
-                    b.HasIndex("TaskTitle", "DependencyTitle")
-                        .IsUnique();
-
-                    b.ToTable("TaskDependencies");
                 });
 
             modelBuilder.Entity("Domain.TaskResource", b =>
@@ -303,36 +237,6 @@ namespace Repository.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("NotificationProject", b =>
-                {
-                    b.Property<int>("NotificationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ProjectsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("NotificationId", "ProjectsId");
-
-                    b.HasIndex("ProjectsId");
-
-                    b.ToTable("NotificationProject");
-                });
-
-            modelBuilder.Entity("NotificationUser", b =>
-                {
-                    b.Property<int>("NotificationId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UsersEmail")
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("NotificationId", "UsersEmail");
-
-                    b.HasIndex("UsersEmail");
-
-                    b.ToTable("NotificationUser");
-                });
-
             modelBuilder.Entity("Domain.Project", b =>
                 {
                     b.HasOne("Domain.User", null)
@@ -361,11 +265,6 @@ namespace Repository.Migrations
 
             modelBuilder.Entity("Domain.Resource", b =>
                 {
-                    b.HasOne("Domain.Project", null)
-                        .WithMany("ExclusiveResources")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
                     b.HasOne("Domain.ResourceType", "Type")
                         .WithMany()
                         .HasForeignKey("ResourceTypeId")
@@ -375,45 +274,18 @@ namespace Repository.Migrations
                     b.Navigation("Type");
                 });
 
-            modelBuilder.Entity("Domain.Task", b =>
-                {
-                    b.HasOne("Domain.Project", null)
-                        .WithMany("Tasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade);
-                });
-
-            modelBuilder.Entity("Domain.TaskDependency", b =>
-                {
-                    b.HasOne("Domain.Task", "Dependency")
-                        .WithMany()
-                        .HasForeignKey("DependencyTitle")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Task", "Task")
-                        .WithMany("Dependencies")
-                        .HasForeignKey("TaskTitle")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dependency");
-
-                    b.Navigation("Task");
-                });
-
             modelBuilder.Entity("Domain.TaskResource", b =>
                 {
                     b.HasOne("Domain.Resource", "Resource")
                         .WithMany()
                         .HasForeignKey("ResourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("Domain.Task", "Task")
                         .WithMany("Resources")
                         .HasForeignKey("TaskTitle")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Resource");
@@ -421,49 +293,13 @@ namespace Repository.Migrations
                     b.Navigation("Task");
                 });
 
-            modelBuilder.Entity("NotificationProject", b =>
-                {
-                    b.HasOne("Domain.Notification", null)
-                        .WithMany()
-                        .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Project", null)
-                        .WithMany()
-                        .HasForeignKey("ProjectsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("NotificationUser", b =>
-                {
-                    b.HasOne("Domain.Notification", null)
-                        .WithMany()
-                        .HasForeignKey("NotificationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.User", null)
-                        .WithMany()
-                        .HasForeignKey("UsersEmail")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("Domain.Project", b =>
                 {
-                    b.Navigation("ExclusiveResources");
-
                     b.Navigation("ProjectRoles");
-
-                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Domain.Task", b =>
                 {
-                    b.Navigation("Dependencies");
-
                     b.Navigation("Resources");
                 });
 

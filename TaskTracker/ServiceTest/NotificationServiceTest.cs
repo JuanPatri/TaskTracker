@@ -3,6 +3,7 @@ using DTOs.NotificationDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 using Service;
 using Task = Domain.Task;
 
@@ -20,16 +21,17 @@ public class NotificationServiceTest
     private UserService _userService;
     private CriticalPathService _criticalPathService;
     private TaskRepository _taskRepository;
-    
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitializated()
     {
-        _userRepository = new UserRepository();
-        _projectRepository = new ProjectRepository();
-        _notificationRepository = new NotificationRepository();
-        _resourceTypeRepository = new ResourceTypeRepository();
-        _taskRepository = new TaskRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _userRepository = new UserRepository(_sqlContext);
+        _projectRepository = new ProjectRepository(_sqlContext);
+        _notificationRepository = new NotificationRepository(_sqlContext);
+        _resourceTypeRepository = new ResourceTypeRepository(_sqlContext);
+        _taskRepository = new TaskRepository(_sqlContext);
         _userService = new UserService(_userRepository);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRepository, _userRepository, _userService, _criticalPathService);
@@ -45,8 +47,20 @@ public class NotificationServiceTest
     [TestMethod]
     public void AddNotificationShouldReturnNotification()
     {
-        var user = new User { Name = "User", Email = "user@example.com" };
-        var project = new Project { Name = "Test Project" };
+        var user = new User 
+        { 
+            Name = "User", 
+            Email = "user@example.com",
+            LastName = "TestLastName",       
+            Password = "Password123@",     
+            BirthDate = new DateTime(1990, 1, 1),  
+            Admin = false                     
+        };
+        var project = new Project
+        {
+            Name = "Test Project",
+            Description = "Test Description",
+        };
         _userRepository.Add(user);
         _projectRepository.Add(project);
 
@@ -106,6 +120,7 @@ public class NotificationServiceTest
         {
             Id = 123,
             Name = "Test Project",
+            Description = "Test Description",
             StartDate = DateOnly.FromDateTime(DateTime.Today),
             Tasks = new List<Task>
             {
@@ -123,8 +138,23 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetUsersFromProject_ShouldReturnProjectUsers()
     {
-        User user1 = new User { Name = "John", Email = "john@mail.com" };
-        User user2 = new User { Name = "Anna", Email = "anna@mail.com" };
+        User user1 = new User 
+        { 
+            Name = "John", 
+            Email = "john@mail.com",
+            LastName = "Doe",
+            Password = "Password123@",
+            BirthDate = new DateTime(1990, 1, 1)
+        };
+
+        User user2 = new User 
+        { 
+            Name = "Anna", 
+            Email = "anna@mail.com",
+            LastName = "Smith", 
+            Password = "Password123@",
+            BirthDate = new DateTime(1985, 5, 15)
+        };
         _userRepository.Add(user1);
         _userRepository.Add(user2);
 
@@ -194,7 +224,14 @@ public class NotificationServiceTest
     [TestMethod]
     public void CreateNotification_ShouldCreateAndReturnNotificationWithCorrectData()
     {
-        User user = new User { Name = "John", Email = "john@mail.com" };
+        User user = new User 
+        { 
+            Name = "John", 
+            Email = "john@mail.com",
+            LastName = "Doe",
+            Password = "Password123@",
+            BirthDate = new DateTime(1990, 1, 1)
+        };
     
         Project project = new Project
         {
@@ -234,7 +271,14 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetNotificationsForUser_ShouldReturnNotificationsForGivenEmail()
     {
-        var user = new User { Name = "John", Email = "john@mail.com" };
+        var user = new User 
+        { 
+            Name = "John", 
+            Email = "john@mail.com",
+            LastName = "Doe",
+            Password = "Password123@", 
+            BirthDate = new DateTime(1990, 1, 1)
+        };
         _userRepository.Add(user);
 
         var notification = new Notification
@@ -290,7 +334,16 @@ public class NotificationServiceTest
     [TestMethod]
     public void GetUnviewedNotificationsForUser_ShouldReturnOnlyUnviewedNotifications()
     {
-        var user = new User { Name = "John", Email = "john@mail.com" };
+        var user = new User 
+        { 
+            Name = "John",
+            LastName = "Doe",       
+            Email = "john@mail.com",
+            Password = "Password123@", 
+            BirthDate = DateTime.Now.AddYears(-25),  
+            Admin = false              
+        };
+
         var notificationViewed = new Notification
         {
             Id = 1,
@@ -301,6 +354,7 @@ public class NotificationServiceTest
             Users = new List<User> { user },
             ViewedBy = new List<string> { "john@mail.com" }
         };
+
         var notificationUnviewed = new Notification
         {
             Id = 2,

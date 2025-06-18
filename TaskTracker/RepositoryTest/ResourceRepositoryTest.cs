@@ -1,6 +1,7 @@
 using Domain;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 
 namespace BackendTest.RepositoryTest;
 
@@ -9,12 +10,31 @@ public class ResourceRepositoryTest
 {
     private ResourceRepository _resourceRepository;
     private Resource _resource;
+    private SqlContext _sqlContext;
+    private ResourceType _resourceType;
+    
     [TestInitialize]
     public void OnInitialize()
     {
-        _resourceRepository = new ResourceRepository();
-        _resource = new Resource();
-        _resource.Name = "new resource";
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _resourceRepository = new ResourceRepository(_sqlContext);
+        
+        _resourceType = new ResourceType
+        {
+            Name = "Test Type"
+        };
+        
+        _sqlContext.ResourceTypes.Add(_resourceType);
+        _sqlContext.SaveChanges();
+        
+        _resource = new Resource
+        {
+            Name = "new resource",
+            Description = "Test description",  
+            Quantity = 10,                     
+            Type = _resourceType
+        };
+        
     }
     [TestMethod]
     public void CreateResourceRepository()
@@ -26,36 +46,47 @@ public class ResourceRepositoryTest
     public void AddResourceToRepository()
     {
         _resourceRepository.Add(_resource);
-        Assert.AreEqual(_resourceRepository.Find(r => r.Name == "new resource"), _resource);
+        Resource foundResource = _resourceRepository.Find(r => r.Name == "new resource");
+        Assert.IsNotNull(foundResource);
+        Assert.AreEqual("new resource", foundResource.Name);
     }
     
     [TestMethod]
     public void SearchForAllResourceInTheList()
     {
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
+        Assert.AreEqual(0, _resourceRepository.FindAll().Count);
+
         _resourceRepository.Add(_resource);
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
+
+        Assert.AreEqual(1, _resourceRepository.FindAll().Count);
     }
     
     [TestMethod]
     public void UpdateExistingResourceUpdatesFieldsCorrectly()
     {
         _resource.Description = "Description";
-        _resourceRepository.Add(_resource);
-        Assert.AreEqual(_resource.Description, "Description");
+        Resource addedResource = _resourceRepository.Add(_resource);
+        Assert.AreEqual("Description", addedResource.Description);
         
-        Resource updateResource = new Resource()
+        ResourceType updateResourceType = new ResourceType
         {
+            Name = "UpdatedType"
+        };
+        _sqlContext.ResourceTypes.Add(updateResourceType);
+        _sqlContext.SaveChanges();
+        
+        Resource updateResource = new Resource
+        {
+            Id = addedResource.Id, 
             Name = "new resource",
             Description = "UpdatedDescription",
-            Type = new ResourceType()
-            {
-                Name = "UpdatedType"
-            }
+            Quantity = 10,
+            Type = updateResourceType
         };
         
-        _resourceRepository.Update(updateResource);
-        Assert.AreEqual(_resource.Description, "UpdatedDescription");
+        Resource updatedResource = _resourceRepository.Update(updateResource);
+        Assert.IsNotNull(updatedResource);
+        Assert.AreEqual("UpdatedDescription", updatedResource.Description);
     }
     
     [TestMethod]
@@ -76,9 +107,12 @@ public class ResourceRepositoryTest
     [TestMethod]
     public void DeleteResourceFromList()
     {
-        _resourceRepository.Add(_resource);
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 1);
-        _resourceRepository.Delete(_resource.Name);
-        Assert.AreEqual(_resourceRepository.FindAll().Count, 0);
+        Resource addedResource = _resourceRepository.Add(_resource);
+        
+        Assert.AreEqual(1, _resourceRepository.FindAll().Count);
+        
+        _resourceRepository.Delete(addedResource.Name);
+        
+        Assert.AreEqual(0, _resourceRepository.FindAll().Count);
     }
 }

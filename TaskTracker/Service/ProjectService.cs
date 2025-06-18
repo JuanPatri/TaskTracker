@@ -13,7 +13,6 @@ namespace Service;
 public class ProjectService
 {
     private readonly IRepository<Project> _projectRepository;
-    private int _idProject;
     private readonly IRepository<Task> _taskRepository;
     private readonly IRepository<ResourceType> _resourceTypeRepository;
     private readonly IRepository<User> _userRepository;
@@ -27,7 +26,6 @@ public class ProjectService
         CriticalPathService criticalPathService)
     {
         _projectRepository = projectRepository;
-        _idProject = 2;
         _idResource = 1;
         _taskRepository = taskRepository;
         _resourceTypeRepository = resourceTypeRepository;
@@ -39,6 +37,11 @@ public class ProjectService
     public Project AddProject(ProjectDataDTO project)
     {
         ValidateProjectName(project.Name);
+
+        if (project.StartDate < DateOnly.FromDateTime(DateTime.Today))
+        {
+            throw new ArgumentException("The project start date cannot be in the past");
+        }
 
         List<User> associatedUsers = _userService.GetUsersFromEmails(project.Users);
 
@@ -58,7 +61,7 @@ public class ProjectService
                 };
                 projectRoles.Add(adminRole);
             }
-        
+
             if (user.Email == leaderEmail)
             {
                 ProjectRole leaderRole = new ProjectRole
@@ -68,7 +71,7 @@ public class ProjectService
                 };
                 projectRoles.Add(leaderRole);
             }
-            
+
             if (user.Email != adminEmail && user.Email != leaderEmail)
             {
                 ProjectRole memberRole = new ProjectRole
@@ -80,14 +83,7 @@ public class ProjectService
             }
         }
 
-        project.Id = _idProject++;
-
         Project newProject = FromDto(project, projectRoles);
-
-        foreach (var role in projectRoles)
-        {
-            role.Project = newProject;
-        }
 
         return _projectRepository.Add(newProject);
     }
@@ -117,34 +113,61 @@ public class ProjectService
 
     public Project? UpdateProject(ProjectDataDTO projectDto)
     {
+        Project? existingProject = _projectRepository.Find(p => p.Id == projectDto.Id);
+        if (existingProject == null)
+        {
+            return null;
+        }
+
         List<User> associatedUsers = _userRepository.FindAll()
             .Where(u => projectDto.Users.Contains(u.Email))
             .ToList();
 
+        if (associatedUsers.Count != projectDto.Users.Count)
+        {
+            return null;
+        }
+
         List<ProjectRole> projectRoles = new List<ProjectRole>();
 
-        for (int i = 0; i < associatedUsers.Count; i++)
+        string adminEmail = projectDto.Users.Count > 0 ? projectDto.Users[0] : "";
+        string leaderEmail = projectDto.Users.Count > 1 ? projectDto.Users[1] : "";
+
+        foreach (User user in associatedUsers)
         {
-            User user = associatedUsers[i];
-            RoleType roleType = (i == 0) ? RoleType.ProjectAdmin : RoleType.ProjectMember;
-
-            ProjectRole role = new ProjectRole
+            if (user.Email == adminEmail)
             {
-                RoleType = roleType,
-                User = user
-            };
-            projectRoles.Add(role);
-        }
-
-        Project? updatedProject = _projectRepository.Update(FromDto(projectDto, projectRoles));
-
-        if (updatedProject != null)
-        {
-            foreach (var role in updatedProject.ProjectRoles)
+                ProjectRole adminRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectAdmin,
+                    User = user
+                };
+                projectRoles.Add(adminRole);
+            }
+            else if (user.Email == leaderEmail)
             {
-                role.Project = updatedProject;
+                ProjectRole leaderRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectLead,
+                    User = user
+                };
+                projectRoles.Add(leaderRole);
+            }
+            else
+            {
+                ProjectRole memberRole = new ProjectRole
+                {
+                    RoleType = RoleType.ProjectMember,
+                    User = user
+                };
+                projectRoles.Add(memberRole);
             }
         }
+
+        Project projectToUpdate = FromDto(projectDto, projectRoles);
+        projectToUpdate.Id = projectDto.Id;
+
+        Project? updatedProject = _projectRepository.Update(projectToUpdate);
 
         return updatedProject;
     }
@@ -181,48 +204,36 @@ public class ProjectService
 
     public void AddExclusiveResourceToProject(int projectId, ResourceDataDto resourceDto)
     {
-        Project project = _projectRepository.Find(p => p.Id == projectId);
-
-        if (project == null)
-            throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
-
-        Resource newResource = new Resource
+        try
         {
-            Name = resourceDto.Name,
-            Description = resourceDto.Description,
-            Quantity = resourceDto.Quantity,
-            Id = GetNextExclusiveResourceId(project.ExclusiveResources),
-            Type = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource)
-        };
+            Project? project = _projectRepository.Find(p => p.Id == projectId);
+            if (project == null)
+                throw new ArgumentException($"No se encontró un proyecto con el ID {projectId}.");
 
-        project.ExclusiveResources.Add(newResource);
+            ResourceType? resourceType = _resourceTypeRepository.Find(r => r.Id == resourceDto.TypeResource);
+            if (resourceType == null)
+                throw new ArgumentException($"No se encontró un tipo de recurso con el ID {resourceDto.TypeResource}.");
 
-        _projectRepository.Update(project);
-    }
+            Resource newResource = new Resource
+            {
+                Name = resourceDto.Name,
+                Description = resourceDto.Description,
+                Quantity = resourceDto.Quantity,
+                Type = resourceType
+            };
 
-    private int GetNextExclusiveResourceId(List<Resource> resources)
-    {
-        int minExclusiveId = 1000;
+            if (project.ExclusiveResources == null)
+                project.ExclusiveResources = new List<Resource>();
 
-        if (!resources.Any())
-        {
-            return minExclusiveId;
+            project.ExclusiveResources.Add(newResource);
+
+            _projectRepository.Update(project);
         }
-
-        int maxId = resources.Max(r => r.Id);
-        int nextId = maxId + 1;
-
-        if (nextId < minExclusiveId)
+        catch (Exception ex)
         {
-            nextId = minExclusiveId;
+            Console.WriteLine($"Error adding exclusive resource: {ex.Message}");
+            throw;
         }
-
-        if (nextId >= 2000)
-        {
-            throw new InvalidOperationException("Too many exclusive resources. Max 999 exclusive resources allowed.");
-        }
-
-        return nextId;
     }
 
     public List<ProjectDataDTO> GetAllProjectsDTOs()
@@ -254,7 +265,7 @@ public class ProjectService
             .ToList();
     }
 
-    public  List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
+    public List<ProjectDataDTO> ProjectsDataByUserEmail(string userEmail)
     {
         var filteredProjects = _projectRepository.FindAll()
             .Where(project => project.ProjectRoles != null &&
@@ -335,7 +346,18 @@ public class ProjectService
 
         CalculateTaskDates(taskInRepository, project);
 
-        _projectRepository.Update(project);
+        Project projectForUpdate = new Project
+        {
+            Id = project.Id,
+            Name = project.Name,
+            Description = project.Description,
+            StartDate = project.StartDate,
+            Tasks = project.Tasks,
+            ExclusiveResources = project.ExclusiveResources,
+            ProjectRoles = null
+        };
+
+        _projectRepository.Update(projectForUpdate);
         _taskRepository.Update(taskInRepository);
     }
 
@@ -345,7 +367,10 @@ public class ProjectService
 
         if (task.Dependencies == null || task.Dependencies.Count == 0)
         {
-            earlyStart = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            DateTime today = DateTime.Today;
+
+            earlyStart = projectStartDate > today ? projectStartDate : today;
         }
         else
         {
@@ -353,15 +378,23 @@ public class ProjectService
 
             foreach (var dependency in task.Dependencies)
             {
-                if (dependency.EarlyFinish > latestDependencyFinish)
+                if (dependency.Dependency.EarlyFinish > latestDependencyFinish)
                 {
-                    latestDependencyFinish = dependency.EarlyFinish;
+                    latestDependencyFinish = dependency.Dependency.EarlyFinish;
                 }
             }
 
-            earlyStart = latestDependencyFinish != DateTime.MinValue
-                ? latestDependencyFinish.AddDays(1)
-                : project.StartDate.ToDateTime(new TimeOnly(0, 0));
+            if (latestDependencyFinish != DateTime.MinValue)
+            {
+                earlyStart = latestDependencyFinish;
+            }
+            else
+            {
+                DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+                DateTime today = DateTime.Today;
+
+                earlyStart = projectStartDate > today ? projectStartDate : today;
+            }
         }
 
         task.EarlyStart = earlyStart;
@@ -373,7 +406,7 @@ public class ProjectService
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
         return projectWithTask?.ProjectRoles?.FirstOrDefault(pr => pr.RoleType == RoleType.ProjectAdmin)?.User?.Email;
     }
-    
+
     public string? GetLeadEmailByTaskTitle(string title)
     {
         Project? projectWithTask = _projectRepository.Find(p => p.Tasks.Any(t => t.Title == title));
@@ -405,16 +438,18 @@ public class ProjectService
         Project? existingProject = _projectRepository.Find(p => p.Id == project.Id);
         if (existingProject != null && existingProject.ProjectRoles != null)
         {
-            return existingProject.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == leadEmail);
+            return existingProject.ProjectRoles.Any(pr =>
+                pr.RoleType == RoleType.ProjectLead && pr.User.Email == leadEmail);
         }
-        
+
         return false;
     }
-    
+
     public List<Project> GetProjectsLedByUser(string email)
     {
         return _projectRepository.FindAll()
-            .Where(p => p.ProjectRoles != null && p.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == email))
+            .Where(p => p.ProjectRoles != null &&
+                        p.ProjectRoles.Any(pr => pr.RoleType == RoleType.ProjectLead && pr.User.Email == email))
             .ToList();
     }
 
@@ -434,12 +469,27 @@ public class ProjectService
             }).ToList()
         }).ToList();
     }
-    
+
+    public bool HasProjectStarted(int projectId)
+    {
+        Project project = GetProjectById(projectId);
+        if (project == null)
+        {
+            throw new Exception($"Project with ID {projectId} not found.");
+        }
+
+        DateTime projectStartDate = project.StartDate.ToDateTime(new TimeOnly(0, 0));
+
+        bool hasActiveTasks = project.Tasks?.Any(t => t.Status != Status.Pending) == true;
+        bool startedLongAgo = projectStartDate < DateTime.Today.AddDays(-7);
+
+        return hasActiveTasks || startedLongAgo;
+    }
+
     public Project FromDto(ProjectDataDTO projectDataDto, List<ProjectRole> users)
     {
         return new Project()
         {
-            Id = projectDataDto.Id,
             Name = projectDataDto.Name,
             Description = projectDataDto.Description,
             StartDate = projectDataDto.StartDate,

@@ -19,8 +19,8 @@ public class CriticalPathService
     {
         path.Add(current);
 
-        var successors = allTasks
-            .Where(t => t.Dependencies.Contains(current) && criticalTasks.Contains(t))
+        List<Task> successors = allTasks
+            .Where(t => t.Dependencies.Any(d => d.Dependency == current) && criticalTasks.Contains(t))
             .ToList();
 
         if (successors.Count == 0)
@@ -37,12 +37,13 @@ public class CriticalPathService
         path.Remove(current);
         return false;
     }
+
     
     public List<Task> GetCriticalPath(Project project)
     {
         CalculateLateTimes(project);
 
-        var criticalTasks = new List<Task>();
+        List<Task> criticalTasks = new List<Task>();
         foreach (var t in project.Tasks)
         {
             if (t.EarlyStart == t.LateStart)
@@ -51,10 +52,13 @@ public class CriticalPathService
             }
         }
 
-        var startTasks = new List<Task>();
+        List<Task> startTasks = new List<Task>();
         foreach (var t in project.Tasks)
         {
-            var internalDependencies = t.Dependencies?.Where(dep => project.Tasks.Contains(dep)).ToList() ?? new List<Task>();
+            List<Task> internalDependencies = t.Dependencies?
+                .Select(dep => dep.Dependency)
+                .Where(dep => project.Tasks.Contains(dep))
+                .ToList() ?? new List<Task>();
 
             if (!internalDependencies.Any() && criticalTasks.Contains(t))
             {
@@ -64,7 +68,7 @@ public class CriticalPathService
 
         foreach (var start in startTasks)
         {
-            var path = new List<Task>();
+            List<Task> path = new List<Task>();
             if (BuildCriticalPath(start, project.Tasks, criticalTasks, path))
             {
                 return path;
@@ -73,6 +77,7 @@ public class CriticalPathService
 
         return new List<Task>();
     }
+
     
     private void TopologicalSortDFS(Task task, List<Task> visited, List<Task> tempVisited, List<Task> result)
     {
@@ -92,7 +97,7 @@ public class CriticalPathService
         {
             foreach (var dependency in task.Dependencies)
             {
-                TopologicalSortDFS(dependency, visited, tempVisited, result);
+                TopologicalSortDFS(dependency.Dependency, visited, tempVisited, result);
             }
         }
 
@@ -138,13 +143,15 @@ public class CriticalPathService
 
         foreach (var task in ordered)
         {
+            
             List<Task> successors = project.Tasks
-                .Where(t => t.Dependencies.Contains(task))
+                .Where(t => t.Dependencies != null && t.Dependencies.Any(dep => dep.Dependency == task))
                 .ToList();
 
             if (successors.Any())
             {
-                task.LateFinish = successors.Min(s => s.LateStart);
+                DateTime earliestSuccessorStart = successors.Min(s => s.LateStart);
+                task.LateFinish = earliestSuccessorStart;
                 task.LateStart = task.LateFinish.AddDays(-task.Duration);
             }
         }
@@ -176,8 +183,8 @@ public class CriticalPathService
             }
             else
             {
-                es = task.Dependencies
-                    .Max(dep => dep.EarlyFinish);
+                DateTime latestDependencyFinish = task.Dependencies.Max(dep => dep.Dependency.EarlyFinish);
+                es = latestDependencyFinish;
             }
 
             task.EarlyStart = es;

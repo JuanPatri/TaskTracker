@@ -92,24 +92,12 @@ public class ProjectTest
         _project.StartDate = startDate;
         Assert.AreEqual<DateOnly>(startDate, _project.StartDate);
     }
-
-    [TestMethod]
-    public void StartDateInPastReturnsExceptionTest()
-    {
-        DateOnly pastDate = DateOnly.FromDateTime(DateTime.Now.AddDays(-1));
-        Assert.ThrowsException<ArgumentException>(() => _project.StartDate = pastDate);
-    }
     
     [TestMethod]
     public void SetIdForProjectTest()
     {
         _project.Id = 1;
         Assert.AreEqual(1, _project.Id);
-    }
-    [TestMethod]
-    public void SetIdNegativeReturnsExceptionTest()
-    {
-        Assert.ThrowsException<ArgumentException>(() => _project.Id = -1);
     }
 
     [TestMethod]

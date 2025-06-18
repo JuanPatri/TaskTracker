@@ -5,6 +5,7 @@ using DTOs.TaskResourceDTOs;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 using Service;
 using Task = Domain.Task;
 
@@ -24,14 +25,16 @@ public class TaskTest
     private UserRepository _userRepository;
     private UserService _userService;
     private ResourceRepository _resourceRespository;
+    private SqlContext _sqlContext;
     
     [TestInitialize]
     public void OnInitialize()
     {
-        _taskRepository = new TaskRepository();
-        _resourceRespository = new ResourceRepository();
-        _projectRepository = new ProjectRepository();
-        _userRepository = new UserRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _taskRepository = new TaskRepository(_sqlContext);
+        _resourceRespository = new ResourceRepository(_sqlContext);
+        _projectRepository = new ProjectRepository(_sqlContext);
+        _userRepository = new UserRepository(_sqlContext);
         _criticalPathService = new CriticalPathService(_projectRepository, _taskRepository);
         _userService = new UserService(_userRepository);
         _projectService = new ProjectService(_taskRepository, _projectRepository, _resourceTypeRespository, _userRepository, _userService, _criticalPathService);
@@ -50,7 +53,7 @@ public class TaskTest
             LateFinish = DateTime.Now.AddDays(5),
             DateCompleated = null,
             Resources = new List<TaskResource>(),
-            Dependencies = new List<Task>()
+            Dependencies = new List<TaskDependency>()
         };
     }
 
@@ -145,14 +148,23 @@ public class TaskTest
     [TestMethod]
     public void SetDependencies()
     {
-        List<Task> finishToStartDependencies = new List<Task>
+        List<TaskDependency> dependencies = new List<TaskDependency>
         {
-            new Task { Title = "Task 1" },
-            new Task { Title = "Task 2" }
+            new TaskDependency 
+            {
+                Task = _task,
+                Dependency = new Task { Title = "Task 1", Description = "Description 1" }
+            },
+            new TaskDependency 
+            {
+                Task = _task,
+                Dependency = new Task { Title = "Task 2", Description = "Description 2" }
+            }
         };
-        _task.Dependencies = finishToStartDependencies;
-
-        Assert.AreEqual(finishToStartDependencies, _task.Dependencies);
+    
+        _task.Dependencies = dependencies;
+    
+        Assert.AreEqual(dependencies, _task.Dependencies);
     }
 
     [TestMethod]
@@ -165,8 +177,8 @@ public class TaskTest
             Duration = 1,
             Status = Status.Blocked,
             Dependencies = new List<string> { "Task 1", "Task 2" },
-            Resources = new List<TaskResourceDataDTO> 
-            { 
+            Resources = new List<TaskResourceDataDTO>
+            {
                 new TaskResourceDataDTO
                 {
                     TaskTitle = "Task 1",
@@ -183,15 +195,15 @@ public class TaskTest
 
         List<TaskResource> taskResources = new List<TaskResource>
         {
-            new TaskResource()
+            new TaskResource
             {
                 Task = new Task { Title = "Task 1" },
                 Resource = new Resource { Name = "Resource 1" },
-                Quantity = 1,
+                Quantity = 1
             }
         };
 
-        Task task = _taskService.FromDto(taskDto, taskResources, dependencies);
+        Task task = _taskService.FromDto(taskDto, taskResources);
 
         Assert.AreEqual("Task 1", task.Title);
         Assert.AreEqual("Description of Task 1", task.Description);
@@ -204,7 +216,7 @@ public class TaskTest
         Assert.AreEqual("Resource 1", task.Resources[0].Resource.Name);
 
         Assert.IsNotNull(task.Dependencies);
-        Assert.AreEqual("Task 3", task.Dependencies[0].Title);
+        Assert.AreEqual(0, task.Dependencies.Count);
     }
     
     [TestMethod]

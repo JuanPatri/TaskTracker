@@ -3,6 +3,7 @@ using Enums;
 using Enums;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Repository;
+using RepositoryTest.Context;
 
 namespace BackendTest.RepositoryTest;
 
@@ -11,11 +12,13 @@ public class TaskRepositoryTest
 {
     private IRepository<Task> _taskRepository;
     private Task _task;
+    private SqlContext _sqlContext;
 
     [TestInitialize]
     public void OnInitialize()
     {
-        _taskRepository = new TaskRepository();
+        _sqlContext = SqlContextFactory.CreateMemoryContext();
+        _taskRepository = new TaskRepository(_sqlContext);
         _task = new Task(); 
         _task.Title = "Task 1";
     }

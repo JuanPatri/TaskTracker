@@ -4,13 +4,15 @@ namespace Repository;
 
 public class UserRepository : IRepository<User>
 {
-    private readonly List<User> _users;
+    private readonly SqlContext _sqlContext;
     
-    public UserRepository()
+    public UserRepository(SqlContext sqlContext)
     {
-        _users = new List<User>()
+        _sqlContext = sqlContext;
+
+        if (!_sqlContext.Users.Any(u => u.Email == "admin@admin.com"))
         {
-            new User()
+            User newUser = new User()
             {
                 Name = "Admin",
                 LastName = "Admin",
@@ -18,29 +20,35 @@ public class UserRepository : IRepository<User>
                 Password = "Admin123@",
                 Admin = true,
                 BirthDate = new DateTime(1990, 1, 1)
-            }
-        };
+            };
+        
+            _sqlContext.Users.Add(newUser);
+            _sqlContext.SaveChanges();
+        }
+
     }
     
     public User Add(User user)
     {
-        _users.Add(user);
+        _sqlContext.Users.Add(user);
+        _sqlContext.SaveChanges();
         return user;
     }
 
     public User? Find(Func<User, bool> predicate)
     {
-        return _users.FirstOrDefault(predicate);
+        return _sqlContext.Users.FirstOrDefault(predicate);
     }
 
     public IList<User> FindAll()
     {
-        return _users;
+        return _sqlContext.Users.ToList();
     }
 
     public User? Update(User updatedUser)
     {
-        User? existingUser = _users.FirstOrDefault(u => u.Email == updatedUser.Email);
+        var existingUser = _sqlContext.Users.FirstOrDefault(u => u.Email == updatedUser.Email);
+    
         if (existingUser != null)
         {
             existingUser.Name = updatedUser.Name;
@@ -48,18 +56,19 @@ public class UserRepository : IRepository<User>
             existingUser.Password = updatedUser.Password;
             existingUser.Admin = updatedUser.Admin;
             existingUser.BirthDate = updatedUser.BirthDate;
-
-            return existingUser;
+            
+            _sqlContext.SaveChanges();
+        
+            return existingUser; 
         }
-        return null;
+    
+        return null; 
     }
 
     public void Delete(String email)
     {
-        User? user = _users.FirstOrDefault(u => u.Email == email);
-        if (user != null)
-        {
-            _users.Remove(user);
-        }
+        User? user = _sqlContext.Users.FirstOrDefault(u => u.Email == email);
+        _sqlContext.Users.Remove(user);
+        _sqlContext.SaveChanges();
     }
 }
